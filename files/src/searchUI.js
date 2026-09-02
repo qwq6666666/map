@@ -205,6 +205,24 @@ async function findAvailableLayersAt(lon, lat, addr){
       layersArr.forEach(layer => srcCandidates.push({ src, layer }));
     });
 
+    // 只對「有堡／庄這種次分類結構」的來源做文字篩選（目前只有 thm／
+    // 桃竹苗舊地籍圖）。這種來源底下每個庄是彼此不重疊的小範圍，一個
+    // 座標本來就只會屬於一個庄，篩選、找到就停是安全的。
+    //
+    // 像 sinica（台灣百年歷史地圖）、taoyuan（桃園百年歷史地圖）這種
+    // 沒有次分類、每一張圖都是涵蓋整個縣市或全台的來源，情況完全不同：
+    // 同一個座標很可能「同時」有十幾筆不同年代的地圖都有資料，一旦文字
+    // 篩選誤篩窄、又剛好篩到其中一兩筆真的有資料，就會誤判成「這個來源
+    // 找到了」而不再檢查其餘圖層，導致其他本來也該出現的圖層被漏掉。
+    // 這種來源筆數通常不多（十幾到一百多筆），全部檢查的成本也還好，
+    // 所以乾脆不冒這個險，一律全部檢查。
+    const hasSubcategoryStructure = src.categories.some(cat => cat.groups);
+
+    if(!hasSubcategoryStructure){
+      priority.push(...srcCandidates);
+      return;
+    }
+
     const textFiltered = prefilterLayersByPlaceName(srcCandidates, placeKeywords);
     if(textFiltered && textFiltered.length < srcCandidates.length){
       // 真的有縮小範圍：命中的圖層優先檢查，沒命中的留著當備援

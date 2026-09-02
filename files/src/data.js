@@ -255,6 +255,25 @@ function stripPlaceNameSuffix(name){
   return s;
 }
 
+// 只掃「鄉鎮市區、村里、鄰」這個層級的欄位，不掃「縣市」層級
+//（county/state/region 這類）。原因：地籍圖標題裡的舊地名通常是村里／
+// 鄉鎮等級的地名（例如「塔仔脚庄」），縣市名稱（例如「臺南市」）常常
+// 剛好跟該縣市自己的圖層標題有一兩個字重疊，若也拿來當關鍵字，會造成
+// 大量「誤篩窄」——候選名單非空、但排除掉了真正該出現的圖層，而且因為
+// 候選裡通常會有幾筆剛好真的有資料，兩階段備援的「已有命中就不擴大
+// 檢查」機制不會啟動，導致真正有資料的圖層被永久排除在結果外。
+//
+// 這裡刻意列出多個可能的欄位名稱（而非只列 5 個），是因為 Nominatim
+// 對台灣「區」這種行政區劃，實際塞進哪個欄位並不穩定（直轄市的區有時
+// 出現在 city_district，有時出現在 city 或 district），與其只賭少數
+// 幾個欄位名稱，不如把「鄉鎮市區」這個層級所有常見的欄位名稱都列進來；
+// 但明確不包含 county/state/region 這種縣市／省層級的欄位。
+const PLACE_ADDR_FIELDS = [
+  'town', 'city', 'city_district', 'district', 'municipality',
+  'township', 'suburb', 'quarter', 'borough',
+  'village', 'hamlet', 'neighbourhood'
+];
+
 // 從 Nominatim 回傳的地址元件中，取出可能對應到舊地名（堡、庄、街）的
 // 關鍵字候選：鄉鎮市區、村里、鄰里等欄位都納入，因為地籍圖標題的「庄」
 // 有時對應現在的鄉鎮（例如「新埔街」對「新埔鎮」），有時對應到村里
@@ -271,7 +290,7 @@ function stripPlaceNameSuffix(name){
 // 探測把關，不會因此篩出錯誤結果，只是候選數量比逐庄篩選略多而已。
 export function extractPlaceKeywords(addr){
   addr = addr || {};
-  const rawFields = [addr.town, addr.city_district, addr.suburb, addr.village, addr.neighbourhood];
+  const rawFields = PLACE_ADDR_FIELDS.map(key => addr[key]);
   const keywords = new Set();
   const aliases = (HISTORICAL_NAMES && HISTORICAL_NAMES.aliases) || {};
   rawFields.forEach(name=>{

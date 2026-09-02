@@ -292,6 +292,9 @@ function setupPicker(side, btnEl, labelEl, panelEl){
     const willOpen = !panelEl.classList.contains('open');
     document.querySelectorAll('.layer-picker-panel.open').forEach(p=>p.classList.remove('open'));
     if(willOpen) panelEl.classList.add('open');
+    // 左下角（A 側）的圖層切換按鈕跟側邊欄展開時的位置會重疊，
+    // 左右比對模式下點它就順手把側邊欄收合，選單才不會被擋住。
+    if(willOpen && side === 'A' && store.mode === 'compare') collapseSidebar();
   });
 }
 
@@ -418,13 +421,23 @@ function initOpacityControls(){
    讓使用者不用展開整個面板也能調整
 --------------------------------------------------------- */
 let floatingOpacityEl;
+let toggleSidebarBtn;
 function updateFloatingOpacityVisibility(){
   const collapsed = document.getElementById('sidebar').classList.contains('collapsed');
   floatingOpacityEl.classList.toggle('show', collapsed && store.mode === 'overlay');
 }
+// 共用的收合動作：手動點收合按鈕、跟左右比對模式點左下圖層切換按鈕時都會用到。
+function collapseSidebar(){
+  const sb = document.getElementById('sidebar');
+  if(sb.classList.contains('collapsed')) return; // 已經是收合狀態就不用重複處理
+  sb.classList.add('collapsed');
+  if(toggleSidebarBtn) toggleSidebarBtn.textContent = '▸';
+  updateFloatingOpacityVisibility();
+}
 function initSidebarToggle(){
   floatingOpacityEl = document.getElementById('floatingOpacity');
-  document.getElementById('toggleSidebar').addEventListener('click', (e)=>{
+  toggleSidebarBtn = document.getElementById('toggleSidebar');
+  toggleSidebarBtn.addEventListener('click', (e)=>{
     const sb = document.getElementById('sidebar');
     sb.classList.toggle('collapsed');
     e.target.textContent = sb.classList.contains('collapsed') ? '▸' : '◂';
