@@ -23,19 +23,35 @@ import { buildTimeline } from './timelineUI.js';
 
 const ZOOM = 15;
 
-// 「方案 A」：只保留同一種精細地形圖系列（1:20,000 堡圖 → 1:25,000 系列，
-// 含 1897 假製二十萬分一圖這兩筆作為早期起點），橫跨 1897~2003，106 年。
-// 跟使用者一起從全部 86 筆裡篩出來的清單：sinica 其餘圖層內容類型混雜
-//（行政區劃圖、各縣市分開的灌溉圖、三角測量點位圖等），混進同一條
-// 時間軸比較不容易分辨、也拖慢探測速度，所以只留這 16 筆當預設內容。
+// 「1:25,000 系列」：同一種精細地形圖，橫跨 1897~2003，106 年。
 const PLAN_A_LAYER_IDS = new Set([
   'JM200K_1897', 'JM200K_1897_new',
   'JM20K_1904', 'JM20K_1921',
-  'JM25K_1921', 'JM25K_1942', 'JM25K_1944',
+  'JM25K_1921', 'JM25K_1944',
   'AM25K_1944A', 'AM25K_1944B',
   'TM25K_1950', 'TM25K_1955', 'TM25K_1966',
   'TM25K_1989', 'TM25K_1993', 'TM25K_2001', 'TM25K_2003'
 ]);
+
+// 「1:50,000 系列」：橫跨 1916~2003，87 年，跟 1:25,000 系列互補
+//（涵蓋 1916、1920、1924、1954、1956、1990、1996 等 1:25,000 沒有資料的年份）。
+const PLAN_B_LAYER_IDS = new Set([
+  'JM50K_1916', 'JM50K_1920', 'JM50K_1924',
+  'AM50K_1944',
+  'TM50K_1954', 'TM50K_1956', 'TM50K_1990', 'TM50K_1996', 'TM50K_2003'
+]);
+
+// 三種瀏覽模式：只看 1:25,000、只看 1:50,000、或兩者合併（一樣照時間順序
+// 排列，只是候選清單從其中一份變成兩份的聯集）。合併預設不開啟，因為
+// 兩種精細程度的地圖混在同一條時間軸上比較，畫面差異有一部分其實是
+// 「換了比例尺」造成的、不是「時間演變」造成的，容易誤導；但保留當
+// 使用者自己想看年份覆蓋更密的選項。
+const SCALE_MODES = {
+  '25k': { ids: PLAN_A_LAYER_IDS, label: '1:25,000 系列歷史地形圖' },
+  '50k': { ids: PLAN_B_LAYER_IDS, label: '1:50,000 系列歷史地形圖' },
+  'mix': { ids: new Set([...PLAN_A_LAYER_IDS, ...PLAN_B_LAYER_IDS]), label: '1:25,000／1:50,000 混合系列歷史地形圖' }
+};
+let currentScaleMode = '25k';
 
 const tileChecker = new TileChecker({ concurrency: 10, timeoutMs: 6000 });
 
@@ -57,6 +73,7 @@ function lonLatToTileXY(lon, lat, z){
 let mapRef = null;
 let containerEl = null;
 let refreshBtn = null;
+let scaleSwitchEl = null;
 let refreshToken = 0;
 let lastProbedTileKey = null; // 上一次真的送出探測時，地圖中心點所在的圖磚（z/x/y）
 let preloadOverlayKeysFn = null; // mapCore.js 的 preloadOverlayKeys()，由 initTimelineMode() 傳入
@@ -84,15 +101,16 @@ function refreshNow(){
     return;
   }
 
+  const activeMode = SCALE_MODES[currentScaleMode];
   const candidates = [];
   sinica.categories.forEach(cat => {
     const layersArr = cat.groups ? cat.groups.flatMap(g => g.layers) : cat.layers;
     layersArr.forEach(layer => {
-      if(PLAN_A_LAYER_IDS.has(layer.id)) candidates.push({ src: sinica, layer });
+      if(activeMode.ids.has(layer.id)) candidates.push({ src: sinica, layer });
     });
   });
 
-  containerEl.innerHTML = '<p class="avail-empty">正在確認目前地圖畫面中心點，1:25,000 系列歷史地形圖是否有資料…</p>';
+  containerEl.innerHTML = `<p class="avail-empty">正在確認目前地圖畫面中心點，${activeMode.label}是否有資料…</p>`;
 
   tileChecker.checkBatch(
     candidates,
@@ -100,13 +118,13 @@ function refreshNow(){
     (checked, total) => {
       if(myToken !== refreshToken) return;
       const p = containerEl.querySelector('.avail-empty');
-      if(p) p.textContent = `正在確認 ${checked} / ${total} 筆台灣百年歷史地圖是否有資料…`;
+      if(p) p.textContent = `正在確認 ${checked} / ${total} 筆${activeMode.label}是否有資料…`;
     }
   ).then(available => {
-    if(myToken !== refreshToken) return; // 使用者在探測過程中又按了一次重新整理，捨棄這次結果
+    if(myToken !== refreshToken) return; // 使用者在探測過程中又切換了系列或按了重新整理，捨棄這次結果
 
     if(available.length === 0){
-      containerEl.innerHTML = '<p class="avail-empty">目前地圖畫面中心點附近，1:25,000 系列歷史地形圖沒有找到資料，請移動地圖到其他地方試試看。</p>';
+      containerEl.innerHTML = `<p class="avail-empty">目前地圖畫面中心點附近，${activeMode.label}沒有找到資料，請移動地圖到其他地方試試看。</p>`;
       return;
     }
 
@@ -115,9 +133,9 @@ function refreshNow(){
     });
 
     // 探測完成、確定這個位置真的有哪些圖層之後，把它們全部背景預先載入
-    //（見 mapCore.js 的 preloadOverlayKeys）。方案 A 只有 16 筆、實際
-    // 通過探測的通常更少，數量可控，直接全部預載不會太誇張，之後拖
-    // 搖桿或按播放時幾乎不用再等圖磚。
+    //（見 mapCore.js 的 preloadOverlayKeys）。清單筆數不多、實際通過
+    // 探測的通常更少，數量可控，直接全部預載不會太誇張，之後拖搖桿或
+    // 按播放時幾乎不用再等圖磚。
     if(preloadOverlayKeysFn) preloadOverlayKeysFn(available.map(c => layerKey(c.src, c.layer)));
   });
 }
@@ -125,7 +143,9 @@ function refreshNow(){
 /**
  * 初始化：只需要在 main.js 啟動流程裡呼叫一次。
  * 移動地圖不會自動觸發探測，只會在按鈕上標示「地圖已移動」提示；
- * 真正重新整理由使用者按「重新整理」按鈕觸發。
+ * 真正重新整理由使用者按「重新整理」按鈕觸發。切換 1:25,000／1:50,000／
+ * 混合系列則會立即重新探測（這是使用者主動要求換內容，不是單純移動
+ * 地圖，跟「移動地圖不自動重新整理」的節流原則不衝突）。
  *
  * @param {ol.Map} map
  * @param {(keys: string[]) => void} [preloadOverlayKeysFnParam]
@@ -137,9 +157,18 @@ export function initTimelineMode(map, preloadOverlayKeysFnParam){
   mapRef = map;
   containerEl = document.getElementById('mapTimelineBarInner');
   refreshBtn = document.getElementById('mapTimelineRefreshBtn');
+  scaleSwitchEl = document.getElementById('mapTimelineScaleSwitch');
   preloadOverlayKeysFn = preloadOverlayKeysFnParam;
 
   refreshBtn.addEventListener('click', refreshNow);
+
+  scaleSwitchEl.addEventListener('click', (e)=>{
+    const btn = e.target.closest('button[data-scale]');
+    if(!btn || btn.classList.contains('active')) return;
+    scaleSwitchEl.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+    currentScaleMode = btn.dataset.scale;
+    refreshNow();
+  });
 
   map.on('moveend', () => {
     if(store.mode !== 'timeline') return;

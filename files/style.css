@@ -206,6 +206,39 @@
   .floating-opacity input[type=range]{flex:1; accent-color:var(--brass-dark);}
   .floating-opacity .opacity-val{font-family:var(--serif); font-size:13px; color:var(--ink); width:34px; text-align:right; flex-shrink:0;}
 
+  /* 繪製工具列：垂直放在右側，locate 按鈕跟縮放控制中間的空白區塊 */
+  /* 收合按鈕：跟定位按鈕份量差不多大，不畫圖時不搶戲 */
+  .draw-toggle-btn{
+    position:absolute; top:70px; right:16px; z-index:9;
+    width:40px; height:40px; border-radius:50%;
+    background:var(--ink); color:var(--paper); border:2px solid var(--paper);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; box-shadow:0 3px 10px rgba(0,0,0,.3);
+  }
+  .draw-toggle-btn svg{width:18px; height:18px;}
+  .draw-toggle-btn:hover{background:var(--brass-dark);}
+  .draw-toggle-btn.active{background:var(--stamp); border-color:var(--stamp);}
+
+  /* 展開後的工具列：橫向排列、往左延伸，不管視窗多矮都不會往下長到
+     碰到縮放控制（跟垂直排列時的風險完全不同，水平方向空間比較寬裕） */
+  .draw-toolbar{
+    position:absolute; top:70px; right:64px; z-index:8;
+    display:none; flex-direction:row; align-items:center; gap:6px;
+    background:var(--paper); border:1px solid var(--rule); border-radius:20px;
+    padding:5px 10px; box-shadow:0 3px 10px rgba(0,0,0,.3);
+    max-width:calc(100vw - 340px); overflow-x:auto; white-space:nowrap;
+  }
+  .draw-toolbar.show{display:flex;}
+  .draw-toolbar-group{display:flex; flex-direction:row; gap:4px; flex-shrink:0;}
+  .draw-tool-btn{
+    font-size:11.5px; padding:6px 10px;
+    background:var(--paper); color:var(--ink); border:1px solid var(--rule);
+    border-radius:14px; cursor:pointer; white-space:nowrap; flex-shrink:0;
+  }
+  .draw-tool-btn:hover{background:var(--paper-dim);}
+  .draw-tool-btn.active{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+  .draw-toolbar-sep{width:1px; height:20px; background:var(--paper-dim); flex-shrink:0;}
+
   /* ---------- Date stamp (signature element) ---------- */
   #stamp{
     position:absolute; right:22px; bottom:22px; z-index:10;
@@ -344,13 +377,18 @@
   /* 時間軸（原型） */
   .timeline-scroll{overflow-x:auto; padding:4px 2px 8px; -webkit-overflow-scrolling:touch;}
   .timeline-svg{display:block;}
-  .timeline-axis{stroke:var(--rule); stroke-width:1.5;}
-  .timeline-tick{stroke:var(--rule); stroke-width:1;}
   .timeline-tick-label{font-size:10px; fill:var(--rule); font-family:var(--sans);}
-  .timeline-stem{stroke:var(--paper-dim); stroke-width:1.5;}
-  .timeline-dot{fill:var(--brass); stroke:var(--paper); stroke-width:1.5; cursor:pointer;}
-  .timeline-dot:hover{fill:var(--brass-dark);}
-  .timeline-dot.active{fill:var(--stamp);}
+
+  /* 時間軸：箭頭形狀，顏色代表播放進度 */
+  .timeline-arrow{
+    fill:var(--paper); stroke:var(--rule); stroke-width:1.2; cursor:pointer;
+    transition:fill .15s ease, stroke .15s ease;
+  }
+  .timeline-arrow:hover{stroke:var(--brass-dark);}
+  .timeline-arrow.passed{fill:var(--brass); stroke:var(--brass-dark);}
+  .timeline-arrow.active{fill:var(--stamp); stroke:var(--stamp);}
+  .timeline-svg.dragging .timeline-arrow{cursor:grabbing;}
+
   .timeline-undated{margin-top:10px; padding-top:8px; border-top:1px dashed var(--rule);}
   .timeline-undated-label{font-size:11px; color:var(--rule); margin-bottom:6px;}
   .timeline-undated-list{display:flex; flex-wrap:wrap; gap:6px;}
@@ -361,18 +399,10 @@
   .timeline-undated-chip:hover{background:var(--paper-dim);}
   .timeline-undated-chip.active{background:var(--ink); color:var(--paper); border-color:var(--ink);}
 
-  /* 時間軸：拖曳搖桿 */
-  .timeline-scrub-line{stroke:var(--stamp); stroke-width:1.5; stroke-dasharray:3 3; pointer-events:none;}
-  .timeline-scrub-label{font-size:11px; fill:var(--ink); font-family:var(--sans); font-weight:600; pointer-events:none;}
-  .timeline-scrub-handle{fill:var(--stamp); stroke:var(--paper); stroke-width:2; cursor:grab;}
-  .timeline-scrub-handle:hover{fill:#8f3325;}
-  .timeline-scrub-group.dragging .timeline-scrub-handle{cursor:grabbing;}
-  .timeline-scrub-group.dragging .timeline-scrub-line{stroke-width:2;}
-
   /* 時間軸：自動播放 */
-  .timeline-controls{margin:2px 2px 6px;}
+  .timeline-controls{margin:1px 2px 3px;}
   .timeline-play-btn{
-    font-size:11.5px; padding:4px 12px; background:var(--paper); color:var(--ink);
+    font-size:11px; padding:3px 10px; background:var(--paper); color:var(--ink);
     border:1px solid var(--rule); border-radius:12px; cursor:pointer;
   }
   .timeline-play-btn:hover{background:var(--paper-dim);}
@@ -435,22 +465,31 @@
 
   /* ---------- 時間軸模式：地圖下方浮動列 ---------- */
   #mapTimelineBar{
-    position:absolute; left:16px; right:16px; bottom:16px; z-index:9;
+    position:absolute; left:50%; bottom:16px; z-index:9;
+    transform:translateX(-50%);
+    width:min(560px, calc(100% - 32px)); /* 固定寬度、置中，兩側留出地圖可視空間；小螢幕才會頂到邊界 */
     display:none;
     background:var(--paper); border:1px solid var(--rule); border-radius:6px;
     box-shadow:0 4px 14px rgba(0,0,0,.35);
-    padding:8px 14px 4px;
+    padding:6px 14px 3px;
     max-height:130px; overflow-y:auto; overflow-x:hidden;
   }
   #mapTimelineBar.show{display:block;}
   .map-timeline-bar-inner .avail-empty{margin:4px 2px;}
   .map-timeline-bar-head{
     display:flex; align-items:center; justify-content:space-between; gap:8px;
-    padding-bottom:6px; margin-bottom:2px; border-bottom:1px solid var(--paper-dim);
+    padding-bottom:4px; margin-bottom:1px; border-bottom:1px solid var(--paper-dim);
   }
-  .map-timeline-hint{font-size:11.5px; color:var(--rule);}
+  .map-timeline-hint{font-size:11px; color:var(--rule); font-weight:600; letter-spacing:.02em;}
+  .map-timeline-scale-switch{display:flex; gap:4px;}
+  .map-timeline-scale-switch button{
+    font-size:10.5px; padding:3px 8px; background:var(--paper); color:var(--rule);
+    border:1px solid var(--rule); border-radius:10px; cursor:pointer; white-space:nowrap;
+  }
+  .map-timeline-scale-switch button:hover{background:var(--paper-dim);}
+  .map-timeline-scale-switch button.active{background:var(--ink); color:var(--paper); border-color:var(--ink);}
   .map-timeline-refresh-btn{
-    font-size:11.5px; padding:4px 10px; background:var(--paper); color:var(--ink);
+    font-size:11px; padding:3px 9px; background:var(--paper); color:var(--ink);
     border:1px solid var(--rule); border-radius:12px; cursor:pointer; white-space:nowrap;
     flex-shrink:0;
   }

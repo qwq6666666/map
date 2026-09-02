@@ -157,14 +157,14 @@ export function findLayerById(src, id){
 }
 
 export function makeSourceForKey(key){
-  if(key === 'base:osm') return new ol.source.OSM();
-  if(key === 'base:sat') return new ol.source.XYZ({ url: SAT_URL, attributions: 'Esri, Maxar, Earthstar Geographics' });
+  if(key === 'base:osm') return new ol.source.OSM({ crossOrigin: 'anonymous' });
+  if(key === 'base:sat') return new ol.source.XYZ({ url: SAT_URL, attributions: 'Esri, Maxar, Earthstar Geographics', crossOrigin: 'anonymous' });
   const parts = key.split(':'); // ["hist", sourceId, id, fmt]
   const src = LAYER_SOURCES.find(s => s.id === parts[1]);
-  if(!src) return new ol.source.XYZ({ url: '' });
+  if(!src) return new ol.source.XYZ({ url: '', crossOrigin: 'anonymous' });
   const layer = findLayerById(src, parts[2]);
-  if(!layer) return new ol.source.XYZ({ url: '' });
-  return new ol.source.XYZ({ url: src.tileUrl(layer), attributions: src.attribution });
+  if(!layer) return new ol.source.XYZ({ url: '', crossOrigin: 'anonymous' });
+  return new ol.source.XYZ({ url: src.tileUrl(layer), attributions: src.attribution, crossOrigin: 'anonymous' });
 }
 
 export function titleForKey(key){

@@ -56,6 +56,33 @@
   <div id="swipeHandle">⇔</div>
 </div>
 
+<button type="button" id="drawToggleBtn" class="draw-toggle-btn" title="繪圖工具">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+    <path d="M2 2l7.586 7.586"></path>
+    <circle cx="11" cy="11" r="2"></circle>
+  </svg>
+</button>
+<div id="drawToolbar" class="draw-toolbar">
+  <div class="draw-toolbar-group">
+    <button type="button" class="draw-tool-btn" data-tool="point" title="標記點（可加文字說明）">點</button>
+    <button type="button" class="draw-tool-btn" data-tool="line" title="畫線（自動顯示長度）">線</button>
+    <button type="button" class="draw-tool-btn" data-tool="polygon" title="畫面（自動顯示面積）">面</button>
+    <button type="button" class="draw-tool-btn" data-tool="select" title="選取／編輯已畫的圖形">選取</button>
+  </div>
+  <div class="draw-toolbar-sep"></div>
+  <div class="draw-toolbar-group">
+    <button type="button" id="drawDeleteBtn" class="draw-tool-btn" title="刪除目前選取的圖形">刪除</button>
+    <button type="button" id="drawClearBtn" class="draw-tool-btn" title="清除全部繪製內容">清空</button>
+  </div>
+  <div class="draw-toolbar-sep"></div>
+  <div class="draw-toolbar-group">
+    <button type="button" id="drawExportGeoJSONBtn" class="draw-tool-btn" title="匯出成 GeoJSON，可匯入 QGIS／ArcGIS 等 GIS 軟體">GeoJSON</button>
+    <button type="button" id="drawExportImageBtn" class="draw-tool-btn" title="把目前地圖畫面（含底圖與繪製內容）匯出成 PNG 圖片">截圖</button>
+  </div>
+</div>
+
 <div id="stamp">
   <div class="stamp-year" id="stampYear"></div>
   <div class="stamp-label" id="stampLabel"></div>
@@ -63,7 +90,11 @@
 
 <div id="mapTimelineBar">
   <div class="map-timeline-bar-head">
-    <span class="map-timeline-hint" id="mapTimelineHint">1:25,000 系列歷史地形圖（依地圖中心點）</span>
+    <div class="map-timeline-scale-switch" id="mapTimelineScaleSwitch">
+      <button type="button" data-scale="25k" class="active">1:25,000</button>
+      <button type="button" data-scale="50k">1:50,000</button>
+      <button type="button" data-scale="mix">混合</button>
+    </div>
     <button type="button" id="mapTimelineRefreshBtn" class="map-timeline-refresh-btn">重新整理</button>
   </div>
   <div class="map-timeline-bar-inner" id="mapTimelineBarInner"></div>
@@ -136,7 +167,7 @@
     </div>
 
     <div id="timelinePanel">
-      <p class="compare-hint">依年代瀏覽「台灣百年歷史地圖」1:25,000 系列地形圖（1897～2003，同一種精細地圖橫跨百年）：時間軸已移到地圖下方，會依目前地圖畫面中心點列出可用年份，可拖曳搖桿、點選年份圓點，或按「播放」自動依序播放。地圖移動後不會自動重新整理，按浮動列上的「重新整理」才會更新。</p>
+      <p class="compare-hint">依年代瀏覽「台灣百年歷史地圖」精細地形圖系列：時間軸已移到地圖下方，可切換 1:25,000／1:50,000／混合兩者。會依目前地圖畫面中心點列出可用年份，可拖曳搖桿、點選年份圓點，或按「播放」自動依序播放。地圖移動後不會自動重新整理，按浮動列上的「重新整理」才會更新。</p>
     </div>
   </div>
 </div>

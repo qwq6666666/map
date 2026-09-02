@@ -26,9 +26,9 @@ const SAT_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imag
 /* ---------------------------------------------------------
    OpenLayers 地圖初始化
 --------------------------------------------------------- */
-const osmLayer = new ol.layer.Tile({ source: new ol.source.OSM(), visible: true });
+const osmLayer = new ol.layer.Tile({ source: new ol.source.OSM({ crossOrigin: 'anonymous' }), visible: true });
 const satLayer = new ol.layer.Tile({
-  source: new ol.source.XYZ({ url: SAT_URL, attributions: 'Esri, Maxar, Earthstar Geographics' }),
+  source: new ol.source.XYZ({ url: SAT_URL, attributions: 'Esri, Maxar, Earthstar Geographics', crossOrigin: 'anonymous' }),
   visible: false
 });
 
@@ -194,7 +194,7 @@ export function preloadOverlayKeys(keys){
     if(!resolved) return;
     const { src, layer } = resolved;
     const poolLayer = new ol.layer.Tile({
-      source: new ol.source.XYZ({ url: src.tileUrl(layer), attributions: src.attribution })
+      source: new ol.source.XYZ({ url: src.tileUrl(layer), attributions: src.attribution, crossOrigin: 'anonymous' })
     });
     poolLayer.setOpacity(0);
     map.addLayer(poolLayer);
@@ -228,7 +228,7 @@ function applyActiveOverlayKey(){
       alreadyWarm = true;
     } else {
       newLayer = new ol.layer.Tile({
-        source: new ol.source.XYZ({ url: src.tileUrl(layer), attributions: src.attribution })
+        source: new ol.source.XYZ({ url: src.tileUrl(layer), attributions: src.attribution, crossOrigin: 'anonymous' })
       });
       alreadyWarm = false;
     }
@@ -252,6 +252,10 @@ export function syncActiveLayerItemClasses(){
   if(!resolved) return;
   document.querySelectorAll(`.layer-item[data-layer-id="${resolved.layer.id}"]`).forEach(itemEl=>{
     itemEl.classList.add('active');
+    // 時間軸模式底下側邊欄本來就是收合的，不需要（也不希望）在背景把
+    // 對應的分類／來源手風琴強制展開；等使用者自己手動展開側邊欄時，
+    // 才不會發現分類已經被時間軸切換過程悄悄展開到某個地方。
+    if(store.mode === 'timeline') return;
     let p = itemEl.parentElement;
     while(p){
       if(p.classList && (p.classList.contains('category') || p.classList.contains('subcategory') || p.classList.contains('source-group'))) p.classList.add('open');
@@ -299,6 +303,7 @@ function applyModeTransition(){
     comparePanel.style.display = 'none';
     timelinePanel.style.display = 'block';
     mapTimelineBarEl.classList.add('show');
+    collapseSidebar(); // 時間軸主要畫面在地圖下方，側邊欄自動收合讓出空間
     applyBaseLayer();
     applyActiveOverlayKey(); // 沿用目前選擇的圖層（可能是疊圖模式選的），不強制清空
     activateTimelineMode();  // 立即依目前地圖畫面中心點，探測 sinica 有哪些年份的圖層
