@@ -1,0 +1,195 @@
+{
+  "alwaysInclude": [
+    "sinica"
+  ],
+  "rules": [
+    {
+      "match": "county+district",
+      "includes": [
+        "基隆"
+      ],
+      "sources": [
+        "keelung"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "臺北市",
+        "台北市"
+      ],
+      "sources": [
+        "taipei",
+        "udd"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "新北"
+      ],
+      "sources": [
+        "newtaipei"
+      ],
+      "districtRule": {
+        "includes": [
+          "新店",
+          "石碇",
+          "坪林",
+          "烏來",
+          "深坑"
+        ],
+        "sources": [
+          "thm"
+        ],
+        "note": "深坑廳文山堡（青潭、直潭、龜山、大坪林、安坑等庄）圖層收錄在桃竹苗舊地籍圖(thm)來源裡，但這些庄現今行政區劃屬於新北市新店/石碇/坪林一帶，不會被縣市規則篩到，故另外補上。"
+      }
+    },
+    {
+      "match": "county",
+      "includes": [
+        "桃園"
+      ],
+      "sources": [
+        "taoyuan",
+        "thm"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "新竹"
+      ],
+      "sources": [
+        "hsinchu",
+        "thm"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "苗栗"
+      ],
+      "sources": [
+        "thm"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "臺中",
+        "台中"
+      ],
+      "sources": [
+        "taichung"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "彰化"
+      ],
+      "sources": [
+        "changhua"
+      ],
+      "districtRule": {
+        "includes": [
+          "鹿港"
+        ],
+        "sources": [
+          "lukang"
+        ]
+      }
+    },
+    {
+      "match": "county",
+      "includes": [
+        "嘉義"
+      ],
+      "sources": [
+        "chiayi"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "臺南",
+        "台南"
+      ],
+      "sources": [
+        "tainan"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "高雄"
+      ],
+      "sources": [
+        "kaohsiung"
+      ],
+      "districtRule": {
+        "includesFromSet": "hakkaliuduiDistricts",
+        "sources": [
+          "hakkaliudui"
+        ]
+      }
+    },
+    {
+      "match": "county",
+      "includes": [
+        "屏東"
+      ],
+      "sources": [
+        "pingtung"
+      ],
+      "districtRule": {
+        "includesFromSet": "hakkaliuduiDistricts",
+        "sources": [
+          "hakkaliudui"
+        ]
+      }
+    },
+    {
+      "match": "county",
+      "includes": [
+        "宜蘭"
+      ],
+      "sources": [
+        "yilan"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "花蓮"
+      ],
+      "sources": [
+        "hualien"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "金門"
+      ],
+      "sources": [
+        "kinmen"
+      ]
+    }
+  ],
+  "districtSets": {
+    "hakkaliuduiDistricts": [
+      "內埔",
+      "竹田",
+      "萬巒",
+      "長治",
+      "麟洛",
+      "新埤",
+      "佳冬",
+      "高樹",
+      "鹽埔",
+      "美濃"
+    ]
+  }
+}
