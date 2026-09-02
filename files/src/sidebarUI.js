@@ -2,9 +2,10 @@
    sidebarUI.js — 側邊欄：WMTS 圖資來源 → 分類(→ 堡等次分類) → 圖層
    手風琴建置
 --------------------------------------------------------- */
-import { LAYER_SOURCES } from './data.js';
+import { LAYER_SOURCES, layerKey } from './data.js';
 import { buildCategoryList } from './uiTree.js';
-import { selectHistoryLayer, flyToSourceExtent } from './mapCore.js';
+import { selectOverlayLayer } from './store.js';
+import { flyToSourceExtent } from './mapCore.js';
 
 /* 動態量測「歷史圖層透明度」吸附區塊的實際高度，寫成 CSS 變數，
    讓 .source-head / .category-head 的 scroll-snap-margin-top 精準對齊
@@ -52,7 +53,7 @@ export function initSidebar(){
 
     const srcBody = document.createElement('div');
     srcBody.className = 'source-body';
-    buildCategoryList(src.categories, srcBody, (layer, itemEl) => selectHistoryLayer(src, layer, itemEl), false);
+    buildCategoryList(src.categories, srcBody, (layer) => selectOverlayLayer(layerKey(src, layer)), false);
 
     srcWrap.appendChild(srcHead);
     srcWrap.appendChild(srcBody);

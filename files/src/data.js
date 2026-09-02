@@ -161,6 +161,24 @@ export function titleForKey(key){
   return key;
 }
 
+// 把 { src, layer } 組成 store 用的可序列化 key 字串（"hist:sourceId:id:fmt"）。
+export function layerKey(src, layer){
+  return `hist:${src.id}:${layer.id}:${layer.fmt}`;
+}
+
+// layerKey() 的反向操作：把 key 字串解析回 { src, layer }。
+// 傳入底圖 key（"base:osm"/"base:sat"）或找不到對應圖層時回傳 null，
+// 呼叫端看到 null 就知道這個 key 不是歷史圖層（是底圖，或已經失效）。
+export function resolveOverlayKey(key){
+  if(!key || key === 'base:osm' || key === 'base:sat') return null;
+  const parts = key.split(':'); // ["hist", sourceId, id, fmt]
+  const src = LAYER_SOURCES.find(s => s.id === parts[1]);
+  if(!src) return null;
+  const layer = findLayerById(src, parts[2]);
+  if(!layer) return null;
+  return { src, layer };
+}
+
 /* ---------------------------------------------------------
    依 Nominatim 回傳的地址元件（縣市／鄉鎮），比對出地理範圍相關的
    圖資來源 id。規則資料放在 data/source-map.json（SOURCE_MAP_RULES），

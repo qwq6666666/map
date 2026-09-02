@@ -30,16 +30,23 @@
       這一步要檢查的筆數會比未篩選前少很多；完全靠備援（全部檢查）時則跟
       原本行為一樣。
 --------------------------------------------------------- */
-import { state } from './state.js';
+import { runtime } from './runtime.js';
 import {
-  LAYER_SOURCES, REGION_EXTENTS,
+  LAYER_SOURCES, REGION_EXTENTS, layerKey,
   matchSourceIdsForAddress, extractPlaceKeywords, prefilterLayersByPlaceName
 } from './data.js';
 import { geocodeAddress, reverseGeocode } from './geocode.js';
 import { buildCategoryList } from './uiTree.js';
-import { map, showLocateToast, setMode, selectHistoryLayer } from './mapCore.js';
+import { map, showLocateToast, syncActiveLayerItemClasses } from './mapCore.js';
+import { state as store, setMode, selectOverlayLayer } from './store.js';
+import { TileChecker } from './tileChecker.js';
 
 const SEARCH_ZOOM = 15;
+
+// 全站共用同一個 TileChecker 實例，才能真的發揮快取效果：使用者
+// 短時間內搜尋相近地點、或重新搜尋同一個地址，只要落在同一顆
+// z/x/y 圖磚上，就會直接讀到剛才探測過的結果，不用再發送 HTTP 請求。
+const tileChecker = new TileChecker({ concurrency: 10, timeoutMs: 6000 });
 
 // 將經緯度換算成標準 Web Mercator（EPSG:3857）Slippy Map 圖磚座標
 function lonLatToTileXY(lon, lat, z){
@@ -52,19 +59,6 @@ function lonLatToTileXY(lon, lat, z){
     y: Math.max(0, Math.min(n - 1, y)),
     z
   };
-}
-
-// 實際載入圖磚圖片來確認該座標是否有資料（載入失敗或回傳極小的空白圖，視為無資料）
-function checkTileHasData(url, timeoutMs){
-  return new Promise((resolve)=>{
-    let done = false;
-    const img = new Image();
-    const finish = (ok)=>{ if(done) return; done = true; resolve(ok); };
-    img.onload = ()=> finish(img.naturalWidth > 2 && img.naturalHeight > 2);
-    img.onerror = ()=> finish(false);
-    setTimeout(()=> finish(false), timeoutMs || 6000);
-    img.src = url;
-  });
 }
 
 let addressInput, addressSearchBtn, addressSuggestEl, locationResultEl, locationNameEl,
@@ -107,12 +101,12 @@ function renderSuggestList(results){
 async function runImmediateSearch(){
   const q = addressInput.value.trim();
   if(!q) return;
-  if(state.addressDebounceTimer) clearTimeout(state.addressDebounceTimer);
-  const myToken = ++state.searchToken;
+  if(runtime.addressDebounceTimer) clearTimeout(runtime.addressDebounceTimer);
+  const myToken = ++runtime.searchToken;
   addressSearchBtn.classList.add('loading');
   try{
     const results = await geocodeAddress(q);
-    if(myToken !== state.searchToken) return;
+    if(myToken !== runtime.searchToken) return;
     if(results.length === 1){
       hideSuggest();
       await selectGeocodeResult(results[0]);
@@ -120,9 +114,9 @@ async function runImmediateSearch(){
       renderSuggestList(results);
     }
   }catch(e){
-    if(myToken === state.searchToken) hideSuggest();
+    if(myToken === runtime.searchToken) hideSuggest();
   }finally{
-    if(myToken === state.searchToken) addressSearchBtn.classList.remove('loading');
+    if(myToken === runtime.searchToken) addressSearchBtn.classList.remove('loading');
   }
 }
 
@@ -177,7 +171,7 @@ function isPointNearExtent(lon, lat, ext){
 }
 
 async function findAvailableLayersAt(lon, lat, addr){
-  const mySearch = state.searchToken;
+  const mySearch = runtime.searchToken;
   layerAvailPanelEl.innerHTML = '';
   const sourceIds = matchSourceIdsForAddress(addr);
   const bboxExcluded = []; // 記錄被座標 bbox 排除掉的來源名稱，僅供進度顯示參考
@@ -228,29 +222,16 @@ async function findAvailableLayersAt(lon, lat, addr){
   layerAvailPanelEl.appendChild(progressEl);
 
   const tile = lonLatToTileXY(lon, lat, SEARCH_ZOOM);
-  let checkedCount = 0;
-  const available = [];
-  let cursor = 0;
-  const CONCURRENCY = 10;
 
-  async function worker(){
-    while(cursor < candidates.length){
-      const myIdx = cursor++;
-      const c = candidates[myIdx];
-      let url = null;
-      try{
-        url = c.src.tileUrl(c.layer).replace('{z}', tile.z).replace('{x}', tile.x).replace('{y}', tile.y);
-      }catch(e){ url = null; }
-      const ok = url ? await checkTileHasData(url, 6000) : false;
-      checkedCount++;
-      if(mySearch === state.searchToken) progressEl.textContent = `正在確認 ${checkedCount} / ${candidates.length} 筆圖層是否有資料…${filterNote}`;
-      if(ok) available.push(c);
+  const available = await tileChecker.checkBatch(
+    candidates,
+    (c) => c.src.tileUrl(c.layer).replace('{z}', tile.z).replace('{x}', tile.x).replace('{y}', tile.y),
+    (checkedCount, total) => {
+      if(mySearch === runtime.searchToken) progressEl.textContent = `正在確認 ${checkedCount} / ${total} 筆圖層是否有資料…${filterNote}`;
     }
-  }
-  const runners = Array.from({ length: Math.min(CONCURRENCY, candidates.length) }, worker);
-  await Promise.all(runners);
+  );
 
-  if(mySearch !== state.searchToken) return; // 使用者已經開始下一次搜尋或清除，捨棄這次結果
+  if(mySearch !== runtime.searchToken) return; // 使用者已經開始下一次搜尋或清除，捨棄這次結果
   renderAvailableLayers(available, candidates.length);
 }
 
@@ -318,35 +299,25 @@ function renderAvailableLayers(available, totalChecked){
 
     const srcBody = document.createElement('div');
     srcBody.className = 'source-body';
-    buildCategoryList(filteredCategories, srcBody, (layer, itemEl)=> activateFromSearch(src, layer, itemEl), false);
+    buildCategoryList(filteredCategories, srcBody, (layer)=> activateFromSearch(src, layer), false);
 
     srcWrap.appendChild(srcHead);
     srcWrap.appendChild(srcBody);
     layerAvailPanelEl.appendChild(srcWrap);
   });
 
-  // 若目前已有套疊中的歷史圖層，於搜尋結果中同步標示為 active，並展開其所在的分類層級
-  if(state.activeLayerId){
-    const activeItem = layerAvailPanelEl.querySelector(`.layer-item[data-layer-id="${state.activeLayerId}"]`);
-    if(activeItem){
-      activeItem.classList.add('active');
-      let p = activeItem.parentElement;
-      while(p && p !== layerAvailPanelEl){
-        if(p.classList.contains('category') || p.classList.contains('subcategory') || p.classList.contains('source-group')) p.classList.add('open');
-        p = p.parentElement;
-      }
-    }
-  }
+  // 若目前已有套疊中的歷史圖層，於搜尋結果中同步標示為 active，並展開其所在的分類層級。
+  // 搜尋結果面板每次都是重新建立的 DOM，store 的 activeOverlayKey 不會因為
+  // 重新搜尋而改變，mapCore 的訂閱者不會被觸發，所以這裡要手動呼叫一次
+  // 跟主清單共用的同步函式，補上這次剛建好的 DOM。
+  syncActiveLayerItemClasses();
 }
 
 // 從搜尋結果點選圖層：若目前在左右比對模式，先切回透明疊圖模式，
-// 再沿用既有的 selectHistoryLayer（會一併同步主清單裡的高亮狀態）
-function activateFromSearch(src, layer, itemEl){
-  if(state.currentMode !== 'overlay'){
-    const overlayBtn = document.querySelector('#modeSwitch button[data-mode="overlay"]');
-    if(overlayBtn) overlayBtn.click();
-  }
-  selectHistoryLayer(src, layer, itemEl);
+// 再沿用跟主清單共用的 selectOverlayLayer（會一併同步兩個面板的高亮狀態）
+function activateFromSearch(src, layer){
+  if(store.mode !== 'overlay') setMode('overlay');
+  selectOverlayLayer(layerKey(src, layer));
 }
 
 /* ---------------------------------------------------------
@@ -372,16 +343,16 @@ export function initSearchUI(){
 
   addressInput.addEventListener('input', ()=>{
     const q = addressInput.value.trim();
-    if(state.addressDebounceTimer) clearTimeout(state.addressDebounceTimer);
+    if(runtime.addressDebounceTimer) clearTimeout(runtime.addressDebounceTimer);
     if(q.length < 3){ hideSuggest(); return; }
-    state.addressDebounceTimer = setTimeout(async ()=>{
-      const myToken = ++state.searchToken;
+    runtime.addressDebounceTimer = setTimeout(async ()=>{
+      const myToken = ++runtime.searchToken;
       try{
         const results = await geocodeAddress(q);
-        if(myToken !== state.searchToken) return;
+        if(myToken !== runtime.searchToken) return;
         renderSuggestList(results);
       }catch(e){
-        if(myToken === state.searchToken) hideSuggest();
+        if(myToken === runtime.searchToken) hideSuggest();
       }
     }, 550);
   });
@@ -398,12 +369,12 @@ export function initSearchUI(){
   locateSearchBtn = document.getElementById('locateSearchBtn');
   locateSearchBtn.addEventListener('click', async ()=>{
     if(locateSearchBtn.classList.contains('loading')) return;
-    const myToken = ++state.searchToken; // 立即讓先前（不論是地址搜尋或前一次定位搜尋）還在跑的查詢失效
+    const myToken = ++runtime.searchToken; // 立即讓先前（不論是地址搜尋或前一次定位搜尋）還在跑的查詢失效
     locateSearchBtn.classList.add('loading');
     hideSuggest();
     try{
       const pos = await getCurrentPositionAsync();
-      if(myToken !== state.searchToken) return; // 使用者在等待定位權限期間已經開始別的搜尋
+      if(myToken !== runtime.searchToken) return; // 使用者在等待定位權限期間已經開始別的搜尋
 
       const lon = pos.coords.longitude;
       const lat = pos.coords.latitude;
@@ -411,7 +382,7 @@ export function initSearchUI(){
       let addr = {};
       try{
         const rev = await reverseGeocode(lon, lat);
-        if(myToken !== state.searchToken) return;
+        if(myToken !== runtime.searchToken) return;
         if(rev && rev.display_name) label = rev.display_name;
         addr = (rev && rev.address) || {};
       }catch(e){
@@ -419,7 +390,7 @@ export function initSearchUI(){
         // 圖層來源篩選會因為沒有縣市／鄉鎮資訊而保守地不排除，
         // 交由 findAvailableLayersAt 內建的逐筆圖磚確認機制去判斷有沒有資料。
       }
-      if(myToken !== state.searchToken) return;
+      if(myToken !== runtime.searchToken) return;
 
       addressInput.value = label;
       await showLocationAndFindLayers(lon, lat, label, addr);
@@ -436,7 +407,7 @@ export function initSearchUI(){
   });
 
   clearLocationBtn.addEventListener('click', ()=>{
-    state.searchToken++; // 讓仍在進行中的逐筆確認直接放棄，不再更新畫面
+    runtime.searchToken++; // 讓仍在進行中的逐筆確認直接放棄，不再更新畫面
     hideAddressMarker();
     locationResultEl.style.display = 'none';
     layerAvailPanelEl.innerHTML = '';
