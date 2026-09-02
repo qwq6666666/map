@@ -14,18 +14,25 @@
         依地址縣市／鄉鎮比對可用的圖資來源、地名文字比對。
 
    資料檔案配置：
-     data/layers/index.json     所有來源的清單（id/file/name/layerCount）
-     data/layers/<id>.json      單一來源：圖層目錄 + provider（tile URL
-                                  樣板） + region（bbox），三者都是這個
-                                  來源自己的屬性，放在同一個檔案裡管理
+     data/layers/index.json     開發用來源清單（id/file/name/layerCount）
+     data/layers/<id>.json      開發用：單一來源的圖層目錄 + provider
+                                  （tile URL 樣板）+ region（bbox），
+                                  方便編輯、方便看 git diff
+     data/layers.bundle.json    實際部署時瀏覽器載入的合併檔（由
+                                  tools/build-layers-bundle.js 產生），
+                                  一次 fetch 取代 19 次，避免請求數過多
+                                  拖慢初始載入
      data/source-map.json       縣市→來源的對應規則（跨來源查詢邏輯，
                                   不屬於任何單一來源，所以獨立）
      data/historical-names.json 地名詞尾與未來的新舊地名對照表
 
-   新增一張歷史地圖時，理想狀態下只需要：
+   新增一張歷史地圖時：
      1. 新增一個 data/layers/<新id>.json（圖層目錄 + provider + region）
      2. 在 data/layers/index.json 加一筆 { id, file, name, layerCount }
-     3. 視情況在 data/source-map.json 加一筆縣市對應規則
+     3. 執行 `node tools/build-layers-bundle.js` 重新產生
+        data/layers.bundle.json（部署前一定要做這一步，否則瀏覽器
+        載入的還是舊資料）
+     4. 視情況在 data/source-map.json 加一筆縣市對應規則
    不需要更動任何既有來源的檔案，也不需要更動任何 .js 檔案。
 --------------------------------------------------------- */
 
@@ -77,18 +84,13 @@ function sortAllLayers(){
 }
 
 export async function loadAppData(){
-  const [layersIndex, sourceMapData, namesData] = await Promise.all([
-    fetch('./data/layers/index.json').then(r => r.json()),
+  const [layersData, sourceMapData, namesData] = await Promise.all([
+    fetch('./data/layers.bundle.json').then(r => r.json()),
     fetch('./data/source-map.json').then(r => r.json()),
     fetch('./data/historical-names.json').then(r => r.json())
   ]);
 
-  // 依 index.json 列出的每個來源檔名，平行載入所有 data/layers/<id>.json。
-  // 新增一個 WMTS 來源時，只需要新增一個檔案並在 index.json 裡加一筆，
-  // 不需要碰任何既有來源的檔案。
-  const sourceFiles = await Promise.all(
-    layersIndex.sources.map(entry => fetch(`./data/layers/${entry.file}`).then(r => r.json()))
-  );
+  const sourceFiles = layersData.sources;
 
   SOURCE_MAP_RULES = sourceMapData;
   HISTORICAL_NAMES = namesData;
@@ -258,16 +260,32 @@ function stripPlaceNameSuffix(name){
 // 有時對應現在的鄉鎮（例如「新埔街」對「新埔鎮」），有時對應到村里
 // （例如較小的聚落）。同時保留「去尾前」與「去尾後」兩種寫法，增加比對到
 // 的機會；只留 2 個字以上的關鍵字，避免單一個字大量誤中。
+//
+// 除了動態去尾之外，也查 historical-names.json 的 aliases 對照表：
+// 如果去尾前或去尾後的名稱剛好是對照表裡登記過的現代地名（例如
+// 「竹北市」「竹北」），就把對照表裡登記的舊地名（例如「竹北二堡」）
+// 也一併加進關鍵字，讓比對能命中完全對不上字面、100 年前的地名。
+// 對照表不用做到逐庄，做到「堡」這種較粗的層級即可：堡名本來就包含在
+// 每一筆圖層標題裡（例如「新竹廳竹北二堡塔仔脚庄」），命中堡名關鍵字
+// 就會篩出該堡底下全部圖層，範圍雖然比逐庄篩選寬一點，但後面還有圖磚
+// 探測把關，不會因此篩出錯誤結果，只是候選數量比逐庄篩選略多而已。
 export function extractPlaceKeywords(addr){
   addr = addr || {};
   const rawFields = [addr.town, addr.city_district, addr.suburb, addr.village, addr.neighbourhood];
   const keywords = new Set();
+  const aliases = (HISTORICAL_NAMES && HISTORICAL_NAMES.aliases) || {};
   rawFields.forEach(name=>{
     const trimmed = (name || '').trim();
     if(!trimmed) return;
     if(trimmed.length >= 2) keywords.add(trimmed);
     const stripped = stripPlaceNameSuffix(trimmed);
     if(stripped.length >= 2) keywords.add(stripped);
+
+    // 對照表查詢：去尾前、去尾後的名稱都試著查一次
+    [trimmed, stripped].forEach(name=>{
+      const oldNames = aliases[name];
+      if(oldNames) oldNames.forEach(old => keywords.add(old));
+    });
   });
   return Array.from(keywords);
 }

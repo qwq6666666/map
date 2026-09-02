@@ -183,8 +183,21 @@ async function findAvailableLayersAt(lon, lat, addr){
   });
   const placeKeywords = extractPlaceKeywords(addr);
 
-  const candidates = [];
+  // 兩階段候選名單：
+  //   priority   — 優先檢查的圖層。沒有可用關鍵字、或關鍵字命中了該來源
+  //                「全部」圖層的來源，直接把全部圖層放進 priority（跟以前
+  //                行為一致，反正沒有縮小空間）；關鍵字只命中「部分」圖層
+  //                的來源，只把命中的放進 priority。
+  //   fallbackBySource — 每個「靠文字比對縮小過範圍」的來源，各自剩下沒被
+  //                命中的圖層。文字比對是拿現代地址（鄉鎮／村里）去對照
+  //                100 年前的堡／庄／街舊地名，對不上是常態；只要 priority
+  //                裡這個來源一筆有資料的都沒有，就代表很可能是新舊地名
+  //                對不上、而不是這個來源真的沒有資料，這時才把 fallback
+  //                名單也一起檢查，確保不會因為文字篩選誤判而漏掉圖層。
+  const priority = [];
+  const fallbackBySource = new Map(); // srcId -> 候選圖層陣列
   let textFilteredSourceCount = 0; // 有多少個來源是靠文字比對縮小範圍的（僅供進度顯示參考）
+
   candidateSources.forEach(src=>{
     const srcCandidates = [];
     src.categories.forEach(cat=>{
@@ -192,19 +205,20 @@ async function findAvailableLayersAt(lon, lat, addr){
       layersArr.forEach(layer => srcCandidates.push({ src, layer }));
     });
 
-    // 先用地址文字（鄉鎮／村里等）比對這個來源內的圖層標題，命中就只排入
-    // 命中的候選；完全沒命中（或這個地址沒有可用關鍵字）就退回檢查這個
-    // 來源的全部圖層，行為與篩選前一致，不會漏掉圖層。
     const textFiltered = prefilterLayersByPlaceName(srcCandidates, placeKeywords);
-    if(textFiltered){
+    if(textFiltered && textFiltered.length < srcCandidates.length){
+      // 真的有縮小範圍：命中的圖層優先檢查，沒命中的留著當備援
       textFilteredSourceCount++;
-      candidates.push(...textFiltered);
+      priority.push(...textFiltered);
+      const matchedIds = new Set(textFiltered.map(c => c.layer.id));
+      fallbackBySource.set(src.id, srcCandidates.filter(c => !matchedIds.has(c.layer.id)));
     } else {
-      candidates.push(...srcCandidates);
+      // 沒有可用關鍵字、或關鍵字命中了全部圖層 -> 沒有縮小空間，全部一起檢查
+      priority.push(...srcCandidates);
     }
   });
 
-  if(candidates.length === 0){
+  if(priority.length === 0){
     const empty = document.createElement('p');
     empty.className = 'avail-empty';
     empty.textContent = '此地點附近沒有可比對的歷史地圖圖資來源。';
@@ -216,23 +230,51 @@ async function findAvailableLayersAt(lon, lat, addr){
   progressEl.className = 'avail-progress';
   const noteParts = [];
   if(bboxExcluded.length > 0) noteParts.push(`已用座標排除 ${bboxExcluded.length} 個範圍不重疊的來源`);
-  if(textFilteredSourceCount > 0) noteParts.push(`已用地址文字比對縮小 ${textFilteredSourceCount} 個來源的候選範圍`);
+  if(textFilteredSourceCount > 0) noteParts.push(`已用地址文字比對優先檢查 ${textFilteredSourceCount} 個來源的候選圖層`);
   const filterNote = noteParts.length > 0 ? `（${noteParts.join('；')}）` : '';
-  progressEl.textContent = `正在確認 0 / ${candidates.length} 筆圖層是否有資料…${filterNote}`;
+  progressEl.textContent = `正在確認 0 / ${priority.length} 筆圖層是否有資料…${filterNote}`;
   layerAvailPanelEl.appendChild(progressEl);
 
   const tile = lonLatToTileXY(lon, lat, SEARCH_ZOOM);
+  const urlOf = (c) => c.src.tileUrl(c.layer).replace('{z}', tile.z).replace('{x}', tile.x).replace('{y}', tile.y);
 
-  const available = await tileChecker.checkBatch(
-    candidates,
-    (c) => c.src.tileUrl(c.layer).replace('{z}', tile.z).replace('{x}', tile.x).replace('{y}', tile.y),
+  let available = await tileChecker.checkBatch(
+    priority,
+    urlOf,
     (checkedCount, total) => {
       if(mySearch === runtime.searchToken) progressEl.textContent = `正在確認 ${checkedCount} / ${total} 筆圖層是否有資料…${filterNote}`;
     }
   );
 
   if(mySearch !== runtime.searchToken) return; // 使用者已經開始下一次搜尋或清除，捨棄這次結果
-  renderAvailableLayers(available, candidates.length);
+
+  // 第二階段：文字比對「有」縮小範圍、但優先檢查的候選裡完全沒有找到資料的
+  // 來源，很可能是新舊地名對不上導致誤篩，把該來源剩下沒檢查過的圖層也
+  // 一併檢查，確保不會因為文字比對而漏掉真正有資料的圖層。
+  const sourcesWithHit = new Set(available.map(c => c.src.id));
+  const remainder = [];
+  fallbackBySource.forEach((layers, srcId) => {
+    if(!sourcesWithHit.has(srcId)) remainder.push(...layers);
+  });
+
+  let totalChecked = priority.length;
+  if(remainder.length > 0){
+    totalChecked += remainder.length;
+    const priorityCount = priority.length;
+    const moreAvailable = await tileChecker.checkBatch(
+      remainder,
+      urlOf,
+      (checkedCount, total) => {
+        if(mySearch === runtime.searchToken){
+          progressEl.textContent = `地址文字比對沒有命中的候選中，正在擴大檢查 ${checkedCount} / ${total} 筆（避免新舊地名對不上而漏掉圖層）…`;
+        }
+      }
+    );
+    if(mySearch !== runtime.searchToken) return;
+    available = available.concat(moreAvailable);
+  }
+
+  renderAvailableLayers(available, totalChecked);
 }
 
 function renderAvailableLayers(available, totalChecked){
