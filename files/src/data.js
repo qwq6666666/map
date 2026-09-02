@@ -5,17 +5,28 @@
      1. fetch() 載入 data/ 目錄下的 JSON（圖層目錄、來源設定、
         地理範圍、縣市→來源對應、歷史地名比對規則）
      2. 把 JSON 轉成其他模組慣用的記憶體內資料形狀
-        （layer.year / layer.fmt 對應 layers.json 的
+        （layer.year / layer.fmt 對應來源檔案的
         layer.dateLabel / layer.format）
      3. 提供 resolveTileUrl()，取代原本寫死在各個 XXX_TILE()
-        函式裡的網址組成規則；每個來源的 tile URL 樣板放在
-        data/providers.json。
+        函式裡的網址組成規則；每個來源的 tile URL 樣板放在該來源
+        自己的 data/layers/<id>.json 裡的 provider 欄位。
      4. 提供跟「資料查詢」有關的共用函式：依 key 找圖層來源、
         依地址縣市／鄉鎮比對可用的圖資來源、地名文字比對。
 
-   新增一張歷史地圖時，理想狀態下只需要修改 data/layers.json
-  （以及視需要修改 data/regions.json、data/source-map.json、
-   data/historical-names.json），不需要更動任何 .js 檔案。
+   資料檔案配置：
+     data/layers/index.json     所有來源的清單（id/file/name/layerCount）
+     data/layers/<id>.json      單一來源：圖層目錄 + provider（tile URL
+                                  樣板） + region（bbox），三者都是這個
+                                  來源自己的屬性，放在同一個檔案裡管理
+     data/source-map.json       縣市→來源的對應規則（跨來源查詢邏輯，
+                                  不屬於任何單一來源，所以獨立）
+     data/historical-names.json 地名詞尾與未來的新舊地名對照表
+
+   新增一張歷史地圖時，理想狀態下只需要：
+     1. 新增一個 data/layers/<新id>.json（圖層目錄 + provider + region）
+     2. 在 data/layers/index.json 加一筆 { id, file, name, layerCount }
+     3. 視情況在 data/source-map.json 加一筆縣市對應規則
+   不需要更動任何既有來源的檔案，也不需要更動任何 .js 檔案。
 --------------------------------------------------------- */
 
 export let LAYER_SOURCES = [];
@@ -28,8 +39,8 @@ const SAT_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imag
 
 // udd 來源比較特殊：每個圖層的 tile 網址不是套同一個樣板算出來的，
 // 而是分成 ArcGIS WMTS REST 版 / 舊版 UDDWMTS 版兩種，組出來的完整網址
-// 直接存在 layers.json 該筆圖層的 url 欄位。resolveTileUrl() 依
-// providers.json 裡的 literalUrl 旗標決定要套樣板還是直接取 layer.url。
+// 直接存在該來源檔案裡每筆圖層的 url 欄位。resolveTileUrl() 依
+// 來源檔案 provider 欄位裡的 literalUrl 旗標，決定要套樣板還是直接取 layer.url。
 function resolveTileUrl(provider, layer){
   if(!provider) return '';
   if(provider.literalUrl) return layer.url || '';
@@ -66,28 +77,34 @@ function sortAllLayers(){
 }
 
 export async function loadAppData(){
-  const [layersData, providersData, regionsData, sourceMapData, namesData] = await Promise.all([
-    fetch('./data/layers.json').then(r => r.json()),
-    fetch('./data/providers.json').then(r => r.json()),
-    fetch('./data/regions.json').then(r => r.json()),
+  const [layersIndex, sourceMapData, namesData] = await Promise.all([
+    fetch('./data/layers/index.json').then(r => r.json()),
     fetch('./data/source-map.json').then(r => r.json()),
     fetch('./data/historical-names.json').then(r => r.json())
   ]);
 
-  // regions.json -> REGION_EXTENTS（沿用原本 { srcId: [minLon,minLat,maxLon,maxLat] } 形狀）
-  REGION_EXTENTS = {};
-  Object.entries(regionsData).forEach(([id, r]) => { REGION_EXTENTS[id] = r.bbox; });
+  // 依 index.json 列出的每個來源檔名，平行載入所有 data/layers/<id>.json。
+  // 新增一個 WMTS 來源時，只需要新增一個檔案並在 index.json 裡加一筆，
+  // 不需要碰任何既有來源的檔案。
+  const sourceFiles = await Promise.all(
+    layersIndex.sources.map(entry => fetch(`./data/layers/${entry.file}`).then(r => r.json()))
+  );
 
   SOURCE_MAP_RULES = sourceMapData;
   HISTORICAL_NAMES = namesData;
   PLACE_NAME_SUFFIXES = namesData.suffixes;
 
-  // layers.json + providers.json -> LAYER_SOURCES
+  // 每個來源檔案自帶 provider（tile URL 樣板／literalUrl 旗標）與
+  // region（bbox），不用再另外查表比對 id，直接就地取用。
+  REGION_EXTENTS = {};
+  sourceFiles.forEach(src => { REGION_EXTENTS[src.id] = src.region.bbox; });
+
+  // src.json -> LAYER_SOURCES
   // （沿用原本 { id, name, tileUrl, attribution, categories:[{category, layers|groups}] } 形狀，
-  //   layer.fmt / layer.year 對應回 layers.json 的 layer.format / layer.dateLabel，
+  //   layer.fmt / layer.year 對應回來源檔案的 layer.format / layer.dateLabel，
   //   讓其他模組沒有變動過的渲染、搜尋、比對程式碼可以直接使用。）
-  LAYER_SOURCES = layersData.sources.map(src => {
-    const provider = providersData[src.provider];
+  LAYER_SOURCES = sourceFiles.map(src => {
+    const provider = src.provider;
     const mapLayer = (l) => ({
       id: l.id,
       title: l.title,

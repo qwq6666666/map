@@ -1,0 +1,1573 @@
+{
+  "id": "tainan",
+  "name": "臺南百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（臺南百年歷史地圖／台江內海計畫）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/tainan/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      120,
+      22.85,
+      120.65,
+      23.35
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "臺灣通用歷史地形圖",
+      "layers": [
+        {
+          "id": "Baotu_1904",
+          "title": "日治二萬分之一台灣堡圖(高精度,明治版)",
+          "format": "png",
+          "year": 1904,
+          "dateLabel": "1904",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "JM20K_1904",
+          "title": "日治臺灣堡圖(明治版) 1:20,000",
+          "format": "jpg",
+          "year": 1904,
+          "dateLabel": "1904",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "JM25K_1921",
+          "title": "日治二萬五千分之一地形圖",
+          "format": "png",
+          "year": 1921,
+          "dateLabel": "1921",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "AM50K_1944",
+          "title": "美軍地形圖 1:50,000",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_25K_1944",
+          "title": "美軍二萬五千分之一地形圖 1:25,000",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "AMCityPlan_1945",
+          "title": "美軍繪製臺灣城市地圖",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "TM25K_1989",
+          "title": "臺灣經建1版地形圖 1:25,000",
+          "format": "jpg",
+          "year": 1989,
+          "dateLabel": "1989",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "TM25K_2001",
+          "title": "臺灣經建3版地形圖 1:25,000",
+          "format": "jpg",
+          "year": 2001,
+          "dateLabel": "2001",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "日治時期臺南市街圖",
+      "layers": [
+        {
+          "id": "Tainan_1875",
+          "title": "臺灣府城街道圖",
+          "format": "png",
+          "year": 1875,
+          "dateLabel": "1875",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1875B",
+          "title": "臺灣府城並安平海口圖",
+          "format": "png",
+          "year": 1875,
+          "dateLabel": "1875",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1895",
+          "title": "日治五萬分之一地形圖(臺南地區)",
+          "format": "png",
+          "year": 1895,
+          "dateLabel": "1895",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1895c",
+          "title": "臺南及安平近傍地圖",
+          "format": "png",
+          "year": 1895,
+          "dateLabel": "1895",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_18.2_1896",
+          "title": "安平泊地",
+          "format": "png",
+          "year": 1896,
+          "dateLabel": "1896",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1896",
+          "title": "臺南城圖",
+          "format": "png",
+          "year": 1896,
+          "dateLabel": "1896",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1896B",
+          "title": "臺南府迅速測圖",
+          "format": "png",
+          "year": 1896,
+          "dateLabel": "1896",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1900",
+          "title": "臺南府城內外略圖",
+          "format": "png",
+          "year": 1900,
+          "dateLabel": "1900",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_5K_1901",
+          "title": "臺南市區改正圖(臺南迅速測圖)",
+          "format": "png",
+          "year": 1901,
+          "dateLabel": "1901",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1907",
+          "title": "臺南及安平市街圖(1907)",
+          "format": "png",
+          "year": 1907,
+          "dateLabel": "1907",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1907B",
+          "title": "市區改正臺南市街全圖",
+          "format": "png",
+          "year": 1907,
+          "dateLabel": "1907",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_6K_1909",
+          "title": "臺南市全圖(1909)",
+          "format": "png",
+          "year": 1909,
+          "dateLabel": "1909",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_12K_1911",
+          "title": "臺南市區改正計畫圖(1911)",
+          "format": "png",
+          "year": 1911,
+          "dateLabel": "1911",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1911",
+          "title": "臺南市區改正計畫圖",
+          "format": "png",
+          "year": 1911,
+          "dateLabel": "1911",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_6K_1911b",
+          "title": "臺南市案內圖(1911)",
+          "format": "png",
+          "year": 1911,
+          "dateLabel": "1911",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_3K_1916",
+          "title": "臺南市町名調圖(1916)",
+          "format": "png",
+          "year": 1916,
+          "dateLabel": "1916",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_20K_1917",
+          "title": "臺南市地圖(1917)",
+          "format": "png",
+          "year": 1917,
+          "dateLabel": "1917",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1915",
+          "title": "臺南市全圖(1915)",
+          "format": "png",
+          "year": 1915,
+          "dateLabel": "1915",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1918",
+          "title": "臺南市全圖(1918)",
+          "format": "png",
+          "year": 1918,
+          "dateLabel": "1918",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1919",
+          "title": "臺南市改正町名(1919)",
+          "format": "png",
+          "year": 1919,
+          "dateLabel": "1919",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1920",
+          "title": "臺南市區改正圖",
+          "format": "png",
+          "year": 1920,
+          "dateLabel": "1920",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "topographic_1921",
+          "title": "日治二萬五千分之一地形圖(高精度)",
+          "format": "png",
+          "year": 1921,
+          "dateLabel": "1921",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1924B",
+          "title": "臺南市全圖(1924)",
+          "format": "png",
+          "year": 1924,
+          "dateLabel": "1924",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1924C",
+          "title": "臺南市官有林野圖(1924)",
+          "format": "png",
+          "year": 1924,
+          "dateLabel": "1924",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_6K_1928",
+          "title": "臺南市全圖(1928)",
+          "format": "png",
+          "year": 1928,
+          "dateLabel": "1928",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_6K_1933",
+          "title": "地番入臺南市地圖(1933)",
+          "format": "png",
+          "year": 1933,
+          "dateLabel": "1933",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "TainanFire2",
+          "title": "臺南市火保地圖(1933)",
+          "format": "png",
+          "year": 1933,
+          "dateLabel": "1933",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1935",
+          "title": "臺南市街圖(1935)",
+          "format": "png",
+          "year": 1935,
+          "dateLabel": "1935",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1936",
+          "title": "臺南職業別明細圖",
+          "format": "jpg",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1939",
+          "title": "臺南市街略圖",
+          "format": "png",
+          "year": 1939,
+          "dateLabel": "1939",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰後臺南都市計畫／街道圖",
+      "layers": [
+        {
+          "id": "Tainan_1946",
+          "title": "臺南市全圖(1946)",
+          "format": "png",
+          "year": 1946,
+          "dateLabel": "1946",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_10K_1946",
+          "title": "臺南市新舊街路名圖(1946)",
+          "format": "png",
+          "year": 1946,
+          "dateLabel": "1946",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_50K_1946A",
+          "title": "臺南市全圖",
+          "format": "png",
+          "year": 1946,
+          "dateLabel": "1946",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_50K_1946B",
+          "title": "臺南市管內圖",
+          "format": "png",
+          "year": 1946,
+          "dateLabel": "1946",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_50K_1946C",
+          "title": "臺南市管內圖",
+          "format": "png",
+          "year": 1946,
+          "dateLabel": "1946",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1951",
+          "title": "安平港海圖",
+          "format": "png",
+          "year": 1951,
+          "dateLabel": "1951",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_25K_1955",
+          "title": "二萬五千分之一地形圖(1955)",
+          "format": "png",
+          "year": 1955,
+          "dateLabel": "1955",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1959",
+          "title": "臺南市街圖",
+          "format": "png",
+          "year": 1959,
+          "dateLabel": "1959",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_10K_1959",
+          "title": "臺南市街圖",
+          "format": "png",
+          "year": 1959,
+          "dateLabel": "1959",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_10K_1959b",
+          "title": "臺南市街圖(1959)",
+          "format": "png",
+          "year": 1959,
+          "dateLabel": "1959",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_5K_1961",
+          "title": "曾文溪海埔地五千分一地形圖",
+          "format": "png",
+          "year": 1961,
+          "dateLabel": "1961",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_5K_1962",
+          "title": "臺南土城子及鹽埕地形圖",
+          "format": "png",
+          "year": 1962,
+          "dateLabel": "1962",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_12.5K_1964",
+          "title": "一萬二千五百分一城市圖：臺南市",
+          "format": "png",
+          "year": 1964,
+          "dateLabel": "1964",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_5K_1970",
+          "title": "臺南五千分一地形圖",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1971",
+          "title": "臺南市街詳細圖",
+          "format": "png",
+          "year": 1971,
+          "dateLabel": "1971",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_6K_1970s",
+          "title": "臺南市地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1970s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1974",
+          "title": "臺南市街圖",
+          "format": "png",
+          "year": 1974,
+          "dateLabel": "1974",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_40K_1976",
+          "title": "嘉南農田水利會灌溉地給水區分圖",
+          "format": "png",
+          "year": 1976,
+          "dateLabel": "1976",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_25K_1981",
+          "title": "臺南市街道圖(1981)",
+          "format": "png",
+          "year": 1981,
+          "dateLabel": "1981",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1982",
+          "title": "臺南市圖",
+          "format": "png",
+          "year": 1982,
+          "dateLabel": "1982",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_25K_1982",
+          "title": "臺南市圖(1982)",
+          "format": "png",
+          "year": 1982,
+          "dateLabel": "1982",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_12.5K_1982",
+          "title": "臺南市街道圖(1982)",
+          "format": "png",
+          "year": 1982,
+          "dateLabel": "1982",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1984",
+          "title": "臺南市街圖",
+          "format": "png",
+          "year": 1984,
+          "dateLabel": "1984",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_10K_1984",
+          "title": "臺南市街圖",
+          "format": "png",
+          "year": 1984,
+          "dateLabel": "1984",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1986",
+          "title": "臺南市都市計畫圖(藍曬)",
+          "format": "png",
+          "year": 1986,
+          "dateLabel": "1986",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1996",
+          "title": "臺南市行政區域圖",
+          "format": "png",
+          "year": 1996,
+          "dateLabel": "1996",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_8K_2003",
+          "title": "臺南市地政事務所所轄地段圖(2003)",
+          "format": "png",
+          "year": 2003,
+          "dateLabel": "2003",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1K_Topomap",
+          "title": "臺南一千分之一數值地形圖(台南市都發局)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "TainanDTM",
+          "title": "臺南數值高程圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "TainanFire",
+          "title": "臺南火保地圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_TNCR",
+          "title": "歷史街區公告範圍圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "臺南舊航照影像",
+      "layers": [
+        {
+          "id": "Tainan_1945",
+          "title": "美軍航照影像(1945)",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_aerialphoto_1945",
+          "title": "臺南市舊航照影像(1945)",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1947",
+          "title": "臺南市舊航照影像(1947)B",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_aerialphoto_1947",
+          "title": "臺南市舊航照影像(1947)A",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "aerialimages_1947",
+          "title": "臺南市舊航照影像(1947,高精度)",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1948",
+          "title": "臺南新化舊航照(1948)",
+          "format": "png",
+          "year": 1948,
+          "dateLabel": "1948",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_aerialphoto_1948",
+          "title": "臺南市舊航照影像(1948)",
+          "format": "png",
+          "year": 1948,
+          "dateLabel": "1948",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_aerialphoto_1951",
+          "title": "臺南市舊航照影像(1951)",
+          "format": "png",
+          "year": 1951,
+          "dateLabel": "1951",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1974b",
+          "title": "臺南新化舊航照(1974)",
+          "format": "png",
+          "year": 1974,
+          "dateLabel": "1974",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_aerialphoto_1974",
+          "title": "臺南市舊航照影像(1974)",
+          "format": "png",
+          "year": 1974,
+          "dateLabel": "1974",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_aerialphoto_1975",
+          "title": "臺南市舊航照影像(1975)",
+          "format": "jpg",
+          "year": 1975,
+          "dateLabel": "1975",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "aerialimages_1970",
+          "title": "臺南市舊航照影像(1975,高精度)",
+          "format": "png",
+          "year": 1975,
+          "dateLabel": "1975",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_aerialphoto_2000",
+          "title": "臺南市航照影像(2000)",
+          "format": "jpg",
+          "year": 2000,
+          "dateLabel": "2000",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_1K_2010",
+          "title": "臺南市航照影像(2010)",
+          "format": "png",
+          "year": 2010,
+          "dateLabel": "2010",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_aerialphoto_2011",
+          "title": "臺南市航照影像(2011)",
+          "format": "jpg",
+          "year": 2011,
+          "dateLabel": "2011",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_Taijing_2007",
+          "title": "臺江國家公園航照影像",
+          "format": "jpg",
+          "year": 2007,
+          "dateLabel": "2007",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_Taijing_2010",
+          "title": "臺江國家公園衛星影像",
+          "format": "png",
+          "year": 2010,
+          "dateLabel": "2010",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "臺南舊地籍圖",
+      "layers": [
+        {
+          "id": "Tainan_cadastral_1953",
+          "title": "臺南舊地籍圖(1953)",
+          "format": "png",
+          "year": 1953,
+          "dateLabel": "1953",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_cadastral_1954",
+          "title": "臺南市中西北區壽段等22段舊地籍圖",
+          "format": "png",
+          "year": 1954,
+          "dateLabel": "1954",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_cadastral_1977",
+          "title": "臺南舊地籍圖(1970s)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1970s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_cadastral_1984A",
+          "title": "臺南舊地籍圖(1980s)A",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1980s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_cadastral_1984B",
+          "title": "臺南舊地籍圖(1980s)B",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1980s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_cadastral_2016",
+          "title": "臺南地籍圖(2016)",
+          "format": "png",
+          "year": 2016,
+          "dateLabel": "2016",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "河川／水利專題圖",
+      "layers": [
+        {
+          "id": "Aoren_1928a",
+          "title": "二仁溪區域圖a(1928)",
+          "format": "png",
+          "year": 1928,
+          "dateLabel": "1928",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Aoren_1928b",
+          "title": "二仁溪區域圖b(1928)",
+          "format": "png",
+          "year": 1928,
+          "dateLabel": "1928",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Jisui_1928a",
+          "title": "急水溪河道地形圖(1928)",
+          "format": "png",
+          "year": 1928,
+          "dateLabel": "1928",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_jishuiriver_1928",
+          "title": "急水溪平面圖(1928)",
+          "format": "png",
+          "year": 1928,
+          "dateLabel": "1928",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_anshueiriver_A",
+          "title": "鹽水溪測量調查一覽圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_anshueiriver_B",
+          "title": "鹽水溪河川全圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "airphoto_yanshuei_river",
+          "title": "鹽水溪航照影像(2003)",
+          "format": "jpg",
+          "year": 2003,
+          "dateLabel": "2003",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_zengwunriver_1924",
+          "title": "曾文溪河川圖 1:20,000",
+          "format": "png",
+          "year": 1924,
+          "dateLabel": "1924",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_zengwunriver_J",
+          "title": "曾文溪河川地形圖(1928)",
+          "format": "png",
+          "year": 1928,
+          "dateLabel": "1928",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_zengwunriver_A",
+          "title": "曾文溪測量調查區域圖 1:20,000",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_zengwunriver_D",
+          "title": "曾文溪區域圖 1:20,000",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_zengwunriver_I",
+          "title": "曾文溪計劃圖 1:20,000",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_zengwunriver_F",
+          "title": "曾文溪河川圖 1:10,000",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_zengwunriver_C",
+          "title": "曾文溪治水計劃平面圖 1:10,000",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_zengwunriver_B",
+          "title": "曾文溪治水計劃平面圖 1:25,000",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_zengwunriver_G",
+          "title": "曾文溪治水計劃平面圖 1:25,000",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_zengwunriver_E",
+          "title": "曾文溪河川法許可位置圖 1:25,000",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_zengwunriver_H",
+          "title": "曾文鹽水溪治水計劃圖 1:50,000",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tainan_zengwunriver_1962",
+          "title": "曾文水庫地形圖(1962)",
+          "format": "png",
+          "year": 1962,
+          "dateLabel": "1962",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "zhenwen_50k",
+          "title": "曾文溪、鹽水溪治水計畫圖(1932)",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "airphoto_zengwun_river",
+          "title": "曾文溪航照影像(2003)",
+          "format": "jpg",
+          "year": 2003,
+          "dateLabel": "2003",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "map_wra_00006",
+          "title": "二層行溪河床地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "airphoto_bajhang_river",
+          "title": "八掌溪航照影像(2003)",
+          "format": "jpg",
+          "year": 2003,
+          "dateLabel": "2003",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chianan_Longtian_2019A",
+          "title": "嘉南大圳隆田工作站灌溉區域圖(地圖)",
+          "format": "png",
+          "year": 2019,
+          "dateLabel": "2019",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chianan_Longtian_2019B",
+          "title": "嘉南大圳隆田工作站灌溉區域圖(航照)",
+          "format": "png",
+          "year": 2019,
+          "dateLabel": "2019",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chianan_40K_1930",
+          "title": "嘉南大圳灌溉地給水區分圖：官田",
+          "format": "png",
+          "year": 1930,
+          "dateLabel": "1930",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chianan_100K_1933",
+          "title": "嘉南大圳平面圖(1933)",
+          "format": "png",
+          "year": 1933,
+          "dateLabel": "1933",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chianan_200K_1933",
+          "title": "嘉南大圳平面圖",
+          "format": "png",
+          "year": 1933,
+          "dateLabel": "1933",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chianan_200K_1959",
+          "title": "嘉南大圳水利委員會灌溉區域圖",
+          "format": "png",
+          "year": 1959,
+          "dateLabel": "1959",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chianan_100K_1978",
+          "title": "嘉南農田水利會灌溉區域平面圖",
+          "format": "png",
+          "year": 1978,
+          "dateLabel": "1978",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chianan_100K_1995",
+          "title": "嘉南農田水利會灌溉區域平面圖",
+          "format": "png",
+          "year": 1995,
+          "dateLabel": "1995",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chianan_IR1",
+          "title": "嘉南農田水利會灌溉區域圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "左鎮鄉專題圖",
+      "layers": [
+        {
+          "id": "Zuojhen_15K_1992",
+          "title": "臺南縣左鎮鄉行政區域圖(1992)",
+          "format": "png",
+          "year": 1992,
+          "dateLabel": "1992",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Zuojhen_15K_2005",
+          "title": "臺南縣左鎮鄉行政區域圖(2005)",
+          "format": "png",
+          "year": 2005,
+          "dateLabel": "2005",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Zuojhen_cadastral_1952",
+          "title": "臺南左鎮舊地籍圖(1952)",
+          "format": "png",
+          "year": 1952,
+          "dateLabel": "1952",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Zuojhen_aerialphoto_1947",
+          "title": "臺南高雄惡地地區舊航照影像(1947~1971)",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Zuojhen_aerialphoto_1967",
+          "title": "臺南左鎮舊航照影像(1967)",
+          "format": "png",
+          "year": 1967,
+          "dateLabel": "1967",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Zuojhen_aerialphoto_1973",
+          "title": "臺南高雄惡地地區舊航照影像(1973~1976)",
+          "format": "png",
+          "year": 1973,
+          "dateLabel": "1973",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Zuojhen_5K_1976",
+          "title": "臺南左鎮舊航照影像(1976年)",
+          "format": "png",
+          "year": 1976,
+          "dateLabel": "1976",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Zuojhen_5K_1978",
+          "title": "臺南左鎮像片基本圖(1970年代)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1970s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Zuojhen_5K_1984",
+          "title": "臺南左鎮像片基本圖(1980年代)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1980s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Zuojhen_5K_1992",
+          "title": "臺南左鎮像片基本圖(1990年代)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1990s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Zuojhen_5K_2003",
+          "title": "臺南左鎮像片基本圖(2000年代)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "2000s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "其他專題圖",
+      "layers": [
+        {
+          "id": "nanshan_cemetary",
+          "title": "南山公墓高解析正射影像",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "nanshan_cemetary_zone1",
+          "title": "南山公墓高解析正射影像Zone1",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

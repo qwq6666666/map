@@ -1,0 +1,466 @@
+{
+  "id": "taoyuan",
+  "name": "桃園百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（桃園百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/taoyuan/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      120.85,
+      24.65,
+      121.4,
+      25.05
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "日治時期地圖",
+      "layers": [
+        {
+          "id": "Taoyuan_topomap_2.5K_1920",
+          "title": "桃園水利組合區域地形圖",
+          "format": "png",
+          "year": 1920,
+          "dateLabel": "1920",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_6K_1938",
+          "title": "桃園都市計畫圖",
+          "format": "png",
+          "year": 1938,
+          "dateLabel": "1938",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "石門水庫及集水區專題圖",
+      "layers": [
+        {
+          "id": "Taoyuan_daxi_2.5K_1913",
+          "title": "大嵙崁溪河川地形圖（大溪附近）",
+          "format": "png",
+          "year": 1913,
+          "dateLabel": "1913",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_shimen_2.5K_1930",
+          "title": "石門上流河川地形圖",
+          "format": "png",
+          "year": 1930,
+          "dateLabel": "1930",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_shimen_10K_1959",
+          "title": "石門上游集水區航測地形圖",
+          "format": "png",
+          "year": 1959,
+          "dateLabel": "1959",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_shimen_12K_1960",
+          "title": "石門水庫淹沒區地籍概況圖",
+          "format": "png",
+          "year": 1960,
+          "dateLabel": "1960",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_shimen_50K_1956",
+          "title": "石門水庫集水區森林覆蓋與土地類型圖",
+          "format": "png",
+          "year": 1956,
+          "dateLabel": "1956",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_shimen_50K_1965A",
+          "title": "石門水庫集水區坍方位置圖",
+          "format": "png",
+          "year": 1965,
+          "dateLabel": "1965",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_shimen_50K_1965B",
+          "title": "石門水庫集水區土地利用及森林資源圖",
+          "format": "png",
+          "year": 1965,
+          "dateLabel": "1965",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "水利灌溉區域圖",
+      "layers": [
+        {
+          "id": "IRA_shimen_IR1",
+          "title": "石門水庫灌區1/100000",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shimen_IR4",
+          "title": "石門水利會1965年灌溉區域圖",
+          "format": "png",
+          "year": 1965,
+          "dateLabel": "1965",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "IRA_taoyuan_IR6",
+          "title": "桃園水利會1965年灌溉區域圖",
+          "format": "png",
+          "year": 1965,
+          "dateLabel": "1965",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyaun_Irrigation_1999",
+          "title": "桃園水利會灌溉區域圖",
+          "format": "png",
+          "year": 1999,
+          "dateLabel": "1999",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "桃園市街／都市計畫圖",
+      "layers": [
+        {
+          "id": "Taoyuan_1.2K_1951",
+          "title": "桃園街舊地籍圖",
+          "format": "png",
+          "year": 1951,
+          "dateLabel": "1951",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_3K_1970s_A",
+          "title": "桃園都市計畫測量地形原圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1970s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_3K_1970s_B",
+          "title": "桃園都市計劃地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1970s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_Taoyuan_1973",
+          "title": "桃園市桃園區(原桃園市)地形圖",
+          "format": "png",
+          "year": 1973,
+          "dateLabel": "1973",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_Luzhu_1973",
+          "title": "桃園市蘆竹區(原蘆竹鄉)地形圖",
+          "format": "png",
+          "year": 1973,
+          "dateLabel": "1973",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_5K_1979",
+          "title": "像片基本圖（第一版）",
+          "format": "png",
+          "year": 1979,
+          "dateLabel": "1979",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_5K_1987",
+          "title": "像片基本圖（第二版）",
+          "format": "png",
+          "year": 1987,
+          "dateLabel": "1987",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_5K_1995",
+          "title": "像片基本圖（第三版）",
+          "format": "png",
+          "year": 1995,
+          "dateLabel": "1995",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_5K_2004",
+          "title": "像片基本圖（第四版）",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_Qingpu_2009",
+          "title": "青埔特定區",
+          "format": "png",
+          "year": 2009,
+          "dateLabel": "2009",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_Qingpu_2013",
+          "title": "青埔特定區",
+          "format": "png",
+          "year": 2013,
+          "dateLabel": "2013",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "舊航照影像",
+      "layers": [
+        {
+          "id": "Taoyuan_2W8G",
+          "title": "桃園地區舊航照",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_aerialphoto_1945",
+          "title": "桃園市桃園區(原桃園市)舊航照",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_aerialphoto_1948",
+          "title": "桃園海岸舊航照",
+          "format": "png",
+          "year": 1948,
+          "dateLabel": "1948",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_aerialphoto_1956",
+          "title": "桃園國際機場舊航照",
+          "format": "png",
+          "year": 1956,
+          "dateLabel": "1956",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_aerialphoto_1956B",
+          "title": "桃園海岸舊航照",
+          "format": "png",
+          "year": 1956,
+          "dateLabel": "1956",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_aerialphoto_1956C",
+          "title": "桃園市桃園區(原桃園市)舊航照",
+          "format": "png",
+          "year": 1956,
+          "dateLabel": "1956",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_aerialphoto_1965",
+          "title": "桃園國際機場舊航照",
+          "format": "png",
+          "year": 1965,
+          "dateLabel": "1965",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_aerialphoto_1965B",
+          "title": "桃園海岸舊航照",
+          "format": "png",
+          "year": 1965,
+          "dateLabel": "1965",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_topomap_1970",
+          "title": "桃園國際機場航測地形圖",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_aerialphoto_1970",
+          "title": "桃園國際機場舊航照",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_aerialphoto_1972",
+          "title": "桃園國際機場舊航照",
+          "format": "png",
+          "year": 1972,
+          "dateLabel": "1972",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_aerialphoto_1974",
+          "title": "桃園海岸舊航照",
+          "format": "png",
+          "year": 1974,
+          "dateLabel": "1974",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_aerialphoto_1978",
+          "title": "桃園國際機場舊航照",
+          "format": "png",
+          "year": 1978,
+          "dateLabel": "1978",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Taoyuan_aerialphoto_2017",
+          "title": "桃園水利會正射影像",
+          "format": "png",
+          "year": 2017,
+          "dateLabel": "2017",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

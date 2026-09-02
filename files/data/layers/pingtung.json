@@ -1,0 +1,284 @@
+{
+  "id": "pingtung",
+  "name": "屏東百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（屏東百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/pingtung/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      120.4,
+      21.9,
+      120.95,
+      22.85
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "日治時期屏東（阿緱）市街圖",
+      "layers": [
+        {
+          "id": "Pingtung_2.4K_1912",
+          "title": "阿緱街平面圖",
+          "format": "png",
+          "year": 1912,
+          "dateLabel": "1912",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Pingtung_2.4K_1912b",
+          "title": "阿緱街平面圖市區改正計劃圖藍曬",
+          "format": "png",
+          "year": 1912,
+          "dateLabel": "1912",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Pingtung_6K_1912",
+          "title": "阿緱街市區改正計畫圖",
+          "format": "png",
+          "year": 1912,
+          "dateLabel": "1912",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Pingtung_6K_1912b",
+          "title": "阿緱街市區改正計畫圖b",
+          "format": "png",
+          "year": 1912,
+          "dateLabel": "1912",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Pingtung_6K_1930",
+          "title": "屏東街市區改正計畫圖",
+          "format": "png",
+          "year": 1930,
+          "dateLabel": "1930",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Pingtung_10K_1939",
+          "title": "屏東都市計畫平面圖",
+          "format": "png",
+          "year": 1939,
+          "dateLabel": "1939",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰後屏東都市計畫圖",
+      "layers": [
+        {
+          "id": "Pingtung_150K_1956",
+          "title": "屏東水利管理處灌溉區域圖",
+          "format": "png",
+          "year": 1956,
+          "dateLabel": "1956",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Pingtung_6K_1975",
+          "title": "屏東市都市計劃示意圖",
+          "format": "png",
+          "year": 1975,
+          "dateLabel": "1975",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Pingtung_10K_1976",
+          "title": "一萬分之一城市圖:屏東市",
+          "format": "png",
+          "year": 1976,
+          "dateLabel": "1976",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Pingtung_3K_1980s",
+          "title": "屏東市都市計畫詳測圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1980s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "舊航照影像(潮州、屏東市)",
+      "layers": [
+        {
+          "id": "Chaozhou_1948",
+          "title": "潮州地區舊航照影像",
+          "format": "png",
+          "year": 1948,
+          "dateLabel": "1948",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Pingtung_aerialphoto_1948",
+          "title": "屏東市區舊航照影像",
+          "format": "png",
+          "year": 1948,
+          "dateLabel": "1948",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chaozhou_1957",
+          "title": "潮州地區舊航照影像",
+          "format": "png",
+          "year": 1957,
+          "dateLabel": "1957",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chaozhou_1963",
+          "title": "潮州地區舊航照影像",
+          "format": "png",
+          "year": 1963,
+          "dateLabel": "1963",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chaozhou_1966",
+          "title": "潮州地區舊航照影像",
+          "format": "png",
+          "year": 1966,
+          "dateLabel": "1966",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chaozhou_1974",
+          "title": "潮州地區舊航照影像",
+          "format": "png",
+          "year": 1974,
+          "dateLabel": "1974",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chaozhou_1975",
+          "title": "潮州地區舊航照影像",
+          "format": "png",
+          "year": 1975,
+          "dateLabel": "1975",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "河川／水利專題圖",
+      "layers": [
+        {
+          "id": "shadanshuei_river1927",
+          "title": "下淡水溪治水計畫圖",
+          "format": "jpg",
+          "year": 1927,
+          "dateLabel": "1927",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "LinabianRiver_1936",
+          "title": "林邊溪治水計畫圖",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "map_wra_00319",
+          "title": "東港地區地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "map_wra_00388",
+          "title": "恆春四重溪水庫地方調查平面圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "map_wra_00389",
+          "title": "恆春四重溪水庫地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

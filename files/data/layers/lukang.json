@@ -1,0 +1,444 @@
+{
+  "id": "lukang",
+  "name": "鹿港百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（鹿港百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/lukang/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      120.4,
+      24.02,
+      120.46,
+      24.09
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "行政區域圖／都市計畫圖",
+      "layers": [
+        {
+          "id": "Lukang_12K_1994",
+          "title": "鹿港鎮行政區域圖(1994)",
+          "format": "png",
+          "year": 1994,
+          "dateLabel": "1994",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Lukang_14K_2007",
+          "title": "鹿港鎮行政區域圖(2007)",
+          "format": "png",
+          "year": 2007,
+          "dateLabel": "2007",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Lukang_3K_1935",
+          "title": "鹿港街市區計畫圖",
+          "format": "png",
+          "year": 1935,
+          "dateLabel": "1935",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Lukang_3K_1980s",
+          "title": "鹿港都市計畫地形測量原圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1980s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Lukang_3K_1990s",
+          "title": "鹿港鎮都市計畫街道圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1990s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Lukang_3K_2015",
+          "title": "鹿港福興都市計畫圖(2015)",
+          "format": "png",
+          "year": 2015,
+          "dateLabel": "2015",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "地形圖／海圖",
+      "layers": [
+        {
+          "id": "Lukang_25K_1944",
+          "title": "美軍二萬五千分之一地形圖",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Lukang_25K_1952",
+          "title": "戰後二萬五千分之一地形圖",
+          "format": "png",
+          "year": 1952,
+          "dateLabel": "1952",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Lukang_25K_1953",
+          "title": "戰後二萬五千分之一地形圖",
+          "format": "png",
+          "year": 1953,
+          "dateLabel": "1953",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Lukang_25K_1959",
+          "title": "戰後二萬五千分之一地形圖",
+          "format": "png",
+          "year": 1959,
+          "dateLabel": "1959",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Lukang_25K_1962",
+          "title": "台灣西海岸海浦地糾正鑲嵌照片圖",
+          "format": "png",
+          "year": 1962,
+          "dateLabel": "1962",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Lukang_25K_1962B",
+          "title": "戰後二萬五千分之一地形圖",
+          "format": "png",
+          "year": 1962,
+          "dateLabel": "1962",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Lukang_63K_1944",
+          "title": "美軍轟炸目標圖：彰化、鹿港",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Lukang_30K_1930",
+          "title": "鹿港泊地（海圖）",
+          "format": "png",
+          "year": 1930,
+          "dateLabel": "1930",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_5K_1962",
+          "title": "彰化區海埔地地形圖",
+          "format": "png",
+          "year": 1962,
+          "dateLabel": "1962",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "像片基本圖",
+      "layers": [
+        {
+          "id": "Lukang_5K_1978",
+          "title": "鹿港像片基本圖（第一版）",
+          "format": "png",
+          "year": 1978,
+          "dateLabel": "1978",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Lukang_5K_1986",
+          "title": "鹿港像片基本圖（第二版）",
+          "format": "png",
+          "year": 1986,
+          "dateLabel": "1986",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Lukang_5K_1993",
+          "title": "鹿港像片基本圖（第三版）",
+          "format": "png",
+          "year": 1993,
+          "dateLabel": "1993",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Lukang_5K_1997",
+          "title": "鹿港像片基本圖（第四版）",
+          "format": "png",
+          "year": 1997,
+          "dateLabel": "1997",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "舊航照影像",
+      "layers": [
+        {
+          "id": "Lukang_aerialphoto_1945",
+          "title": "鹿港舊航照影像(1945)",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Lukang_aerialphoto_1947",
+          "title": "鹿港舊航照影像(1947)",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Lukang_aerialphoto_1973",
+          "title": "鹿港舊航照影像(1973)",
+          "format": "png",
+          "year": 1973,
+          "dateLabel": "1973",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Lukang_aerialphoto_1976",
+          "title": "鹿港舊航照影像(1976~1977)",
+          "format": "png",
+          "year": 1976,
+          "dateLabel": "1976",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Lukang_aerialphoto_1989",
+          "title": "鹿港舊航照影像(1989)",
+          "format": "png",
+          "year": 1989,
+          "dateLabel": "1989",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "舊地籍圖",
+      "layers": [
+        {
+          "id": "Lukang_cadastral_1910s",
+          "title": "鹿港舊地籍圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1910s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1115",
+          "title": "鹿港鎮舊地籍圖：草港尾",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1127",
+          "title": "鹿港鎮舊地籍圖：草港中",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1140",
+          "title": "鹿港鎮舊地籍圖：海埔厝",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1141",
+          "title": "鹿港鎮舊地籍圖：南勢",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1144",
+          "title": "鹿港鎮舊地籍圖：頂番婆",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1157",
+          "title": "鹿港鎮舊地籍圖：廖厝",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1158",
+          "title": "鹿港鎮舊地籍圖：溝墘",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1159",
+          "title": "鹿港鎮舊地籍圖：鹿港",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1160",
+          "title": "鹿港鎮舊地籍圖：顏厝",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1170",
+          "title": "鹿港鎮舊地籍圖：頂厝",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1174",
+          "title": "鹿港鎮舊地籍圖：打鐵厝",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

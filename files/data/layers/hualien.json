@@ -1,0 +1,477 @@
+{
+  "id": "hualien",
+  "name": "花蓮百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（花蓮百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/hualien/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      121,
+      22.95,
+      121.75,
+      24.35
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "日治時期花蓮港街／都市計畫圖",
+      "layers": [
+        {
+          "id": "Hualien_1895",
+          "title": "假製版五萬分一地形圖(1895)",
+          "format": "png",
+          "year": 1895,
+          "dateLabel": "1895",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_1897",
+          "title": "田代安定花蓮港街圖(1897)",
+          "format": "png",
+          "year": 1897,
+          "dateLabel": "1897",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_1910",
+          "title": "花蓮港街市區改正平面圖(1910)",
+          "format": "png",
+          "year": 1910,
+          "dateLabel": "1910",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_1912",
+          "title": "花蓮港街平面圖(1912)",
+          "format": "png",
+          "year": 1912,
+          "dateLabel": "1912",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_1931B",
+          "title": "花蓮港市街圖(1931)",
+          "format": "png",
+          "year": 1931,
+          "dateLabel": "1931",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_1931C",
+          "title": "花蓮港街職業明細圖(1931)",
+          "format": "png",
+          "year": 1931,
+          "dateLabel": "1931",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_1931D",
+          "title": "砂婆礑溪平面圖(1931)",
+          "format": "png",
+          "year": 1931,
+          "dateLabel": "1931",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_1931E",
+          "title": "花蓮港街一般圖(1931)",
+          "format": "png",
+          "year": 1931,
+          "dateLabel": "1931",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_1934A",
+          "title": "花蓮港市區計畫圖(1934)",
+          "format": "png",
+          "year": 1934,
+          "dateLabel": "1934",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_1934C",
+          "title": "花蓮港都市計畫圖(1934)",
+          "format": "png",
+          "year": 1934,
+          "dateLabel": "1934",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_1937A",
+          "title": "花蓮港市區計畫圖(1937)",
+          "format": "png",
+          "year": 1937,
+          "dateLabel": "1937",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_1937B",
+          "title": "花蓮港築港計畫平面圖(1937)",
+          "format": "png",
+          "year": 1937,
+          "dateLabel": "1937",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_1941",
+          "title": "花蓮港市水道圖(1941)",
+          "format": "png",
+          "year": 1941,
+          "dateLabel": "1941",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Map_LSB1_Hualien",
+          "title": "日治官有林野圖(花蓮港廳花蓮及鳳林郡)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "日治",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Map_LSB1_Yuli",
+          "title": "日治官有林野圖(花蓮港廳玉里郡)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "日治",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "美軍繪製與戰後航拍影像",
+      "layers": [
+        {
+          "id": "Hualien_1945",
+          "title": "花蓮港市美軍都市圖(1945)",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_1945B",
+          "title": "美軍_南埔航拍(1945)",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_1945C",
+          "title": "美軍_美崙航拍(1945)",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_1945D",
+          "title": "美軍_舊市區航拍(1945)",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_1951",
+          "title": "能資所_花蓮市航拍(1951)",
+          "format": "png",
+          "year": 1951,
+          "dateLabel": "1951",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_aerialphoto_1948",
+          "title": "花蓮光復鄉舊航照影像(1948)",
+          "format": "png",
+          "year": 1948,
+          "dateLabel": "1948",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_aerialphoto_1948_AI",
+          "title": "花蓮光復鄉舊航照影像AI上色(1948)",
+          "format": "png",
+          "year": 1948,
+          "dateLabel": "1948",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_aerialphoto_1980",
+          "title": "花蓮光復鄉舊航照影像(1980)",
+          "format": "png",
+          "year": 1980,
+          "dateLabel": "1980",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_aerialphoto_1980_AI",
+          "title": "花蓮光復鄉舊航照影像AI上色(1980)",
+          "format": "png",
+          "year": 1980,
+          "dateLabel": "1980",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰後花蓮市街／都市計畫圖",
+      "layers": [
+        {
+          "id": "Hualien_1980",
+          "title": "花蓮市街圖(1980)",
+          "format": "png",
+          "year": 1980,
+          "dateLabel": "1980",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_1982",
+          "title": "花蓮都市地形圖(1982)",
+          "format": "png",
+          "year": 1982,
+          "dateLabel": "1982",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "光復鄉行政區域圖",
+      "layers": [
+        {
+          "id": "Adminmap_1001507_1991",
+          "title": "花蓮縣光復鄉行政區域圖(1991)",
+          "format": "png",
+          "year": 1991,
+          "dateLabel": "1991",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Adminmap_1001507_2007",
+          "title": "花蓮縣光復鄉行政區域圖(2007)",
+          "format": "png",
+          "year": 2007,
+          "dateLabel": "2007",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Adminmap_1001507_2020",
+          "title": "花蓮縣光復鄉行政區域圖(2020)",
+          "format": "png",
+          "year": 2020,
+          "dateLabel": "2020",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "水利／河川／林相調查圖",
+      "layers": [
+        {
+          "id": "Hualien_5K_1961",
+          "title": "馬太鞍溪地形圖(1961)",
+          "format": "png",
+          "year": 1961,
+          "dateLabel": "1961",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hualien_10K_1962",
+          "title": "臺東至花蓮河川地帶土地資源地形圖",
+          "format": "png",
+          "year": 1962,
+          "dateLabel": "1962",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shoufeng_12K_1955",
+          "title": "花蓮縣志學圳灌溉區計劃平面圖(1955)",
+          "format": "png",
+          "year": 1955,
+          "dateLabel": "1955",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shoufeng_2.5K_1955",
+          "title": "花蓮縣志學圳灌溉區計劃平面圖B(1955)",
+          "format": "png",
+          "year": 1955,
+          "dateLabel": "1955",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Sinchen_50K_1956",
+          "title": "立霧溪流域林相圖(1956)",
+          "format": "png",
+          "year": 1956,
+          "dateLabel": "1956",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Sinchen_2.5K_1957",
+          "title": "新城灌溉區域地形圖",
+          "format": "png",
+          "year": 1957,
+          "dateLabel": "1957",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Sinchen_50K_1957",
+          "title": "立霧溪流域地形圖(1957)",
+          "format": "png",
+          "year": 1957,
+          "dateLabel": "1957",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "map_wra_00238",
+          "title": "吉野圳灌溉區域地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "map_wra_00282",
+          "title": "沙婆礑溪平面圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "map_wra_00834",
+          "title": "觀音山地方調查平面圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

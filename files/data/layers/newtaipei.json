@@ -1,0 +1,306 @@
+{
+  "id": "newtaipei",
+  "name": "新北市百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（新北市百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/newtaipei/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      121.3,
+      24.65,
+      122.02,
+      25.3
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "日治時期地圖",
+      "layers": [
+        {
+          "id": "NewTaipei_Xindianriver_A",
+          "title": "新店溪上游河川形圖",
+          "format": "png",
+          "year": 1931,
+          "dateLabel": "1931",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "NewTaipei_2.5K_1932",
+          "title": "淡水河補足測量平面圖",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "NewTaipei_150K_1942",
+          "title": "1942臺北州管內圖",
+          "format": "png",
+          "year": 1942,
+          "dateLabel": "1942",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰後臺北縣（新北市）概觀地圖",
+      "layers": [
+        {
+          "id": "NewTaipei_150K_1948",
+          "title": "台北縣全圖",
+          "format": "png",
+          "year": 1948,
+          "dateLabel": "1948",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "NewTaipei_150K_1951",
+          "title": "台北縣全圖",
+          "format": "png",
+          "year": 1951,
+          "dateLabel": "1951",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "NewTaipei_100K_1964",
+          "title": "台北縣地圖",
+          "format": "png",
+          "year": 1964,
+          "dateLabel": "1964",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "NewTaipei_100K_1975",
+          "title": "台北基隆附近圖",
+          "format": "png",
+          "year": 1975,
+          "dateLabel": "1975",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "NewTaipei_75K_1982",
+          "title": "台北縣市圖",
+          "format": "png",
+          "year": 1982,
+          "dateLabel": "1982",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "NewTaipei_20K_1985",
+          "title": "大臺北市周邊都會區市街道圖",
+          "format": "png",
+          "year": 1985,
+          "dateLabel": "1985",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "NewTaipei_110K_1984",
+          "title": "台北縣地圖",
+          "format": "png",
+          "year": 1984,
+          "dateLabel": "1984",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "NewTaipei_100K_1980",
+          "title": "台北縣圖",
+          "format": "png",
+          "year": 1980,
+          "dateLabel": "1980",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "NewTaipei_100K_1986",
+          "title": "台北縣基隆市概括圖",
+          "format": "png",
+          "year": 1986,
+          "dateLabel": "1986",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "NewTaipei_70K_1997",
+          "title": "台北縣行政區域圖",
+          "format": "png",
+          "year": 1997,
+          "dateLabel": "1997",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "NewTaipei_65K_2007",
+          "title": "台北縣行政區域圖",
+          "format": "png",
+          "year": 2007,
+          "dateLabel": "2007",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "都市計畫地形圖",
+      "layers": [
+        {
+          "id": "Yonghe_3K_1960s",
+          "title": "永和都市計劃地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1960s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Linko_3K_1969",
+          "title": "林口特定區地形圖",
+          "format": "png",
+          "year": 1969,
+          "dateLabel": "1969",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Banqiao_3K_1970s_A",
+          "title": "板橋江子翠都市計畫地形測量原圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1970s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Banqiao_3K_1970s_B",
+          "title": "板橋都市計劃地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1970s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Xinzhuang_3K_1970s_A",
+          "title": "新莊都市計畫地形原圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1970s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Xinzhuang_3K_1970s_B",
+          "title": "新莊都市計劃地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1970s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "水利／水庫專題圖",
+      "layers": [
+        {
+          "id": "Dapinglin_1960s",
+          "title": "大坪林圳灌溉系統圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1960s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Dapinglin_1962",
+          "title": "大坪林圳灌溉區域圖",
+          "format": "png",
+          "year": 1962,
+          "dateLabel": "1962",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "NewTaipei_1.2K_1972",
+          "title": "淡水河洪水平原一級管制區地形圖",
+          "format": "png",
+          "year": 1972,
+          "dateLabel": "1972",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "NewTaipei_10K_1974",
+          "title": "翡翠水庫地形圖",
+          "format": "png",
+          "year": 1974,
+          "dateLabel": "1974",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

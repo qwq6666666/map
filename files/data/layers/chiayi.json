@@ -1,0 +1,829 @@
+{
+  "id": "chiayi",
+  "name": "嘉義百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（嘉義百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/chiayi/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      120.1,
+      23.3,
+      120.75,
+      23.65
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "日治時期地圖",
+      "layers": [
+        {
+          "id": "chiayi_1895",
+          "title": "嘉義之戰鬥圖(1895)",
+          "format": "png",
+          "year": 1895,
+          "dateLabel": "1895",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chiayi_0.6K_1906A",
+          "title": "嘉義城內圖(1906)",
+          "format": "png",
+          "year": 1906,
+          "dateLabel": "1906",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chiayi_0.6K_1906B",
+          "title": "嘉義城外圖(1906)",
+          "format": "png",
+          "year": 1906,
+          "dateLabel": "1906",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chiayi_1909",
+          "title": "嘉義市區改正圖(1909)",
+          "format": "png",
+          "year": 1909,
+          "dateLabel": "1909",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chiayi_3K_1910s",
+          "title": "嘉義市街平面圖(1910年代)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1910s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chiayi_3K_1913",
+          "title": "嘉義市街圖(1913)",
+          "format": "png",
+          "year": 1913,
+          "dateLabel": "1913",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chiayi_1931",
+          "title": "嘉義市街實測圖(1931)",
+          "format": "png",
+          "year": 1931,
+          "dateLabel": "1931",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chiayi_1932",
+          "title": "嘉義市區計畫平面圖(1932)",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chiayi_6K_1933",
+          "title": "嘉義市區計畫平面圖",
+          "format": "png",
+          "year": 1933,
+          "dateLabel": "1933",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chiayi_1935",
+          "title": "嘉義市街圖(1935)",
+          "format": "png",
+          "year": 1935,
+          "dateLabel": "1935",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chiayi_1936",
+          "title": "嘉義市職業別明細圖(1936)",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chiayi_6K_1938",
+          "title": "嘉義都市計劃平面圖(1938)",
+          "format": "png",
+          "year": 1938,
+          "dateLabel": "1938",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chiayi_12K_1940",
+          "title": "嘉義市內地圖(1940)",
+          "format": "png",
+          "year": 1940,
+          "dateLabel": "1940",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chiayi_Minsyong_2.5K_1941",
+          "title": "嘉義民雄地方(調查)平面圖(1941)",
+          "format": "png",
+          "year": 1941,
+          "dateLabel": "1941",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chiayi_1943",
+          "title": "嘉義都市計畫平面圖(1943)",
+          "format": "png",
+          "year": 1943,
+          "dateLabel": "1943",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "AMCityPlan_1945",
+          "title": "美軍繪製臺灣城市地圖",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chiayi_aerialphoto_1945",
+          "title": "嘉義市舊航照影像(1945)",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Map_TFB3_Chiayi",
+          "title": "日治國有林野圖(臺南州嘉義郡)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰後嘉義都市計畫圖",
+      "layers": [
+        {
+          "id": "Chiayi_3.8K_1957",
+          "title": "嘉義縣街道圖",
+          "format": "png",
+          "year": 1957,
+          "dateLabel": "1957",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chiayi_100K_1959",
+          "title": "嘉義縣圖(1959)",
+          "format": "png",
+          "year": 1959,
+          "dateLabel": "1959",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chiayi_40K_1977",
+          "title": "嘉南大圳灌溉地給水區分圖(嘉義)",
+          "format": "png",
+          "year": 1977,
+          "dateLabel": "1977",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chiayi_10K_1976",
+          "title": "嘉義市一萬分一城市圖",
+          "format": "png",
+          "year": 1976,
+          "dateLabel": "1976",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chiayi_3K_1970s_A",
+          "title": "嘉義市都市計畫郊區細部計畫地形測量原圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1970s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chiayi_3K_1970s_B",
+          "title": "嘉義市都市計畫郊區細部計畫地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1970s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chiayi_6K_1979",
+          "title": "嘉義市街圖",
+          "format": "png",
+          "year": 1979,
+          "dateLabel": "1979",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chiayi_6K_1980",
+          "title": "嘉義市明細圖",
+          "format": "png",
+          "year": 1980,
+          "dateLabel": "1980",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chiayi_6K_1980s",
+          "title": "嘉義都市計劃平面圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1980s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chiayi_1982",
+          "title": "嘉義市行政區域圖(1982)",
+          "format": "png",
+          "year": 1982,
+          "dateLabel": "1982",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chiayi_15K_1983",
+          "title": "嘉義市圖(1983)",
+          "format": "png",
+          "year": 1983,
+          "dateLabel": "1983",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Chiayi_27.5K_1992",
+          "title": "嘉義市圖(1992)",
+          "format": "png",
+          "year": 1992,
+          "dateLabel": "1992",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "臺灣通用歷史地形圖",
+      "layers": [
+        {
+          "id": "JM20K_1904",
+          "title": "日治臺灣堡圖(明治版) 1:20,000",
+          "format": "jpg",
+          "year": 1904,
+          "dateLabel": "1904",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "JM25K_1921",
+          "title": "日治二萬五千分之一地形圖",
+          "format": "png",
+          "year": 1921,
+          "dateLabel": "1921",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "TM25K_1989",
+          "title": "臺灣經建1版地形圖 1:25,000",
+          "format": "jpg",
+          "year": 1989,
+          "dateLabel": "1989",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "TM25K_2001",
+          "title": "臺灣經建3版地形圖 1:25,000",
+          "format": "jpg",
+          "year": 2001,
+          "dateLabel": "2001",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "水利／水庫專題圖",
+      "layers": [
+        {
+          "id": "map_wra_00160",
+          "title": "大湖水庫地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "嘉義郡舊地籍圖",
+      "layers": [
+        {
+          "id": "chaiyi_tj7a1805",
+          "title": "嘉義市(街)北社尾圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1809",
+          "title": "嘉義市(街)埤子頭圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1810",
+          "title": "嘉義市(街)盧厝圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1812",
+          "title": "嘉義市(街)竹子腳圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1813",
+          "title": "嘉義市(街)臺斗坑圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1820",
+          "title": "嘉義市(街)竹圍子圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1827",
+          "title": "嘉義市(街)大溪厝圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1836a",
+          "title": "嘉義市(街)新高町、檜木町與山下町",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1836b",
+          "title": "嘉義市(街)白川町、玉川町圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1844",
+          "title": "嘉義市(街)柴頭港圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1846",
+          "title": "嘉義市(街)港子坪圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1852",
+          "title": "嘉義市(街)車店圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1856",
+          "title": "嘉義市(街)劉厝圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1787",
+          "title": "嘉義郡竹崎庄竹崎圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1788",
+          "title": "嘉義郡竹崎庄瓦厝埔圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1800",
+          "title": "嘉義郡竹崎庄鹿麻產圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1821",
+          "title": "嘉義郡竹崎庄內埔子圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1828",
+          "title": "嘉義郡番路庄內甕圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1830",
+          "title": "嘉義郡番路庄下坑圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1866",
+          "title": "嘉義郡中埔庄社口圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1870",
+          "title": "嘉義郡中埔庄下六圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1881",
+          "title": "嘉義郡中埔庄頂六圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1882",
+          "title": "嘉義郡中埔庄樹頭埔圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1896",
+          "title": "嘉義郡中埔庄枋樹腳圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1900",
+          "title": "嘉義郡中埔庄石頭厝圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1901",
+          "title": "嘉義郡中埔庄鹽館圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1911",
+          "title": "嘉義郡中埔庄龍山腳圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1924",
+          "title": "嘉義郡中埔庄白芒埔圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1934",
+          "title": "嘉義郡中埔庄深坑圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1941",
+          "title": "嘉義郡中埔庄竹頭崎圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1872",
+          "title": "嘉義郡水上庄湖子內圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1883",
+          "title": "嘉義郡水上庄巷口圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1884",
+          "title": "嘉義郡水上庄大堀尾圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1891",
+          "title": "嘉義郡水上庄粗溪圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1897",
+          "title": "嘉義郡水上庄三界埔圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "chaiyi_tj7a1904",
+          "title": "嘉義郡水上庄十一指厝圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

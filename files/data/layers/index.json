@@ -1,0 +1,118 @@
+{
+  "sources": [
+    {
+      "id": "sinica",
+      "file": "sinica.json",
+      "name": "台灣百年歷史地圖",
+      "layerCount": 86
+    },
+    {
+      "id": "keelung",
+      "file": "keelung.json",
+      "name": "基隆百年歷史地圖",
+      "layerCount": 22
+    },
+    {
+      "id": "taipei",
+      "file": "taipei.json",
+      "name": "臺北百年歷史地圖",
+      "layerCount": 181
+    },
+    {
+      "id": "udd",
+      "file": "udd.json",
+      "name": "臺北市歷史圖資展示系統",
+      "layerCount": 54
+    },
+    {
+      "id": "newtaipei",
+      "file": "newtaipei.json",
+      "name": "新北市百年歷史地圖",
+      "layerCount": 24
+    },
+    {
+      "id": "taoyuan",
+      "file": "taoyuan.json",
+      "name": "桃園百年歷史地圖",
+      "layerCount": 38
+    },
+    {
+      "id": "hsinchu",
+      "file": "hsinchu.json",
+      "name": "新竹百年歷史地圖",
+      "layerCount": 39
+    },
+    {
+      "id": "thm",
+      "file": "thm.json",
+      "name": "桃竹苗舊地籍圖",
+      "layerCount": 535
+    },
+    {
+      "id": "taichung",
+      "file": "taichung.json",
+      "name": "臺中百年歷史地圖",
+      "layerCount": 60
+    },
+    {
+      "id": "changhua",
+      "file": "changhua.json",
+      "name": "彰化百年歷史地圖",
+      "layerCount": 72
+    },
+    {
+      "id": "lukang",
+      "file": "lukang.json",
+      "name": "鹿港百年歷史地圖",
+      "layerCount": 36
+    },
+    {
+      "id": "chiayi",
+      "file": "chiayi.json",
+      "name": "嘉義百年歷史地圖",
+      "layerCount": 71
+    },
+    {
+      "id": "tainan",
+      "file": "tainan.json",
+      "name": "臺南百年歷史地圖",
+      "layerCount": 137
+    },
+    {
+      "id": "kaohsiung",
+      "file": "kaohsiung.json",
+      "name": "高雄百年歷史地圖",
+      "layerCount": 76
+    },
+    {
+      "id": "pingtung",
+      "file": "pingtung.json",
+      "name": "屏東百年歷史地圖",
+      "layerCount": 22
+    },
+    {
+      "id": "hakkaliudui",
+      "file": "hakkaliudui.json",
+      "name": "六堆百年歷史地圖",
+      "layerCount": 39
+    },
+    {
+      "id": "yilan",
+      "file": "yilan.json",
+      "name": "宜蘭百年歷史地圖",
+      "layerCount": 43
+    },
+    {
+      "id": "hualien",
+      "file": "hualien.json",
+      "name": "花蓮百年歷史地圖",
+      "layerCount": 39
+    },
+    {
+      "id": "kinmen",
+      "file": "kinmen.json",
+      "name": "金門百年歷史地圖",
+      "layerCount": 10
+    }
+  ]
+}

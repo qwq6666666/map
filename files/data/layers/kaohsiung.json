@@ -1,0 +1,884 @@
+{
+  "id": "kaohsiung",
+  "name": "高雄百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（高雄百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/kaohsiung/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      120.15,
+      22.45,
+      120.98,
+      23.35
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "日治時期高雄市街圖",
+      "layers": [
+        {
+          "id": "Kaoshuang_20K_1904",
+          "title": "日治二萬分之一台灣堡圖(高精度, 明治版)",
+          "format": "png",
+          "year": 1904,
+          "dateLabel": "1904",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_1884",
+          "title": "打口進口圖",
+          "format": "png",
+          "year": 1884,
+          "dateLabel": "1884",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_1893",
+          "title": "打狗港海口圖",
+          "format": "png",
+          "year": 1893,
+          "dateLabel": "1893",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_20K_1895",
+          "title": "打狗附近地形圖",
+          "format": "png",
+          "year": 1895,
+          "dateLabel": "1895",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_20K_1895b",
+          "title": "打狗附近迅速測圖",
+          "format": "png",
+          "year": 1895,
+          "dateLabel": "1895",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_20K_1895c",
+          "title": "打狗二萬分一圖",
+          "format": "png",
+          "year": 1895,
+          "dateLabel": "1895",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_2.5K_1896",
+          "title": "打狗旗後目算測圖",
+          "format": "png",
+          "year": 1896,
+          "dateLabel": "1896",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_5K_1896",
+          "title": "打狗外國人居留地區域取調圖",
+          "format": "png",
+          "year": 1896,
+          "dateLabel": "1896",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_2K_1899",
+          "title": "打狗旗後街圖",
+          "format": "png",
+          "year": 1899,
+          "dateLabel": "1899",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_6K_1908",
+          "title": "打狗市區改正計畫圖",
+          "format": "png",
+          "year": 1908,
+          "dateLabel": "1908",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_6K_1912",
+          "title": "打狗市區改正計畫圖",
+          "format": "png",
+          "year": 1912,
+          "dateLabel": "1912",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_6K_1912b",
+          "title": "打狗築港計畫圖",
+          "format": "png",
+          "year": 1912,
+          "dateLabel": "1912",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_6K_1913",
+          "title": "臺灣打狗港計畫圖",
+          "format": "png",
+          "year": 1913,
+          "dateLabel": "1913",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_24K_1917",
+          "title": "打狗圖",
+          "format": "png",
+          "year": 1917,
+          "dateLabel": "1917",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_6K_1922",
+          "title": "高雄市區改正圖",
+          "format": "png",
+          "year": 1922,
+          "dateLabel": "1922",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_6K_1923",
+          "title": "打狗整地株式會社經營地區劃圖",
+          "format": "png",
+          "year": 1923,
+          "dateLabel": "1923",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_10K_1926",
+          "title": "高雄築港平面圖",
+          "format": "png",
+          "year": 1926,
+          "dateLabel": "1926",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_1929",
+          "title": "高雄市日本職業別明細圖",
+          "format": "png",
+          "year": 1929,
+          "dateLabel": "1929",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_6K_1932",
+          "title": "高雄水道市內配水幹支線增設計畫圖",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_6K_1933",
+          "title": "高雄市區改正圖",
+          "format": "png",
+          "year": 1933,
+          "dateLabel": "1933",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_1935",
+          "title": "高雄市街圖",
+          "format": "png",
+          "year": 1935,
+          "dateLabel": "1935",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_10K_1936",
+          "title": "高雄市市區擴張計畫圖",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_10K_1936b",
+          "title": "高雄都市計畫圖",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_1936",
+          "title": "高雄市職業別明細圖",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_13K_1937",
+          "title": "高雄市街計劃圖",
+          "format": "png",
+          "year": 1937,
+          "dateLabel": "1937",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_1938",
+          "title": "高雄都市計畫地域圖",
+          "format": "png",
+          "year": 1938,
+          "dateLabel": "1938",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "JM25K_1942",
+          "title": "日治二萬五千分之一地形圖(昭和修正版)",
+          "format": "png",
+          "year": 1942,
+          "dateLabel": "1942",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "JM25K_1944",
+          "title": "日治地形圖(航照修正版) 1:25,000",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "JM25K_Kaohsiung_1945",
+          "title": "日治修測二萬五千分之一地形圖",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰後高雄都市計畫／街道圖",
+      "layers": [
+        {
+          "id": "Kaohsiung_20K_1946",
+          "title": "高雄市區域圖",
+          "format": "png",
+          "year": 1946,
+          "dateLabel": "1946",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_10K_1946",
+          "title": "高雄市街道名稱圖",
+          "format": "png",
+          "year": 1946,
+          "dateLabel": "1946",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_25K_1946",
+          "title": "高雄市區域圖",
+          "format": "png",
+          "year": 1946,
+          "dateLabel": "1946",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_12K_1956",
+          "title": "高雄市全圖",
+          "format": "png",
+          "year": 1956,
+          "dateLabel": "1956",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_11K_1957",
+          "title": "高雄市路街巷詳圖",
+          "format": "png",
+          "year": 1957,
+          "dateLabel": "1957",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_10K_1958",
+          "title": "最新高雄市街圖",
+          "format": "png",
+          "year": 1958,
+          "dateLabel": "1958",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_20K_1958",
+          "title": "高雄市公路路線圖",
+          "format": "png",
+          "year": 1958,
+          "dateLabel": "1958",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_25K_1959",
+          "title": "高雄市圖",
+          "format": "png",
+          "year": 1959,
+          "dateLabel": "1959",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_12.5K_1962",
+          "title": "高雄市城市圖",
+          "format": "png",
+          "year": 1962,
+          "dateLabel": "1962",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_15K_1964",
+          "title": "高雄市街圖",
+          "format": "png",
+          "year": 1964,
+          "dateLabel": "1964",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_1966",
+          "title": "高雄市街圖b",
+          "format": "png",
+          "year": 1966,
+          "dateLabel": "1966",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_1.2K_1970",
+          "title": "高雄市一千二百分之一都市計畫航測地形圖",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_5K_1970",
+          "title": "高雄五千分一地形圖",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_15K_1973",
+          "title": "高雄市街觀光圖",
+          "format": "png",
+          "year": 1973,
+          "dateLabel": "1973",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_12K_1975",
+          "title": "高雄市街圖",
+          "format": "png",
+          "year": 1975,
+          "dateLabel": "1975",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_12.5K_1976",
+          "title": "高雄市街圖",
+          "format": "png",
+          "year": 1976,
+          "dateLabel": "1976",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_14K_1979",
+          "title": "院轄高雄市街圖",
+          "format": "png",
+          "year": 1979,
+          "dateLabel": "1979",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_10K_1980",
+          "title": "高雄市都市計劃圖",
+          "format": "png",
+          "year": 1980,
+          "dateLabel": "1980",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_28K_1980",
+          "title": "高雄市行政區域圖",
+          "format": "png",
+          "year": 1980,
+          "dateLabel": "1980",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_28K_1981",
+          "title": "高雄市街道圖",
+          "format": "png",
+          "year": 1981,
+          "dateLabel": "1981",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_30K_1982",
+          "title": "高雄市街圖",
+          "format": "png",
+          "year": 1982,
+          "dateLabel": "1982",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_28K_1983",
+          "title": "高雄市行政區域圖",
+          "format": "png",
+          "year": 1983,
+          "dateLabel": "1983",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_1984",
+          "title": "高雄市都市計畫航測地形圖",
+          "format": "png",
+          "year": 1984,
+          "dateLabel": "1984",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_1986",
+          "title": "高雄市都市計畫航測地形圖",
+          "format": "png",
+          "year": 1986,
+          "dateLabel": "1986",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_28K_1987",
+          "title": "高雄市行政區域圖",
+          "format": "png",
+          "year": 1987,
+          "dateLabel": "1987",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_20K_1994",
+          "title": "高雄市都市計畫參考圖",
+          "format": "png",
+          "year": 1994,
+          "dateLabel": "1994",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_1K_2000",
+          "title": "高雄市一千分之一都市計畫航測地形圖",
+          "format": "png",
+          "year": 2000,
+          "dateLabel": "2000",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "高雄舊航照影像",
+      "layers": [
+        {
+          "id": "Kaohsiung_1944",
+          "title": "高雄市舊航照影像",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_aerialphoto_1944",
+          "title": "高雄市舊航照影像A",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_aerialphoto_1945",
+          "title": "高雄市舊航照影像",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_aerialphoto_1947",
+          "title": "高雄市舊航照影像",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_aerialphoto_1956",
+          "title": "高雄市舊航照影像",
+          "format": "png",
+          "year": 1956,
+          "dateLabel": "1956",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_aerialphoto_1959",
+          "title": "高雄市舊航照影像",
+          "format": "png",
+          "year": 1959,
+          "dateLabel": "1959",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_aerialphoto_1960",
+          "title": "高雄市舊航照影像",
+          "format": "png",
+          "year": 1960,
+          "dateLabel": "1960",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_aerialphoto_1960b",
+          "title": "高雄市舊航照影像B",
+          "format": "png",
+          "year": 1960,
+          "dateLabel": "1960",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_aerialphoto_1969",
+          "title": "高雄市舊航照影像",
+          "format": "png",
+          "year": 1969,
+          "dateLabel": "1969",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_aerialphoto_1970s",
+          "title": "高雄市舊航照影像(1970年代)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1970s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_aerialphoto_1984",
+          "title": "高雄市舊航照影像",
+          "format": "png",
+          "year": 1984,
+          "dateLabel": "1984",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "高屏溪／港灣專題圖",
+      "layers": [
+        {
+          "id": "Kaohsiung_Kaopingriver_A",
+          "title": "高屏溪河川地形圖(岡山楠梓)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_Kaopingriver_B",
+          "title": "高屏溪河川地形圖(美濃地區)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_5K_1961",
+          "title": "高雄興達港海埔地地形圖",
+          "format": "png",
+          "year": 1961,
+          "dateLabel": "1961",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_6K_1962",
+          "title": "高雄港擴建區域地形圖",
+          "format": "png",
+          "year": 1962,
+          "dateLabel": "1962",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kaohsiung_10K_1965",
+          "title": "高雄港水道圖",
+          "format": "png",
+          "year": 1965,
+          "dateLabel": "1965",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "地形分析圖(高雄市政府)",
+      "layers": [
+        {
+          "id": "G97_E_ASP20MG20C8_R_2011",
+          "title": "坡向分析圖",
+          "format": "png",
+          "year": 2011,
+          "dateLabel": "2011",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "G97_E_CON20MS5_L_2011",
+          "title": "等高線圖",
+          "format": "png",
+          "year": 2011,
+          "dateLabel": "2011",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "G97_E_SHA20MG20T1_R_2011",
+          "title": "高程陰影圖",
+          "format": "png",
+          "year": 2011,
+          "dateLabel": "2011",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "G97_E_SLP20MG20C7_R_2011",
+          "title": "坡度分析圖",
+          "format": "png",
+          "year": 2011,
+          "dateLabel": "2011",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

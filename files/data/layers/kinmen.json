@@ -1,0 +1,146 @@
+{
+  "id": "kinmen",
+  "name": "金門百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（金門百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/kinmen/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      118.15,
+      24.35,
+      118.55,
+      24.55
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "日治時期地形圖",
+      "layers": [
+        {
+          "id": "Kinmen_50K_1936",
+          "title": "金門五萬分之一地形圖",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kinmen_100K_1938",
+          "title": "金門十萬分之一地形圖",
+          "format": "png",
+          "year": 1938,
+          "dateLabel": "1938",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "航照影像",
+      "layers": [
+        {
+          "id": "Kinmen_1944",
+          "title": "金門舊航照影像(1944)",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kinmen_1945",
+          "title": "金門舊航照影像(1945)",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kinmen_aerialphoto_1958",
+          "title": "金門舊航照圖(1958.09.10)",
+          "format": "png",
+          "year": 1958,
+          "dateLabel": "1958",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kinmen_1966",
+          "title": "金門舊航照影像(1966)",
+          "format": "png",
+          "year": 1966,
+          "dateLabel": "1966",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰後地形圖／行政區域圖",
+      "layers": [
+        {
+          "id": "Kinmen_25K_1962",
+          "title": "金門縣二萬五千分一地形圖",
+          "format": "png",
+          "year": 1962,
+          "dateLabel": "1962",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kinmen_200K_1976",
+          "title": "金門縣圖",
+          "format": "png",
+          "year": 1976,
+          "dateLabel": "1976",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kinmen_Admin_1995",
+          "title": "金門縣行政區域圖(1995)",
+          "format": "png",
+          "year": 1995,
+          "dateLabel": "1995",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kinmen_Admin_2007",
+          "title": "金門縣行政區域圖(2007)",
+          "format": "png",
+          "year": 2007,
+          "dateLabel": "2007",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

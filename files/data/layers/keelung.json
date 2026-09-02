@@ -1,0 +1,284 @@
+{
+  "id": "keelung",
+  "name": "基隆百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（基隆百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/keelung/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      121.58,
+      25.05,
+      121.82,
+      25.19
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "清代海圖",
+      "layers": [
+        {
+          "id": "Keelung_31.7K_1854",
+          "title": "KEELUNG HARBOR FORMOSA ISLAND",
+          "format": "png",
+          "year": 1854,
+          "dateLabel": "1854",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "日治時期地形圖／都市計畫圖",
+      "layers": [
+        {
+          "id": "Keelung_14.6K_1899",
+          "title": "基隆港",
+          "format": "png",
+          "year": 1899,
+          "dateLabel": "1899",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Keelung_20K_1904",
+          "title": "日治二萬分之一台灣堡圖(高精度，明治版)",
+          "format": "png",
+          "year": 1904,
+          "dateLabel": "1904",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Keelung_5K_1907b",
+          "title": "基隆市區改正計畫圖",
+          "format": "png",
+          "year": 1907,
+          "dateLabel": "1907",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Keelung_5K_1912",
+          "title": "臺灣建物株式會社基隆土地一覽圖",
+          "format": "png",
+          "year": 1912,
+          "dateLabel": "1912",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Keelung_6K_1923",
+          "title": "基隆市街圖",
+          "format": "png",
+          "year": 1923,
+          "dateLabel": "1923",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Keelung_12K_1924",
+          "title": "官有林野圖",
+          "format": "png",
+          "year": 1924,
+          "dateLabel": "1924",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Keelung_10K_1929",
+          "title": "基隆市街圖",
+          "format": "png",
+          "year": 1929,
+          "dateLabel": "1929",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Keelung_1929",
+          "title": "基隆市日本職業別明細圖",
+          "format": "png",
+          "year": 1929,
+          "dateLabel": "1929",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Keelung_1930",
+          "title": "基隆全圖",
+          "format": "png",
+          "year": 1930,
+          "dateLabel": "1930",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Keelung_8K_1930b",
+          "title": "基隆築港計畫圖",
+          "format": "png",
+          "year": 1930,
+          "dateLabel": "1930",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Keelung_12K_1932",
+          "title": "基隆市名所案內圖",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Keelung_10K_1935",
+          "title": "基隆市街圖",
+          "format": "png",
+          "year": 1935,
+          "dateLabel": "1935",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Keelung_10K_1937",
+          "title": "基隆港",
+          "format": "png",
+          "year": 1937,
+          "dateLabel": "1937",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Keelung_18K_1937",
+          "title": "基隆港附近",
+          "format": "png",
+          "year": 1937,
+          "dateLabel": "1937",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Keelung_10K_1941",
+          "title": "基隆都市計畫圖",
+          "format": "png",
+          "year": 1941,
+          "dateLabel": "1941",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Keelung_10K_1946b",
+          "title": "大基隆都市計畫圖",
+          "format": "png",
+          "year": 1946,
+          "dateLabel": "1946",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰後基隆市街圖／都市計畫圖",
+      "layers": [
+        {
+          "id": "Keelung_1.2K_1962",
+          "title": "基隆市圖",
+          "format": "png",
+          "year": 1962,
+          "dateLabel": "1962",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Keelung_10K_1964",
+          "title": "基隆市街圖",
+          "format": "png",
+          "year": 1964,
+          "dateLabel": "1964",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Keelung_6K_1971",
+          "title": "基隆都市計畫參考圖：港口商埠部分",
+          "format": "png",
+          "year": 1971,
+          "dateLabel": "1971",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Keelung_7.6K_1974",
+          "title": "基隆市街圖",
+          "format": "png",
+          "year": 1974,
+          "dateLabel": "1974",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "航照影像",
+      "layers": [
+        {
+          "id": "Keelung_aerialphoto_1962",
+          "title": "基隆市區舊航照影像",
+          "format": "png",
+          "year": 1962,
+          "dateLabel": "1962",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

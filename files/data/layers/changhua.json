@@ -1,0 +1,846 @@
+{
+  "id": "changhua",
+  "name": "彰化百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（彰化百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/changhua/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      120.35,
+      23.75,
+      120.65,
+      24.15
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "日治時期地圖",
+      "layers": [
+        {
+          "id": "changhua_10K_1906",
+          "title": "彰化市區計畫圖",
+          "format": "png",
+          "year": 1906,
+          "dateLabel": "1906",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_60K_1930",
+          "title": "彰化市管內圖",
+          "format": "png",
+          "year": 1930,
+          "dateLabel": "1930",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Changhua_15K_1934",
+          "title": "彰化市管內圖：彰化市區",
+          "format": "png",
+          "year": 1934,
+          "dateLabel": "1934",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Changhua_60K_1934",
+          "title": "彰化市管內圖",
+          "format": "png",
+          "year": 1934,
+          "dateLabel": "1934",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_3K_1938",
+          "title": "彰化都市計畫平面圖",
+          "format": "png",
+          "year": 1938,
+          "dateLabel": "1938",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_6K_1938",
+          "title": "彰化都市計畫圖",
+          "format": "png",
+          "year": 1938,
+          "dateLabel": "1938",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_1940",
+          "title": "彰化市區舊地籍圖",
+          "format": "png",
+          "year": 1940,
+          "dateLabel": "1940",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰後彰化都市計畫圖",
+      "layers": [
+        {
+          "id": "changhua_5K_1962",
+          "title": "彰化區海埔地地形圖",
+          "format": "png",
+          "year": 1962,
+          "dateLabel": "1962",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Changhua_3K_1970s_A",
+          "title": "彰化地形測量原圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1970s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Changhua_3K_1970s_B",
+          "title": "彰化市都市計劃地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1970s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_10K_1978",
+          "title": "彰化市圖",
+          "format": "png",
+          "year": 1978,
+          "dateLabel": "1978",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Changhua_3K_1987",
+          "title": "彰化市都市計畫地形測量原圖",
+          "format": "png",
+          "year": 1987,
+          "dateLabel": "1987",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "濁水溪治水／河川專題圖",
+      "layers": [
+        {
+          "id": "zhuoshuei_river_E",
+          "title": "濁水溪河川地形圖",
+          "format": "png",
+          "year": 1913,
+          "dateLabel": "1913",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "map_wra_00003",
+          "title": "二林地方調查平面圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "zhuoshuei_river_A",
+          "title": "濁水溪中上游治水計畫平面圖(五千分一)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "zhuoshuei_river_B",
+          "title": "濁水溪中游治水計畫平面圖(五萬分一)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "zhuoshuei_river_C",
+          "title": "濁水溪中游治水計畫圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "zhuoshuei_river_D",
+          "title": "濁水溪下游治水計畫圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "彰化市／鹿港鎮舊地籍圖",
+      "layers": [
+        {
+          "id": "changhua_tj7a1115",
+          "title": "鹿港鎮舊地籍圖：草港尾",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1126",
+          "title": "彰化市舊地籍圖：阿夷",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1127",
+          "title": "鹿港鎮舊地籍圖：草港中",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1133",
+          "title": "彰化市舊地籍圖：渡船頭",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1140",
+          "title": "鹿港鎮舊地籍圖：海埔厝",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1141",
+          "title": "鹿港鎮舊地籍圖：南勢",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1142",
+          "title": "彰化市舊地籍圖：田中央",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1144",
+          "title": "鹿港鎮舊地籍圖：頂番婆",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1146",
+          "title": "彰化市舊地籍圖：牛稠子",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1149",
+          "title": "彰化市舊地籍圖：西勢子",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1152",
+          "title": "彰化市舊地籍圖：大竹",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1153",
+          "title": "彰化市舊地籍圖：番社口",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1155",
+          "title": "彰化市舊地籍圖：彰化",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1156",
+          "title": "彰化市舊地籍圖：快官",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1157",
+          "title": "鹿港鎮舊地籍圖：廖厝",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1158",
+          "title": "鹿港鎮舊地籍圖：溝墘",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1159",
+          "title": "鹿港鎮舊地籍圖：鹿港",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1160",
+          "title": "鹿港鎮舊地籍圖：顏厝",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1161",
+          "title": "彰化市舊地籍圖：西門口",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1162",
+          "title": "彰化市舊地籍圖：南郭",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1169",
+          "title": "彰化市舊地籍圖：莿桐腳",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1170",
+          "title": "鹿港鎮舊地籍圖：頂厝",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1171",
+          "title": "彰化市舊地籍圖：大埔",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1174",
+          "title": "鹿港鎮舊地籍圖：打鐵厝",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "員林鎮／二林鎮舊地籍圖",
+      "layers": [
+        {
+          "id": "changhua_tj7a1244",
+          "title": "員林鎮舊地籍圖：東山",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1252",
+          "title": "二林鎮舊地籍圖：萬興",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1255",
+          "title": "員林鎮舊地籍圖：南平",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1260",
+          "title": "員林鎮舊地籍圖：三塊厝",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1263",
+          "title": "員林鎮舊地籍圖：三條圳",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1275",
+          "title": "員林鎮舊地籍圖：員林",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1279",
+          "title": "二林鎮舊地籍圖：挖子",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1280",
+          "title": "員林鎮舊地籍圖：東瓦磘厝",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1284",
+          "title": "二林鎮舊地籍圖：舊趙甲",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1285",
+          "title": "員林鎮舊地籍圖：番子崙",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1286",
+          "title": "員林鎮舊地籍圖：湖水坑",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1288",
+          "title": "員林鎮舊地籍圖：萬年",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1289",
+          "title": "員林鎮舊地籍圖：大饒",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1291",
+          "title": "員林鎮舊地籍圖：田中央",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1296",
+          "title": "二林鎮舊地籍圖：犁頭厝",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1303",
+          "title": "員林鎮舊地籍圖：柴頭井",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1306",
+          "title": "二林鎮舊地籍圖：萬合",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1314",
+          "title": "二林鎮舊地籍圖：大排沙",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1331",
+          "title": "二林鎮舊地籍圖：二林",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1332",
+          "title": "二林鎮舊地籍圖：山寮",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1351",
+          "title": "二林鎮舊地籍圖：丈八斗",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1357",
+          "title": "二林鎮舊地籍圖：後厝",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1366",
+          "title": "二林鎮舊地籍圖：犁頭厝",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1367",
+          "title": "二林鎮舊地籍圖：中西",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1369",
+          "title": "二林鎮舊地籍圖：𥕟磘",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1376",
+          "title": "二林鎮舊地籍圖：竹圍子",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1382",
+          "title": "二林鎮舊地籍圖：火燒厝",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "changhua_tj7a1393",
+          "title": "二林鎮舊地籍圖：外蘆竹塘",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "舊航照影像",
+      "layers": [
+        {
+          "id": "changhua_aerialphoto_1947",
+          "title": "彰化航照影像",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "airphoto_zhuoshuei_river",
+          "title": "濁水溪下游航照影像",
+          "format": "jpg",
+          "year": 2003,
+          "dateLabel": "2003",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}
