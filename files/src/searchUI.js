@@ -40,6 +40,7 @@ import { buildCategoryList } from './uiTree.js';
 import { map, showLocateToast, syncActiveLayerItemClasses } from './mapCore.js';
 import { state as store, setMode, selectOverlayLayer } from './store.js';
 import { TileChecker } from './tileChecker.js';
+import { buildTimeline } from './timelineUI.js';
 
 const SEARCH_ZOOM = 15;
 
@@ -307,70 +308,111 @@ function renderAvailableLayers(available, totalChecked){
 
   const summary = document.createElement('p');
   summary.className = 'avail-empty';
-  summary.textContent = `此地點目前可套疊 ${available.length} 筆歷史地圖圖層（已逐筆確認有資料，依原本分類整理如下，點選標題可展開／收合分類）：`;
+  summary.textContent = `此地點目前可套疊 ${available.length} 筆歷史地圖圖層（已逐筆確認有資料）：`;
   layerAvailPanelEl.appendChild(summary);
 
-  // 依「來源 → 分類 →（次分類 →）圖層」重建可用圖層的巢狀結構，
-  // 沿用主清單同一套 source-group/category 手風琴樣式與 buildCategoryList()，
-  // 讓搜尋結果維持原本的分類方式，可以逐層摺疊／展開，而不是攤平成一長串清單。
-  const availableIdSet = new Set(available.map(c => c.layer.id));
-  const order = [];
-  const seenSrc = {};
-  available.forEach(c=>{
-    if(!seenSrc[c.src.id]){ seenSrc[c.src.id] = c.src; order.push(c.src.id); }
-  });
+  // 檢視切換：分類瀏覽（原本的手風琴）／時間軸（依年代排列，原型功能）。
+  // 兩種檢視操作的是同一份 available 資料，切換不會重新搜尋。
+  const viewToggle = document.createElement('div');
+  viewToggle.className = 'avail-view-toggle';
+  const catViewBtn = document.createElement('button');
+  catViewBtn.type = 'button';
+  catViewBtn.className = 'avail-view-btn active';
+  catViewBtn.textContent = '分類瀏覽';
+  const timelineViewBtn = document.createElement('button');
+  timelineViewBtn.type = 'button';
+  timelineViewBtn.className = 'avail-view-btn';
+  timelineViewBtn.textContent = '時間軸';
+  viewToggle.appendChild(catViewBtn);
+  viewToggle.appendChild(timelineViewBtn);
+  layerAvailPanelEl.appendChild(viewToggle);
 
-  order.forEach(srcId=>{
-    const src = seenSrc[srcId];
+  const contentEl = document.createElement('div');
+  layerAvailPanelEl.appendChild(contentEl);
 
-    const filteredCategories = src.categories.map(cat=>{
-      if(cat.groups){
-        const groups = cat.groups
-          .map(g => ({ ...g, layers: g.layers.filter(ly => availableIdSet.has(ly.id)) }))
-          .filter(g => g.layers.length > 0);
-        return groups.length ? { ...cat, groups } : null;
-      }
-      const layers = cat.layers.filter(ly => availableIdSet.has(ly.id));
-      return layers.length ? { ...cat, layers } : null;
-    }).filter(Boolean);
-
-    if(filteredCategories.length === 0) return;
-
-    const total = filteredCategories.reduce((s,c)=> s + (c.groups ? c.groups.reduce((gs,g)=>gs+g.layers.length,0) : c.layers.length), 0);
-
-    const srcWrap = document.createElement('div');
-    srcWrap.className = 'source-group'; // 預設收合，行為與主清單一致，改由使用者點擊來源才展開
-
-    const srcHead = document.createElement('button');
-    srcHead.type = 'button';
-    srcHead.className = 'source-head';
-    srcHead.innerHTML = `<span><span class="chevron">▸</span>${src.name}</span><span class="count">${total}</span>`;
-    srcHead.addEventListener('click', ()=>{
-      const opening = !srcWrap.classList.contains('open');
-      if(opening){
-        // 手風琴行為：與主清單一致，展開這個來源時先收合搜尋結果內其他已展開的來源，
-        // 一次只保留一個最大階層是開啟的狀態。
-        layerAvailPanelEl.querySelectorAll('.source-group.open').forEach(g=>{
-          if(g !== srcWrap) g.classList.remove('open');
-        });
-      }
-      srcWrap.classList.toggle('open');
+  function renderCategoryView(){
+    contentEl.innerHTML = '';
+    // 依「來源 → 分類 →（次分類 →）圖層」重建可用圖層的巢狀結構，
+    // 沿用主清單同一套 source-group/category 手風琴樣式與 buildCategoryList()，
+    // 讓搜尋結果維持原本的分類方式，可以逐層摺疊／展開，而不是攤平成一長串清單。
+    const availableIdSet = new Set(available.map(c => c.layer.id));
+    const order = [];
+    const seenSrc = {};
+    available.forEach(c=>{
+      if(!seenSrc[c.src.id]){ seenSrc[c.src.id] = c.src; order.push(c.src.id); }
     });
 
-    const srcBody = document.createElement('div');
-    srcBody.className = 'source-body';
-    buildCategoryList(filteredCategories, srcBody, (layer)=> activateFromSearch(src, layer), false);
+    order.forEach(srcId=>{
+      const src = seenSrc[srcId];
 
-    srcWrap.appendChild(srcHead);
-    srcWrap.appendChild(srcBody);
-    layerAvailPanelEl.appendChild(srcWrap);
+      const filteredCategories = src.categories.map(cat=>{
+        if(cat.groups){
+          const groups = cat.groups
+            .map(g => ({ ...g, layers: g.layers.filter(ly => availableIdSet.has(ly.id)) }))
+            .filter(g => g.layers.length > 0);
+          return groups.length ? { ...cat, groups } : null;
+        }
+        const layers = cat.layers.filter(ly => availableIdSet.has(ly.id));
+        return layers.length ? { ...cat, layers } : null;
+      }).filter(Boolean);
+
+      if(filteredCategories.length === 0) return;
+
+      const total = filteredCategories.reduce((s,c)=> s + (c.groups ? c.groups.reduce((gs,g)=>gs+g.layers.length,0) : c.layers.length), 0);
+
+      const srcWrap = document.createElement('div');
+      srcWrap.className = 'source-group'; // 預設收合，行為與主清單一致，改由使用者點擊來源才展開
+
+      const srcHead = document.createElement('button');
+      srcHead.type = 'button';
+      srcHead.className = 'source-head';
+      srcHead.innerHTML = `<span><span class="chevron">▸</span>${src.name}</span><span class="count">${total}</span>`;
+      srcHead.addEventListener('click', ()=>{
+        const opening = !srcWrap.classList.contains('open');
+        if(opening){
+          // 手風琴行為：與主清單一致，展開這個來源時先收合搜尋結果內其他已展開的來源，
+          // 一次只保留一個最大階層是開啟的狀態。
+          contentEl.querySelectorAll('.source-group.open').forEach(g=>{
+            if(g !== srcWrap) g.classList.remove('open');
+          });
+        }
+        srcWrap.classList.toggle('open');
+      });
+
+      const srcBody = document.createElement('div');
+      srcBody.className = 'source-body';
+      buildCategoryList(filteredCategories, srcBody, (layer)=> activateFromSearch(src, layer), false);
+
+      srcWrap.appendChild(srcHead);
+      srcWrap.appendChild(srcBody);
+      contentEl.appendChild(srcWrap);
+    });
+
+    syncActiveLayerItemClasses();
+  }
+
+  function renderTimelineView(){
+    contentEl.innerHTML = '';
+    buildTimeline(available, contentEl, (src, layer) => activateFromSearch(src, layer));
+    syncActiveLayerItemClasses();
+  }
+
+  catViewBtn.addEventListener('click', ()=>{
+    catViewBtn.classList.add('active');
+    timelineViewBtn.classList.remove('active');
+    renderCategoryView();
+  });
+  timelineViewBtn.addEventListener('click', ()=>{
+    timelineViewBtn.classList.add('active');
+    catViewBtn.classList.remove('active');
+    renderTimelineView();
   });
 
   // 若目前已有套疊中的歷史圖層，於搜尋結果中同步標示為 active，並展開其所在的分類層級。
   // 搜尋結果面板每次都是重新建立的 DOM，store 的 activeOverlayKey 不會因為
-  // 重新搜尋而改變，mapCore 的訂閱者不會被觸發，所以這裡要手動呼叫一次
+  // 重新搜尋而改變，mapCore 的訂閱者不會被觸發，所以要手動呼叫一次
   // 跟主清單共用的同步函式，補上這次剛建好的 DOM。
-  syncActiveLayerItemClasses();
+  renderCategoryView(); // 預設顯示分類瀏覽
 }
 
 // 從搜尋結果點選圖層：若目前在左右比對模式，先切回透明疊圖模式，

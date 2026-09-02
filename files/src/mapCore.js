@@ -19,6 +19,7 @@ import { state as store, subscribe, setMode, setBaseLayer, setCompareSide, setSw
 import { runtime } from './runtime.js';
 import { LAYER_SOURCES, REGION_EXTENTS, makeSourceForKey, titleForKey, resolveOverlayKey } from './data.js';
 import { buildCategoryList } from './uiTree.js';
+import { initTimelineMode, activateTimelineMode } from './timelineMode.js';
 
 const SAT_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
 
@@ -129,19 +130,110 @@ function applyBaseLayer(){
    透明疊圖模式：套用目前 store.activeOverlayKey 到地圖上
    （null 代表沒有套疊歷史圖層，只顯示底圖）
 --------------------------------------------------------- */
+/* ---------------------------------------------------------
+   淡入淡出交叉溶接：切換歷史圖層時，不要「先整個移除舊的，才開始
+   載入新的」（中間會有一段空白畫面），改成新圖層先在背景悄悄開始
+   載入圖磚（opacity 先設 0，加進地圖但看不見），給它一小段「暖機
+   時間」（FADE_GRACE_MS）讓圖磚有機會先抓一些下來，接著才讓新舊
+   圖層同時交叉淡出／淡入（FADE_MS），淡出完畢再真正移除舊圖層。
+   這樣使用者畫面上永遠有東西可看，不會因為切換而閃過空白，
+   體感上會比較接近連續播放，而不是每次都重新讀取的感覺。
+--------------------------------------------------------- */
+const FADE_GRACE_MS = 250; // 新圖層先背景載入、還沒開始淡入淡出的暖機時間
+const FADE_MS = 350;       // 交叉淡出／淡入本身的時長
+
+function fadeLayerTo(layer, targetOpacity, durationMs, onDone){
+  const startOpacity = layer.getOpacity ? layer.getOpacity() : 1;
+  const start = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+  function step(){
+    const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+    const t = Math.min(1, (now - start) / durationMs);
+    layer.setOpacity(startOpacity + (targetOpacity - startOpacity) * t);
+    map.render();
+    if(t < 1){
+      setTimeout(step, 16);
+    } else if(onDone){
+      onDone();
+    }
+  }
+  step();
+}
+
+function crossfadeToLayer(newLayer, targetOpacity, alreadyWarm){
+  const oldLayer = runtime.historyLayer;
+  if(!alreadyWarm){
+    newLayer.setOpacity(0);
+    map.addLayer(newLayer); // 疊上去但完全透明，先在背景默默開始載入圖磚
+  }
+  runtime.historyLayer = newLayer;
+
+  const startFade = () => {
+    fadeLayerTo(newLayer, targetOpacity, FADE_MS);
+    if(oldLayer && oldLayer !== newLayer){
+      fadeLayerTo(oldLayer, 0, FADE_MS, () => map.removeLayer(oldLayer));
+    }
+  };
+  // 如果是從預先載入池拿出來的圖層，圖磚早就開始下載了，不用再等暖機時間，
+  // 直接開始交叉淡出／淡入。
+  if(alreadyWarm) startFade();
+  else setTimeout(startFade, FADE_GRACE_MS);
+}
+
+/* ---------------------------------------------------------
+   圖層預先載入池：像時間軸模式這種「已經知道接下來會依序用到哪些
+   圖層」的情境，可以提前把它們加進地圖（opacity 0），讓圖磚提早
+   開始背景下載；真正切換過去時，crossfadeToLayer() 會優先看池子
+   裡有沒有現成的，有就直接拿來交叉溶接（不用再等暖機時間），
+   體感上會更接近「已經準備好、隨時可以切換」，不是每次都重新讀取。
+--------------------------------------------------------- */
+export function preloadOverlayKeys(keys){
+  (keys || []).forEach(key => {
+    if(!key || key === store.activeOverlayKey) return; // 目前正顯示的不用重複預載
+    if(runtime.layerPool.has(key)) return; // 已經預載過
+    const resolved = resolveOverlayKey(key);
+    if(!resolved) return;
+    const { src, layer } = resolved;
+    const poolLayer = new ol.layer.Tile({
+      source: new ol.source.XYZ({ url: src.tileUrl(layer), attributions: src.attribution })
+    });
+    poolLayer.setOpacity(0);
+    map.addLayer(poolLayer);
+    runtime.layerPool.set(key, poolLayer);
+  });
+}
+
+export function clearLayerPool(){
+  if(runtime.layerPool.size === 0) return;
+  runtime.layerPool.forEach(layer => map.removeLayer(layer));
+  runtime.layerPool.clear();
+}
+
 function applyActiveOverlayKey(){
   const resolved = resolveOverlayKey(store.activeOverlayKey);
   if(!resolved){
-    if(runtime.historyLayer){ map.removeLayer(runtime.historyLayer); runtime.historyLayer = null; }
+    if(runtime.historyLayer){
+      fadeLayerTo(runtime.historyLayer, 0, FADE_MS, () => map.removeLayer(runtime.historyLayer));
+      runtime.historyLayer = null;
+    }
     document.getElementById('stamp').classList.remove('show');
   } else {
     const { src, layer } = resolved;
-    if(runtime.historyLayer) map.removeLayer(runtime.historyLayer);
-    runtime.historyLayer = new ol.layer.Tile({
-      source: new ol.source.XYZ({ url: src.tileUrl(layer), attributions: src.attribution }),
-      opacity: parseInt(document.getElementById('opacitySlider').value,10)/100
-    });
-    map.addLayer(runtime.historyLayer);
+    const targetOpacity = parseInt(document.getElementById('opacitySlider').value,10)/100;
+
+    const key = store.activeOverlayKey;
+    let newLayer, alreadyWarm;
+    if(runtime.layerPool.has(key)){
+      newLayer = runtime.layerPool.get(key);
+      runtime.layerPool.delete(key); // 從備用池拿出來變成目前使用中的圖層，不再算池子裡的備用項目
+      alreadyWarm = true;
+    } else {
+      newLayer = new ol.layer.Tile({
+        source: new ol.source.XYZ({ url: src.tileUrl(layer), attributions: src.attribution })
+      });
+      alreadyWarm = false;
+    }
+    crossfadeToLayer(newLayer, targetOpacity, alreadyWarm);
+
     document.getElementById('stampYear').textContent = layer.year;
     document.getElementById('stampLabel').textContent = layer.title;
     document.getElementById('stamp').classList.add('show');
@@ -171,32 +263,51 @@ export function syncActiveLayerItemClasses(){
 /* ---------------------------------------------------------
    模式切換：疊圖 vs 左右比對
 --------------------------------------------------------- */
-let overlayPanel, comparePanel, opacityBlockEl, swipeDividerEl, compareWrapA, compareWrapB;
+let overlayPanel, comparePanel, timelinePanel, opacityBlockEl, swipeDividerEl, compareWrapA, compareWrapB, mapTimelineBarEl;
 
 function applyModeTransition(){
   document.getElementById('sidebar').classList.toggle('compact-mode', store.mode === 'compare');
   document.querySelectorAll('#modeSwitch button').forEach(b=>
     b.classList.toggle('active', b.dataset.mode === store.mode));
 
+  // 三種模式共用的地圖疊加元素，先統一收起來，各自的分支再打開自己需要的，
+  // 避免每個分支都要重複寫一次「關掉其他模式的東西」。
+  swipeDividerEl.classList.remove('show');
+  compareWrapA.classList.remove('show');
+  compareWrapB.classList.remove('show');
+  mapTimelineBarEl.classList.remove('show');
+  if(runtime.swipeLayerA){ map.removeLayer(runtime.swipeLayerA); runtime.swipeLayerA = null; }
+  if(runtime.swipeLayerB){ map.removeLayer(runtime.swipeLayerB); runtime.swipeLayerB = null; }
+  // 離開時間軸模式時，把還沒用到的預先載入圖層清掉，避免留一堆背景
+  // 圖層佔用記憶體／持續耗費瀏覽器資源；重新進入時間軸模式會再重新預載。
+  if(store.mode !== 'timeline') clearLayerPool();
+
   if(store.mode === 'overlay'){
     opacityBlockEl.style.display = 'block';
     overlayPanel.style.display = 'block';
     comparePanel.style.display = 'none';
-    swipeDividerEl.classList.remove('show');
-    compareWrapA.classList.remove('show');
-    compareWrapB.classList.remove('show');
-    if(runtime.swipeLayerA){ map.removeLayer(runtime.swipeLayerA); runtime.swipeLayerA = null; }
-    if(runtime.swipeLayerB){ map.removeLayer(runtime.swipeLayerB); runtime.swipeLayerB = null; }
-    // activeOverlayKey 在切到比對模式時不會被清掉（見下方），所以這裡
-    // 直接沿用目前的值套用即可，等同原本「從左右比對切回來時，沿用左側
-    // 目前選擇的圖層」的行為。
+    timelinePanel.style.display = 'none';
+    // activeOverlayKey 在切到比對／時間軸模式時不會被清掉（見下方），所以這裡
+    // 直接沿用目前的值套用即可，等同原本「切回疊圖模式時，沿用之前選擇的
+    // 圖層」的行為。
     applyBaseLayer();
     applyActiveOverlayKey();
     map.render();
-  } else {
+  } else if(store.mode === 'timeline'){
+    opacityBlockEl.style.display = 'block'; // 時間軸模式一樣可以調整目前套疊圖層的透明度
+    overlayPanel.style.display = 'none';
+    comparePanel.style.display = 'none';
+    timelinePanel.style.display = 'block';
+    mapTimelineBarEl.classList.add('show');
+    applyBaseLayer();
+    applyActiveOverlayKey(); // 沿用目前選擇的圖層（可能是疊圖模式選的），不強制清空
+    activateTimelineMode();  // 立即依目前地圖畫面中心點，探測 sinica 有哪些年份的圖層
+    map.render();
+  } else { // compare
     opacityBlockEl.style.display = 'none';
     overlayPanel.style.display = 'none';
     comparePanel.style.display = 'block';
+    timelinePanel.style.display = 'none';
     swipeDividerEl.classList.add('show');
     compareWrapA.classList.add('show');
     compareWrapB.classList.add('show');
@@ -223,10 +334,12 @@ function applyModeTransition(){
 function initModeSwitch(){
   overlayPanel = document.getElementById('overlayPanel');
   comparePanel = document.getElementById('comparePanel');
+  timelinePanel = document.getElementById('timelinePanel');
   opacityBlockEl = document.getElementById('opacityBlock');
   swipeDividerEl = document.getElementById('swipeDivider');
   compareWrapA = document.getElementById('compareWrapA');
   compareWrapB = document.getElementById('compareWrapB');
+  mapTimelineBarEl = document.getElementById('mapTimelineBar');
 
   document.getElementById('modeSwitch').addEventListener('click', (e)=>{
     const btn = e.target.closest('button[data-mode]');
@@ -424,7 +537,9 @@ let floatingOpacityEl;
 let toggleSidebarBtn;
 function updateFloatingOpacityVisibility(){
   const collapsed = document.getElementById('sidebar').classList.contains('collapsed');
-  floatingOpacityEl.classList.toggle('show', collapsed && store.mode === 'overlay');
+  // 疊圖／時間軸模式都會用到「目前套疊圖層」這個概念，側邊欄收合時
+  // 都改用左下角浮動透明度控制；左右比對模式的透明度控制不適用。
+  floatingOpacityEl.classList.toggle('show', collapsed && (store.mode === 'overlay' || store.mode === 'timeline'));
 }
 // 共用的收合動作：手動點收合按鈕、跟左右比對模式點左下圖層切換按鈕時都會用到。
 function collapseSidebar(){
@@ -484,6 +599,7 @@ export function initMapCore(){
   initSidebarToggle();
 
   subscribe(render);
+  initTimelineMode(map, preloadOverlayKeys);
   // 初次進場：套用 store 的預設狀態（疊圖模式／現代地圖底圖等），
   // 走跟往後狀態變化完全相同的一套渲染路徑，不用另外重複寫一次初始化。
   applyModeTransition();

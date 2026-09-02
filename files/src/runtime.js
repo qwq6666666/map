@@ -13,5 +13,7 @@ export const runtime = {
   dragging: false,      // 左右比對模式的分隔線是否正在拖曳
   addressDebounceTimer: null,
   searchToken: 0,        // 每次新查詢遞增，避免較舊、較慢的查詢結果覆蓋掉新結果
-  locateToastTimer: null
+  locateToastTimer: null,
+  layerPool: new Map()  // key（"hist:sourceId:id:fmt"）-> 已預先加進地圖、opacity 0 的 OL 圖層實例，
+                         // 用來預先載入時間軸即將用到的圖層，見 mapCore.js 的 preloadOverlayKeys()
 };

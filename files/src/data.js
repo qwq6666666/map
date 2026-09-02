@@ -111,7 +111,9 @@ export async function loadAppData(){
       id: l.id,
       title: l.title,
       fmt: l.format,
-      year: l.dateLabel,
+      year: l.dateLabel,   // 顯示用字串（沿用舊欄位名），不變
+      yearNum: l.year,     // 數字或 null，時間軸定位／排序用
+      scale: l.scale,      // 比例尺字串（例如 "1:25000"）或 null，未來篩選用（新增）
       url: l.url // 只有 udd 圖層會用到（file-exists 樣板來源沒有這個欄位）
     });
     const categories = src.categories.map(cat => {
@@ -199,19 +201,34 @@ export function resolveOverlayKey(key){
 }
 
 /* ---------------------------------------------------------
-   依 Nominatim 回傳的地址元件（縣市／鄉鎮），比對出地理範圍相關的
-   圖資來源 id。規則資料放在 data/source-map.json（SOURCE_MAP_RULES），
-   這裡只是通用的規則解讀器：不再用一長串 if(county.includes(...))
-   寫死縣市對應，新增/調整縣市對應時改 JSON 就好，不需要動這支函式。
+   依 Nominatim 回傳的地址元件，比對出地理範圍相關的圖資來源 id。
+   規則資料放在 data/source-map.json（SOURCE_MAP_RULES），這裡只是
+   通用的規則解讀器：不再用一長串 if(county.includes(...)) 寫死縣市
+   對應，新增/調整縣市對應時改 JSON 就好，不需要動這支函式。
+
+   不特別區分「縣市」跟「鄉鎮」兩層分開比對，而是把地址所有可能相關
+   的欄位合併成一個字串一起比對。原因：Nominatim 對台灣「區」這種
+   直轄市行政區劃，實際塞進哪個欄位並不穩定（例如「八德區」這種區級
+   資訊，實測過有時候會出現在 city 欄位——但 city 同時也是判斷縣市
+   常用的欄位之一），同一個欄位名稱在不同查詢代表的行政層級可能不同，
+   硬性規定「這個欄位一定是縣市、那個欄位一定是鄉鎮」並不可靠。
+   合併後統一比對，不管值落在哪個欄位、對應到哪一層，只要字串裡有
+   符合的關鍵字就抓得到，跟極端狀況下漏掉整個來源比起來，多檢查
+   幾個不相關的來源是可以接受的代價（後面还有座標 bbox 與圖磚探測
+   把關，不會因此顯示出錯誤的圖層）。
 --------------------------------------------------------- */
+const ADDRESS_MATCH_FIELDS = [
+  'county', 'state', 'region',                                    // 縣市／省層級
+  'city', 'city_district', 'district', 'municipality', 'township', // 直轄市／區／鄉鎮層級
+  'town', 'suburb', 'quarter', 'borough', 'village', 'hamlet', 'neighbourhood' // 鄉鎮市區／村里層級
+];
+
 export function matchSourceIdsForAddress(addr){
   addr = addr || {};
-  const county = (addr.county || addr.city || addr.state || '');
-  const district = (addr.town || addr.city_district || addr.suburb || addr.village || '');
+  const haystack = ADDRESS_MATCH_FIELDS.map(k => addr[k] || '').join('');
   const ids = new Set(SOURCE_MAP_RULES.alwaysInclude); // 全臺涵蓋來源，一律列入候選
 
   SOURCE_MAP_RULES.rules.forEach(rule => {
-    const haystack = rule.match === 'county+district' ? (county + district) : county;
     const hit = rule.includes.some(k => haystack.includes(k));
     if(!hit) return;
     rule.sources.forEach(id => ids.add(id));
@@ -219,7 +236,7 @@ export function matchSourceIdsForAddress(addr){
     if(rule.districtRule){
       const dr = rule.districtRule;
       const districtList = dr.includes || SOURCE_MAP_RULES.districtSets[dr.includesFromSet] || [];
-      if(districtList.some(d => district.includes(d))){
+      if(districtList.some(d => haystack.includes(d))){
         dr.sources.forEach(id => ids.add(id));
       }
     }

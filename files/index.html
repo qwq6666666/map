@@ -61,6 +61,14 @@
   <div class="stamp-label" id="stampLabel"></div>
 </div>
 
+<div id="mapTimelineBar">
+  <div class="map-timeline-bar-head">
+    <span class="map-timeline-hint" id="mapTimelineHint">1:25,000 系列歷史地形圖（依地圖中心點）</span>
+    <button type="button" id="mapTimelineRefreshBtn" class="map-timeline-refresh-btn">重新整理</button>
+  </div>
+  <div class="map-timeline-bar-inner" id="mapTimelineBarInner"></div>
+</div>
+
 <div id="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-header-text">
@@ -110,6 +118,7 @@
     <div class="mode-switch" id="modeSwitch">
       <button data-mode="overlay" class="active">透明疊圖</button>
       <button data-mode="compare">左右比對</button>
+      <button data-mode="timeline">時間軸</button>
     </div>
 
     <div id="overlayPanel">
@@ -124,6 +133,10 @@
 
     <div id="comparePanel">
       <p class="compare-hint">左右兩側要比對的圖層選單已移到地圖下方，收合側邊欄也能直接切換。拖曳地圖上的圓形把手，左右滑動比對兩個圖層的差異，任何底圖或歷史圖層都可以自由搭配。</p>
+    </div>
+
+    <div id="timelinePanel">
+      <p class="compare-hint">依年代瀏覽「台灣百年歷史地圖」1:25,000 系列地形圖（1897～2003，同一種精細地圖橫跨百年）：時間軸已移到地圖下方，會依目前地圖畫面中心點列出可用年份，可拖曳搖桿、點選年份圓點，或按「播放」自動依序播放。地圖移動後不會自動重新整理，按浮動列上的「重新整理」才會更新。</p>
     </div>
   </div>
 </div>

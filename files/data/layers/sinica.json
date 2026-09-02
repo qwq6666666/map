@@ -25,7 +25,7 @@
           "year": 1904,
           "dateLabel": "1904",
           "type": null,
-          "scale": null,
+          "scale": "1:20000",
           "region": null,
           "keywords": []
         },
@@ -47,7 +47,7 @@
           "year": 1921,
           "dateLabel": "1921",
           "type": null,
-          "scale": null,
+          "scale": "1:20000",
           "region": null,
           "keywords": []
         },
@@ -58,7 +58,7 @@
           "year": 1921,
           "dateLabel": "1921",
           "type": null,
-          "scale": null,
+          "scale": "1:25000",
           "region": null,
           "keywords": []
         },
@@ -69,7 +69,7 @@
           "year": 1942,
           "dateLabel": "1942",
           "type": null,
-          "scale": null,
+          "scale": "1:25000",
           "region": null,
           "keywords": []
         },
@@ -80,7 +80,7 @@
           "year": 1944,
           "dateLabel": "1944",
           "type": null,
-          "scale": null,
+          "scale": "1:25000",
           "region": null,
           "keywords": []
         },
@@ -91,7 +91,7 @@
           "year": 1916,
           "dateLabel": "1916",
           "type": null,
-          "scale": null,
+          "scale": "1:50000",
           "region": null,
           "keywords": []
         },
@@ -102,7 +102,7 @@
           "year": 1920,
           "dateLabel": "1920",
           "type": null,
-          "scale": null,
+          "scale": "1:50000",
           "region": null,
           "keywords": []
         },
@@ -113,7 +113,7 @@
           "year": 1924,
           "dateLabel": "1924",
           "type": null,
-          "scale": null,
+          "scale": "1:50000",
           "region": null,
           "keywords": []
         },
@@ -124,7 +124,7 @@
           "year": 1924,
           "dateLabel": "1924",
           "type": null,
-          "scale": null,
+          "scale": "1:50000",
           "region": null,
           "keywords": []
         },
@@ -135,7 +135,7 @@
           "year": 1905,
           "dateLabel": "1905",
           "type": null,
-          "scale": null,
+          "scale": "1:100000",
           "region": null,
           "keywords": []
         },
@@ -146,7 +146,7 @@
           "year": 1897,
           "dateLabel": "1897",
           "type": null,
-          "scale": null,
+          "scale": "1:200000",
           "region": null,
           "keywords": []
         },
@@ -157,7 +157,7 @@
           "year": 1897,
           "dateLabel": "1897",
           "type": null,
-          "scale": null,
+          "scale": "1:200000",
           "region": null,
           "keywords": []
         },
@@ -168,7 +168,7 @@
           "year": 1932,
           "dateLabel": "1932",
           "type": null,
-          "scale": null,
+          "scale": "1:200000",
           "region": null,
           "keywords": []
         },
@@ -179,7 +179,7 @@
           "year": 1944,
           "dateLabel": "1944",
           "type": null,
-          "scale": null,
+          "scale": "1:200000",
           "region": null,
           "keywords": []
         },
@@ -190,7 +190,7 @@
           "year": 1924,
           "dateLabel": "1924",
           "type": null,
-          "scale": null,
+          "scale": "1:300000",
           "region": null,
           "keywords": []
         },
@@ -201,7 +201,7 @@
           "year": 1934,
           "dateLabel": "1934",
           "type": null,
-          "scale": null,
+          "scale": "1:300000",
           "region": null,
           "keywords": []
         },
@@ -212,7 +212,7 @@
           "year": 1939,
           "dateLabel": "1939",
           "type": null,
-          "scale": null,
+          "scale": "1:300000",
           "region": null,
           "keywords": []
         },
@@ -223,7 +223,7 @@
           "year": 1899,
           "dateLabel": "1899",
           "type": null,
-          "scale": null,
+          "scale": "1:400000",
           "region": null,
           "keywords": []
         },
@@ -234,7 +234,7 @@
           "year": 1936,
           "dateLabel": "1936",
           "type": null,
-          "scale": null,
+          "scale": "1:500000",
           "region": null,
           "keywords": []
         },
@@ -278,7 +278,7 @@
           "year": 1933,
           "dateLabel": "1933",
           "type": null,
-          "scale": null,
+          "scale": "1:50000",
           "region": null,
           "keywords": []
         },
@@ -389,7 +389,7 @@
           "year": 1944,
           "dateLabel": "1944",
           "type": null,
-          "scale": null,
+          "scale": "1:25000",
           "region": null,
           "keywords": []
         },
@@ -400,7 +400,7 @@
           "year": 1944,
           "dateLabel": "1944",
           "type": null,
-          "scale": null,
+          "scale": "1:25000",
           "region": null,
           "keywords": []
         },
@@ -411,7 +411,7 @@
           "year": 1944,
           "dateLabel": "1944",
           "type": null,
-          "scale": null,
+          "scale": "1:50000",
           "region": null,
           "keywords": []
         },
@@ -433,7 +433,7 @@
           "year": 1944,
           "dateLabel": "1944",
           "type": null,
-          "scale": null,
+          "scale": "1:250000",
           "region": null,
           "keywords": []
         }
@@ -450,7 +450,7 @@
           "year": 1950,
           "dateLabel": "1950",
           "type": null,
-          "scale": null,
+          "scale": "1:25000",
           "region": null,
           "keywords": []
         },
@@ -461,7 +461,7 @@
           "year": 1955,
           "dateLabel": "1955",
           "type": null,
-          "scale": null,
+          "scale": "1:25000",
           "region": null,
           "keywords": []
         },
@@ -472,7 +472,7 @@
           "year": 1966,
           "dateLabel": "1966",
           "type": null,
-          "scale": null,
+          "scale": "1:25000",
           "region": null,
           "keywords": []
         },
@@ -483,7 +483,7 @@
           "year": 1989,
           "dateLabel": "1989",
           "type": null,
-          "scale": null,
+          "scale": "1:25000",
           "region": null,
           "keywords": []
         },
@@ -494,7 +494,7 @@
           "year": 1993,
           "dateLabel": "1993",
           "type": null,
-          "scale": null,
+          "scale": "1:25000",
           "region": null,
           "keywords": []
         },
@@ -505,7 +505,7 @@
           "year": 2001,
           "dateLabel": "2001",
           "type": null,
-          "scale": null,
+          "scale": "1:25000",
           "region": null,
           "keywords": []
         },
@@ -516,7 +516,7 @@
           "year": 2003,
           "dateLabel": "2003",
           "type": null,
-          "scale": null,
+          "scale": "1:25000",
           "region": null,
           "keywords": []
         },
@@ -527,7 +527,7 @@
           "year": 1954,
           "dateLabel": "1954",
           "type": null,
-          "scale": null,
+          "scale": "1:50000",
           "region": null,
           "keywords": []
         },
@@ -538,7 +538,7 @@
           "year": 1956,
           "dateLabel": "1956",
           "type": null,
-          "scale": null,
+          "scale": "1:50000",
           "region": null,
           "keywords": []
         },
@@ -560,7 +560,7 @@
           "year": 1990,
           "dateLabel": "1990",
           "type": null,
-          "scale": null,
+          "scale": "1:50000",
           "region": null,
           "keywords": []
         },
@@ -571,7 +571,7 @@
           "year": 1996,
           "dateLabel": "1996",
           "type": null,
-          "scale": null,
+          "scale": "1:50000",
           "region": null,
           "keywords": []
         },
@@ -582,7 +582,7 @@
           "year": 2003,
           "dateLabel": "2003",
           "type": null,
-          "scale": null,
+          "scale": "1:50000",
           "region": null,
           "keywords": []
         },
@@ -593,7 +593,7 @@
           "year": 2000,
           "dateLabel": "2000",
           "type": null,
-          "scale": null,
+          "scale": "1:50000",
           "region": null,
           "keywords": []
         },
@@ -604,7 +604,7 @@
           "year": 2000,
           "dateLabel": "2000",
           "type": null,
-          "scale": null,
+          "scale": "1:50000",
           "region": null,
           "keywords": []
         },
@@ -615,7 +615,7 @@
           "year": 1970,
           "dateLabel": "1970",
           "type": null,
-          "scale": null,
+          "scale": "1:10000",
           "region": null,
           "keywords": []
         },
@@ -626,7 +626,7 @@
           "year": 1974,
           "dateLabel": "1974",
           "type": null,
-          "scale": null,
+          "scale": "1:10000",
           "region": null,
           "keywords": []
         },
@@ -637,7 +637,7 @@
           "year": 1953,
           "dateLabel": "1953",
           "type": null,
-          "scale": null,
+          "scale": "1:100000",
           "region": null,
           "keywords": []
         },
@@ -648,7 +648,7 @@
           "year": 1984,
           "dateLabel": "1984",
           "type": null,
-          "scale": null,
+          "scale": "1:100000",
           "region": null,
           "keywords": []
         },
@@ -659,7 +659,7 @@
           "year": 1987,
           "dateLabel": "1987",
           "type": null,
-          "scale": null,
+          "scale": "1:100000",
           "region": null,
           "keywords": []
         },
@@ -670,7 +670,7 @@
           "year": 1963,
           "dateLabel": "1963",
           "type": null,
-          "scale": null,
+          "scale": "1:250000",
           "region": null,
           "keywords": []
         },
@@ -681,7 +681,7 @@
           "year": 1973,
           "dateLabel": "1973",
           "type": null,
-          "scale": null,
+          "scale": "1:250000",
           "region": null,
           "keywords": []
         },
@@ -692,7 +692,7 @@
           "year": 1988,
           "dateLabel": "1988",
           "type": null,
-          "scale": null,
+          "scale": "1:250000",
           "region": null,
           "keywords": []
         },
@@ -703,7 +703,7 @@
           "year": 1959,
           "dateLabel": "1959",
           "type": null,
-          "scale": null,
+          "scale": "1:100000",
           "region": null,
           "keywords": []
         },
@@ -714,7 +714,7 @@
           "year": 1966,
           "dateLabel": "1966",
           "type": null,
-          "scale": null,
+          "scale": "1:500000",
           "region": null,
           "keywords": []
         },
@@ -725,7 +725,7 @@
           "year": 1978,
           "dateLabel": "1978",
           "type": null,
-          "scale": null,
+          "scale": "1:500000",
           "region": null,
           "keywords": []
         },
@@ -736,7 +736,7 @@
           "year": 1953,
           "dateLabel": "1953",
           "type": null,
-          "scale": null,
+          "scale": "1:150000",
           "region": null,
           "keywords": []
         },
