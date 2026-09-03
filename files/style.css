@@ -476,8 +476,15 @@
     touch-action:none;
   }
   /* ---------- 左右比對：浮動於地圖左下／右下的圖層選單 ---------- */
+  /* z-index 特別設成 11（比 #swipeDivider 的 9 高一階）：這個容器內部
+     的 .layer-picker-panel 雖然自己設了 z-index:20，但那只在
+     .compare-float-item 自己的疊層範圍內有效，出了這層就不算數。
+     #swipeDivider 在 HTML 裡排在 .compare-float-item 後面，兩者原本
+     同樣是 z-index:9，同分時後面的元素蓋前面的，導致展開圖層選單時
+     滑桿分隔線／把手會蓋在選單面板上面。直接把整個容器墊高，
+     面板展開時才能確實蓋過滑桿。 */
   .compare-float-item{
-    position:absolute; bottom:16px; z-index:9; display:none;
+    position:absolute; bottom:16px; z-index:11; display:none;
     align-items:center; gap:6px;
     background:rgba(23,33,29,.82); padding:5px 8px; border-radius:3px;
     box-shadow:0 3px 10px rgba(0,0,0,.3);
