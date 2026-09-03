@@ -86,21 +86,17 @@
   </svg>
 </button>
 <div id="drawToolbar" class="draw-toolbar">
-  <div class="draw-toolbar-group">
+  <div class="draw-toolbar-row">
+    <button type="button" class="draw-tool-btn" data-tool="select" title="選取／編輯已畫的圖形">選取</button>
     <button type="button" class="draw-tool-btn" data-tool="point" title="標記點（可加文字說明）">點</button>
     <button type="button" class="draw-tool-btn" data-tool="line" title="畫線（自動顯示長度）">線</button>
     <button type="button" class="draw-tool-btn" data-tool="polygon" title="畫面（自動顯示面積）">面</button>
-    <button type="button" class="draw-tool-btn" data-tool="select" title="選取／編輯已畫的圖形">選取</button>
   </div>
-  <div class="draw-toolbar-sep"></div>
-  <div class="draw-toolbar-group">
+  <div class="draw-toolbar-row">
     <button type="button" id="drawDeleteBtn" class="draw-tool-btn" title="刪除目前選取的圖形">刪除</button>
-    <button type="button" id="drawClearBtn" class="draw-tool-btn" title="清除全部繪製內容">清空</button>
-  </div>
-  <div class="draw-toolbar-sep"></div>
-  <div class="draw-toolbar-group">
-    <button type="button" id="drawExportGeoJSONBtn" class="draw-tool-btn" title="匯出成 GeoJSON，可匯入 QGIS／ArcGIS 等 GIS 軟體">GeoJSON</button>
-    <button type="button" id="drawExportImageBtn" class="draw-tool-btn" title="把目前地圖畫面（含底圖與繪製內容）匯出成 PNG 圖片">截圖</button>
+    <button type="button" id="drawClearBtn" class="draw-tool-btn draw-tool-btn-danger" title="清除全部繪製內容">清空</button>
+    <button type="button" id="drawExportGeoJSONBtn" class="draw-tool-btn draw-tool-btn-wrap" title="匯出成 GeoJSON 檔案並下載，可匯入 QGIS／ArcGIS 等 GIS 軟體">匯出<br>GeoJSON</button>
+    <button type="button" id="drawExportImageBtn" class="draw-tool-btn draw-tool-btn-wrap" title="把目前地圖畫面（含底圖與繪製內容）匯出成 PNG 圖片並下載">地圖<br>截圖</button>
   </div>
 </div>
 

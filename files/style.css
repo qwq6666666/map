@@ -243,28 +243,40 @@
   .draw-toggle-btn:hover{background:var(--brass-dark);}
   .draw-toggle-btn.active{background:var(--stamp); border-color:var(--stamp);}
 
-  /* 展開後的工具列：直向排列、往下延伸，緊接在收合按鈕下方，
-     以 max-height 限制高度並在超出時捲動，避免長到碰到下方的縮放控制
-     （縮放按鈕已下移到 bottom:70px，這裡預留約 300px 讓工具列在到達
-     縮放按鈕前就先出現捲軸，兩者之間保留安全間距） */
+  /* 展開後的工具列：固定兩排、每排四顆按鈕橫排（選取/點/線/面 一排，
+     刪除/清空/GeoJSON/截圖 一排），寬度固定、不需捲動。
+     寬度以「選取／點／線／面」這排的字寬為準，GeoJSON／截圖字比較長，
+     放不下就用較小字級＋兩行文字塞進同樣大小的格子，而不是把格子撐大 */
   .draw-toolbar{
     position:absolute; top:118px; right:16px; z-index:8;
     display:none; flex-direction:column; align-items:stretch; gap:6px;
     background:var(--paper); border:1px solid var(--rule); border-radius:14px;
     padding:8px; box-shadow:0 3px 10px rgba(0,0,0,.3);
-    max-height:calc(100vh - 300px); overflow-y:auto; white-space:normal;
+    width:208px;
   }
   .draw-toolbar.show{display:flex;}
-  .draw-toolbar-group{display:flex; flex-direction:column; gap:4px; flex-shrink:0;}
+  .draw-toolbar-row{display:flex; flex-direction:row; gap:5px;}
   .draw-tool-btn{
-    font-size:11.5px; padding:6px 10px;
+    font-size:11.5px; padding:6px 4px;
     background:var(--paper); color:var(--ink); border:1px solid var(--rule);
-    border-radius:14px; cursor:pointer; white-space:nowrap; flex-shrink:0;
-    width:100%; text-align:center;
+    border-radius:12px; cursor:pointer; white-space:nowrap;
+    flex:1 1 0; min-width:0; text-align:center;
   }
   .draw-tool-btn:hover{background:var(--paper-dim);}
   .draw-tool-btn.active{background:var(--ink); color:var(--paper); border-color:var(--ink);}
-  .draw-toolbar-sep{width:100%; height:1px; background:var(--paper-dim); flex-shrink:0;}
+
+  /* 清空＝破壞性操作（一鍵清除全部繪製內容），用紅色提示使用者留意 */
+  .draw-tool-btn-danger{
+    color:#b3261e; border-color:#e2a29c;
+  }
+  .draw-tool-btn-danger:hover{background:#fbe9e7; border-color:#b3261e;}
+
+  /* 「匯出 GeoJSON」「地圖截圖」字比其他按鈕長，格子大小仍跟同排其他
+     按鈕一樣（flex:1 1 0 平分寬度），放不下就縮小字級＋兩行顯示 */
+  .draw-tool-btn-wrap{
+    white-space:normal; line-height:1.15; font-size:9.5px; padding:5px 2px;
+
+  }
 
   /* ---------- Date stamp (signature element) ---------- */
   #stamp{
@@ -292,12 +304,11 @@
 
   /* ---------- 地圖縮放按鈕：不論疊圖或比對模式、側邊欄展開或收合，
      左側整條都可能被側邊欄佔住，故把 OpenLayers 內建的 +/- 縮放
-     控制項改放到右下角空白處。往下移到貼近比對模式選單（.compare-float-item，
-     bottom:16px）上方一小段距離即可，兩者之間留了安全間距、不會互相遮擋；
-     同時把繪製工具列（.draw-toolbar）的高度上限往下調，讓工具列展開時
-     不會再蓋住縮放按鈕 ---------- */
+     控制項改放到右下角空白處。右下角同時有日期印章（#stamp，
+     bottom:22px、高 108px，最高會佔到約 bottom:130px），縮放按鈕
+     必須整個放在印章上方、留出安全間距，避免兩者互相遮擋 ---------- */
   .ol-zoom{
-    top:auto; left:auto; right:16px; bottom:70px;
+    top:auto; left:auto; right:16px; bottom:150px;
   }
   .ol-zoom button{
     background-color:rgba(23,33,29,.88) !important;
