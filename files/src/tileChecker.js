@@ -16,6 +16,11 @@
      4. 快取上限（maxCacheEntries）：避免長時間使用同一頁面時，
         快取隨著搜尋次數增加而無限成長；超過上限時汰換掉最舊的
         紀錄（簡單的 FIFO／近似 LRU，因為每次命中都會刷新順序）。
+     5. 失敗重試一次：第一次探測失敗（含逾時）不會直接判定為「沒
+        資料」，而是再探測一次；兩次都失敗才真的算沒資料。目的是
+        過濾掉單純網路波動、伺服器回應慢造成的偽陰性——這種情況
+        跟「這個位置真的沒有這份地圖」是不同的問題，不該混在一起
+        被當成同一種「找不到」。
 
    未來如果圖層數量成長到數千筆，這裡是唯一需要調整併發數、逾時、
    快取策略的地方，不會影響 searchUI.js 的搜尋流程邏輯。
@@ -53,13 +58,19 @@ export class TileChecker {
     });
   }
 
+  // 第一次探測失敗（含逾時）時，再探測一次；兩次都失敗才真的算沒資料。
+  // 只在失敗時才重試，成功的情況不受影響、不會多花時間。
+  _probeWithRetry(url){
+    return this._probe(url).then(ok => ok ? ok : this._probe(url));
+  }
+
   // 探測單一網址是否有資料。優先讀快取，其次共用進行中的請求，
   // 都沒有才真的發送圖磚請求。
   checkOne(url){
     if(!url) return Promise.resolve(false);
     if(this.cache.has(url)) return Promise.resolve(this.cache.get(url));
     if(this.pending.has(url)) return this.pending.get(url);
-    const promise = this._probe(url).then(ok=>{
+    const promise = this._probeWithRetry(url).then(ok=>{
       this._remember(url, ok);
       this.pending.delete(url);
       return ok;
@@ -89,6 +100,37 @@ export class TileChecker {
         checked++;
         if(onProgress) onProgress(checked, total);
         if(ok) available.push(item);
+      }
+    };
+
+    const runnerCount = Math.min(this.concurrency, items.length || 1);
+    const runners = Array.from({ length: runnerCount }, worker);
+    await Promise.all(runners);
+    return available;
+  }
+
+  // 跟 checkBatch 類似，差別是 urlsOf(item) 回傳「一組網址」而不是單一
+  // 網址，只要這組裡任何一個網址探測成功，就把這個候選項目算作「有
+  // 資料」。用途：中心點那一顆圖磚探測失敗時，改測它周圍幾顆鄰近圖磚
+  // （見 core/tileGeo.js 的 neighborTiles()），只要附近有資料就不該
+  // 被當成「找不到」。內部一樣透過 checkOne 走快取／去重，即使不同
+  // 候選項目的鄰近圖磚剛好重疊，也不會重複發送請求。
+  async checkBatchAny(items, urlsOf, onProgress){
+    const total = items.length;
+    const available = [];
+    let cursor = 0;
+    let checked = 0;
+
+    const worker = async () => {
+      while(cursor < items.length){
+        const idx = cursor++;
+        const item = items[idx];
+        let urls = [];
+        try{ urls = urlsOf(item) || []; }catch(e){ urls = []; }
+        const results = await Promise.all(urls.map(u => this.checkOne(u)));
+        checked++;
+        if(onProgress) onProgress(checked, total);
+        if(results.some(Boolean)) available.push(item);
       }
     };
 

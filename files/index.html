@@ -5,6 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>臺灣百年歷史地圖疊圖器</title>
 
+<!-- Content Security Policy：靜態網站（GitHub Pages 等）用 meta 形式設定。
+     img-src / connect-src 使用較寬鬆的 https: 而非逐一列舉 WMTS 網域，
+     因為歷史圖資來源會持續新增（見 data/layers/*.json），核心的
+     「禁止任意 URL 請求」把關已在應用層（src/data.js 的 key 白名單機制）
+     完成，這裡是多一層防禦深度，不是唯一防線。
+     style-src 保留 'unsafe-inline' 是因為 OpenLayers 與部分 UI 程式碼
+     會用行內 style 屬性（element.style.xxx）；script-src 沒有加
+     'unsafe-inline'，因為全站沒有任何 inline <script>。 -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' https://cdn.jsdelivr.net;
+  style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com;
+  font-src https://fonts.gstatic.com;
+  img-src 'self' data: blob: https:;
+  connect-src 'self' https://nominatim.openstreetmap.org https:;
+  object-src 'none';
+  base-uri 'self';
+  frame-ancestors 'none';
+">
+
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v9.2.4/ol.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -100,6 +121,14 @@
   <div class="map-timeline-bar-inner" id="mapTimelineBarInner"></div>
 </div>
 
+<div id="multiOverlayBar">
+  <div class="multi-overlay-bar-head">
+    <span class="map-timeline-hint">已選圖層（越上面疊越上層）</span>
+    <button type="button" id="multiOverlayClearBtn" class="map-timeline-refresh-btn">全部清除</button>
+  </div>
+  <div class="multi-overlay-bar-inner" id="multiOverlayBarInner"></div>
+</div>
+
 <div id="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-header-text">
@@ -150,6 +179,7 @@
       <button data-mode="overlay" class="active">透明疊圖</button>
       <button data-mode="compare">左右比對</button>
       <button data-mode="timeline">時間軸</button>
+      <button data-mode="multi">複合疊圖</button>
     </div>
 
     <div id="overlayPanel">
@@ -168,6 +198,11 @@
 
     <div id="timelinePanel">
       <p class="compare-hint">依年代瀏覽「台灣百年歷史地圖」精細地形圖系列：時間軸已移到地圖下方，可切換 1:25,000／1:50,000／混合兩者。會依目前地圖畫面中心點列出可用年份，可拖曳搖桿、點選年份圓點，或按「播放」自動依序播放。地圖移動後不會自動重新整理，按浮動列上的「重新整理」才會更新。</p>
+    </div>
+
+    <div id="multiPanel">
+      <p class="compare-hint">從下面清單勾選要一起疊加的歷史地圖，可以勾多張。已選圖層清單在地圖下方，可以各自調整透明度、疊放順序，或移除。</p>
+      <div id="multiCategories" class="multi-categories"></div>
     </div>
   </div>
 </div>

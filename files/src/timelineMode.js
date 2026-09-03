@@ -15,11 +15,19 @@
    後只更新一個輕量的「地圖已移動」提示（純畫面狀態、不碰網路），
    真正重新探測交給使用者自己按「重新整理」按鈕決定，類似 Google 地圖
    「搜尋此區域」的做法。
+
+   中心點那一顆圖磚沒資料時，不會直接判定「這個位置沒有這份地圖」，
+   而是改測它周圍 8 顆鄰近圖磚（見 core/tileGeo.js 的 neighborTiles）；
+   只要附近有資料就算這個位置有涵蓋。這是因為老地圖的實際掃描範圍常常
+   不是整齊的矩形，圖幅邊界、拼接處的空白 margin 很容易剛好卡在地圖
+   中心點那一顆圖磚裡，隔壁圖磚其實是有資料的——只探測單一一個點很
+   容易在這種邊界情形誤判成「找不到」。
 --------------------------------------------------------- */
 import { state as store, selectOverlayLayer } from './store.js';
 import { LAYER_SOURCES, layerKey } from './data.js';
 import { TileChecker } from './tileChecker.js';
 import { buildTimeline } from './timelineUI.js';
+import { lonLatToTileXY, neighborTiles } from './core/tileGeo.js';
 
 const ZOOM = 15;
 
@@ -54,21 +62,6 @@ const SCALE_MODES = {
 let currentScaleMode = '25k';
 
 const tileChecker = new TileChecker({ concurrency: 10, timeoutMs: 6000 });
-
-// 跟 searchUI.js 裡同一支函式邏輯相同（將經緯度換算成 Slippy Map 圖磚座標），
-// 因為只有這裡跟 searchUI.js 兩處用到、彼此不互相依賴，這裡單獨保留一份，
-// 避免為了共用 8 行程式碼而在兩個功能模組之間增加不必要的匯入關係。
-function lonLatToTileXY(lon, lat, z){
-  const n = Math.pow(2, z);
-  const x = Math.floor((lon + 180) / 360 * n);
-  const latRad = lat * Math.PI / 180;
-  const y = Math.floor((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n);
-  return {
-    x: Math.max(0, Math.min(n - 1, x)),
-    y: Math.max(0, Math.min(n - 1, y)),
-    z
-  };
-}
 
 let mapRef = null;
 let containerEl = null;
@@ -120,8 +113,28 @@ function refreshNow(){
       const p = containerEl.querySelector('.avail-empty');
       if(p) p.textContent = `正在確認 ${checked} / ${total} 筆${activeMode.label}是否有資料…`;
     }
-  ).then(available => {
+  ).then(async available => {
     if(myToken !== refreshToken) return; // 使用者在探測過程中又切換了系列或按了重新整理，捨棄這次結果
+
+    // 中心點那一顆圖磚沒資料的圖層，改測它周圍 8 顆鄰近圖磚（見
+    // core/tileGeo.js 的說明：老地圖圖幅邊界、掃描空白 margin 常常剛好
+    // 卡在地圖中心點所在的那一顆，隔壁圖磚其實是有資料的）。只對「中心點
+    // 沒資料」的圖層才多做這一步，不會讓正常情況下的請求量變多。
+    const availableKeys = new Set(available.map(c => layerKey(c.src, c.layer)));
+    const failedDirect = candidates.filter(c => !availableKeys.has(layerKey(c.src, c.layer)));
+    if(failedDirect.length > 0){
+      const p = containerEl.querySelector('.avail-empty');
+      if(p) p.textContent = `中心點沒有資料的 ${failedDirect.length} 筆，正在檢查鄰近位置是否有資料…`;
+
+      const neighborHits = await tileChecker.checkBatchAny(
+        failedDirect,
+        (c) => neighborTiles(tile).map(t =>
+          c.src.tileUrl(c.layer).replace('{z}', t.z).replace('{x}', t.x).replace('{y}', t.y)
+        )
+      );
+      if(myToken !== refreshToken) return;
+      available = available.concat(neighborHits);
+    }
 
     if(available.length === 0){
       containerEl.innerHTML = `<p class="avail-empty">目前地圖畫面中心點附近，${activeMode.label}沒有找到資料，請移動地圖到其他地方試試看。</p>`;

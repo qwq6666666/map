@@ -16,12 +16,17 @@
 --------------------------------------------------------- */
 
 export const state = {
-  mode: 'overlay',        // 'overlay'（透明疊圖）或 'compare'（左右比對）
+  mode: 'overlay',        // 'overlay'／'compare'／'timeline'／'multi'（複合疊圖：可同時疊加多張）
   baseLayer: 'osm',       // 'osm' 或 'sat'，兩種模式共用的底圖
   activeOverlayKey: null, // 透明疊圖模式目前套疊的歷史圖層 key（null 代表沒有）
   compareA: 'hist:sinica:JM20K_1904:jpg', // 比對模式左側 key
   compareB: 'base:osm',                    // 比對模式右側 key
-  swipePercent: 50        // 比對模式分隔線位置（0~100）
+  swipePercent: 50,       // 比對模式分隔線位置（0~100）
+  // 複合疊圖模式：可同時勾選多張歷史圖層一起疊在地圖上，陣列順序＝
+  // 疊放順序（index 越大＝疊在越上層，跟 z-index 的直覺一致）。跟
+  // activeOverlayKey（單選）刻意分開存放，兩者互不影響，切換模式時
+  // 不會互相覆蓋掉對方記得的選擇。
+  multiOverlayLayers: []  // [{ key, opacity }, ...]，opacity 是 0~100 的整數
 };
 
 const listeners = [];
@@ -74,4 +79,48 @@ export function setCompareSide(side, key){
 
 export function setSwipePercent(percent){
   setState({ swipePercent: percent });
+}
+
+/* ---------------------------------------------------------
+   複合疊圖模式的意圖動作。跟 selectOverlayLayer（單選 toggle）並列，
+   語意是「加入/移出目前的疊圖組合」而不是「取代目前顯示的圖層」。
+--------------------------------------------------------- */
+
+// 勾選/取消勾選一張圖層：不在清單裡就加到最上層（陣列尾端）、
+// 已經在清單裡就移除，是側邊欄 checkbox 點擊的核心邏輯。
+export function toggleMultiOverlayLayer(key){
+  const idx = state.multiOverlayLayers.findIndex(e => e.key === key);
+  const next = idx === -1
+    ? [...state.multiOverlayLayers, { key, opacity: 100 }]
+    : state.multiOverlayLayers.filter(e => e.key !== key);
+  setState({ multiOverlayLayers: next });
+}
+
+export function removeMultiOverlayLayer(key){
+  const next = state.multiOverlayLayers.filter(e => e.key !== key);
+  if(next.length === state.multiOverlayLayers.length) return; // 沒有這個 key，不用觸發廣播
+  setState({ multiOverlayLayers: next });
+}
+
+export function setMultiOverlayOpacity(key, opacity){
+  const next = state.multiOverlayLayers.map(e => e.key === key ? { ...e, opacity } : e);
+  setState({ multiOverlayLayers: next });
+}
+
+// 調整疊放順序：direction 為 +1（疊到更上層，陣列往後移一格）或
+// -1（疊到更下層，陣列往前移一格）。已經在最上/最下層時不做事。
+export function moveMultiOverlayLayer(key, direction){
+  const list = state.multiOverlayLayers;
+  const idx = list.findIndex(e => e.key === key);
+  if(idx === -1) return;
+  const newIdx = idx + direction;
+  if(newIdx < 0 || newIdx >= list.length) return;
+  const next = [...list];
+  [next[idx], next[newIdx]] = [next[newIdx], next[idx]];
+  setState({ multiOverlayLayers: next });
+}
+
+export function clearMultiOverlayLayers(){
+  if(state.multiOverlayLayers.length === 0) return;
+  setState({ multiOverlayLayers: [] });
 }

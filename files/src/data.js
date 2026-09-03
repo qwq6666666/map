@@ -83,12 +83,80 @@ function sortAllLayers(){
   });
 }
 
+/* ---------------------------------------------------------
+   最基本的 JSON metadata 型別檢查（非完整 schema library，只檢查
+   後續程式碼會直接假設存在、且會被拿去 .map()／.forEach()／存取
+   巢狀欄位的關鍵結構），目的是讓格式錯誤在載入當下就丟出清楚的
+   錯誤訊息（例如「layers.bundle.json：sources[3] 缺少 provider」），
+   而不是等到執行到 sortAllLayers()／matchSourceIdsForAddress() 等
+   更深層的地方才丟出難以定位問題的例外。
+   驗證失敗時直接 throw，交由呼叫端（main.js 的 try/catch）統一
+   顯示「圖層資料載入失敗」提示，不個別 catch。
+--------------------------------------------------------- */
+function assertShape(cond, message){
+  if(!cond) throw new Error(`[資料格式錯誤] ${message}`);
+}
+
+function validateLayersBundle(layersData){
+  assertShape(layersData && typeof layersData === 'object', 'layers.bundle.json 不是有效的物件');
+  assertShape(Array.isArray(layersData.sources), 'layers.bundle.json 缺少 sources 陣列');
+  layersData.sources.forEach((src, i) => {
+    const tag = `layers.bundle.json：sources[${i}]`;
+    assertShape(src && typeof src === 'object', `${tag} 不是有效的物件`);
+    assertShape(typeof src.id === 'string' && src.id, `${tag} 缺少 id`);
+    assertShape(typeof src.name === 'string' && src.name, `${tag}（id=${src.id}） 缺少 name`);
+    assertShape(src.provider && typeof src.provider === 'object', `${tag}（id=${src.id}） 缺少 provider`);
+    assertShape(src.region && Array.isArray(src.region.bbox) && src.region.bbox.length === 4,
+      `${tag}（id=${src.id}） 缺少合法的 region.bbox（需為 [minLon,minLat,maxLon,maxLat]）`);
+    assertShape(Array.isArray(src.categories), `${tag}（id=${src.id}） 缺少 categories 陣列`);
+    src.categories.forEach((cat, ci) => {
+      const ctag = `${tag}（id=${src.id}）categories[${ci}]`;
+      assertShape(cat && typeof cat.name === 'string', `${ctag} 缺少 name`);
+      assertShape(Array.isArray(cat.layers) || Array.isArray(cat.groups),
+        `${ctag} 需要有 layers 或 groups 其中一個陣列`);
+      const layerLists = cat.groups
+        ? cat.groups.map(g => g.layers)
+        : [cat.layers];
+      layerLists.forEach((layers, gi) => {
+        assertShape(Array.isArray(layers), `${ctag}${cat.groups ? ` groups[${gi}]` : ''} 缺少 layers 陣列`);
+        layers.forEach((l, li) => {
+          const ltag = `${ctag} layers[${li}]`;
+          assertShape(typeof l.id === 'string' && l.id, `${ltag} 缺少 id`);
+          assertShape(typeof l.title === 'string', `${ltag}（id=${l.id}） 缺少 title`);
+          assertShape(typeof l.format === 'string', `${ltag}（id=${l.id}） 缺少 format`);
+        });
+      });
+    });
+  });
+}
+
+function validateSourceMap(sourceMapData){
+  assertShape(sourceMapData && typeof sourceMapData === 'object', 'source-map.json 不是有效的物件');
+  assertShape(Array.isArray(sourceMapData.alwaysInclude), 'source-map.json 缺少 alwaysInclude 陣列');
+  assertShape(Array.isArray(sourceMapData.rules), 'source-map.json 缺少 rules 陣列');
+  sourceMapData.rules.forEach((rule, i) => {
+    const tag = `source-map.json：rules[${i}]`;
+    assertShape(Array.isArray(rule.includes), `${tag} 缺少 includes 陣列`);
+    assertShape(Array.isArray(rule.sources), `${tag} 缺少 sources 陣列`);
+  });
+}
+
+function validateHistoricalNames(namesData){
+  assertShape(namesData && typeof namesData === 'object', 'historical-names.json 不是有效的物件');
+  assertShape(Array.isArray(namesData.suffixes), 'historical-names.json 缺少 suffixes 陣列');
+  assertShape(namesData.aliases && typeof namesData.aliases === 'object', 'historical-names.json 缺少 aliases 物件');
+}
+
 export async function loadAppData(){
   const [layersData, sourceMapData, namesData] = await Promise.all([
     fetch('./data/layers.bundle.json').then(r => r.json()),
     fetch('./data/source-map.json').then(r => r.json()),
     fetch('./data/historical-names.json').then(r => r.json())
   ]);
+
+  validateLayersBundle(layersData);
+  validateSourceMap(sourceMapData);
+  validateHistoricalNames(namesData);
 
   const sourceFiles = layersData.sources;
 
