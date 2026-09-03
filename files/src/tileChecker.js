@@ -16,11 +16,19 @@
      4. 快取上限（maxCacheEntries）：避免長時間使用同一頁面時，
         快取隨著搜尋次數增加而無限成長；超過上限時汰換掉最舊的
         紀錄（簡單的 FIFO／近似 LRU，因為每次命中都會刷新順序）。
-     5. 失敗重試一次：第一次探測失敗（含逾時）不會直接判定為「沒
-        資料」，而是再探測一次；兩次都失敗才真的算沒資料。目的是
-        過濾掉單純網路波動、伺服器回應慢造成的偽陰性——這種情況
-        跟「這個位置真的沒有這份地圖」是不同的問題，不該混在一起
-        被當成同一種「找不到」。
+     5. 只在「逾時」時重試一次：伺服器明確回應（不論是 onload 回傳
+        一張過小的空白圖、還是 onerror／404 之類的明確失敗）都代表
+        已經問到答案了，不需要也不應該重試——重試只會讓每一筆真的
+        沒有資料的圖層，都額外多等一輪逾時（最差情況下 timeoutMs
+        的兩倍），在候選圖層筆數多的搜尋（例如地址搜尋一次要驗證
+        上百筆）裡會讓總時間大幅拉長。只有在 timeoutMs 內完全沒有收
+        到 onload/onerror 任何回應時，才視為可能的單純網路波動或伺服器
+        暫時性緩慢，重試一次；重試後一樣逾時或失敗，才真的判定沒
+        資料。
+        　　注意：純前端 <img> 載入沒有辦法讀到 HTTP 狀態碼，所以無法
+        真的區分「伺服器回 404」跟「連線被拒絕」這兩種 onerror 情況；
+        但兩者都代表伺服器（或網路層）已經明確回應、不是逾時，所以
+        都不重試，跟「逾時」這種沒收到任何回應的情況分開處理。
 
    未來如果圖層數量成長到數千筆，這裡是唯一需要調整併發數、逾時、
    快取策略的地方，不會影響 searchUI.js 的搜尋流程邏輯。
@@ -45,23 +53,36 @@ export class TileChecker {
     }
   }
 
+  // 回傳 { ok, timedOut }：ok 是探測結果；timedOut 代表這次是因為
+  // timeoutMs 內完全沒收到 onload/onerror 才判定失敗，不是伺服器給了
+  // 明確答案。呼叫端只在 timedOut 時才考慮重試。
   _probe(url){
     return new Promise((resolve)=>{
       let done = false;
       const img = new Image();
-      const finish = (ok)=>{ if(done) return; done = true; resolve(ok); };
-      // 載入失敗或回傳極小的空白圖，視為無資料
+      const finish = (ok, timedOut = false)=>{
+        if(done) return;
+        done = true;
+        clearTimeout(timer);
+        resolve({ ok, timedOut });
+      };
+      // 載入失敗或回傳極小的空白圖，視為無資料——這是伺服器的明確回應。
       img.onload = ()=> finish(img.naturalWidth > 2 && img.naturalHeight > 2);
       img.onerror = ()=> finish(false);
-      setTimeout(()=> finish(false), this.timeoutMs);
+      const timer = setTimeout(()=> finish(false, true), this.timeoutMs);
       img.src = url;
     });
   }
 
-  // 第一次探測失敗（含逾時）時，再探測一次；兩次都失敗才真的算沒資料。
-  // 只在失敗時才重試，成功的情況不受影響、不會多花時間。
+  // 只有「逾時」（沒收到伺服器任何回應）才重試一次；伺服器明確回應
+  // 沒資料（onload 小圖／onerror）不重試，避免每一筆真的沒資料的圖層
+  // 都白白多等一輪 timeoutMs。
   _probeWithRetry(url){
-    return this._probe(url).then(ok => ok ? ok : this._probe(url));
+    return this._probe(url).then(result => {
+      if(result.ok) return true;
+      if(!result.timedOut) return false;
+      return this._probe(url).then(retryResult => retryResult.ok);
+    });
   }
 
   // 探測單一網址是否有資料。優先讀快取，其次共用進行中的請求，

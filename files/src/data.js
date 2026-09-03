@@ -42,7 +42,37 @@ export let SOURCE_MAP_RULES = null;
 export let HISTORICAL_NAMES = null;
 export let PLACE_NAME_SUFFIXES = [];
 
+// 使用者自訂 WMTS／XYZ 圖層（`custom:<id>` key 命名空間）不屬於
+// LAYER_SOURCES——那批是 data/layers/*.json 產生的內建 curated 資料。
+// data.js 刻意「不依賴任何其他 src 模組」（見檔頭），所以不直接 import
+// store.js，改用參數注入：由 features/multiOverlay.js 在初始化時呼叫
+// setCustomSourcesProvider() 把「怎麼拿到目前的自訂來源清單」這件事
+// 註冊進來，makeSourceForKey()／titleForKey() 需要時再透過這個函式
+// 去查，兩邊模組互不 import 對方。
+let customSourcesProvider = () => [];
+export function setCustomSourcesProvider(fn){
+  customSourcesProvider = typeof fn === 'function' ? fn : (() => []);
+}
+
 const SAT_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+
+// 來源 id → 所屬國家／地區分組（'tw' 台灣／'cn' 中國／'other' 其他），
+// 純粹用來讓側邊欄能依國家分組篩選、縮短捲動範圍，不影響任何資料載入
+// 或圖層邏輯。新增來源時記得在這裡補一筆；沒列到的 id 一律歸類到
+// 'other'（未來加入台灣、中國以外的來源時，不用先改這裡也能正常顯示，
+// 只是會先出現在「其他」分類）。
+const SOURCE_COUNTRY = {
+  sinica: 'tw', keelung: 'tw', taipei: 'tw', udd: 'tw', newtaipei: 'tw',
+  taoyuan: 'tw', hsinchu: 'tw', thm: 'tw', taichung: 'tw', changhua: 'tw',
+  lukang: 'tw', chiayi: 'tw', tainan: 'tw', kaohsiung: 'tw', pingtung: 'tw',
+  hakkaliudui: 'tw', yilan: 'tw', hualien: 'tw', kinmen: 'tw',
+  beijing: 'cn', tianjin: 'cn', shanghai: 'cn', nanjing: 'cn', hangzhou: 'cn',
+  wuhan: 'cn', guangzhou: 'cn', kunming: 'cn', suzhou: 'cn', hongkong: 'cn',
+  ccts: 'cn'
+};
+function countryForSourceId(id){
+  return SOURCE_COUNTRY[id] || 'other';
+}
 
 // udd 來源比較特殊：每個圖層的 tile 網址不是套同一個樣板算出來的，
 // 而是分成 ArcGIS WMTS REST 版 / 舊版 UDDWMTS 版兩種，組出來的完整網址
@@ -139,6 +169,18 @@ function validateSourceMap(sourceMapData){
     assertShape(Array.isArray(rule.includes), `${tag} 缺少 includes 陣列`);
     assertShape(Array.isArray(rule.sources), `${tag} 缺少 sources 陣列`);
   });
+  // alwaysIncludeUnless 是選填欄位（沒有就當空陣列處理）：跟 alwaysInclude 一樣一律列入候選，
+  // 但只在地址「沒有」命中 excludeIfIncludes 任何關鍵字時才生效——用來處理像 ccts（涵蓋全中國、
+  // 不屬於任何單一縣市）這種「非台灣地址才觸發」的來源，排除清單比對邏輯跟 rules 一致，
+  // 只是命中後是「不要加入」而不是「加入」。
+  if(sourceMapData.alwaysIncludeUnless !== undefined){
+    assertShape(Array.isArray(sourceMapData.alwaysIncludeUnless), 'source-map.json 的 alwaysIncludeUnless 必須是陣列');
+    sourceMapData.alwaysIncludeUnless.forEach((rule, i) => {
+      const tag = `source-map.json：alwaysIncludeUnless[${i}]`;
+      assertShape(Array.isArray(rule.sources), `${tag} 缺少 sources 陣列`);
+      assertShape(Array.isArray(rule.excludeIfIncludes), `${tag} 缺少 excludeIfIncludes 陣列`);
+    });
+  }
 }
 
 function validateHistoricalNames(namesData){
@@ -196,6 +238,7 @@ export async function loadAppData(){
     return {
       id: src.id,
       name: src.name,
+      country: countryForSourceId(src.id), // 'tw' | 'cn' | 'other'，供側邊欄國家篩選按鈕使用
       tileUrl: (layer) => resolveTileUrl(provider, layer),
       attribution: src.attribution,
       categories
@@ -224,9 +267,71 @@ export function findLayerById(src, id){
   return null;
 }
 
+// 把「從 GetCapabilities 解析出來、已經被 features/wmtsImport.js 抽成
+// 純資料格式」的 WMTS 圖層設定，重建成真正的 ol.source.WMTS。刻意不在
+// 這裡重新 fetch/parse GetCapabilities——那件事只在使用者「匯入」的
+// 當下做一次，抽出來的 tileGrid 參數（resolutions／matrixIds／origin…）
+// 全部是可以存進 localStorage 的純資料，往後每次建立圖層都直接拿這份
+// 資料組 ol.tilegrid.WMTS + ol.source.WMTS，不需要也不依賴該服務的
+// GetCapabilities 端點之後還連得到、還能再抓一次。
+//
+// 不設定 crossOrigin：使用者自訂的服務不保證有開放 CORS（GetCapabilities
+// 能不能讀跟圖磚圖片能不能讀是兩件事，見 makeSourceForKey() 的說明），
+// 圖磚本身用一般（非 crossorigin）的 <img> 請求載入即可正常顯示，只有
+// 「畫面截圖」（drawTool.js 的 exportImage()）這種要用 JS 讀出 canvas
+// 像素資料的操作，才會因為瀏覽器的安全限制而失敗——那支函式本來就有
+// 包 try/catch 顯示對應的錯誤訊息，不會整個當掉。
+function makeWmtsSourceFromEntry(entry){
+  const w = entry.wmts;
+  if(!w || !Array.isArray(w.resolutions) || !Array.isArray(w.matrixIds)){
+    console.warn('自訂 WMTS 圖層缺少必要的 tileGrid 資料，無法建立', entry);
+    return new ol.source.XYZ({ url: '' });
+  }
+  try{
+    const tileGrid = new ol.tilegrid.WMTS({
+      origin: w.origin,
+      resolutions: w.resolutions,
+      matrixIds: w.matrixIds,
+      tileSize: w.tileSize || 256,
+      extent: w.extent || undefined
+    });
+    return new ol.source.WMTS({
+      urls: w.urls,
+      layer: w.layer,
+      matrixSet: w.matrixSet,
+      format: w.format,
+      projection: w.projection || 'EPSG:3857',
+      requestEncoding: w.requestEncoding,
+      style: w.style,
+      tileGrid,
+      attributions: entry.attribution || ''
+    });
+  }catch(err){
+    console.warn('建立自訂 WMTS 圖層失敗（資料可能已經跟服務端改版不相容）', entry, err);
+    return new ol.source.XYZ({ url: '' });
+  }
+}
+
 export function makeSourceForKey(key){
   if(key === 'base:osm') return new ol.source.OSM({ crossOrigin: 'anonymous' });
   if(key === 'base:sat') return new ol.source.XYZ({ url: SAT_URL, attributions: 'Esri, Maxar, Earthstar Geographics', crossOrigin: 'anonymous' });
+  if(key.startsWith('custom:')){
+    const id = key.slice('custom:'.length);
+    const entry = customSourcesProvider().find(s => s.id === id);
+    if(!entry) return new ol.source.XYZ({ url: '' });
+    // 兩種自訂來源：
+    //   'wmts' —— 從 GetCapabilities 匯入的正牌 WMTS 圖層（見上面
+    //             makeWmtsSourceFromEntry()，可以是任何 TileMatrixSet）。
+    //   'xyz'（預設，含舊資料）—— 使用者手動貼的網址樣板，只認直接帶
+    //             {z}/{x}/{y} 的 XYZ 金字塔（含剛好是 EPSG:3857 的
+    //             WMTS KVP 網址）。
+    // 兩者都刻意不設定 crossOrigin，理由見上面 makeWmtsSourceFromEntry()
+    // 的註解：這樣即使該服務沒開放 CORS，圖磚一樣能正常顯示，只有
+    // 「截圖匯出」這個要讀 canvas 像素的操作在那個當下會失敗（已有
+    // 對應的錯誤訊息與 try/catch，不影響一般瀏覽）。
+    if(entry.type === 'wmts') return makeWmtsSourceFromEntry(entry);
+    return new ol.source.XYZ({ url: entry.urlTemplate, attributions: entry.attribution || '' });
+  }
   const parts = key.split(':'); // ["hist", sourceId, id, fmt]
   const src = LAYER_SOURCES.find(s => s.id === parts[1]);
   if(!src) return new ol.source.XYZ({ url: '', crossOrigin: 'anonymous' });
@@ -238,6 +343,11 @@ export function makeSourceForKey(key){
 export function titleForKey(key){
   if(key === 'base:osm') return '現代地圖';
   if(key === 'base:sat') return '衛星影像';
+  if(key.startsWith('custom:')){
+    const id = key.slice('custom:'.length);
+    const entry = customSourcesProvider().find(s => s.id === id);
+    return entry ? entry.name : key;
+  }
   const parts = key.split(':');
   const src = LAYER_SOURCES.find(s => s.id === parts[1]);
   if(!src) return key;
@@ -295,6 +405,14 @@ export function matchSourceIdsForAddress(addr){
   addr = addr || {};
   const haystack = ADDRESS_MATCH_FIELDS.map(k => addr[k] || '').join('');
   const ids = new Set(SOURCE_MAP_RULES.alwaysInclude); // 全臺涵蓋來源，一律列入候選
+
+  // alwaysIncludeUnless：跟 alwaysInclude 一樣預設列入候選，但只要地址命中
+  // excludeIfIncludes 裡任何一個關鍵字（例如台灣的縣市名稱），就不加入。
+  // 用來處理「涵蓋全中國、非台灣地址才觸發」這種來源（見 source-map.json 裡的說明）。
+  (SOURCE_MAP_RULES.alwaysIncludeUnless || []).forEach(rule => {
+    const excluded = rule.excludeIfIncludes.some(k => haystack.includes(k));
+    if(!excluded) rule.sources.forEach(id => ids.add(id));
+  });
 
   SOURCE_MAP_RULES.rules.forEach(rule => {
     const hit = rule.includes.some(k => haystack.includes(k));

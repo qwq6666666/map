@@ -29,39 +29,78 @@ test('lonLatToTileXY 換算出的座標會被夾在合法範圍內（不會出�
 });
 
 // 這份測試需要精準計算「Image 建構了幾次」，用一個會計數、且可以模擬
-// 「先失敗一次、重試後成功」的假 Image 覆蓋掉 env-stub 提供的版本。
+// 「逾時（完全不觸發 onload/onerror，讓 TileChecker 自己的 timeoutMs
+// 逾時機制接手）」與「伺服器明確回應（onload 小圖／onerror）」兩種不同
+// 失敗情境的假 Image，覆蓋掉 env-stub 提供的版本。
+// urlResults 支援的值：
+//   true              — 成功（onload，正常大小的圖）
+//   false             — 伺服器明確回應沒有資料（onerror），不應該被重試
+//   'tiny'            — 伺服器明確回應了，但圖太小（onload 但視為無資料），不應該被重試
+//   'timeout-once'    — 第一次探測完全不回應、觸發逾時；第二次探測成功
+//   'timeout-always'  — 每一次探測都完全不回應、一律觸發逾時
 let imageCount = 0;
 const urlAttempts = {}; // url -> 已經被探測過幾次
-const urlResults = {};  // url -> true / false / 'fail-once'（第一次失敗，第二次成功）
+const urlResults = {};
 globalThis.Image = class {
   constructor(){
     imageCount++;
+    const self = this;
     setTimeout(() => {
-      const url = this._url;
+      const url = self._url;
       urlAttempts[url] = (urlAttempts[url] || 0) + 1;
       const spec = urlResults[url];
-      const ok = spec === 'fail-once' ? urlAttempts[url] >= 2 : spec !== false;
-      if(ok){ this.naturalWidth = 10; this.naturalHeight = 10; if(this.onload) this.onload(); }
-      else if(this.onerror) this.onerror();
+      const isTimeoutAttempt =
+        spec === 'timeout-always' ||
+        (spec === 'timeout-once' && urlAttempts[url] === 1);
+      if(isTimeoutAttempt){
+        // 完全不呼叫 onload/onerror，模擬伺服器沒有任何回應，讓
+        // TileChecker 內部自己的 setTimeout(timeoutMs) 接手判定逾時。
+        return;
+      }
+      if(spec === false){
+        if(self.onerror) self.onerror();
+        return;
+      }
+      // 'tiny'：伺服器明確回應了，但圖太小（視為空白／無資料）。
+      const size = spec === 'tiny' ? 1 : 10;
+      self.naturalWidth = size;
+      self.naturalHeight = size;
+      if(self.onload) self.onload();
     }, 1);
   }
   set src(v){ this._url = v; }
 };
 
-test('探測失敗會自動重試一次：第一次失敗、第二次成功，最終視為有資料', async () => {
-  const checker = new TileChecker({ concurrency: 4, timeoutMs: 500 });
-  urlResults['http://x/retry-ok'] = 'fail-once';
+test('只有「逾時」才會自動重試一次：第一次逾時、第二次成功，最終視為有資料', async () => {
+  const checker = new TileChecker({ concurrency: 4, timeoutMs: 50 });
+  urlResults['http://x/retry-ok'] = 'timeout-once';
   const ok = await checker.checkOne('http://x/retry-ok');
-  assertTrue(ok, '重試後成功，應該視為有資料');
-  assertEqual(urlAttempts['http://x/retry-ok'], 2, '應該總共探測了 2 次（原本 1 次 + 重試 1 次）');
+  assertTrue(ok, '逾時後重試成功，應該視為有資料');
+  assertEqual(urlAttempts['http://x/retry-ok'], 2, '應該總共探測了 2 次（原本 1 次逾時 + 重試 1 次）');
 });
 
-test('探測兩次都失敗，才真的判定為沒資料', async () => {
+test('連續兩次都逾時，才真的判定為沒資料', async () => {
+  const checker = new TileChecker({ concurrency: 4, timeoutMs: 50 });
+  urlResults['http://x/always-timeout'] = 'timeout-always';
+  const ok = await checker.checkOne('http://x/always-timeout');
+  assertTrue(!ok, '兩次都逾時，應該視為沒資料');
+  assertEqual(urlAttempts['http://x/always-timeout'], 2, '應該總共探測了 2 次（原本 1 次 + 逾時後重試 1 次）才判定沒資料');
+});
+
+test('伺服器明確回應沒有資料（onerror）時不重試，只探測一次', async () => {
   const checker = new TileChecker({ concurrency: 4, timeoutMs: 500 });
   urlResults['http://x/always-fail'] = false;
   const ok = await checker.checkOne('http://x/always-fail');
-  assertTrue(!ok, '兩次都失敗，應該視為沒資料');
-  assertEqual(urlAttempts['http://x/always-fail'], 2, '應該總共探測了 2 次（原本 1 次 + 重試 1 次）才判定沒資料');
+  assertTrue(!ok, '應該視為沒資料');
+  assertEqual(urlAttempts['http://x/always-fail'], 1, '伺服器已經明確回應，不該重試，應該只探測 1 次');
+});
+
+test('伺服器明確回應空白小圖（onload 但過小）時不重試，只探測一次', async () => {
+  const checker = new TileChecker({ concurrency: 4, timeoutMs: 500 });
+  urlResults['http://x/tiny-blank'] = 'tiny';
+  const ok = await checker.checkOne('http://x/tiny-blank');
+  assertTrue(!ok, '過小的圖應該視為沒資料');
+  assertEqual(urlAttempts['http://x/tiny-blank'], 1, '伺服器已經明確回應（雖然是張小圖），不該重試');
 });
 
 test('checkBatchAny：候選項目的其中一個鄰近網址成功，就算該候選項目有資料', async () => {

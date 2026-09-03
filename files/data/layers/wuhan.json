@@ -1,0 +1,279 @@
+{
+  "id": "wuhan",
+  "name": "武漢百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（武漢百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/wuhan/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      112.373191645,
+      29.2291748829,
+      116.665726965,
+      31.5177413823
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "清末民初(1910s)",
+      "layers": [
+        {
+          "id": "Hanyang_8K_1914",
+          "title": "1914 漢陽府城內外詳圖",
+          "format": "png",
+          "year": 1914,
+          "dateLabel": "1914",
+          "type": null,
+          "scale": "1:8000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hankou_12K_1919",
+          "title": "1919 HANKOW HARBOUR",
+          "format": "png",
+          "year": 1919,
+          "dateLabel": "1919",
+          "type": null,
+          "scale": "1:12000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "1920s",
+      "layers": [
+        {
+          "id": "Wuhan_10K_1922",
+          "title": "1922 武漢三鎮街市圖",
+          "format": "png",
+          "year": 1922,
+          "dateLabel": "1922",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Wuhan_14K_1928",
+          "title": "1928 武漢三鎮ニ於ケル重要施設要圖",
+          "format": "png",
+          "year": 1928,
+          "dateLabel": "1928",
+          "type": null,
+          "scale": "1:14000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "1930年代",
+      "layers": [
+        {
+          "id": "Hankou_6K_1931",
+          "title": "漢口租界圖",
+          "format": "png",
+          "year": 1931,
+          "dateLabel": "1931",
+          "type": null,
+          "scale": "1:6000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Wuhan_10K_1931",
+          "title": "1931 武漢街市圖",
+          "format": "png",
+          "year": 1931,
+          "dateLabel": "1931",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Wuhan_250K_1933",
+          "title": "潯漢一帶形勢圖",
+          "format": "png",
+          "year": 1933,
+          "dateLabel": "1933",
+          "type": null,
+          "scale": "1:250000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hankou_20K_1933",
+          "title": "1933 最近漢口市全圖",
+          "format": "png",
+          "year": 1933,
+          "dateLabel": "1933",
+          "type": null,
+          "scale": "1:20000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hanyang_4K_1934",
+          "title": "1934 漢陽街市圖",
+          "format": "png",
+          "year": 1934,
+          "dateLabel": "1934",
+          "type": null,
+          "scale": "1:4000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hankou_1935",
+          "title": "漢口市街地圖",
+          "format": "png",
+          "year": 1935,
+          "dateLabel": "1935",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Wuhan_10K_1937",
+          "title": "1937 武漢市街道圖",
+          "format": "png",
+          "year": 1937,
+          "dateLabel": "1937",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hankou_10K_1938",
+          "title": "漢口市街道詳圖",
+          "format": "png",
+          "year": 1938,
+          "dateLabel": "1938",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Wuhan_25K_1938",
+          "title": "1938 最新武漢三鎮詳圖",
+          "format": "png",
+          "year": 1938,
+          "dateLabel": "1938",
+          "type": null,
+          "scale": "1:25000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰爭末期至戰後(1939-1946)",
+      "layers": [
+        {
+          "id": "Hankou_10K_1939",
+          "title": "最新漢口市街詳圖",
+          "format": "png",
+          "year": 1939,
+          "dateLabel": "1939",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Wuhan_10K_1939",
+          "title": "武漢 漢陽市街圖",
+          "format": "png",
+          "year": 1939,
+          "dateLabel": "1939",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Wuhan_12K_1944",
+          "title": "1944 武漢市街圖",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": null,
+          "scale": "1:12000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hankou_50K_1946",
+          "title": "漢口市分區計劃圖",
+          "format": "png",
+          "year": 1946,
+          "dateLabel": "1946",
+          "type": null,
+          "scale": "1:50000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "其他未標年代",
+      "layers": [
+        {
+          "id": "Wuchang_10K",
+          "title": "新武昌市實測詳圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Wuchang_4K",
+          "title": "WUCHANG CITY",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": "1:4000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Wuhan_10K_1",
+          "title": "武漢三鎮市街實測詳圖(一)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Wuhan_10K_2",
+          "title": "武漢三鎮市街實測詳圖(二)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

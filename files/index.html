@@ -132,8 +132,7 @@
 <div id="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-header-text">
-      <h1>臺灣百年<br>歷史地圖疊圖器</h1>
-      <p>中央研究院 GIS 專題中心 · WMTS</p>
+      <h1>百年歷史疊圖器</h1>
     </div>
     <button id="toggleSidebar" title="收合面板">◂</button>
   </div>
@@ -202,6 +201,44 @@
 
     <div id="multiPanel">
       <p class="compare-hint">從下面清單勾選要一起疊加的歷史地圖，可以勾多張。已選圖層清單在地圖下方，可以各自調整透明度、疊放順序，或移除。</p>
+
+      <div class="custom-source-block" id="customSourceBlock">
+        <div class="field-label">自訂 WMTS／XYZ 圖層</div>
+
+        <div class="custom-source-tabs" id="customSourceTabs">
+          <button type="button" data-tab="manual" class="active">手動貼網址</button>
+          <button type="button" data-tab="wmts">從 WMTS 服務匯入</button>
+        </div>
+
+        <div id="customSourceManualPanel">
+          <p class="custom-source-hint">貼上圖磚服務網址（需包含 {z}/{x}/{y} 佔位符），一次只能加一張。適合單張圖層、或不是標準 WMTS 服務的圖磚來源。</p>
+          <div class="custom-source-form">
+            <input type="text" id="customSourceName" class="custom-source-input" placeholder="名稱（例如：日本 GSI 地形圖）" autocomplete="off">
+            <input type="text" id="customSourceUrl" class="custom-source-input" placeholder="網址樣板，例如 https://example.com/{z}/{x}/{y}.png" autocomplete="off">
+            <input type="text" id="customSourceFormat" class="custom-source-input custom-source-input-small" placeholder="格式（選填，例如 png）" autocomplete="off">
+            <input type="text" id="customSourceAttribution" class="custom-source-input" placeholder="版權標示（選填）" autocomplete="off">
+            <button type="button" id="customSourceAddBtn" class="custom-source-add-btn">加入</button>
+          </div>
+        </div>
+
+        <div id="customSourceWmtsPanel" style="display:none;">
+          <p class="custom-source-hint">貼上該服務的 WMTS GetCapabilities 網址，讀取後會列出這個服務底下所有圖層，可以一次勾選多張加入。這一步需要該服務開放跨網域讀取（CORS）才能成功；如果讀取失敗，圖磚本身通常還是能顯示，改用「手動貼網址」分頁直接加入即可（如果站台有設定代理伺服器，這裡會自動改用代理再試一次）。只會加入座標系統跟這個地圖相容（EPSG:3857）的圖層。</p>
+          <div class="custom-source-form">
+            <input type="text" id="wmtsCapabilitiesUrl" class="custom-source-input" placeholder="GetCapabilities 網址，例如 https://example.com/wmts?SERVICE=WMTS&REQUEST=GetCapabilities" autocomplete="off">
+            <button type="button" id="wmtsFetchBtn" class="custom-source-add-btn">讀取圖層清單</button>
+          </div>
+          <div id="wmtsImportStatus" class="custom-source-hint"></div>
+          <div class="wmts-layer-list-actions">
+            <button type="button" id="wmtsSelectAllBtn" class="wmts-select-all-btn" style="display:none;">全選／取消全選</button>
+          </div>
+          <div id="wmtsLayerList" class="wmts-layer-list"></div>
+          <button type="button" id="wmtsAddSelectedBtn" class="custom-source-add-btn wmts-add-selected-btn" style="display:none;">加入勾選的圖層</button>
+        </div>
+
+        <div id="customSourceList" class="custom-source-list"></div>
+        <button type="button" id="customSourceClearAllBtn" class="map-timeline-refresh-btn custom-source-clear-all-btn">清除全部自訂圖層</button>
+      </div>
+
       <div id="multiCategories" class="multi-categories"></div>
     </div>
   </div>

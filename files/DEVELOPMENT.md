@@ -92,6 +92,26 @@ main.js                      進入點，依序 initXxx()
 - **離開 `multi` 模式不會清空 `multiOverlayLayers`**：只是呼叫 `hideMultiOverlayLayers()` 把畫面上的圖層隱藏，store 裡的清單保留，下次切回來還在。這點刻意跟離開時間軸模式會整個 `clearLayerPool()` 不同——複合疊圖是使用者刻意組合出來的一組圖層，不像時間軸模式比較像探索性質。
 - **疊放順序目前是上／下移按鈕，不是拖曳排序**：原本討論時有提到「拖曳排序」，但這個專案完全沒有任何 drag-and-drop 的既有慣例（`tests/env-stub.mjs` 的假 DOM 也沒有支援 `dragstart`/`drop` 事件），手機版又完全沒測過（見下方「沒做、但資料骨架已經備好的功能」），native drag 在觸控裝置上經常需要額外處理才順手。權衡之下先用上/下移按鈕（`moveMultiOverlayLayer(key, ±1)`），行為明確、不需要額外測試假環境的支援。如果之後真的想要拖曳排序，`store.multiOverlayLayers` 的陣列結構已經可以直接支援，只需要換掉 `features/multiOverlay.js` 裡建立按鈕的那段。
 
+### 使用者自訂 WMTS／XYZ 圖層（`custom:` key 命名空間）
+
+跟內建的 19 個 curated 來源（`data/layers/*.json` → `layers.bundle.json`）完全脫鉤，是使用者在瀏覽器裡自己新增的圖層清單，設計上刻意分開處理：
+
+- **key 命名空間**：`base:osm` / `base:sat` / `hist:<sourceId>:<layerId>:<fmt>` 之外，多一種 `custom:<id>`，`id` 是 `store.js` 的 `generateCustomSourceId()` 產生的（`Date.now()` + 亂數，瀏覽器端夠用，不需要真的全域唯一）。
+- **不進 `LAYER_SOURCES`**：`data.js` 刻意「不依賴任何其他 src 模組」（見檔頭），所以沒有直接 `import store.js`，改用參數注入——`features/multiOverlay.js` 初始化時呼叫 `setCustomSourcesProvider(() => store.customSources)`，把「怎麼查目前的自訂來源清單」註冊進 `data.js`，`makeSourceForKey()`／`titleForKey()` 遇到 `custom:` 開頭的 key 就透過這個函式查，兩邊互不 import，跟 `timelineMode.js`/`mapCore.js` 那組循環依賴的解法是同一個套路。
+- **顯示走複合疊圖模式的 `multiOverlayLayers` 機制，不走 `activeOverlayKey`**：疊圖模式的 stamp／交叉淡出淡入依賴內建圖層才有的 `year`/`title` 欄位，自訂來源沒有這些，硬塞進去要改動 `layerManager.js` 那套邏輯。改成沿用 `toggleMultiOverlayLayer(key)`，對 `layerCache.js`／`protectedKeys.js` 而言 `custom:` 開頭的 key 跟 `hist:` 開頭的 key 沒有分別（`protectedKeys.js` 本來就是把整個 `multiOverlayLayers` 陣列的 key 全部視為保護對象，不看前綴），完全不用改動這兩支模組。也因此，自訂圖層的 UI（新增表單＋清單）放在複合疊圖面板（`#multiPanel`）裡，不是獨立面板。
+- **持久化**：`store.js` 的 `customSources` 初始值直接從 `localStorage`（key: `hundredYearMap:customSources`）讀，`addCustomSource`/`removeCustomSource`/`clearCustomSources` 每次呼叫都會同步寫回。這跟 `data/layers/*.json` 那套「開發者編輯 → 跑 `tools/build-layers-bundle.js`」的管線是兩回事，使用者端不需要（也不能）碰到那條路徑。`removeCustomSource`/`clearCustomSources` 會連動把對應的 `custom:` key 從 `multiOverlayLayers` 移除，避免留下指向已刪除來源、圖磚永遠載入失敗的殘留 key。
+- **兩種新增方式，對應兩種資料型態**：`customSources` 陣列裡每一筆多了一個 `type` 欄位。
+  - `type: 'xyz'`（手動貼網址，預設值，含舊資料）：只認網址裡直接帶 `{z}/{x}/{y}` 的樣板，包含剛好是 EPSG:3857／`GoogleMapsCompatible` TileMatrixSet 的 WMTS KVP 網址（`...&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}...`）。`data.js` 直接用 `ol.source.XYZ` 建立。
+  - `type: 'wmts'`（從 WMTS 服務匯入,`features/wmtsImport.js`）：使用者貼 GetCapabilities 網址後,用 OL 內建的 `ol.format.WMTSCapabilities` 解析、`ol.source.WMTS.optionsFromCapabilities()` 算出跟地圖預設投影 EPSG:3857 相容的完整設定,**只在匯入當下做這件事**——`buildWmtsEntryConfig()` 把算出來的 `ol.tilegrid.WMTS` 物件「拆開」成純資料（`origin`／`resolutions`／`matrixIds`／`tileSize`／`extent`……）存進 `entry.wmts`,`data.js` 的 `makeWmtsSourceFromEntry()` 之後每次都直接拿這份純資料重建 `ol.tilegrid.WMTS` + `ol.source.WMTS`,不會、也不需要重新連線到該服務的 GetCapabilities 端點。這樣設計是為了讓已經匯入的圖層不受「服務商之後改版、網址失效」影響,且能直接存進 `localStorage`（OL 物件實例沒辦法被 `JSON.stringify`）。
+  - 非 3857 座標系的圖層，`optionsFromCapabilities()` 找不到相容的 TileMatrixSet 會回傳 `null`，`buildWmtsEntryConfig()` 原封不動把 `null` 往上傳，UI（`handleAddSelectedWmtsLayers()`）把這種情況當成「這張圖層略過」處理，不是程式錯誤，會在狀態列列出被略過的圖層名稱。
+  - 兩種型態都一樣走複合疊圖模式的 `multiOverlayLayers` 機制顯示，`layerCache.js`／`protectedKeys.js` 不需要知道差異。
+  - 已知限制：只取 `tileGrid` 在第一個縮放層級的 `origin`／`tileSize`，假設所有層級共用同一組（絕大多數用標準 TileMatrixSet 的服務都是如此，真的每層不同的服務圖磚位置可能會跑掉）；不處理 WMTS 的 `Dimensions`（例如需要額外指定 `TIME` 參數的時間序列圖層）。
+  - **CORS 只卡「匯入」這一步，不卡圖磚顯示**：這是這次跟使用者討論後修正的認知——`GetCapabilities` 是用 `fetch()` 讀文字內容，瀏覽器一定會做 CORS 檢查，該服務不開放就沒有辦法繞過（純前端沒有後端可以代為轉發）。但實際的**圖磚圖片**是用 `<img>` 載入，`makeSourceForKey()`／`makeWmtsSourceFromEntry()` 刻意**不**幫 `custom:` 開頭的來源設定 `crossOrigin`，圖磚一樣能正常顯示，不受該服務有沒有開 CORS 影響。唯一的例外是 `drawTool.js` 的「截圖」功能——那個要用 JS 讀出 canvas 像素資料，瀏覽器基於安全考量，只要畫面上疊過任何沒有 CORS 授權的圖層，那次 `toBlob()` 就會被擋下（已經有對應的錯誤訊息跟 try/catch，不會讓整個 app 掛掉，只是那次匯出失敗）。所以使用者如果已經知道某個服務的圖磚網址規則，即使 `GetCapabilities` 讀不到，也可以改用「手動貼網址」分頁直接加入，一樣看得到圖。
+  - **選用的 CORS 代理（`tools/cors-proxy-worker/`）**：靜態網站沒有自己的後端，沒辦法幫忙轉發請求；如果想讓「匯入」這一步對沒開 CORS 的服務也能用，可以部署一支很輕量的 Cloudflare Worker（`worker.js` 檔頭有完整部署步驟），只做「收到 `?url=` 參數 → server-to-server 打目標網址 → 把結果轉發回來」這件事。伺服器對伺服器的請求本來就不受 CORS 限制（CORS 是瀏覽器獨有的規則），這也是 QGIS 之類的桌面程式、以及許多政府整合平台能讓你貼任意 WMTS 進去的原因——它們不是繞過了 CORS，而是根本沒有走到「瀏覽器 JS 讀取跨網域內容」這個情境。部署好之後把網址填進 `features/wmtsImport.js` 最上面的 `CAPABILITIES_PROXY_URL` 常數，`fetchCapabilities()` 會在直接 fetch 失敗時自動改用代理再試一次；沒填就維持原本行為，直接顯示錯誤。這支 Worker **只在使用者按「讀取圖層清單」時被打到一次**，不會用在圖磚顯示（那是瀏覽器直接對目標服務發的請求），加上代理本身有做邊緣快取，用量遠低於「顯示地圖」的等級，一般使用情境落在各家 Serverless 平台的免費額度內；實際免費額度／定價會隨時間調整，部署前建議直接查 Cloudflare 官網當下的公告確認。
+  - 測試在 `tests/specs/wmts-import.test.mjs`；`tests/env-stub.mjs` 補了 `ol.source.WMTS`（含假的 `optionsFromCapabilities()`）、`ol.tilegrid.WMTS`、`ol.format.WMTSCapabilities` 的假實作。
+- **CORS 是先天限制**：使用者貼的外部服務不一定開放跨網域圖磚請求，目前沒有做失敗偵測／提示，圖磚載入不出來使用者只會看到空白圖層。
+- 測試在 `tests/specs/custom-sources.test.mjs`；`tests/env-stub.mjs` 加了一份 in-memory 的 `localStorage` 假物件供測試使用。
+
 ## 地址搜尋演算法（`searchUI.js` + `data.js`）
 
 三層篩選，最後一層才是真正的答案：

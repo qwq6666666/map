@@ -1,0 +1,179 @@
+{
+  "id": "hongkong",
+  "name": "香港百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（香港百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/hongkong/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      112.511054,
+      21.62773479,
+      114.6540639,
+      23.06819239
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "清末民初(1900s-1930s)",
+      "layers": [
+        {
+          "id": "Hongkong_1900s",
+          "title": "香港及澳門",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1900s",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hongkong_1931",
+          "title": "展拓香港界址圖",
+          "format": "png",
+          "year": 1931,
+          "dateLabel": "1931",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hongkong_84.5K_1932",
+          "title": "MAP OF HONG-KONG",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": null,
+          "scale": "1:84500",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hongkong_6K_1935",
+          "title": "香港海圖",
+          "format": "png",
+          "year": 1935,
+          "dateLabel": "1935",
+          "type": null,
+          "scale": "1:6000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hongkong_80K_1936",
+          "title": "HONG KONG AND THE NEW TERRITORIES",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": "1:80000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰爭末期(1945)",
+      "layers": [
+        {
+          "id": "Hongkong_10K_1945_1",
+          "title": "1945 Victoria (a)",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hongkong_10K_1945_2",
+          "title": "1945 Victoria (b)",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰後及當代(1960s-1970s)",
+      "layers": [
+        {
+          "id": "1964_Corona_Zhujiang",
+          "title": "珠江口Corona衛星影像(1964)",
+          "format": "png",
+          "year": 1964,
+          "dateLabel": "1964",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hongkong_1967a",
+          "title": "HONG KONG, KOWLOON AND THE NEW TERRITORIES",
+          "format": "png",
+          "year": 1967,
+          "dateLabel": "1967",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hongkong_1967b1",
+          "title": "KOWLOON",
+          "format": "png",
+          "year": 1967,
+          "dateLabel": "1967",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hongkong_1967b2",
+          "title": "VICTORIA PEAK",
+          "format": "png",
+          "year": 1967,
+          "dateLabel": "1967",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hongkong_1967b3",
+          "title": "VICTORIA AND KOWLOON",
+          "format": "png",
+          "year": 1967,
+          "dateLabel": "1967",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hongkong_25K_1970",
+          "title": "1970 KOWLOON ＆ VICTORIA",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970",
+          "type": null,
+          "scale": "1:25000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

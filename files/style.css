@@ -394,17 +394,7 @@
   .avail-progress{font-size:11.5px; color:var(--rule); padding:4px 2px;}
   .avail-empty{font-size:12px; color:var(--rule); line-height:1.6; padding:4px 2px; margin:0 0 4px;}
 
-  /* 搜尋結果：分類瀏覽／時間軸 檢視切換 */
-  .avail-view-toggle{display:flex; gap:6px; margin:6px 2px 10px;}
-  .avail-view-btn{
-    flex:1; padding:6px 8px; font-size:12px; font-family:var(--sans);
-    background:var(--paper); border:1px solid var(--rule); border-radius:6px;
-    color:var(--ink); cursor:pointer;
-  }
-  .avail-view-btn:hover{background:var(--paper-dim);}
-  .avail-view-btn.active{background:var(--ink); color:var(--paper); border-color:var(--ink);}
-
-  /* 時間軸（原型） */
+  /* 時間軸模式（timelineMode.js）專用樣式，搜尋結果面板已不再使用時間軸檢視 */
   .timeline-scroll{overflow-x:auto; padding:4px 2px 8px; -webkit-overflow-scrolling:touch;}
   .timeline-svg{display:block;}
   .timeline-tick-label{font-size:10px; fill:var(--rule); font-family:var(--sans);}
@@ -600,10 +590,38 @@
   }
   .layer-picker-panel.open{display:block;}
   #compareWrapB .layer-picker-panel{left:auto; right:0;}
+  /* 這個彈出面板自己就是獨立捲動容器，前面沒有側邊欄的透明度區塊，
+     篩選列直接吸附在面板最上方即可，不套用側邊欄用的 --sticky-offset。 */
+  .layer-picker-panel .country-filter{top:0; margin:-6px -6px 10px; padding:6px;}
   .layer-picker-panel::-webkit-scrollbar{width:8px;}
   .layer-picker-panel::-webkit-scrollbar-thumb{background:var(--rule); border-radius:4px;}
 
   /* WMTS 圖資來源（最上層分組，內含分類 → 圖層） */
+  /* 國家篩選列（台灣／中國／其他）：吸附在透明度區塊下方，
+     一起貼齊側邊欄可視範圍最上方，收合掉不想看的來源後，
+     不用捲很長就能找到剩下的來源。 */
+  .country-filter{
+    position:sticky; top:var(--sticky-offset, 0px); z-index:4;
+    background:var(--paper); margin:0 0 10px; box-shadow:0 4px 6px -6px rgba(0,0,0,.18);
+    /* 跟 .opacity-block 同樣強制獨立合成層，避免快速捲動／手機彈性回彈時
+       這條吸附列來不及跟上捲動位移，短暫露出下方被捲上來的來源清單內容。 */
+    transform:translateZ(0);
+    -webkit-transform:translateZ(0);
+    will-change:transform;
+  }
+  /* 向上延伸與吸附列相同底色的遮罩，補滿吸附瞬間／回彈時上方（跟前一個
+     吸附區塊接縫處）可能露出的空白，避免清單內容從縫隙「穿過」吸附列。 */
+  .country-filter::before{
+    content:"";
+    position:absolute;
+    left:-1px; right:-1px; top:-10px;
+    height:10px;
+    background:var(--paper);
+    z-index:1;
+  }
+  .country-filter button{padding:6px 2px; font-size:11px;}
+  .source-group.country-hidden{display:none;}
+
   .source-group{margin-bottom:4px;}
   .source-head{
     width:100%; text-align:left; background:var(--paper-dim); border:1px solid var(--rule);
@@ -637,3 +655,72 @@
     .floating-opacity{left:10px; bottom:10px; min-width:0; width:56vw; padding:8px 10px;}
     #multiOverlayBar{width:calc(100% - 20px); max-height:40vh;}
   }
+
+  /* ---------- 使用者自訂 WMTS／XYZ 圖層（複合疊圖面板內） ---------- */
+  .custom-source-block{
+    margin-bottom:16px; padding:10px 10px 12px; border:1px solid var(--rule); border-radius:3px;
+    background:var(--paper-dim);
+  }
+  .custom-source-hint{font-size:11px; color:var(--rule); line-height:1.5; margin:2px 0 8px;}
+  .custom-source-form{display:flex; flex-direction:column; gap:6px;}
+  .custom-source-input{
+    width:100%; box-sizing:border-box; padding:6px 8px; border:1px solid var(--rule); border-radius:2px;
+    background:var(--paper); color:var(--ink); font-family:var(--sans); font-size:12px;
+  }
+  .custom-source-input:focus{outline:none; border-color:var(--brass-dark);}
+  .custom-source-input-small{width:100%;}
+  .custom-source-add-btn{
+    align-self:flex-end; padding:6px 14px; border:1px solid var(--ink); border-radius:2px;
+    background:var(--ink); color:var(--paper); font-size:12px; font-weight:600; cursor:pointer;
+  }
+  .custom-source-add-btn:hover{background:var(--brass-dark); border-color:var(--brass-dark);}
+  .custom-source-list{margin-top:8px; max-height:160px; overflow-y:auto;}
+  .custom-source-empty{font-size:11.5px; color:var(--rule); padding:4px 2px; line-height:1.5;}
+  .custom-source-row{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:5px 2px; border-bottom:1px dashed var(--rule);
+  }
+  .custom-source-row:last-child{border-bottom:none;}
+  .custom-source-label{display:flex; align-items:center; gap:8px; min-width:0; cursor:pointer;}
+  .custom-source-label input[type=checkbox]{flex-shrink:0; accent-color:var(--brass-dark);}
+  .custom-source-name{
+    font-size:12.5px; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .custom-source-remove{
+    flex-shrink:0; width:22px; height:22px; padding:0;
+    background:var(--paper); border:1px solid var(--stamp); border-radius:2px;
+    font-size:10px; color:var(--stamp); cursor:pointer; line-height:1;
+  }
+  .custom-source-remove:hover{background:rgba(166,61,47,.1);}
+  .custom-source-clear-all-btn{margin-top:8px; width:100%;}
+
+  .custom-source-tabs{display:flex; gap:6px; margin-bottom:8px;}
+  .custom-source-tabs button{
+    flex:1; padding:6px 4px; border:1px solid var(--rule); border-radius:2px;
+    background:var(--paper); color:var(--rule); font-size:11.5px; font-weight:600; cursor:pointer;
+  }
+  .custom-source-tabs button.active{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+
+  .custom-source-badge{
+    display:inline-block; font-size:9.5px; font-weight:700; letter-spacing:.03em;
+    padding:1px 5px; border-radius:2px; background:var(--brass-dark); color:var(--paper);
+    vertical-align:middle;
+  }
+  .custom-source-error{color:var(--stamp) !important;}
+
+  .wmts-layer-list-actions{display:flex; justify-content:flex-end; margin:2px 0 4px;}
+  .wmts-select-all-btn{
+    padding:4px 10px; border:1px solid var(--rule); border-radius:2px;
+    background:var(--paper); color:var(--rule); font-size:11px; cursor:pointer;
+  }
+  .wmts-select-all-btn:hover{border-color:var(--ink); color:var(--ink);}
+  .wmts-layer-list{max-height:180px; overflow-y:auto; border:1px solid var(--rule); border-radius:2px; background:var(--paper);}
+  .wmts-layer-row{
+    display:flex; align-items:center; gap:8px; padding:5px 8px; cursor:pointer;
+    border-bottom:1px dashed var(--paper-dim); font-size:12px; color:var(--ink);
+  }
+  .wmts-layer-row:last-child{border-bottom:none;}
+  .wmts-layer-row:hover{background:var(--paper-dim);}
+  .wmts-layer-row input[type=checkbox]{accent-color:var(--brass-dark); flex-shrink:0;}
+  .wmts-layer-title{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .wmts-add-selected-btn{margin-top:8px; width:100%;}

@@ -113,6 +113,72 @@
       "file": "kinmen.json",
       "name": "金門百年歷史地圖",
       "layerCount": 10
+    },
+    {
+      "id": "beijing",
+      "file": "beijing.json",
+      "name": "北京百年歷史地圖",
+      "layerCount": 34
+    },
+    {
+      "id": "tianjin",
+      "file": "tianjin.json",
+      "name": "天津百年歷史地圖",
+      "layerCount": 21
+    },
+    {
+      "id": "shanghai",
+      "file": "shanghai.json",
+      "name": "上海城市歷史地圖",
+      "layerCount": 56
+    },
+    {
+      "id": "nanjing",
+      "file": "nanjing.json",
+      "name": "南京百年歷史地圖",
+      "layerCount": 36
+    },
+    {
+      "id": "hangzhou",
+      "file": "hangzhou.json",
+      "name": "杭州百年歷史地圖",
+      "layerCount": 11
+    },
+    {
+      "id": "wuhan",
+      "file": "wuhan.json",
+      "name": "武漢百年歷史地圖",
+      "layerCount": 21
+    },
+    {
+      "id": "guangzhou",
+      "file": "guangzhou.json",
+      "name": "廣州百年歷史地圖",
+      "layerCount": 13
+    },
+    {
+      "id": "kunming",
+      "file": "kunming.json",
+      "name": "昆明百年歷史地圖",
+      "layerCount": 19
+    },
+    {
+      "id": "suzhou",
+      "file": "suzhou.json",
+      "name": "蘇州百年歷史地圖",
+      "layerCount": 17
+    },
+    {
+      "id": "hongkong",
+      "file": "hongkong.json",
+      "name": "香港百年歷史地圖",
+      "layerCount": 13
+    },
+    {
+      "id": "ccts",
+      "file": "ccts.json",
+      "name": "中華文明之時空基礎架構",
+      "layerCount": 114
     }
   ]
 }

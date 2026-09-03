@@ -1,0 +1,175 @@
+{
+  "id": "hangzhou",
+  "name": "杭州百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（杭州百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/hangzhou/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      120.0225817,
+      30.1605509,
+      120.41609853,
+      30.3827302
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "清末民初(1910s-1920s)",
+      "layers": [
+        {
+          "id": "Hangzhou_25K_1914",
+          "title": "杭縣城",
+          "format": "png",
+          "year": 1914,
+          "dateLabel": "1914",
+          "type": null,
+          "scale": "1:25000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "hangzhou_10K_1929",
+          "title": "杭州市一萬分一圖測量原圖(1929)",
+          "format": "png",
+          "year": 1929,
+          "dateLabel": "1929",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hangzhou_15K_1929",
+          "title": "杭州西湖全圖",
+          "format": "png",
+          "year": 1929,
+          "dateLabel": "1929",
+          "type": null,
+          "scale": "1:15000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "拱宸橋日租界(1931)",
+      "layers": [
+        {
+          "id": "Hangzhou_1931",
+          "title": "浙江省杭縣拱宸橋日租界地形圖",
+          "format": "png",
+          "year": 1931,
+          "dateLabel": "1931",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hangzhou_2K_1931",
+          "title": "浙江省杭縣拱宸橋通商場地形圖",
+          "format": "png",
+          "year": 1931,
+          "dateLabel": "1931",
+          "type": null,
+          "scale": "1:2000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "1930年代",
+      "layers": [
+        {
+          "id": "Hangzhou_10K_1932",
+          "title": "1932 杭州市近傍一萬分一地形圖",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hangzhou_15K_1938",
+          "title": "杭州西湖地圖",
+          "format": "png",
+          "year": 1938,
+          "dateLabel": "1938",
+          "type": null,
+          "scale": "1:15000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰後(1947)",
+      "layers": [
+        {
+          "id": "Hangzhou_10K_1947",
+          "title": "浙江省杭州市市郊圖",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Hangzhou_40K_1947",
+          "title": "浙江省杭州市全圖",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": "1:40000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "當代",
+      "layers": [
+        {
+          "id": "airphoto_hangzhou_u2",
+          "title": "杭州舊航照影像(1964)",
+          "format": "png",
+          "year": 1964,
+          "dateLabel": "1964",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "其他未標年代",
+      "layers": [
+        {
+          "id": "Hangzhou_20K",
+          "title": "杭州市區圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": "1:20000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

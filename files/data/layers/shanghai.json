@@ -1,0 +1,676 @@
+{
+  "id": "shanghai",
+  "name": "上海城市歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（上海城市歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/shanghai/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      118.4295,
+      29.414784371932,
+      122.73232722218,
+      32.5746
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "租界初期(19世紀)",
+      "layers": [
+        {
+          "id": "Shanghai_10200",
+          "title": "Street Plan of The English, French and American Settlements, Shanghai",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": "1:10200",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_24150_1896",
+          "title": "1896 上海英國工部局擬在洋涇浜北邊擴充西人租界之圖",
+          "format": "png",
+          "year": 1896,
+          "dateLabel": "1896",
+          "type": null,
+          "scale": "1:24150",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1855",
+          "title": "上海租界圖(1855)",
+          "format": "png",
+          "year": 1855,
+          "dateLabel": "1855",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1873",
+          "title": "清國上海全圖(1873)",
+          "format": "png",
+          "year": 1873,
+          "dateLabel": "1873",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1884_3",
+          "title": "上海縣城廂租界全圖(1884)",
+          "format": "png",
+          "year": 1884,
+          "dateLabel": "1884",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1898",
+          "title": "新繪上海城廂租界全圖(1898)",
+          "format": "png",
+          "year": 1898,
+          "dateLabel": "1898",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "清末民初(1900s-1910s)",
+      "layers": [
+        {
+          "id": "Shanghai_1907",
+          "title": "1907 Outline Plan of The Foreign Settlements at Shanghai",
+          "format": "png",
+          "year": 1907,
+          "dateLabel": "1907",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1900",
+          "title": "Outline Plan of the Foreign Settlements at Shanghai",
+          "format": "png",
+          "year": 1900,
+          "dateLabel": "1900",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1904",
+          "title": "Map of Foreign Settlements at Shanghai",
+          "format": "png",
+          "year": 1904,
+          "dateLabel": "1904",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_12K_1910",
+          "title": "1910 商務印書館 實測上海城廂租界圖",
+          "format": "png",
+          "year": 1910,
+          "dateLabel": "1910",
+          "type": null,
+          "scale": "1:12000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_5K_1917",
+          "title": "1917 上海美租界分圖",
+          "format": "png",
+          "year": 1917,
+          "dateLabel": "1917",
+          "type": null,
+          "scale": "1:5000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_15200_1917",
+          "title": "1917 上海公共租界圖東區及浦東分區圖",
+          "format": "png",
+          "year": 1917,
+          "dateLabel": "1917",
+          "type": null,
+          "scale": "1:15200",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1913",
+          "title": "新測上海地圖(1913)",
+          "format": "png",
+          "year": 1913,
+          "dateLabel": "1913",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1913b",
+          "title": "Untitled Map of Shanghai Settlements",
+          "format": "png",
+          "year": 1913,
+          "dateLabel": "1913",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1914",
+          "title": "上海租界區變遷圖(1846~1914)",
+          "format": "png",
+          "year": 1914,
+          "dateLabel": "1846~1914",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1918",
+          "title": "上海南北市全圖(1918)",
+          "format": "png",
+          "year": 1918,
+          "dateLabel": "1918",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "1920s-1930s(戰前)",
+      "layers": [
+        {
+          "id": "Shanghai_14410_1922",
+          "title": "1922 Map of Shanghai",
+          "format": "png",
+          "year": 1922,
+          "dateLabel": "1922",
+          "type": null,
+          "scale": "1:14410",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1925",
+          "title": "最新上海全阜地圖(1925)",
+          "format": "png",
+          "year": 1925,
+          "dateLabel": "1925",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1928",
+          "title": "上海特別市工廠分佈圖(1928)",
+          "format": "png",
+          "year": 1928,
+          "dateLabel": "1928",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1928b",
+          "title": "Plan of Shanghai(1928)",
+          "format": "png",
+          "year": 1928,
+          "dateLabel": "1928",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1930",
+          "title": "上海市區域圖(1930)",
+          "format": "png",
+          "year": 1930,
+          "dateLabel": "1930",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1930_24k",
+          "title": "黃浦江總圖(1930)",
+          "format": "png",
+          "year": 1930,
+          "dateLabel": "1930",
+          "type": null,
+          "scale": "1:24000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_12K_1932",
+          "title": "1932 大阪朝日新聞社特撰最新上海地圖",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": null,
+          "scale": "1:12000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1932",
+          "title": "新測上海地圖(1932)",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_10K_1932",
+          "title": "上海市街圖",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1933",
+          "title": "上海市全圖(1933)",
+          "format": "png",
+          "year": 1933,
+          "dateLabel": "1933",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_10K_1935_1",
+          "title": "1935 支那東岸 上海港 第一 吳淞至高橋港",
+          "format": "png",
+          "year": 1935,
+          "dateLabel": "1935",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_10K_1935_2",
+          "title": "1935 支那東岸 上海港 第二 高橋港至楊樹浦",
+          "format": "png",
+          "year": 1935,
+          "dateLabel": "1935",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_10K_1935_3",
+          "title": "1935 支那東岸 上海港 第三 楊樹浦至鰻鯉嘴",
+          "format": "png",
+          "year": 1935,
+          "dateLabel": "1935",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_31580_1936",
+          "title": "1936 上海市地形圖",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": "1:31580",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_10K_1936",
+          "title": "上海一萬分一市區圖",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_20K_1937",
+          "title": "大上海新地圖",
+          "format": "png",
+          "year": 1937,
+          "dateLabel": "1937",
+          "type": null,
+          "scale": "1:20000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_20K_1937_1",
+          "title": "1937 大上海新地圖 The New Map of Shanghai",
+          "format": "png",
+          "year": 1937,
+          "dateLabel": "1937",
+          "type": null,
+          "scale": "1:20000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰爭時期(1937-1945)",
+      "layers": [
+        {
+          "id": "Shanghai_20K_1938",
+          "title": "1938 大上海新地圖",
+          "format": "png",
+          "year": 1938,
+          "dateLabel": "1938",
+          "type": null,
+          "scale": "1:20000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_40K_1938",
+          "title": "1938 最新實測 大上海新地圖",
+          "format": "png",
+          "year": 1938,
+          "dateLabel": "1938",
+          "type": null,
+          "scale": "1:40000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1939",
+          "title": "上海行號錄圖錄(1939)",
+          "format": "png",
+          "year": 1939,
+          "dateLabel": "1939",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_10K_1940_3",
+          "title": "1940 中華民國東海岸 揚子江口 黃埔江上海口岸分圖 第三幅 楊樹浦港至張家浜",
+          "format": "png",
+          "year": 1940,
+          "dateLabel": "1940",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_10K_1940_4",
+          "title": "1940 中華民國東海岸 揚子江口 黃埔江上海口岸分圖 第四幅 張家浜至塘口",
+          "format": "png",
+          "year": 1940,
+          "dateLabel": "1940",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_7600",
+          "title": "U.S.M.C Situation Map Sector C - Western District Shanghai, China",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": "1:7600",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_1946",
+          "title": "1946 上海區域計畫總圖初稿",
+          "format": "png",
+          "year": 1946,
+          "dateLabel": "1946",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1945",
+          "title": "上海特別市區域圖(1945)",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰後(1945-1959)",
+      "layers": [
+        {
+          "id": "Shanghai_1947",
+          "title": "1947上海明細地圖 新舊路名對照",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1947",
+          "title": "上海市行號路圖錄(1947)",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_13K_1948",
+          "title": "1948 上海市街道詳圖",
+          "format": "png",
+          "year": 1948,
+          "dateLabel": "1948",
+          "type": null,
+          "scale": "1:13000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1948",
+          "title": "上海市全圖(1948)",
+          "format": "png",
+          "year": 1948,
+          "dateLabel": "1948",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_10K_1953",
+          "title": "1953 上海分區街道圖",
+          "format": "png",
+          "year": 1953,
+          "dateLabel": "1953",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_10K_1947",
+          "title": "上海市一萬分之一城市圖",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "shanghai_1956",
+          "title": "上海市市區圖(1956)",
+          "format": "png",
+          "year": 1956,
+          "dateLabel": "1956",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_1949",
+          "title": "1949 上海市都市計畫三稿初期草圖",
+          "format": "png",
+          "year": 1949,
+          "dateLabel": "1949",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_1959",
+          "title": "1959 上海城市總體規劃草圖",
+          "format": "png",
+          "year": 1959,
+          "dateLabel": "1959",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "當代(1960s以後)",
+      "layers": [
+        {
+          "id": "Shanghai_1968",
+          "title": "1968 上海市地圖",
+          "format": "png",
+          "year": 1968,
+          "dateLabel": "1968",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_1980",
+          "title": "1980 上海市交通圖",
+          "format": "png",
+          "year": 1980,
+          "dateLabel": "1980",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "周邊區域涵蓋圖",
+      "layers": [
+        {
+          "id": "Shanghai_40K",
+          "title": "Shanghai and Environs",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": "1:40000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "jiangnan_100K",
+          "title": "蘇南十萬分之一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": "1:100000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "jiangnan_25K",
+          "title": "二萬五千分之一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": "1:25000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Shanghai_10K",
+          "title": "上海閘北區地圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

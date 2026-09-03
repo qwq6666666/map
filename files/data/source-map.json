@@ -2,6 +2,32 @@
   "alwaysInclude": [
     "sinica"
   ],
+  "alwaysIncludeUnless": [
+    {
+      "sources": [
+        "ccts"
+      ],
+      "excludeIfIncludes": [
+        "台灣", "臺灣", "Taiwan",
+        "基隆",
+        "臺北市", "台北市",
+        "新北",
+        "桃園",
+        "新竹",
+        "苗栗",
+        "臺中", "台中",
+        "彰化",
+        "嘉義",
+        "臺南", "台南",
+        "高雄",
+        "屏東",
+        "宜蘭",
+        "花蓮",
+        "金門"
+      ],
+      "note": "中華文明之時空基礎架構(ccts)涵蓋全中國，不屬於任何單一縣市；規則是「只要地址不是台灣本島／外島的縣市，就一律列入候選」，所以用排除清單而非比對清單：排除清單就是全部既有的台灣縣市關鍵字（沿用 rules 裡各條台灣規則的 includes，另外加上通用的「台灣」「臺灣」「Taiwan」字樣）。"
+    }
+  ],
   "rules": [
     {
       "match": "county+district",
@@ -175,6 +201,117 @@
       ],
       "sources": [
         "kinmen"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "北京",
+        "Beijing",
+        "Peking"
+      ],
+      "sources": [
+        "beijing"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "天津",
+        "Tianjin",
+        "Tientsin"
+      ],
+      "sources": [
+        "tianjin"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "上海",
+        "Shanghai"
+      ],
+      "sources": [
+        "shanghai"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "南京",
+        "Nanjing",
+        "Nanking"
+      ],
+      "sources": [
+        "nanjing"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "杭州",
+        "Hangzhou"
+      ],
+      "sources": [
+        "hangzhou"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "武漢",
+        "Wuhan",
+        "漢口",
+        "武昌",
+        "漢陽"
+      ],
+      "sources": [
+        "wuhan"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "廣州",
+        "Guangzhou",
+        "Canton"
+      ],
+      "sources": [
+        "guangzhou"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "昆明",
+        "Kunming"
+      ],
+      "sources": [
+        "kunming"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "蘇州",
+        "Suzhou",
+        "Soochow"
+      ],
+      "sources": [
+        "suzhou"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "香港",
+        "Hong Kong",
+        "HongKong",
+        "九龍",
+        "Kowloon"
+      ],
+      "sources": [
+        "hongkong"
       ]
     }
   ],

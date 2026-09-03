@@ -1,0 +1,285 @@
+{
+  "id": "tianjin",
+  "name": "天津百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（天津百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/tianjin/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      114.499427441,
+      36.7498166915,
+      118.000723913,
+      40.0002634668
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "周邊區域涵蓋圖",
+      "layers": [
+        {
+          "id": "Beijing_50K_1928",
+          "title": "順直(華北)水利委員會實測地形圖",
+          "format": "png",
+          "year": 1928,
+          "dateLabel": "1928",
+          "type": null,
+          "scale": "1:50000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "清末民初實測圖(1900s-1910s)",
+      "layers": [
+        {
+          "id": "Tianjin_5K_1909",
+          "title": "1909 天津全埠詳細新圖",
+          "format": "png",
+          "year": 1909,
+          "dateLabel": "1909",
+          "type": null,
+          "scale": "1:5000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tianjin_8K_1912",
+          "title": "天津地圖",
+          "format": "png",
+          "year": 1912,
+          "dateLabel": "1912",
+          "type": null,
+          "scale": "1:8000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tianjin_10K_1920",
+          "title": "1920 天津街市圖",
+          "format": "png",
+          "year": 1920,
+          "dateLabel": "1920",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "租界及都市計畫圖",
+      "layers": [
+        {
+          "id": "Tianjin_1931",
+          "title": "天津縣租界圖",
+          "format": "png",
+          "year": 1931,
+          "dateLabel": "1931",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tianjin_50K_1926",
+          "title": "直隸省地形圖：天津及其附近",
+          "format": "png",
+          "year": 1926,
+          "dateLabel": "1926",
+          "type": null,
+          "scale": "1:50000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "1930年代市街圖",
+      "layers": [
+        {
+          "id": "Tianjin_10K_1934",
+          "title": "1934 天津市圖",
+          "format": "png",
+          "year": 1934,
+          "dateLabel": "1934",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tianjin_5K_1936",
+          "title": "TERRAIN MAP. TIENTSIN DEFENSE SECTOR",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": "1:5000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tianjin_20K_1936",
+          "title": "天津市街道詳圖",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": "1:20000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tianjin_25K_1936",
+          "title": "天津縣",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": "1:25000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tianjin_50K_1930s",
+          "title": "天津都市計畫要圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1930s",
+          "type": null,
+          "scale": "1:50000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰爭末期至戰後(1940s)",
+      "layers": [
+        {
+          "id": "Tianjin_25K_1940",
+          "title": "1940 PLAN OF HAI HO",
+          "format": "png",
+          "year": 1940,
+          "dateLabel": "1940",
+          "type": null,
+          "scale": "1:25000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tianjin_20K_1940s",
+          "title": "最新天津全圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1940s",
+          "type": null,
+          "scale": "1:20000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tianjin_10K_1940sa",
+          "title": "天津新市街要圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1940s",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tianjin_10K_1940sb",
+          "title": "天津市特別第三、四區地內下水道計畫平面圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1940s",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tianjin_12.5K_1945",
+          "title": "PLAN OF TIENTSIN 天津市區平面圖",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": "1:12500",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tianjin_12.5K_1945b",
+          "title": "天津市區平面圖",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": "1:12500",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tianjin_12500_1945",
+          "title": "1945 PLAN OF TIENTSIN",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": "1:12500",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tianjin_12500_1945_1",
+          "title": "T'IEN-CHING 天津",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": "1:12500",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Tianjin_10K_1947",
+          "title": "天津市地形全圖",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": "1:10000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "當代",
+      "layers": [
+        {
+          "id": "Tianjin_29K_1994",
+          "title": "天津市區圖",
+          "format": "png",
+          "year": 1994,
+          "dateLabel": "1994",
+          "type": null,
+          "scale": "1:29000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

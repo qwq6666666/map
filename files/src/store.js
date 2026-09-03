@@ -15,6 +15,36 @@
    繼續放在 state.js（改名 runtime.js 以跟這裡的 store 狀態區分）。
 --------------------------------------------------------- */
 
+// 使用者自訂 WMTS／XYZ 圖層清單存在 localStorage 的 key。這份清單完全
+// 獨立於 data/layers/*.json 那套「開發者編輯 → 跑 build script → 產生
+// layers.bundle.json」的管線之外——使用者自己在瀏覽器裡加的來源，
+// 生命週期跟受眾都不一樣，不需要（也不能）經過那條路徑。
+const CUSTOM_SOURCES_STORAGE_KEY = 'hundredYearMap:customSources';
+
+function loadCustomSourcesFromStorage(){
+  try{
+    const raw = localStorage.getItem(CUSTOM_SOURCES_STORAGE_KEY);
+    if(!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  }catch(err){
+    // 無痕模式／儲存空間被清過／內容壞掉時，安靜地當成沒有既有資料，
+    // 不要讓整個 app 因為讀不到自訂圖層而掛掉。
+    console.warn('讀取自訂圖層清單失敗，忽略本機儲存的資料', err);
+    return [];
+  }
+}
+
+function persistCustomSources(){
+  try{
+    localStorage.setItem(CUSTOM_SOURCES_STORAGE_KEY, JSON.stringify(state.customSources));
+  }catch(err){
+    // 例如無痕模式或儲存空間已滿：使用者這次加的圖層還是能用，只是
+    // 不會被記住，不需要因此中斷操作或跳出干擾性的錯誤訊息。
+    console.warn('儲存自訂圖層清單失敗（可能是無痕模式或儲存空間已滿）', err);
+  }
+}
+
 export const state = {
   mode: 'overlay',        // 'overlay'／'compare'／'timeline'／'multi'（複合疊圖：可同時疊加多張）
   baseLayer: 'osm',       // 'osm' 或 'sat'，兩種模式共用的底圖
@@ -26,7 +56,14 @@ export const state = {
   // 疊放順序（index 越大＝疊在越上層，跟 z-index 的直覺一致）。跟
   // activeOverlayKey（單選）刻意分開存放，兩者互不影響，切換模式時
   // 不會互相覆蓋掉對方記得的選擇。
-  multiOverlayLayers: []  // [{ key, opacity }, ...]，opacity 是 0~100 的整數
+  multiOverlayLayers: [], // [{ key, opacity }, ...]，opacity 是 0~100 的整數
+  // 使用者自訂的 WMTS／XYZ 圖層來源，跟 data/layers/*.json 那批「內建
+  // 圖資」完全分開存放，key 命名空間是 `custom:<id>`（見 data.js 的
+  // setCustomSourcesProvider）。開啟頁面時自動從 localStorage 還原，
+  // 每次新增／刪除都自動寫回，離開頁面不會遺失（見與使用者的討論：
+  // 這個功能沒有帳號系統，「保存」只能是「留在這台瀏覽器裡」，所以
+  // 預設自動保存，把「要不要清掉」的主控權交給使用者自己按刪除）。
+  customSources: loadCustomSourcesFromStorage()
 };
 
 const listeners = [];
@@ -123,4 +160,59 @@ export function moveMultiOverlayLayer(key, direction){
 export function clearMultiOverlayLayers(){
   if(state.multiOverlayLayers.length === 0) return;
   setState({ multiOverlayLayers: [] });
+}
+
+/* ---------------------------------------------------------
+   使用者自訂 WMTS／XYZ 圖層來源的意圖動作。跟複合疊圖模式共用同一套
+   「勾選加入 multiOverlayLayers」機制來實際顯示在地圖上（見
+   features/multiOverlay.js），這裡只負責維護「使用者加過哪些來源」
+   這份清單本身，以及自動同步到 localStorage。
+--------------------------------------------------------- */
+
+// 產生一個不需要後端、在瀏覽器裡就能保證同一批清單內不重複的 id。
+function generateCustomSourceId(){
+  return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+// entry: 手動新增時傳 { name, urlTemplate, format, attribution }（type
+// 預設 'xyz'）；從 WMTS 服務匯入時傳 { name, type:'wmts', wmts, attribution }，
+// `wmts` 是 features/wmtsImport.js 從 GetCapabilities 解析、抽出來的純資料
+// tileGrid 設定（見 data.js 的 makeWmtsSourceFromEntry() 如何使用）。
+// 回傳新建立的完整項目（含自動產生的 id），方便呼叫端立刻知道要用哪個 key。
+export function addCustomSource(entry){
+  const item = {
+    id: generateCustomSourceId(),
+    type: entry.type === 'wmts' ? 'wmts' : 'xyz',
+    name: (entry.name || '').trim() || '未命名圖層',
+    attribution: (entry.attribution || '').trim()
+  };
+  if(item.type === 'wmts'){
+    item.wmts = entry.wmts; // 已經是可序列化的 plain object，呼叫端負責組好，這裡不重新驗證內容
+  } else {
+    item.urlTemplate = (entry.urlTemplate || '').trim();
+    item.format = (entry.format || '').trim();
+  }
+  setState({ customSources: [...state.customSources, item] });
+  persistCustomSources();
+  return item;
+}
+
+// 刪除單筆自訂來源；如果這張圖層目前正疊在地圖上（在 multiOverlayLayers
+// 清單裡），一併移除，避免留下一個指向已刪除來源、載入不出圖磚的殘留 key。
+export function removeCustomSource(id){
+  const next = state.customSources.filter(s => s.id !== id);
+  if(next.length === state.customSources.length) return; // 沒有這筆，不用觸發廣播
+  const key = `custom:${id}`;
+  const nextMulti = state.multiOverlayLayers.filter(e => e.key !== key);
+  setState({ customSources: next, multiOverlayLayers: nextMulti });
+  persistCustomSources();
+}
+
+// 一次清空所有自訂來源，同樣要把它們從目前疊圖組合裡一併移除。
+export function clearCustomSources(){
+  if(state.customSources.length === 0) return;
+  const customKeys = new Set(state.customSources.map(s => `custom:${s.id}`));
+  const nextMulti = state.multiOverlayLayers.filter(e => !customKeys.has(e.key));
+  setState({ customSources: [], multiOverlayLayers: nextMulti });
+  persistCustomSources();
 }

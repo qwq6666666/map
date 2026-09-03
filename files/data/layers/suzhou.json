@@ -1,0 +1,235 @@
+{
+  "id": "suzhou",
+  "name": "蘇州百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（蘇州百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/suzhou/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      120.4140324,
+      31.1256815,
+      120.8633399,
+      31.4161658
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "清代",
+      "layers": [
+        {
+          "id": "Suzhou_1880",
+          "title": "蘇州城圖(1880)",
+          "format": "png",
+          "year": 1880,
+          "dateLabel": "1880",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "清末民初(1900s-1920s)",
+      "layers": [
+        {
+          "id": "Suzhou_63.4K_1901",
+          "title": "蘇境新測圖（MAP OF THE COUNTRY ROUND SOOCHOW）",
+          "format": "png",
+          "year": 1901,
+          "dateLabel": "1901",
+          "type": null,
+          "scale": "1:63400",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_1904",
+          "title": "新測蘇州城廂明細全圖",
+          "format": "png",
+          "year": 1904,
+          "dateLabel": "1904",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_1921",
+          "title": "最新蘇州城廂明細全圖",
+          "format": "png",
+          "year": 1921,
+          "dateLabel": "1921",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_1927",
+          "title": "最新蘇州市全圖",
+          "format": "png",
+          "year": 1927,
+          "dateLabel": "1927",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "1930年代",
+      "layers": [
+        {
+          "id": "Suzhou_12.5K_1931",
+          "title": "蘇州新地圖",
+          "format": "png",
+          "year": 1931,
+          "dateLabel": "1931",
+          "type": null,
+          "scale": "1:12500",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_1931",
+          "title": "蘇州日本租界圖",
+          "format": "png",
+          "year": 1931,
+          "dateLabel": "1931",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_1938",
+          "title": "最新蘇州地圖(1938)",
+          "format": "png",
+          "year": 1938,
+          "dateLabel": "1938",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰爭末期至戰後(1940-1949)",
+      "layers": [
+        {
+          "id": "Suzhou_5K_1940",
+          "title": "吳縣城廂圖",
+          "format": "png",
+          "year": 1940,
+          "dateLabel": "1940",
+          "type": null,
+          "scale": "1:5000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_12.5K_1943",
+          "title": "最近蘇州遊覽地圖",
+          "format": "png",
+          "year": 1943,
+          "dateLabel": "1943",
+          "type": null,
+          "scale": "1:12500",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_11.5K_1944",
+          "title": "CHINA, EAST COAST：CITY OF SU-CHOU 中國東部海岸：蘇州城(甲)",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": null,
+          "scale": "1:11500",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_11.5K_1944b",
+          "title": "中國東部海岸：蘇州城(乙)",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": null,
+          "scale": "1:11500",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_22K_1949",
+          "title": "最新蘇州地圖(1949)",
+          "format": "png",
+          "year": 1949,
+          "dateLabel": "1949",
+          "type": null,
+          "scale": "1:22000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "其他未標年代",
+      "layers": [
+        {
+          "id": "Suzhou_A",
+          "title": "蘇州城圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_B",
+          "title": "蘇城地理圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_C",
+          "title": "蘇城廂圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_D",
+          "title": "蘇城全圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

@@ -24,6 +24,7 @@ import { buildCategoryList } from '../uiTree.js';
 import { map } from '../core/map.js';
 import { collapseSidebar } from '../ui/sidebarToggle.js';
 import { getOrCreateSource } from '../core/layerCache.js';
+import { createCountryFilterBar } from '../ui/countryFilter.js';
 
 let swipeDividerEl, compareWrapA, compareWrapB;
 
@@ -213,6 +214,10 @@ function buildPickerPanel(panelEl, onSelect){
   panelEl.appendChild(baseWrap);
 
   // WMTS 圖資來源 → 分類 → 圖層
+  const sourceWraps = []; // [{ src, wrap }]，供下面篩選列使用
+  const { bar: filterBar, refresh: refreshCountryFilter } = createCountryFilterBar(() => sourceWraps);
+  panelEl.appendChild(filterBar);
+
   LAYER_SOURCES.forEach(src=>{
     const srcWrap = document.createElement('div');
     srcWrap.className = 'source-group';
@@ -229,7 +234,10 @@ function buildPickerPanel(panelEl, onSelect){
     srcWrap.appendChild(srcHead);
     srcWrap.appendChild(srcBody);
     panelEl.appendChild(srcWrap);
+    sourceWraps.push({ src, wrap: srcWrap });
   });
+
+  refreshCountryFilter();
 }
 
 function setupPicker(side, btnEl, labelEl, panelEl){

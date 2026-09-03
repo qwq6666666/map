@@ -2,15 +2,21 @@
    ui/search.js — 地址搜尋介面
    ---------------------------------------------------------
    從 searchUI.js 拆出來的 UI 部分：輸入框、搜尋／定位按鈕、
-   建議清單、結果面板（分類瀏覽／時間軸兩種檢視）。只負責 input／
+   建議清單、結果面板（分類瀏覽檢視）。只負責 input／
    button／result list／loading／error message／DOM 更新，實際
    的地理編碼交給 geocode.js，候選來源篩選與逐筆圖磚驗證交給
    features/search.js，這裡不自己做任何 GIS 判斷。
+
+   注意：搜尋結果面板不再提供「時間軸」檢視切換（原本跟「分類瀏覽」
+   並列的第二種檢視方式已移除，只保留分類瀏覽）。app 另外還有一個
+   獨立的「時間軸模式」（見 timelineMode.js），跟搜尋功能是不同的
+   進入點，這裡拿掉的只是搜尋結果面板內部那個切換按鈕，不影響
+   timelineMode.js／timelineUI.js 的 buildTimeline()，時間軸模式本身
+   仍然正常運作。
 --------------------------------------------------------- */
 import { runtime } from '../runtime.js';
 import { geocodeAddress, reverseGeocode } from '../geocode.js';
 import { buildCategoryList } from '../uiTree.js';
-import { buildTimeline } from '../timelineUI.js';
 import { map } from '../core/map.js';
 import { showLocateToast } from '../features/location.js';
 import { syncActiveLayerItemClasses } from '../core/layerManager.js';
@@ -157,22 +163,6 @@ function renderAvailableLayers(available, totalChecked){
   summary.textContent = `此地點目前可套疊 ${available.length} 筆歷史地圖圖層（已逐筆確認有資料）：`;
   layerAvailPanelEl.appendChild(summary);
 
-  // 檢視切換：分類瀏覽（原本的手風琴）／時間軸（依年代排列，原型功能）。
-  // 兩種檢視操作的是同一份 available 資料，切換不會重新搜尋。
-  const viewToggle = document.createElement('div');
-  viewToggle.className = 'avail-view-toggle';
-  const catViewBtn = document.createElement('button');
-  catViewBtn.type = 'button';
-  catViewBtn.className = 'avail-view-btn active';
-  catViewBtn.textContent = '分類瀏覽';
-  const timelineViewBtn = document.createElement('button');
-  timelineViewBtn.type = 'button';
-  timelineViewBtn.className = 'avail-view-btn';
-  timelineViewBtn.textContent = '時間軸';
-  viewToggle.appendChild(catViewBtn);
-  viewToggle.appendChild(timelineViewBtn);
-  layerAvailPanelEl.appendChild(viewToggle);
-
   const contentEl = document.createElement('div');
   layerAvailPanelEl.appendChild(contentEl);
 
@@ -237,28 +227,11 @@ function renderAvailableLayers(available, totalChecked){
     syncActiveLayerItemClasses();
   }
 
-  function renderTimelineView(){
-    contentEl.innerHTML = '';
-    buildTimeline(available, contentEl, (src, layer) => activateFromSearch(src, layer));
-    syncActiveLayerItemClasses();
-  }
-
-  catViewBtn.addEventListener('click', ()=>{
-    catViewBtn.classList.add('active');
-    timelineViewBtn.classList.remove('active');
-    renderCategoryView();
-  });
-  timelineViewBtn.addEventListener('click', ()=>{
-    timelineViewBtn.classList.add('active');
-    catViewBtn.classList.remove('active');
-    renderTimelineView();
-  });
-
   // 若目前已有套疊中的歷史圖層，於搜尋結果中同步標示為 active，並展開其所在的分類層級。
   // 搜尋結果面板每次都是重新建立的 DOM，store 的 activeOverlayKey 不會因為
   // 重新搜尋而改變，modeManager 的訂閱者不會被觸發，所以要手動呼叫一次
   // 跟主清單共用的同步函式，補上這次剛建好的 DOM。
-  renderCategoryView(); // 預設顯示分類瀏覽
+  renderCategoryView();
 }
 
 /* ---------------------------------------------------------

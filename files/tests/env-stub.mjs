@@ -161,6 +161,16 @@ else { globalThis.navigator = { geolocation: null }; }
 globalThis.alert = (msg) => {};
 globalThis.confirm = () => true;
 globalThis.prompt = () => '';
+
+// 簡易 in-memory localStorage 假物件，供 store.js 的自訂圖層清單
+// 讀寫測試使用；只需要 getItem/setItem 兩個方法。
+globalThis.localStorage = {
+  _data: {},
+  getItem(key){ return Object.prototype.hasOwnProperty.call(this._data, key) ? this._data[key] : null; },
+  setItem(key, value){ this._data[key] = String(value); },
+  removeItem(key){ delete this._data[key]; },
+  clear(){ this._data = {}; }
+};
 globalThis.URL = { createObjectURL: () => 'blob:fake', revokeObjectURL: () => {} };
 
 globalThis.Image = class {
@@ -185,6 +195,33 @@ globalThis.fetch = async (url) => {
 
 class FakeTileSource {
   constructor(opts){ this.opts = opts; }
+}
+// 假 ol.source.WMTS：跟 FakeTileSource 一樣只記錄 opts，另外掛一個
+// static optionsFromCapabilities()，讓 tests/specs/wmts-import.test.mjs
+// 可以在不用真的 fetch/解析 XML 的情況下測試 features/wmtsImport.js
+// 怎麼把 optionsFromCapabilities() 的結果轉成純資料格式。呼叫端
+// （wmtsImport.js）傳進來的 capabilities 物件，測試裡會自己準備一份
+// 帶 `_fakeOptionsByLayer` 查找表的假資料，藉此模擬「這張圖層有/沒有
+// 相容的 EPSG:3857 TileMatrixSet」兩種情況。
+class FakeWMTSSource extends FakeTileSource {
+  static optionsFromCapabilities(capabilities, config){
+    const table = capabilities && capabilities._fakeOptionsByLayer;
+    if(!table) return null;
+    const options = table[config.layer];
+    return options || null;
+  }
+}
+// 假 ol.tilegrid.WMTS：真正的 OL 版本會依 origin/resolutions/matrixIds
+// 建構完整的 tile grid 邏輯，這裡只需要滿足 data.js 的
+// makeWmtsSourceFromEntry() 呼叫得到 getOrigin()/getResolutions()/
+// getMatrixIds()/getTileSize()/getExtent() 這幾個 getter 就夠了。
+class FakeWMTSTileGrid {
+  constructor(opts){ this.opts = opts || {}; }
+  getOrigin(){ return this.opts.origin; }
+  getResolutions(){ return this.opts.resolutions; }
+  getMatrixIds(){ return this.opts.matrixIds; }
+  getTileSize(){ return this.opts.tileSize || 256; }
+  getExtent(){ return this.opts.extent; }
 }
 class FakeVectorSource {
   constructor(){ this._features = []; }
@@ -257,7 +294,7 @@ class FakeMap {
 }
 
 globalThis.ol = {
-  source: { OSM: class extends FakeTileSource {}, XYZ: FakeTileSource, Vector: FakeVectorSource },
+  source: { OSM: class extends FakeTileSource {}, XYZ: FakeTileSource, Vector: FakeVectorSource, WMTS: FakeWMTSSource },
   layer: { Tile: FakeTileLayer, Vector: FakeVectorLayer },
   Map: FakeMap,
   View: class { constructor(opts){ this.opts = opts; } },
@@ -284,8 +321,20 @@ globalThis.ol = {
           features: features.map(f => ({ type: 'Feature', properties: f._props })),
         });
       }
+    },
+    // 測試用的假 WMTSCapabilities：不真的解析 XML，直接把傳進來的字串
+    // 當 JSON parse 回來（tests/specs/wmts-import.test.mjs 會準備好
+    // 符合 buildFakeCapabilities() 形狀的假資料字串），跟真的
+    // ol.format.WMTSCapabilities.read() 一樣是「文字 → capabilities 物件」。
+    WMTSCapabilities: class {
+      read(text){
+        try{ return JSON.parse(text); }catch(err){ return null; }
+      }
     }
   },
+  tilegrid: {
+    WMTS: FakeWMTSTileGrid
+  }
 };
 
 // document.createElement('canvas') 補強：drawTool.js 需要 getContext()/toBlob()

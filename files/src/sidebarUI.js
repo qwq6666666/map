@@ -6,6 +6,7 @@ import { LAYER_SOURCES, layerKey } from './data.js';
 import { buildCategoryList } from './uiTree.js';
 import { selectOverlayLayer } from './store.js';
 import { flyToSourceExtent } from './mapCore.js';
+import { createCountryFilterBar } from './ui/countryFilter.js';
 
 /* 動態量測「歷史圖層透明度」吸附區塊的實際高度，寫成 CSS 變數，
    讓 .source-head / .category-head 的 scroll-snap-margin-top 精準對齊
@@ -14,7 +15,14 @@ import { flyToSourceExtent } from './mapCore.js';
 function updateStickyOffset(){
   const ob = document.querySelector('.opacity-block');
   if(!ob) return;
-  const h = Math.ceil(ob.getBoundingClientRect().height);
+  let h = Math.ceil(ob.getBoundingClientRect().height);
+  // 國家篩選列（.country-filter）疊在透明度區塊下方、跟它一起吸附在
+  // 側邊欄可視範圍最上方；#categories／#multiCategories 只會有一個在
+  // 目前這個模式下顯示，隱藏那份的高度量出來是 0，直接加總即可。
+  document.querySelectorAll('#categories > .country-filter, #multiCategories > .country-filter').forEach(el=>{
+    const r = el.getBoundingClientRect();
+    if(r.height > 0) h += Math.ceil(r.height);
+  });
   document.documentElement.style.setProperty('--sticky-offset', h + 'px');
 }
 
@@ -23,6 +31,10 @@ export function initSidebar(){
 
   window.addEventListener('resize', updateStickyOffset);
   window.addEventListener('load', updateStickyOffset);
+
+  const sourceWraps = []; // [{ src, wrap }]，篩選列用來知道要顯示／隱藏哪些來源
+  const { bar: filterBar, refresh: refreshCountryFilter } = createCountryFilterBar(() => sourceWraps);
+  categoriesEl.appendChild(filterBar);
 
   LAYER_SOURCES.forEach((src) => {
     const srcWrap = document.createElement('div');
@@ -58,7 +70,9 @@ export function initSidebar(){
     srcWrap.appendChild(srcHead);
     srcWrap.appendChild(srcBody);
     categoriesEl.appendChild(srcWrap);
+    sourceWraps.push({ src, wrap: srcWrap });
   });
 
+  refreshCountryFilter();
   updateStickyOffset();
 }

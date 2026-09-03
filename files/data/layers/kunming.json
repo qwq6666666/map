@@ -1,0 +1,257 @@
+{
+  "id": "kunming",
+  "name": "昆明百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（昆明百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/kunming/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      93.100228162,
+      15.6602743754,
+      109.429394745,
+      33.0093975678
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "清末民初(1910s-1920s)",
+      "layers": [
+        {
+          "id": "Kunming_500K_1916",
+          "title": "昆明(1916)",
+          "format": "png",
+          "year": 1916,
+          "dateLabel": "1916",
+          "type": null,
+          "scale": "1:500000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kunming_100K_1922",
+          "title": "昆明(1922)",
+          "format": "png",
+          "year": 1922,
+          "dateLabel": "1922",
+          "type": null,
+          "scale": "1:100000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "1930年代",
+      "layers": [
+        {
+          "id": "Kunming_100K_1930",
+          "title": "滇池",
+          "format": "png",
+          "year": 1930,
+          "dateLabel": "1930",
+          "type": null,
+          "scale": "1:100000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kunming_1000K_1933",
+          "title": "昆明(1933)",
+          "format": "png",
+          "year": 1933,
+          "dateLabel": "1933",
+          "type": null,
+          "scale": "1:1000000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kunming_300K_1937",
+          "title": "昆明(1937)",
+          "format": "png",
+          "year": 1937,
+          "dateLabel": "1937",
+          "type": null,
+          "scale": "1:300000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kunming_100K_1935",
+          "title": "昆明縣(1935)",
+          "format": "png",
+          "year": 1935,
+          "dateLabel": "1935",
+          "type": null,
+          "scale": "1:100000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "抗戰時期(1938-1945)",
+      "layers": [
+        {
+          "id": "Kunming_1000K_1938",
+          "title": "昆明(1938)",
+          "format": "png",
+          "year": 1938,
+          "dateLabel": "1938",
+          "type": null,
+          "scale": "1:1000000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kunming_1760K_1939",
+          "title": "雲南省明細地圖",
+          "format": "png",
+          "year": 1939,
+          "dateLabel": "1939",
+          "type": null,
+          "scale": "1:1760000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kunming_50K_1941",
+          "title": "昆明縣(1941)",
+          "format": "png",
+          "year": 1941,
+          "dateLabel": "1941",
+          "type": null,
+          "scale": "1:50000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kunming_15K_1942A",
+          "title": "昆明市區詳圖(甲)",
+          "format": "png",
+          "year": 1942,
+          "dateLabel": "1942",
+          "type": null,
+          "scale": "1:15000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kunming_15K_1942B",
+          "title": "昆明市區詳圖(乙)",
+          "format": "png",
+          "year": 1942,
+          "dateLabel": "1942",
+          "type": null,
+          "scale": "1:15000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kunming_2000K_1944",
+          "title": "KUNMING YUNNANFU",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": null,
+          "scale": "1:2000000",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kunming_2000K_1945",
+          "title": "KUNMING",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": "1:2000000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰後(1946-1947)",
+      "layers": [
+        {
+          "id": "Kunming_8.6K_1946",
+          "title": "昆明市街道詳圖",
+          "format": "png",
+          "year": 1946,
+          "dateLabel": "1946",
+          "type": null,
+          "scale": "1:8600",
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kunming_15K_1947",
+          "title": "雲南省昆明市區詳圖",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": "1:15000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "其他未標年代",
+      "layers": [
+        {
+          "id": "Yunnan_A",
+          "title": "雲南貴州",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "kunming1",
+          "title": "孝地圖二",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "kunming2",
+          "title": "昆明市區街道村鎮圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": null,
+          "keywords": []
+        },
+        {
+          "id": "Kunming_20K",
+          "title": "TOWN PLAN K'UN-MING",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": "1:20000",
+          "region": null,
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

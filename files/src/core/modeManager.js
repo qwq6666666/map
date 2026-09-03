@@ -26,7 +26,7 @@ import { map, applyBaseLayer } from './map.js';
 import { applyActiveOverlayKey, clearLayerPool, suspendActiveOverlayVisual } from './layerManager.js';
 import { applyMultiOverlayLayers, hideMultiOverlayLayers } from './multiOverlayManager.js';
 import { enterCompareMode, resetCompareVisuals, applyCompareSide, positionDivider } from '../features/compareMode.js';
-import { syncMultiLayerCheckedClasses, renderMultiOverlayBar } from '../features/multiOverlay.js';
+import { syncMultiLayerCheckedClasses, renderMultiOverlayBar, renderCustomSourcesPanel } from '../features/multiOverlay.js';
 import { collapseSidebar, updateFloatingOpacityVisibility } from '../ui/sidebarToggle.js';
 import { activateTimelineMode } from '../timelineMode.js';
 
@@ -87,6 +87,7 @@ function applyModeTransition(){
     applyMultiOverlayLayers();
     syncMultiLayerCheckedClasses();
     renderMultiOverlayBar();
+    renderCustomSourcesPanel(); // 進場時重新整理一次，涵蓋「不在這個模式時新增/刪除過自訂圖層」的情況
     map.render();
   } else { // compare
     opacityBlockEl.style.display = 'none';
@@ -97,6 +98,14 @@ function applyModeTransition(){
     enterCompareMode();
   }
   updateFloatingOpacityVisibility();
+  // 透明度區塊／國家篩選列的顯示與否會隨模式改變（見上面各分支），
+  // 兩者疊出來的總高度也跟著變，觸發一次 resize 事件重新量測
+  // --sticky-offset（sidebarUI.js 的監聽器），避免切換模式後吸附列
+  // 底下留一截跟舊高度對不齊的空隙。測試環境用的假 window 沒有
+  // dispatchEvent／Event，這裡只在真的瀏覽器環境執行。
+  if(typeof window !== 'undefined' && typeof window.dispatchEvent === 'function' && typeof Event === 'function'){
+    window.dispatchEvent(new Event('resize'));
+  }
 }
 
 function initModeSwitch(){
@@ -143,6 +152,12 @@ function render(state, prevState, changedKeys){
     applyMultiOverlayLayers();
     syncMultiLayerCheckedClasses();
     renderMultiOverlayBar();
+    renderCustomSourcesPanel(); // 勾選狀態可能因為多選清單那邊的「移除」操作而變動，重繪一次同步 checkbox
+  }
+  // 新增／刪除自訂圖層本身（跟「有沒有勾選疊在地圖上」是兩件事）：
+  // 只在複合疊圖面板可見時才需要重繪，理由跟上面 multiOverlayLayers 一樣。
+  if(changedKeys.includes('customSources') && store.mode === 'multi'){
+    renderCustomSourcesPanel();
   }
 }
 

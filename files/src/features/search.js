@@ -14,12 +14,14 @@
       優先檢查，沒命中的留著當備援，確保新舊地名對不上時不會漏掉。
    3. 逐筆資料驗證：候選圖層各自對該地點座標實際發送一次圖磚請求，
       只列出真的成功回傳影像的圖層。
-   4. 鄰近補測：上一步「中心點那一顆圖磚沒資料」的候選，不會直接判定
-      沒有涵蓋，而是改測它周圍 8 顆鄰近圖磚（見 core/tileGeo.js），
-      任一顆有資料就算這個位置有涵蓋。老地圖的實際掃描範圍常常不是
-      整齊的矩形，圖幅邊界、拼接處的空白 margin 很容易剛好卡在使用者
-      定位到的那個點上，只探測單一個點很容易在這種邊界情形誤判成
-      「找不到」。
+
+   注意：這裡刻意不做「中心點沒資料時，改測周圍 8 顆鄰近圖磚」的補測
+   （時間軸功能 timelineMode.js 仍保留這個機制，見 core/tileGeo.js 的
+   neighborTiles()）。地址搜尋一次要檢查的候選圖層筆數遠比時間軸多，
+   每一筆失敗都多測 8 顆圖磚，在候選數量大時會讓整體搜尋時間大幅增加；
+   實測也發現「中心點沒資料」絕大多數就是真的沒資料，鄰近補測換來的
+   額外命中率，換不回等待時間的成本，因此地址搜尋維持「中心點檢查 +
+   必要時的文字比對 fallback」，不做鄰近補測。
 
    這支模組不知道 sidebar、時間軸面板長什麼樣子、也不直接操作
    任何 DOM——結果與進度都透過回傳值／回呼函式交給呼叫端
@@ -32,7 +34,7 @@ import {
 } from '../data.js';
 import { TileChecker } from '../tileChecker.js';
 import { state as store, setMode, selectOverlayLayer } from '../store.js';
-import { lonLatToTileXY, neighborTiles } from '../core/tileGeo.js';
+import { lonLatToTileXY } from '../core/tileGeo.js';
 
 export const SEARCH_ZOOM = 15;
 
@@ -173,30 +175,6 @@ export async function findAvailableLayersAt(lon, lat, addr, { onProgress, isStal
     );
     if(isStale?.()) return { status: 'stale' };
     available = available.concat(moreAvailable);
-  }
-
-  // 第三階段：中心點那一顆圖磚沒資料的候選，改測它周圍 8 顆鄰近圖磚
-  // （見 core/tileGeo.js 的說明：老地圖圖幅邊界、掃描空白 margin 常常
-  // 剛好卡在使用者定位到的那一點，隔壁圖磚其實是有資料的）。只對「中心點
-  // 沒資料」的候選才多做這一步，不會讓大多數正常情況下的請求量變多。
-  const directChecked = remainder.length > 0 ? priority.concat(remainder) : priority;
-  const availableKeys = new Set(available.map(c => layerKey(c.src, c.layer)));
-  const failedDirect = directChecked.filter(c => !availableKeys.has(layerKey(c.src, c.layer)));
-
-  if(failedDirect.length > 0){
-    totalChecked += failedDirect.length;
-    const neighborUrlsOf = (c) => neighborTiles(tile).map(t =>
-      c.src.tileUrl(c.layer).replace('{z}', t.z).replace('{x}', t.x).replace('{y}', t.y)
-    );
-    const neighborHits = await tileChecker.checkBatchAny(
-      failedDirect,
-      neighborUrlsOf,
-      (checkedCount, total) => {
-        if(!isStale?.()) onProgress?.(`中心點沒有資料的候選中，正在檢查鄰近位置 ${checkedCount} / ${total} 筆…${filterNote}`);
-      }
-    );
-    if(isStale?.()) return { status: 'stale' };
-    available = available.concat(neighborHits);
   }
 
   return { status: 'ok', available, totalChecked };

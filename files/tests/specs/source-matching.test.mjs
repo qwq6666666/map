@@ -49,4 +49,19 @@ test('extractPlaceKeywords 不會把縣市層級（county/state）的值當成�
   assertTrue(keywords.includes('安平區'), '應該包含鄉鎮市區層級關鍵字');
 });
 
+test('ccts（alwaysIncludeUnless）在台灣地址時不觸發', () => {
+  const result = matchSourceIdsForAddress({ county: '臺北市' });
+  assertTrue(excludesAll(result, ['ccts']), '台北市地址不該包含 ccts');
+});
+
+test('ccts（alwaysIncludeUnless）在非台灣地址（例如北京）時會觸發', () => {
+  const result = matchSourceIdsForAddress({ county: '北京市' });
+  assertTrue(includesAll(result, ['sinica', 'beijing', 'ccts']), '應包含 sinica/beijing/ccts');
+});
+
+test('ccts（alwaysIncludeUnless）完全沒有可用欄位時，因為無法判斷是不是台灣地址，預設仍然觸發', () => {
+  const result = matchSourceIdsForAddress({});
+  assertTrue(result.includes('ccts'), '空地址應包含 ccts');
+});
+
 await run();
