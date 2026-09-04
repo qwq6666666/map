@@ -54,3 +54,98 @@ export function neighborTiles(tile){
   }
   return result;
 }
+
+/* ---------------------------------------------------------
+   toTWD97() — WGS84 經緯度 → TWD97 二分帶橫麥卡托投影座標
+   （EPSG:3826）正算轉換。
+
+   採用 GRS80 橢球體，搭配 Snyder 橫麥卡托正算公式（含子午線弧長
+   高階級數展開 + 高階修正項），精度可達公分等級，供游標座標顯示
+   等需要準確平面座標的功能使用。
+--------------------------------------------------------- */
+const TWD97_A = 6378137; // GRS80 長半軸
+const TWD97_F = 1 / 298.257222101; // GRS80 扁率
+const TWD97_LON0 = 121 * Math.PI / 180; // 中央經線 121°E
+const TWD97_K0 = 0.9999; // 尺度比率
+const TWD97_FALSE_EASTING = 250000;
+const TWD97_FALSE_NORTHING = 0;
+
+/**
+ * 將 WGS84 經緯度（十進位度）轉換為 TWD97 二分帶（EPSG:3826）平面座標。
+ * @param {number} lat 緯度（十進位度）
+ * @param {number} lng 經度（十進位度）
+ * @returns {{x:number, y:number}} x 為 Easting（已含 False Easting），y 為 Northing
+ */
+export function toTWD97(lat, lng){
+  const a = TWD97_A;
+  const f = TWD97_F;
+  const e2 = f * (2 - f); // 第一離心率平方
+  const ep2 = e2 / (1 - e2); // 第二離心率平方
+
+  const phi = lat * Math.PI / 180;
+  const lambda = lng * Math.PI / 180;
+
+  const sinPhi = Math.sin(phi);
+  const cosPhi = Math.cos(phi);
+  const tanPhi = Math.tan(phi);
+
+  // 子午線弧長 M（原點緯度 0°，故不需扣除 M0）
+  const M = a * (
+    (1 - e2 / 4 - 3 * e2 * e2 / 64 - 5 * e2 * e2 * e2 / 256) * phi
+    - (3 * e2 / 8 + 3 * e2 * e2 / 32 + 45 * e2 * e2 * e2 / 1024) * Math.sin(2 * phi)
+    + (15 * e2 * e2 / 256 + 45 * e2 * e2 * e2 / 1024) * Math.sin(4 * phi)
+    - (35 * e2 * e2 * e2 / 3072) * Math.sin(6 * phi)
+  );
+
+  const N = a / Math.sqrt(1 - e2 * sinPhi * sinPhi);
+  const T = tanPhi * tanPhi;
+  const C = ep2 * cosPhi * cosPhi;
+  const A = (lambda - TWD97_LON0) * cosPhi;
+
+  const x = TWD97_K0 * N * (
+    A
+    + (1 - T + C) * Math.pow(A, 3) / 6
+    + (5 - 18 * T + T * T + 72 * C - 58 * ep2) * Math.pow(A, 5) / 120
+  );
+
+  const y = TWD97_K0 * (
+    M
+    + N * tanPhi * (
+      Math.pow(A, 2) / 2
+      + (5 - T + 9 * C + 4 * C * C) * Math.pow(A, 4) / 24
+      + (61 - 58 * T + T * T + 600 * C - 330 * ep2) * Math.pow(A, 6) / 720
+    )
+  );
+
+  return {
+    x: Math.round(x + TWD97_FALSE_EASTING),
+    y: Math.round(y + TWD97_FALSE_NORTHING)
+  };
+}
+
+/**
+ * 將 WGS84 經緯度格式化為易讀字串，緯度在前、經度在後，
+ * 皆保留四位小數，並依正負號附加半球後綴（N/S、E/W）。
+ * @param {number} lat 緯度（十進位度）
+ * @param {number} lng 經度（十進位度）
+ * @returns {string} 例如 "25.0418°N, 121.5132°E"
+ */
+export function formatWGS84(lat, lng){
+  const latSuffix = lat < 0 ? 'S' : 'N';
+  const lngSuffix = lng < 0 ? 'W' : 'E';
+  const latStr = Math.abs(lat).toFixed(4);
+  const lngStr = Math.abs(lng).toFixed(4);
+  return `${latStr}°${latSuffix}, ${lngStr}°${lngSuffix}`;
+}
+
+/**
+ * 將 TWD97 平面座標格式化為易讀字串（整數、千分位逗號）。
+ * @param {number} x Easting
+ * @param {number} y Northing
+ * @returns {string} 例如 "X: 302,145, Y: 2,770,182"
+ */
+export function formatTWD97(x, y){
+  const xStr = Math.round(x).toLocaleString('en-US');
+  const yStr = Math.round(y).toLocaleString('en-US');
+  return `X: ${xStr}, Y: ${yStr}`;
+}

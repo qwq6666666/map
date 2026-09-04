@@ -163,7 +163,7 @@
           "format": "png",
           "year": 1933,
           "dateLabel": "1933",
-          "type": null,
+          "type": "地形圖",
           "scale": "1:10000",
           "region": null,
           "keywords": []
@@ -196,7 +196,7 @@
           "format": "png",
           "year": 1936,
           "dateLabel": "1936",
-          "type": null,
+          "type": "地籍圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -207,7 +207,7 @@
           "format": "png",
           "year": 1936,
           "dateLabel": "1936",
-          "type": null,
+          "type": "地籍圖",
           "scale": "1:20000",
           "region": null,
           "keywords": []
@@ -218,7 +218,7 @@
           "format": "png",
           "year": 1937,
           "dateLabel": "1937",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:50000",
           "region": null,
           "keywords": []
@@ -229,7 +229,7 @@
           "format": "png",
           "year": 1938,
           "dateLabel": "1938",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:20000",
           "region": null,
           "keywords": []
@@ -290,7 +290,7 @@
           "format": "png",
           "year": 1940,
           "dateLabel": "1940",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:50000",
           "region": null,
           "keywords": []
@@ -340,7 +340,7 @@
           "format": "png",
           "year": 1946,
           "dateLabel": "1946",
-          "type": null,
+          "type": "地形圖",
           "scale": "1:10000",
           "region": null,
           "keywords": []
@@ -351,7 +351,7 @@
           "format": "png",
           "year": 1946,
           "dateLabel": "1946",
-          "type": null,
+          "type": "地形圖",
           "scale": "1:50000",
           "region": null,
           "keywords": []

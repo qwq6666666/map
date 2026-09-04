@@ -85,7 +85,7 @@
           "format": "png",
           "year": 1964,
           "dateLabel": "1964",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -129,7 +129,7 @@
           "format": "png",
           "year": 1984,
           "dateLabel": "1984",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -162,7 +162,7 @@
           "format": "png",
           "year": 1997,
           "dateLabel": "1997",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -173,7 +173,7 @@
           "format": "png",
           "year": 2007,
           "dateLabel": "2007",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -190,7 +190,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "1960s",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -201,7 +201,7 @@
           "format": "png",
           "year": 1969,
           "dateLabel": "1969",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -212,7 +212,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "1970s",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -223,7 +223,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "1970s",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -234,7 +234,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "1970s",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -245,7 +245,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "1970s",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -284,7 +284,7 @@
           "format": "png",
           "year": 1972,
           "dateLabel": "1972",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -295,7 +295,7 @@
           "format": "png",
           "year": 1974,
           "dateLabel": "1974",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []

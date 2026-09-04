@@ -10,12 +10,13 @@
 --------------------------------------------------------- */
 import { state as store, setBaseLayer } from '../store.js';
 import { REGION_EXTENTS } from '../data.js';
+import { getBaseLayerConfig } from '../config/baseLayers.js';
 
-const SAT_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+const satConfig = getBaseLayerConfig('sat');
 
 const osmLayer = new ol.layer.Tile({ source: new ol.source.OSM({ crossOrigin: 'anonymous' }), visible: true });
 const satLayer = new ol.layer.Tile({
-  source: new ol.source.XYZ({ url: SAT_URL, attributions: 'Esri, Maxar, Earthstar Geographics', crossOrigin: 'anonymous' }),
+  source: new ol.source.XYZ({ url: satConfig.urlTemplate, attributions: satConfig.attribution, crossOrigin: 'anonymous' }),
   visible: false
 });
 

@@ -24,7 +24,7 @@
           "format": "png",
           "year": 1944,
           "dateLabel": "1944",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -35,7 +35,7 @@
           "format": "png",
           "year": 1945,
           "dateLabel": "1945",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -52,7 +52,7 @@
           "format": "png",
           "year": 1991,
           "dateLabel": "1991",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -63,7 +63,7 @@
           "format": "png",
           "year": 2004,
           "dateLabel": "2004",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -74,7 +74,7 @@
           "format": "png",
           "year": 2004,
           "dateLabel": "2004",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -85,7 +85,7 @@
           "format": "png",
           "year": 2004,
           "dateLabel": "2004",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -102,7 +102,7 @@
           "format": "png",
           "year": 1992,
           "dateLabel": "1992",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -113,7 +113,7 @@
           "format": "png",
           "year": 2004,
           "dateLabel": "2004",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -124,7 +124,7 @@
           "format": "png",
           "year": 1994,
           "dateLabel": "1994",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -135,7 +135,7 @@
           "format": "png",
           "year": 2004,
           "dateLabel": "2004",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -146,7 +146,7 @@
           "format": "png",
           "year": 1994,
           "dateLabel": "1994",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -157,7 +157,7 @@
           "format": "png",
           "year": 2004,
           "dateLabel": "2004",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -168,7 +168,7 @@
           "format": "png",
           "year": 1994,
           "dateLabel": "1994",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -179,7 +179,7 @@
           "format": "png",
           "year": 2004,
           "dateLabel": "2004",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -190,7 +190,7 @@
           "format": "png",
           "year": 1994,
           "dateLabel": "1994",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -201,7 +201,7 @@
           "format": "png",
           "year": 2004,
           "dateLabel": "2004",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -212,7 +212,7 @@
           "format": "png",
           "year": 1994,
           "dateLabel": "1994",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -223,7 +223,7 @@
           "format": "png",
           "year": 2004,
           "dateLabel": "2004",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -234,7 +234,7 @@
           "format": "png",
           "year": 1993,
           "dateLabel": "1993",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -245,7 +245,7 @@
           "format": "png",
           "year": 2004,
           "dateLabel": "2004",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -256,7 +256,7 @@
           "format": "png",
           "year": 1995,
           "dateLabel": "1995",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -267,7 +267,7 @@
           "format": "png",
           "year": 2004,
           "dateLabel": "2004",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -278,7 +278,7 @@
           "format": "png",
           "year": 1994,
           "dateLabel": "1994",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -289,7 +289,7 @@
           "format": "png",
           "year": 2004,
           "dateLabel": "2004",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -300,7 +300,7 @@
           "format": "png",
           "year": 1993,
           "dateLabel": "1993",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -311,7 +311,7 @@
           "format": "png",
           "year": 2004,
           "dateLabel": "2004",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -322,7 +322,7 @@
           "format": "png",
           "year": 1993,
           "dateLabel": "1993",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -333,7 +333,7 @@
           "format": "png",
           "year": 2004,
           "dateLabel": "2004",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []

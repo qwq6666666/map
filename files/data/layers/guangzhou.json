@@ -35,7 +35,7 @@
           "format": "png",
           "year": 1914,
           "dateLabel": "1914",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:25000",
           "region": null,
           "keywords": []
@@ -46,7 +46,7 @@
           "format": "png",
           "year": 1923,
           "dateLabel": "1923",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:25000",
           "region": null,
           "keywords": []
@@ -85,7 +85,7 @@
           "format": "png",
           "year": 1937,
           "dateLabel": "1937",
-          "type": null,
+          "type": "地形圖",
           "scale": "1:12000",
           "region": null,
           "keywords": []

@@ -24,7 +24,7 @@
           "format": "png",
           "year": 1994,
           "dateLabel": "1994",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -35,7 +35,7 @@
           "format": "png",
           "year": 2007,
           "dateLabel": "2007",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -46,7 +46,7 @@
           "format": "png",
           "year": 1935,
           "dateLabel": "1935",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -57,7 +57,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "1980s",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -68,7 +68,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "1990s",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -79,7 +79,7 @@
           "format": "png",
           "year": 2015,
           "dateLabel": "2015",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -96,7 +96,7 @@
           "format": "png",
           "year": 1944,
           "dateLabel": "1944",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -107,7 +107,7 @@
           "format": "png",
           "year": 1952,
           "dateLabel": "1952",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -118,7 +118,7 @@
           "format": "png",
           "year": 1953,
           "dateLabel": "1953",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -129,7 +129,7 @@
           "format": "png",
           "year": 1959,
           "dateLabel": "1959",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -140,7 +140,7 @@
           "format": "png",
           "year": 1962,
           "dateLabel": "1962",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -151,7 +151,7 @@
           "format": "png",
           "year": 1962,
           "dateLabel": "1962",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -162,7 +162,7 @@
           "format": "png",
           "year": 1944,
           "dateLabel": "1944",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -173,7 +173,7 @@
           "format": "png",
           "year": 1930,
           "dateLabel": "1930",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -184,7 +184,7 @@
           "format": "png",
           "year": 1962,
           "dateLabel": "1962",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -312,7 +312,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "1910s",
-          "type": null,
+          "type": "地籍圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -323,7 +323,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "—",
-          "type": null,
+          "type": "地籍圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -334,7 +334,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "—",
-          "type": null,
+          "type": "地籍圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -345,7 +345,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "—",
-          "type": null,
+          "type": "地籍圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -356,7 +356,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "—",
-          "type": null,
+          "type": "地籍圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -367,7 +367,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "—",
-          "type": null,
+          "type": "地籍圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -378,7 +378,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "—",
-          "type": null,
+          "type": "地籍圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -389,7 +389,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "—",
-          "type": null,
+          "type": "地籍圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -400,7 +400,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "—",
-          "type": null,
+          "type": "地籍圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -411,7 +411,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "—",
-          "type": null,
+          "type": "地籍圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -422,7 +422,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "—",
-          "type": null,
+          "type": "地籍圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -433,7 +433,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "—",
-          "type": null,
+          "type": "地籍圖",
           "scale": null,
           "region": null,
           "keywords": []

@@ -34,6 +34,18 @@ layer: { id, title, format, year(number|null), dateLabel(string), type, scale, r
 
 `udd`（臺北市歷史圖資展示系統）的 `provider` 是 `{literalUrl:true}`，因為它的 tile 網址不是套統一樣板算出來的（ArcGIS WMTS REST 版 / 舊版 UDDWMTS 版兩種格式混用），每筆圖層自己帶完整 `url` 欄位。`resolveTileUrl()`（`data.js`）依這個旗標決定要套樣板還是直接用 `layer.url`。
 
+### 預設歷史主題圖資（`data/presets/`）
+
+存放車站、河道之類的預設主題 GeoJSON，供使用者在繪圖工具裡按需疊加，跟 `data/layers/*.json` 那套「curated WMTS 來源」完全是兩回事，不會被打包進 `layers.bundle.json`。**一律用 `fetch('./data/presets/xxx.geojson')` 在使用者實際點選時才載入，禁止在 JS 模組頂層 `import`**——這批檔案未來可能會累積不少筆，static import 會讓每個檔案都變成 `main.js` 初始化路徑上的必要相依，拖慢首次載入；GeoJSON 又不像 `.js` 模組需要打包最佳化，`fetch()` 讀字串自己 `JSON.parse()` 就夠用，沒有理由讓它綁進 bundle。
+
+## 使用者本地持久化（`src/features/storage.js`）
+
+繪圖工具（`drawTool.js`）畫的點／線／面、以及匯入的 GeoJSON，會自動序列化存進 `localStorage` 的 `taiwan_map_user_features` 這個 key，重新整理頁面後由 `initDrawTool()` 呼叫 `loadUserFeatures()` 讀回、透過既有的 `importGeoJSON()` 還原（含 SimpleStyle 顏色屬性），不需要另外設計一套還原邏輯。這個 key 刻意跟 `custom:` 自訂圖層清單用的 `hundredYearMap:customSources` 分開，兩者都會佔用同一個網域的 localStorage 總配額（瀏覽器常見上限約 5MB），所以 `saveUserFeatures()` 保守設了約 4.5MB 的內部門檻，寧可放棄自動儲存也不要把配額整個吃光、連自訂圖層清單都存不進去。跟 `custom:` 清單那套「每次 action 都同步寫回」的作法一樣，`storage.js` 全部函式都用 try/catch 包住、不丟例外——這是錦上添花的自動儲存功能，不是關鍵路徑，任何一步失敗都不該讓繪圖工具或整個 app 掛掉。
+
+## 底圖設定集中化（`src/config/baseLayers.js`）
+
+原本寫死在 `core/map.js` 裡的底圖（現代地圖 `osm`／衛星影像 `sat`）URL 樣板、縮放範圍、版權字串，抽成 `BASE_LAYERS` 陣列 + `getBaseLayerConfig(id)` 純資料設定檔，`core/map.js` 改用這份設定建立底圖圖層。`osm` 的 `urlTemplate` 是 `null`（沿用 `ol.source.OSM` 內建圖磚來源，不需要自訂樣板），呼叫端要判斷 `urlTemplate` 是否為 `null` 再決定用 `ol.source.OSM` 還是 `ol.source.XYZ`。之後如果要加其他底圖來源（例如地形圖），只需要在這個陣列多加一筆，不用回頭改 `core/map.js` 的建立邏輯。
+
 ## 程式模組（`src/`）
 
 依賴方向是單向的，刻意設計成沒有循環 import。下面這份清單是拆分後的
@@ -164,6 +176,6 @@ node tests/run-all.mjs
 
 ## 沒做、但資料骨架已經備好的功能
 
-- 依年代／類型篩選（`type`/`keywords` 欄位存在但沒有程式在讀）
+- 依關鍵字篩選（`keywords` 欄位存在但沒有程式在讀；`type` 欄位已經在用——見 `features/search.js` 的 `filterAvailableByType()`，以及搜尋結果「全部／類型／年代」三頁籤裡的「類型」頁籤 UI）
 - 時間軸擴大到其他來源（`udd` 也是跨多年代資料，可能適合比照 `sinica` 做法）
 - 手機版視覺沒有人用真的手機測試過，排版判斷都是憑 CSS 邏輯推算——複合疊圖模式又多加了一個浮動面板（`#multiOverlayBar`），小螢幕上跟既有的定位按鈕／繪圖工具列／透明度滑桿會不會互相遮擋，特別需要之後實機確認

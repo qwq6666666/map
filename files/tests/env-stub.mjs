@@ -230,6 +230,16 @@ class FakeVectorSource {
   getFeatures(){ return this._features; }
   clear(){ this._features = []; }
 }
+// 假 ol.Feature：給 ol.format.GeoJSON#readFeatures() 用，_props 這個內部
+// 欄位名稱刻意跟 writeFeatures() 讀取 f._props 的用法一致，讀進來的 feature
+// 之後如果又被拿去 exportGeoJSON()，writeFeatures 才讀得到同一份 properties。
+class FakeFeature {
+  constructor(props, geometry){ this._props = props || {}; this._geometry = geometry; }
+  get(k){ return this._props[k]; }
+  set(k, v){ this._props[k] = v; }
+  getGeometry(){ return this._geometry; }
+  changed(){}
+}
 class FakeTileLayer {
   constructor(opts){ this.opts = opts; this._opacity = (opts && opts.opacity !== undefined) ? opts.opacity : 1; this._visible = !opts || opts.visible !== false; this._zIndex = undefined; }
   setVisible(v){ this._visible = v; }
@@ -319,6 +329,16 @@ globalThis.ol = {
           type: 'FeatureCollection',
           opts,
           features: features.map(f => ({ type: 'Feature', properties: f._props })),
+        });
+      }
+      // 假的「文字/物件 -> feature 陣列」轉換，給 drawTool.js 的
+      // importGeoJSON() 使用；opts 目前用不到（真的 OL 會拿來做座標轉換），
+      // 這裡單純忽略，測試不需要驗證投影轉換邏輯。
+      readFeatures(input, opts){
+        const obj = typeof input === 'string' ? JSON.parse(input) : input;
+        return (obj.features || []).map(f => {
+          const geometry = { getType: () => f.geometry && f.geometry.type };
+          return new FakeFeature({ ...(f.properties || {}) }, geometry);
         });
       }
     },

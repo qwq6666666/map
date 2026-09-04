@@ -11,6 +11,8 @@ import { initMapCore } from './mapCore.js';
 import { initSidebar } from './sidebarUI.js';
 import { initSearchUI } from './searchUI.js';
 import { initDrawTool } from './drawTool.js';
+import { initIdentifyPin } from './features/identifyPin.js';
+import { showLocationAndFindLayers } from './ui/search.js';
 
 async function main(){
   try{
@@ -24,6 +26,7 @@ async function main(){
   initSidebar();   // 左側 WMTS 來源／分類手風琴（需要 LAYER_SOURCES 已載入）
   initSearchUI();  // 地址搜尋、定位搜尋、自動完成、逐筆圖磚驗證
   initDrawTool();  // 點／線／面繪製標註、量測、匯出 GeoJSON／截圖
+  initIdentifyPin({ onSearchLayers: showLocationAndFindLayers }); // 免開關地圖自由落點探針
 }
 
 main();

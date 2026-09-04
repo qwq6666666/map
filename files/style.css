@@ -170,6 +170,24 @@
   .layer-year{font-family:var(--serif); font-size:12px; color:var(--rule); width:40px; flex-shrink:0;}
   .layer-title{font-size:12.5px; color:var(--ink); line-height:1.35;}
 
+  /* 單一分類／次分類底下圖層數過多時，預設只顯示前 8 筆（見 uiTree.js
+     appendLayerList()），其餘項目先隱藏，避免手風琴展開後清單過長。不用
+     overflow-y:auto 局部捲軸（外層側邊欄本身已經在捲動了，容器不該再自己
+     長出第二層捲軸），純粹用 display 切換，展開後容器自然撐高。 */
+  .layer-item-overflow{display:none;}
+  .category-body.expanded .layer-item-overflow,
+  .subcategory-body.expanded .layer-item-overflow,
+  .avail-layer-list.expanded .layer-item-overflow{display:flex;}
+  .layer-list-toggle{
+    display:block; width:calc(100% - 8px); margin:4px 4px 2px 18px;
+    padding:5px 8px; text-align:center;
+    background:var(--paper-dim); color:var(--brass-dark);
+    border:1px dashed var(--rule); border-radius:2px;
+    font-family:var(--sans); font-size:11.5px; font-weight:600;
+    cursor:pointer; transition:background .12s ease, color .12s ease;
+  }
+  .layer-list-toggle:hover{background:var(--brass-dark); color:var(--paper);}
+
   /* 次分類（例：廳底下再依「堡」分一層）手風琴，樣式較 .category 淡一階 */
   .subcategory{border-top:1px dashed var(--rule); margin-left:6px;}
   .subcategory:first-child{border-top:none;}
@@ -278,6 +296,48 @@
 
   }
 
+  /* ---------- 繪圖顏色色票（工具列預設色 ＋ 要素編輯彈窗共用） ---------- */
+  .draw-color-palette{display:flex; align-items:center; gap:5px; flex-wrap:wrap;}
+  .draw-color-swatch{
+    width:20px; height:20px; border-radius:50%; padding:0;
+    border:1px solid var(--rule); cursor:pointer;
+    box-shadow:none;
+  }
+  .draw-color-swatch:hover{border-color:var(--ink);}
+  .draw-color-swatch.active{
+    border:2px solid var(--ink);
+    box-shadow:0 0 0 2px var(--paper), 0 0 0 3px var(--stamp);
+  }
+  .draw-color-custom,
+  input[type="color"].draw-color-custom{
+    width:20px; height:20px; border-radius:50%; overflow:hidden;
+    border:1px solid var(--rule); padding:0; cursor:pointer; background:none;
+  }
+  .draw-color-custom::-webkit-color-swatch-wrapper{padding:0;}
+  .draw-color-custom::-webkit-color-swatch{border:none; border-radius:50%;}
+  .draw-color-custom::-moz-color-swatch{border:none; border-radius:50%;}
+
+  /* ---------- 要素編輯彈窗（畫布上點選圖形後彈出，定位由 ol.Overlay 處理） ---------- */
+  .draw-feature-popup{
+    position:absolute; z-index:11; min-width:220px;
+    background:var(--paper); border:1px solid var(--rule); border-radius:4px;
+    box-shadow:0 4px 14px rgba(0,0,0,.35);
+    padding:10px 12px; font-family:var(--sans); font-size:12px; color:var(--ink);
+  }
+  .draw-feature-popup-title{font-weight:600; font-size:12.5px; color:var(--ink);}
+  .draw-feature-popup-name{
+    display:block; width:100%; box-sizing:border-box;
+    margin-bottom:8px; padding:5px 7px;
+    background:#fff; border:1px solid var(--rule); border-radius:2px;
+    font-family:var(--sans); font-size:12px; color:var(--ink);
+  }
+  .draw-feature-popup-delete{
+    display:block; width:100%; margin-top:8px; padding:6px 8px;
+    background:var(--paper); color:#b3261e; border:1px solid #e2a29c; border-radius:2px;
+    font-family:var(--sans); font-size:12px; cursor:pointer;
+  }
+  .draw-feature-popup-delete:hover{background:#fbe9e7; border-color:#b3261e;}
+
   /* ---------- Date stamp (signature element) ---------- */
   #stamp{
     position:absolute; right:22px; bottom:22px; z-index:10;
@@ -340,6 +400,10 @@
   }
   .locate-toast.show{display:block;}
 
+  .draw-storage-toast{
+    top:auto; bottom:16px; right:16px;
+  }
+
   .locate-marker{
     position:absolute; z-index:8; width:0; height:0; display:none; pointer-events:none;
   }
@@ -351,6 +415,7 @@
 
   @media (max-width:640px){
     .locate-toast{right:10px; max-width:70vw;}
+    .draw-storage-toast{right:10px;}
   }
 
   /* ---------- 地址搜尋 ---------- */
@@ -402,8 +467,72 @@
   }
   .location-clear-btn:hover{border-color:var(--stamp); color:var(--stamp);}
 
+  /* ---------- 座標資訊區塊：用於地圖 Pin 點 Popup／搜尋結果詳細卡片，
+     顯示 WGS84／TWD97 兩種座標系統並提供一鍵複製。風格比照上方
+     .location-result（分隔線 + 留白），維持搜尋結果面板視覺一致 ---------- */
+  .coord-info{
+    margin-top:8px; padding-top:8px; border-top:1px dashed var(--rule);
+    font-family:var(--sans); font-size:12px; color:var(--ink); line-height:1.5;
+  }
+  /* Identify Pin 彈窗已有實線 header 分隔，這裡的座標資訊區塊不需要再疊一條
+     虛線分隔線（避免 header 底線 + 虛線同時出現），僅限定在彈窗內覆寫，
+     不影響搜尋結果卡片（.location-result 內）沿用的原始 .coord-info 樣式。 */
+  .identify-popup-body .coord-info{border-top:none; padding-top:0; margin-top:0;}
+  .coord-info-row{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    margin-bottom:4px;
+  }
+  .coord-info-row:last-child{margin-bottom:0;}
+  .coord-info-label{
+    color:var(--brass-dark); font-weight:600; font-size:11px; letter-spacing:.02em; flex-shrink:0;
+  }
+  .coord-info-value{
+    flex:1; min-width:0; font-variant-numeric:tabular-nums; white-space:nowrap;
+    font-family:'SFMono-Regular',Consolas,'Courier New',monospace;
+  }
+  .coord-copy-btn{
+    flex-shrink:0; background:none; border:1px solid var(--rule); border-radius:2px;
+    color:var(--ink); font-family:var(--sans); font-size:11px; line-height:1;
+    padding:3px 7px; cursor:pointer;
+  }
+  .coord-copy-btn:hover{border-color:var(--brass-dark); background:var(--paper-dim); color:var(--brass-dark);}
+  .coord-copy-btn.copied{border-color:var(--brass-dark); background:var(--brass-dark); color:var(--paper);}
+
   .avail-progress{font-size:11.5px; color:var(--rule); padding:4px 2px;}
   .avail-empty{font-size:12px; color:var(--rule); line-height:1.6; padding:4px 2px; margin:0 0 4px;}
+
+  /* 搜尋結果面板頂端的「全部／類型／年代」頁籤列：純前端在已取得的
+     available 陣列上重新分組／排序，視覺上沿用 .segmented 那套淡雅、
+     方形邊框的語彙，維持跟結果清單協調。允許在窄側邊欄換行，避免爆版。 */
+  .avail-tabs{
+    display:flex; flex-wrap:wrap; border:1px solid var(--rule); border-radius:2px;
+    overflow:hidden; margin:0 0 10px;
+  }
+  .avail-tab-btn{
+    flex:1 1 64px; min-width:0; background:var(--paper); border:none; border-right:1px solid var(--rule);
+    padding:6px 4px; font-family:var(--sans); font-size:12px; color:var(--ink);
+    cursor:pointer; white-space:normal; text-align:center; line-height:1.3;
+    transition:background .15s ease, color .15s ease;
+  }
+  .avail-tab-btn:last-child{border-right:none;}
+  .avail-tab-btn:hover{background:var(--paper-dim);}
+  .avail-tab-btn.active{background:var(--ink); color:var(--paper);}
+
+  /* 「年代」頁籤內自己的排序切換（新至舊／舊至新），比頁籤本身淡一階 */
+  .avail-year-sort{display:flex; flex-wrap:wrap; gap:6px; margin:0 0 8px;}
+  .avail-year-sort-btn{
+    background:var(--paper); border:1px solid var(--rule); border-radius:2px;
+    padding:4px 9px; font-family:var(--sans); font-size:11.5px; color:var(--ink);
+    cursor:pointer; white-space:nowrap;
+    transition:background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .avail-year-sort-btn:hover{border-color:var(--brass-dark); color:var(--brass-dark);}
+  .avail-year-sort-btn.active{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+
+  /* 【類型】／【年代】頁籤攤平列出圖層（不巢狀在 .category-body 底下），
+     .layer-item 本身的樣式是全域規則、不依賴巢狀父層即可正常呈現，這裡只需
+     微調左側留白，跟 .source-body 既有的 padding-left 疊加起來不會太擠。 */
+  .avail-layer-list .layer-item{padding-left:4px;}
 
   /* 時間軸模式（timelineMode.js）專用樣式，搜尋結果面板已不再使用時間軸檢視 */
   .timeline-scroll{overflow-x:auto; padding:4px 2px 8px; -webkit-overflow-scrolling:touch;}
@@ -443,7 +572,6 @@
     padding:8px 2px 3px; border-top:1px dashed var(--rule); margin-top:4px;
   }
   .avail-source-label:first-child{border-top:none; margin-top:0;}
-  .avail-layer-list .layer-item{padding-left:4px;}
 
   /* 地址搜尋定位圖釘（區別於藍色定位圓點） */
   .address-marker{position:absolute; z-index:8; width:22px; height:28px; display:none; pointer-events:none;}
@@ -455,6 +583,67 @@
   }
   .address-marker-pin::after{
     content:""; position:absolute; left:7px; top:6px; width:6px; height:6px; border-radius:50%; background:var(--paper);
+  }
+
+  /* ---------- 免開關地圖自由落點探針 (Identify Pin) ----------
+     一般瀏覽模式點擊地圖任意處會在該點放置一枚圖釘 (.identify-pin-marker)，
+     只要使用者未主動「清除標記」，圖釘就會持續留在地圖上；點擊圖釘可
+     重新開啟／關閉上方的座標資訊卡片 (#identifyPopup)，兩者狀態各自獨立。
+     用 ol.Overlay positioning:'center-center' 鎖定紅點中心，彈窗改絕對定位
+     疊加在紅點正上方、脫離文件流，避免彈窗展開/收合時因容器高度變化
+     影響 Overlay 的錨點換算而讓紅點跟著位移。 */
+  .identify-pin{
+    position:absolute; z-index:10; display:none; text-align:center;
+  }
+  .identify-pin.show{display:block;}
+  .identify-popup{
+    position:absolute; bottom:calc(100% + 10px); left:50%; transform:translateX(-50%);
+    text-align:left; min-width:310px;
+    background:var(--paper); border:1px solid var(--rule); border-radius:4px;
+    box-shadow:0 4px 14px rgba(0,0,0,.35);
+    padding:10px 12px 10px 12px;
+    font-family:var(--sans); font-size:12px; color:var(--ink); line-height:1.5;
+  }
+  .identify-popup-header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding-bottom:8px; margin-bottom:8px; border-bottom:1px solid var(--rule);
+  }
+  .identify-popup-title{font-weight:600; font-size:12.5px; color:var(--ink);}
+  .identify-popup-actions{display:flex; align-items:center; gap:8px;}
+  .identify-popup-clear{
+    background:none; border:none; color:var(--rule); font-family:var(--sans);
+    font-size:11px; text-decoration:underline; cursor:pointer; padding:0;
+  }
+  .identify-popup-clear:hover{color:var(--stamp);}
+  .identify-popup-close{
+    width:20px; height:20px; border-radius:50%;
+    background:none; border:1px solid var(--rule); color:var(--rule);
+    font-size:13px; line-height:1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .identify-popup-close:hover{border-color:var(--stamp); color:var(--stamp);}
+  .identify-address{margin:4px 0 8px; font-size:11.5px; color:var(--rule); line-height:1.5;}
+  .identify-address.loading{font-style:italic; opacity:.7;}
+  .identify-search-btn{
+    display:block; width:100%; margin-top:6px; padding:7px 8px;
+    background:var(--ink); color:var(--paper); border:1px solid var(--ink); border-radius:2px;
+    font-family:var(--sans); font-size:12px; cursor:pointer;
+  }
+  .identify-search-btn:hover{background:var(--brass-dark); border-color:var(--brass-dark);}
+
+  /* 圖釘本體：只要 Pin 存在就永遠可見可點擊，不受彈窗開關影響。
+     用實心圓點表示落點，圓心對齊 ol.Overlay 錨點座標（center-center），
+     避免旋轉水滴造型讓視覺尖端偏離實際點擊座標。 */
+  .identify-pin-marker{
+    width:18px; height:18px; border-radius:50%; padding:0;
+    background:var(--stamp); border:2px solid var(--paper);
+    box-shadow:0 2px 6px rgba(0,0,0,.4); cursor:pointer;
+    transition:transform .15s ease;
+  }
+  .identify-pin-marker:hover{transform:scale(1.15);}
+
+  @media (max-width:640px){
+    .identify-popup{max-width:min(310px, 80vw);}
   }
 
   /* ---------- Swipe compare divider ---------- */

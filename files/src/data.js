@@ -224,6 +224,8 @@ export async function loadAppData(){
       year: l.dateLabel,   // 顯示用字串（沿用舊欄位名），不變
       yearNum: l.year,     // 數字或 null，時間軸定位／排序用
       scale: l.scale,      // 比例尺字串（例如 "1:25000"）或 null，未來篩選用（新增）
+      type: l.type,        // 圖層類型（地形圖／地籍圖／行政區劃圖…）或 null，搜尋結果類型篩選用
+      keywords: l.keywords || [], // 關鍵字陣列，未提供時給空陣列
       url: l.url // 只有 udd 圖層會用到（file-exists 樣板來源沒有這個欄位）
     });
     const categories = src.categories.map(cat => {

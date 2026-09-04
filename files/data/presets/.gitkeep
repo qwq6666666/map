@@ -1,0 +1,1 @@
+# 預設歷史主題 GeoJSON 存放處，前端一律用 fetch('./data/presets/xxx.geojson') 按需載入，不可在 JS 模組頂層 static import。

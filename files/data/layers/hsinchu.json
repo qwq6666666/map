@@ -24,7 +24,7 @@
           "format": "png",
           "year": 1914,
           "dateLabel": "1914",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -35,7 +35,7 @@
           "format": "png",
           "year": 1905,
           "dateLabel": "1905",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -46,7 +46,7 @@
           "format": "png",
           "year": 1905,
           "dateLabel": "1905",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -57,7 +57,7 @@
           "format": "png",
           "year": 1913,
           "dateLabel": "1913",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -68,7 +68,7 @@
           "format": "png",
           "year": 1917,
           "dateLabel": "1917",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -79,7 +79,7 @@
           "format": "png",
           "year": 1921,
           "dateLabel": "1921",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -134,7 +134,7 @@
           "format": "png",
           "year": 1938,
           "dateLabel": "1938",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -184,7 +184,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "1940s",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -201,7 +201,7 @@
           "format": "png",
           "year": 1950,
           "dateLabel": "1950",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -212,7 +212,7 @@
           "format": "png",
           "year": 1953,
           "dateLabel": "1953",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -223,7 +223,7 @@
           "format": "png",
           "year": 1970,
           "dateLabel": "1970",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -234,7 +234,7 @@
           "format": "png",
           "year": 1970,
           "dateLabel": "1970",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -245,7 +245,7 @@
           "format": "png",
           "year": 1973,
           "dateLabel": "1973",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -256,7 +256,7 @@
           "format": "png",
           "year": 1975,
           "dateLabel": "1975",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -267,7 +267,7 @@
           "format": "png",
           "year": 1977,
           "dateLabel": "1977",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -284,7 +284,7 @@
           "format": "png",
           "year": 1976,
           "dateLabel": "1976",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -295,7 +295,7 @@
           "format": "png",
           "year": 1982,
           "dateLabel": "1982",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -306,7 +306,7 @@
           "format": "png",
           "year": 1983,
           "dateLabel": "1983",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -317,7 +317,7 @@
           "format": "png",
           "year": 1986,
           "dateLabel": "1986",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -328,7 +328,7 @@
           "format": "png",
           "year": 2006,
           "dateLabel": "2006",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -345,7 +345,7 @@
           "format": "png",
           "year": 1953,
           "dateLabel": "1953",
-          "type": null,
+          "type": "地籍圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -356,7 +356,7 @@
           "format": "png",
           "year": 1953,
           "dateLabel": "1953",
-          "type": null,
+          "type": "地籍圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -367,7 +367,7 @@
           "format": "png",
           "year": 1974,
           "dateLabel": "1974",
-          "type": null,
+          "type": "地籍圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -378,7 +378,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "—",
-          "type": null,
+          "type": "地籍圖",
           "scale": null,
           "region": null,
           "keywords": []

@@ -63,7 +63,7 @@
           "format": "png",
           "year": 1931,
           "dateLabel": "1931",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -74,7 +74,7 @@
           "format": "png",
           "year": 1931,
           "dateLabel": "1931",
-          "type": null,
+          "type": "地形圖",
           "scale": "1:2000",
           "region": null,
           "keywords": []
@@ -91,7 +91,7 @@
           "format": "png",
           "year": 1932,
           "dateLabel": "1932",
-          "type": null,
+          "type": "地形圖",
           "scale": "1:10000",
           "region": null,
           "keywords": []
@@ -102,7 +102,7 @@
           "format": "png",
           "year": 1938,
           "dateLabel": "1938",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:15000",
           "region": null,
           "keywords": []
@@ -164,7 +164,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "—",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:20000",
           "region": null,
           "keywords": []

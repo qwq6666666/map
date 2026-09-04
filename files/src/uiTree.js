@@ -31,6 +31,32 @@ export function buildLayerItem(layer, onLayerClick){
   return item;
 }
 
+// 把一批圖層項目掛進 container，超過 threshold 筆時預設只顯示前 threshold 筆，
+// 其餘加上 'layer-item-overflow' class 並隱藏，清單底部加一顆「展開其餘 N 筆
+// 圖資 ▾」／「收合 ▴」的切換按鈕。不使用 overflow-y:auto 局部捲軸，純粹用
+// display 切換元素可見度（交給 CSS 的 .expanded 規則統一控制），讓外層容器
+// 自然撐開高度，交由外層主捲軸捲動，避免側邊欄內出現雙重捲軸。
+export function appendLayerList(container, layers, onLayerClick, threshold = 8){
+  layers.forEach((layer, i) => {
+    const item = buildLayerItem(layer, onLayerClick);
+    if(i >= threshold) item.classList.add('layer-item-overflow');
+    container.appendChild(item);
+  });
+  if(layers.length <= threshold) return;
+
+  const remaining = layers.length - threshold;
+  const toggleBtn = document.createElement('button');
+  toggleBtn.type = 'button';
+  toggleBtn.className = 'layer-list-toggle';
+  toggleBtn.textContent = `展開其餘 ${remaining} 筆圖資 ▾`;
+  toggleBtn.addEventListener('click', ()=>{
+    const expanding = !container.classList.contains('expanded');
+    container.classList.toggle('expanded', expanding);
+    toggleBtn.textContent = expanding ? '收合 ▴' : `展開其餘 ${remaining} 筆圖資 ▾`;
+  });
+  container.appendChild(toggleBtn);
+}
+
 export function buildCategoryList(categories, container, onLayerClick, openFirst, singleOpen = true){
   categories.forEach((cat, ci) => {
     const wrap = document.createElement('div');
@@ -79,14 +105,14 @@ export function buildCategoryList(categories, container, onLayerClick, openFirst
 
         const gBody = document.createElement('div');
         gBody.className = 'subcategory-body';
-        group.layers.forEach(layer => gBody.appendChild(buildLayerItem(layer, onLayerClick)));
+        appendLayerList(gBody, group.layers, onLayerClick);
 
         gWrap.appendChild(gHead);
         gWrap.appendChild(gBody);
         body.appendChild(gWrap);
       });
     } else {
-      cat.layers.forEach(layer => body.appendChild(buildLayerItem(layer, onLayerClick)));
+      appendLayerList(body, cat.layers, onLayerClick);
     }
 
     wrap.appendChild(head);

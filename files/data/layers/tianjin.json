@@ -24,7 +24,7 @@
           "format": "png",
           "year": 1928,
           "dateLabel": "1928",
-          "type": null,
+          "type": "地形圖",
           "scale": "1:50000",
           "region": null,
           "keywords": []
@@ -52,7 +52,7 @@
           "format": "png",
           "year": 1912,
           "dateLabel": "1912",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:8000",
           "region": null,
           "keywords": []
@@ -91,7 +91,7 @@
           "format": "png",
           "year": 1926,
           "dateLabel": "1926",
-          "type": null,
+          "type": "地形圖",
           "scale": "1:50000",
           "region": null,
           "keywords": []
@@ -213,7 +213,7 @@
           "format": "png",
           "year": 1945,
           "dateLabel": "1945",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:12500",
           "region": null,
           "keywords": []
@@ -224,7 +224,7 @@
           "format": "png",
           "year": 1945,
           "dateLabel": "1945",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:12500",
           "region": null,
           "keywords": []
@@ -257,7 +257,7 @@
           "format": "png",
           "year": 1947,
           "dateLabel": "1947",
-          "type": null,
+          "type": "地形圖",
           "scale": "1:10000",
           "region": null,
           "keywords": []
@@ -274,7 +274,7 @@
           "format": "png",
           "year": 1994,
           "dateLabel": "1994",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:29000",
           "region": null,
           "keywords": []

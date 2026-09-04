@@ -107,7 +107,7 @@
           "format": "png",
           "year": 1909,
           "dateLabel": "1909",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:25000",
           "region": null,
           "keywords": []
@@ -140,7 +140,7 @@
           "format": "png",
           "year": 1913,
           "dateLabel": "1913",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -162,7 +162,7 @@
           "format": "png",
           "year": 1914,
           "dateLabel": "1914",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:25000",
           "region": null,
           "keywords": []
@@ -173,7 +173,7 @@
           "format": "png",
           "year": 1915,
           "dateLabel": "1915",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -212,7 +212,7 @@
           "format": "png",
           "year": 1928,
           "dateLabel": "1928",
-          "type": null,
+          "type": "地形圖",
           "scale": "1:50000",
           "region": null,
           "keywords": []
@@ -278,7 +278,7 @@
           "format": "png",
           "year": 1939,
           "dateLabel": "1939",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:15000",
           "region": null,
           "keywords": []
@@ -317,7 +317,7 @@
           "format": "png",
           "year": 1947,
           "dateLabel": "1947",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:50000",
           "region": null,
           "keywords": []
@@ -350,7 +350,7 @@
           "format": "png",
           "year": 2009,
           "dateLabel": "2009",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -378,7 +378,7 @@
           "format": "jpg",
           "year": 1913,
           "dateLabel": "1913",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -389,7 +389,7 @@
           "format": "jpg",
           "year": 1918,
           "dateLabel": "1918",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -400,7 +400,7 @@
           "format": "jpg",
           "year": 1937,
           "dateLabel": "1937",
-          "type": null,
+          "type": "地形圖",
           "scale": null,
           "region": null,
           "keywords": []

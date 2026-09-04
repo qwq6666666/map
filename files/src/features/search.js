@@ -34,7 +34,7 @@ import {
 } from '../data.js';
 import { TileChecker } from '../tileChecker.js';
 import { state as store, setMode, selectOverlayLayer } from '../store.js';
-import { lonLatToTileXY } from '../core/tileGeo.js';
+import { lonLatToTileXY, toTWD97, formatWGS84, formatTWD97 } from '../core/tileGeo.js';
 
 export const SEARCH_ZOOM = 15;
 
@@ -78,12 +78,18 @@ function isPointNearExtent(lon, lat, ext){
 --------------------------------------------------------- */
 export async function findAvailableLayersAt(lon, lat, addr, { onProgress, isStale } = {}){
   const sourceIds = matchSourceIdsForAddress(addr);
+  console.log('[DEBUG identify-search] 輸入座標與地址', { lon, lat, addr, sourceIds });
   const bboxExcluded = []; // 記錄被座標 bbox 排除掉的來源名稱，僅供進度顯示參考
   const candidateSources = LAYER_SOURCES.filter(s=>{
     if(!sourceIds.includes(s.id)) return false;
     const nearby = isPointNearExtent(lon, lat, REGION_EXTENTS[s.id]);
-    if(!nearby) bboxExcluded.push(s.name);
+    if(!nearby) bboxExcluded.push({ name: s.name, extent: REGION_EXTENTS[s.id] });
     return nearby;
+  });
+  console.log('[DEBUG identify-search] 候選來源篩選結果', {
+    候選來源數: candidateSources.length,
+    總來源數: LAYER_SOURCES.length,
+    bbox排除前5筆: bboxExcluded.slice(0, 5)
   });
   const placeKeywords = extractPlaceKeywords(addr);
 
@@ -177,7 +183,63 @@ export async function findAvailableLayersAt(lon, lat, addr, { onProgress, isStal
     available = available.concat(moreAvailable);
   }
 
+  console.log('[DEBUG identify-search] 最終結果', { available長度: available.length, totalChecked });
   return { status: 'ok', available, totalChecked };
+}
+
+// 搜尋結果可篩選的圖層類型清單，供 UI 產生篩選按鈕使用
+export const SEARCH_RESULT_TYPES = ['地形圖', '地籍圖', '行政區劃圖'];
+
+// 依類型篩選 available 陣列（{ src, layer } 的陣列），純前端過濾、不重新搜尋。
+// filterType 為 null / undefined / 'all' 時代表「全部」，不過濾、原樣回傳。
+export function filterAvailableByType(available, filterType){
+  if(!filterType || filterType === 'all') return available;
+  return available.filter(c => c.layer.type === filterType);
+}
+
+// 依年代排序 available 陣列，用 layer.yearNum（數字）排序，不使用顯示用的
+// layer.year 字串。yearNum 為 null（年代不明）的項目一律排在最後面。
+// direction: 'desc'（新到舊，預設）或 'asc'（舊到新）。回傳新陣列，不 mutate 傳入的陣列。
+export function sortAvailableByYear(available, direction = 'desc'){
+  const withYear = [];
+  const withoutYear = [];
+  available.forEach(c => {
+    (c.layer.yearNum == null ? withoutYear : withYear).push(c);
+  });
+  withYear.sort((a, b) => direction === 'asc'
+    ? a.layer.yearNum - b.layer.yearNum
+    : b.layer.yearNum - a.layer.yearNum);
+  return withYear.concat(withoutYear);
+}
+
+// 「類型」頁籤用的分組結果標籤，null／不在 SEARCH_RESULT_TYPES 裡的一律歸入這組
+export const SEARCH_RESULT_TYPE_OTHER = '其他';
+
+// 依類型把 available 陣列分組，固定回傳 4 組（SEARCH_RESULT_TYPES 三種 +
+// 最後一組 SEARCH_RESULT_TYPE_OTHER），每組是 { type, items }，items 可能是
+// 空陣列，是否要跳過空群組交給呼叫端 UI 決定。不 mutate 傳入的 available。
+export function groupAvailableByType(available){
+  const groups = SEARCH_RESULT_TYPES.map(type => ({ type, items: [] }));
+  const otherGroup = { type: SEARCH_RESULT_TYPE_OTHER, items: [] };
+  const groupByType = new Map(groups.map(g => [g.type, g]));
+  available.forEach(c => {
+    const g = groupByType.get(c.layer.type);
+    (g || otherGroup).items.push(c);
+  });
+  groups.push(otherGroup);
+  return groups;
+}
+
+// 依「年代是否已知」拆分 available 陣列，用 layer.yearNum 是否為 null 判斷，
+// 邏輯跟 sortAvailableByYear 篩 null 的方式一致。known 之後可直接丟進
+// sortAvailableByYear(known, direction) 排序。不 mutate 傳入的 available。
+export function splitAvailableByYearKnown(available){
+  const known = [];
+  const unknown = [];
+  available.forEach(c => {
+    (c.layer.yearNum == null ? unknown : known).push(c);
+  });
+  return { known, unknown };
 }
 
 // 從搜尋結果點選圖層：若目前在左右比對模式，先切回透明疊圖模式，
@@ -185,6 +247,58 @@ export async function findAvailableLayersAt(lon, lat, addr, { onProgress, isStal
 export function activateFromSearch(src, layer){
   if(store.mode !== 'overlay') setMode('overlay');
   selectOverlayLayer(layerKey(src, layer));
+}
+
+// 座標資訊區塊（WGS84／TWD97 各一行＋一鍵複製）：純 DOM 工廠函式，不假設
+// 呼叫端的版面長什麼樣子，回傳的元素可以直接 append 進搜尋結果卡片、也可以
+// 塞進地圖 Pin 的 Popup，維持這支模組「不直接操作特定 DOM」的原則。
+// 注意：目前 ui/search.js 尚未呼叫這支函式把區塊實際掛進畫面，需要在
+// showLocationAndFindLayers()／selectGeocodeResult() 顯示結果卡片時，
+// 呼叫 buildCoordInfoElement(lat, lon) 並把回傳元素 append 進 locationResultEl。
+function copyCoordText(text, btn){
+  const flash = () => {
+    btn.classList.add('copied');
+    setTimeout(()=> btn.classList.remove('copied'), 1500);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(flash).catch(()=>{});
+    return;
+  }
+  // 非安全上下文（例如 http）navigator.clipboard 可能不存在，退回舊式做法；
+  // 複製失敗就靜默略過，不影響搜尋結果本身的顯示。
+  try{
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    flash();
+  }catch(e){ /* 略過 */ }
+}
+
+function buildCoordRow(label, text){
+  const row = document.createElement('div');
+  row.className = 'coord-info-row';
+  row.innerHTML = `<span class="coord-info-label">${label}</span><span class="coord-info-value">${text}</span>`;
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'coord-copy-btn';
+  btn.textContent = '複製';
+  btn.addEventListener('click', ()=> copyCoordText(text, btn));
+  row.appendChild(btn);
+  return row;
+}
+
+export function buildCoordInfoElement(lat, lon){
+  const wrap = document.createElement('div');
+  wrap.className = 'coord-info';
+  wrap.appendChild(buildCoordRow('WGS84', formatWGS84(lat, lon)));
+  const { x, y } = toTWD97(lat, lon);
+  wrap.appendChild(buildCoordRow('TWD97', formatTWD97(x, y)));
+  return wrap;
 }
 
 // 搜尋 token 相關的 runtime 讀寫集中在這裡，讓 ui/search.js 不用

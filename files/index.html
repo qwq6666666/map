@@ -46,6 +46,20 @@
 <div id="locateMarker" class="locate-marker"><div class="locate-marker-dot"></div></div>
 <div id="addressMarker" class="address-marker"><div class="address-marker-pin"></div></div>
 
+<div id="identifyPin" class="identify-pin">
+  <div id="identifyPopup" class="identify-popup" hidden>
+    <div class="identify-popup-header">
+      <span class="identify-popup-title">📍 點位資訊</span>
+      <div class="identify-popup-actions">
+        <button type="button" id="identifyPopupClear" class="identify-popup-clear">清除點位</button>
+        <button type="button" id="identifyPopupClose" class="identify-popup-close" aria-label="關閉">×</button>
+      </div>
+    </div>
+    <div id="identifyPopupBody" class="identify-popup-body"></div>
+  </div>
+  <button type="button" id="identifyPinMarker" class="identify-pin-marker" aria-label="開啟座標資訊"></button>
+</div>
+
 <div class="floating-opacity" id="floatingOpacity">
   <span class="field-label">透明度</span>
   <input type="range" id="floatingOpacitySlider" min="0" max="100" value="100">
@@ -92,12 +106,44 @@
     <button type="button" class="draw-tool-btn" data-tool="line" title="畫線（自動顯示長度）">線</button>
     <button type="button" class="draw-tool-btn" data-tool="polygon" title="畫面（自動顯示面積）">面</button>
   </div>
+  <div class="draw-toolbar-row draw-color-palette" id="drawColorPalette">
+    <button type="button" class="draw-color-swatch active" data-color="#C0392B" style="background-color:#C0392B" title="朱紅"></button>
+    <button type="button" class="draw-color-swatch" data-color="#2980B9" style="background-color:#2980B9" title="靛藍"></button>
+    <button type="button" class="draw-color-swatch" data-color="#27AE60" style="background-color:#27AE60" title="墨綠"></button>
+    <button type="button" class="draw-color-swatch" data-color="#D35400" style="background-color:#D35400" title="赭黃"></button>
+    <button type="button" class="draw-color-swatch" data-color="#8E44AD" style="background-color:#8E44AD" title="紫藤"></button>
+    <button type="button" class="draw-color-swatch" data-color="#2C3E50" style="background-color:#2C3E50" title="墨黑"></button>
+    <input type="color" id="drawColorCustom" class="draw-color-custom" value="#C0392B" title="自訂顏色">
+  </div>
   <div class="draw-toolbar-row">
     <button type="button" id="drawDeleteBtn" class="draw-tool-btn" title="刪除目前選取的圖形">刪除</button>
     <button type="button" id="drawClearBtn" class="draw-tool-btn draw-tool-btn-danger" title="清除全部繪製內容">清空</button>
     <button type="button" id="drawExportGeoJSONBtn" class="draw-tool-btn draw-tool-btn-wrap" title="匯出成 GeoJSON 檔案並下載，可匯入 QGIS／ArcGIS 等 GIS 軟體">匯出<br>GeoJSON</button>
-    <button type="button" id="drawExportImageBtn" class="draw-tool-btn draw-tool-btn-wrap" title="把目前地圖畫面（含底圖與繪製內容）匯出成 PNG 圖片並下載">地圖<br>截圖</button>
   </div>
+  <div class="draw-toolbar-row">
+    <button type="button" id="drawExportImageBtn" class="draw-tool-btn draw-tool-btn-wrap" title="把目前地圖畫面（含底圖與繪製內容）匯出成 PNG 圖片並下載">地圖<br>截圖</button>
+    <button type="button" id="drawImportGeoJSONBtn" class="draw-tool-btn draw-tool-btn-wrap" title="匯入 GeoJSON 檔案（會保留原有顏色樣式）">匯入<br>GeoJSON</button>
+    <input type="file" id="drawImportFileInput" accept=".geojson,application/geo+json,application/json" hidden>
+  </div>
+</div>
+<div id="drawStorageToast" class="locate-toast draw-storage-toast"></div>
+
+<div id="drawFeatureEditPopup" class="draw-feature-popup" hidden>
+  <div class="identify-popup-header">
+    <span class="draw-feature-popup-title" id="drawFeaturePopupTitle">點</span>
+    <button type="button" class="identify-popup-close" id="drawFeaturePopupClose" title="關閉">✕</button>
+  </div>
+  <input type="text" id="drawFeaturePopupName" class="draw-feature-popup-name" placeholder="名稱（可留空）">
+  <div class="draw-toolbar-row draw-color-palette" id="drawFeaturePopupPalette">
+    <button type="button" class="draw-color-swatch" data-color="#C0392B" style="background-color:#C0392B" title="朱紅"></button>
+    <button type="button" class="draw-color-swatch" data-color="#2980B9" style="background-color:#2980B9" title="靛藍"></button>
+    <button type="button" class="draw-color-swatch" data-color="#27AE60" style="background-color:#27AE60" title="墨綠"></button>
+    <button type="button" class="draw-color-swatch" data-color="#D35400" style="background-color:#D35400" title="赭黃"></button>
+    <button type="button" class="draw-color-swatch" data-color="#8E44AD" style="background-color:#8E44AD" title="紫藤"></button>
+    <button type="button" class="draw-color-swatch" data-color="#2C3E50" style="background-color:#2C3E50" title="墨黑"></button>
+    <input type="color" id="drawFeaturePopupCustomColor" class="draw-color-custom" title="自訂顏色">
+  </div>
+  <button type="button" id="drawFeaturePopupDelete" class="draw-feature-popup-delete">🗑️ 刪除此物件</button>
 </div>
 
 <div id="stamp">

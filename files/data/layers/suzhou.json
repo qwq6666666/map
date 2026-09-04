@@ -91,7 +91,7 @@
           "format": "png",
           "year": 1931,
           "dateLabel": "1931",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:12500",
           "region": null,
           "keywords": []
@@ -113,7 +113,7 @@
           "format": "png",
           "year": 1938,
           "dateLabel": "1938",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": null,
           "keywords": []
@@ -141,7 +141,7 @@
           "format": "png",
           "year": 1943,
           "dateLabel": "1943",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:12500",
           "region": null,
           "keywords": []
@@ -174,7 +174,7 @@
           "format": "png",
           "year": 1949,
           "dateLabel": "1949",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:22000",
           "region": null,
           "keywords": []
