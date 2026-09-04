@@ -30,3 +30,13 @@ async function main(){
 }
 
 main();
+
+// 只在正式建置（vite build）且瀏覽器支援時註冊 Service Worker，
+// 開發模式（vite dev）故意不註冊，避免快取干擾即時開發。
+if(import.meta.env?.PROD && 'serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(err => {
+      console.error('Service Worker 註冊失敗', err);
+    });
+  });
+}

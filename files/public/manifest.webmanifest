@@ -1,0 +1,13 @@
+{
+  "name": "臺灣百年歷史地圖疊圖器",
+  "short_name": "百年歷史地圖",
+  "description": "疊圖比對臺灣各年代歷史地形圖、正射影像與現代地圖的 Web GIS 工具",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#17211D",
+  "theme_color": "#8A6A2E",
+  "lang": "zh-Hant-TW",
+  "icons": []
+}

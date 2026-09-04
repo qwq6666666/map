@@ -32,6 +32,15 @@ class FakeClassList {
   contains(c){ return this._node._classes.has(c); }
 }
 
+// 記錄「曾經被程式碼動態指定過 .id 的字串」，用來跟 elementCache 那套
+// 「HTML 裡本來就寫死、隨時 getElementById 都應該生得出來」的假設區分：
+// 一旦某個 id 曾經透過 `node.id = '...'` 動態指定過（例如
+// customTimelineUI.js 建立浮動 dock 時），代表它是「執行期動態插入／
+// 移除」的節點，被移除後 document.getElementById() 就應該老實回傳
+// 找不到，不能落回 getOrCreate() 自動生一個假的出來頂替（那樣會讓
+// 「關閉後應該找不到」這種測試永遠測不出來）。
+const dynamicIds = new Set();
+
 export class FakeNode {
   constructor(tag){
     this.tag = tag;
@@ -45,6 +54,8 @@ export class FakeNode {
     this.value = '100';
     this.style = {};
   }
+  set id(v){ this._id = v; if(v) dynamicIds.add(v); }
+  get id(){ return this._id; }
   get classList(){ return new FakeClassList(this); }
   set className(v){ this._classes = new Set(String(v).split(/\s+/).filter(Boolean)); }
   get className(){ return [...this._classes].join(' '); }
@@ -58,6 +69,13 @@ export class FakeNode {
     c.parentElement = this;
     return c;
   }
+  removeChild(c){
+    const i = this.children.indexOf(c);
+    if(i >= 0) this.children.splice(i, 1);
+    c.parentElement = null;
+    return c;
+  }
+  remove(){ if(this.parentElement) this.parentElement.removeChild(this); }
   addEventListener(ev, fn){ (this._listeners[ev] = this._listeners[ev] || []).push(fn); }
   removeEventListener(ev, fn){
     const arr = this._listeners[ev] || [];
@@ -125,8 +143,34 @@ function getOrCreate(id){
   return elementCache[id];
 }
 
+// 真的 <body> 節點：程式碼裡用 document.body.appendChild(...) 動態掛上去的
+// 元素（例如 features/customTimelineUI.js 的浮動 dock）會是這個節點的
+// 子孫，跟既有「以 id 各自獨立存在」的 elementCache 是不同的兩棵樹——
+// elementCache 模擬的是「HTML 裡本來就寫死的元素」，document.body 這棵樹
+// 模擬的是「執行期間用 JS 動態插入畫面的元素」，兩者用途不同但都要能被
+// getElementById／querySelectorAll 找到。
+const bodyNode = new FakeNode('body');
+
+function findByIdInTree(node, id){
+  if(!node) return null;
+  if(node.id === id) return node;
+  for(const child of (node.children || [])){
+    const found = findByIdInTree(child, id);
+    if(found) return found;
+  }
+  return null;
+}
+
 globalThis.document = {
-  getElementById: (id) => getOrCreate(id),
+  getElementById: (id) => {
+    if(elementCache[id]) return elementCache[id];
+    const found = findByIdInTree(bodyNode, id);
+    if(found) return found;
+    // 曾經動態掛過這個 id、現在卻找不到＝真的被移除了，老實回傳
+    // null（不要落回 getOrCreate 自動生一個假的出來頂替）。
+    if(dynamicIds.has(id)) return null;
+    return getOrCreate(id);
+  },
   createElement: (tag) => new FakeNode(tag),
   createElementNS: (ns, tag) => new FakeNode(tag),
   querySelector(sel){ return this.querySelectorAll(sel)[0] || null; },
@@ -136,10 +180,13 @@ globalThis.document = {
       results.push(...root.querySelectorAll(sel));
       if(matchesSelector(root, sel)) results.push(root);
     });
+    results.push(...bodyNode.querySelectorAll(sel));
+    if(matchesSelector(bodyNode, sel)) results.push(bodyNode);
     return results;
   },
   documentElement: { style: { setProperty(){} } },
   addEventListener(){},
+  body: bodyNode,
 };
 
 const windowListeners = {};
@@ -161,6 +208,13 @@ else { globalThis.navigator = { geolocation: null }; }
 globalThis.alert = (msg) => {};
 globalThis.confirm = () => true;
 globalThis.prompt = () => '';
+
+// Node 沒有全域 requestAnimationFrame；src/ 底下若用到（例如
+// ui/search.js 的 buildSelectionList() 用來觸發進場動畫 class），
+// 這裡用 setTimeout(fn, 0) 頂替即可，不需要真的對齊畫面更新頻率。
+if(!globalThis.requestAnimationFrame){
+  globalThis.requestAnimationFrame = (fn) => setTimeout(fn, 0);
+}
 
 // 簡易 in-memory localStorage 假物件，供 store.js 的自訂圖層清單
 // 讀寫測試使用；只需要 getItem/setItem 兩個方法。
@@ -280,6 +334,7 @@ class FakeMap {
     this._moveendHandlers = [];
     this._interactions = [];
     this._layers = [];
+    this._viewport = new FakeNode('div');
   }
   getView(){
     const self = this;
@@ -295,7 +350,7 @@ class FakeMap {
   addOverlay(){}
   getTargetElement(){ return null; }
   getSize(){ return [800, 600]; }
-  getViewport(){ return { querySelectorAll: () => [] }; }
+  getViewport(){ return this._viewport; }
   render(){}
   renderSync(){}
   once(ev, fn){ if(ev === 'rendercomplete') fn(); }

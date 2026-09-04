@@ -501,6 +501,54 @@
   .avail-progress{font-size:11.5px; color:var(--rule); padding:4px 2px;}
   .avail-empty{font-size:12px; color:var(--rule); line-height:1.6; padding:4px 2px; margin:0 0 4px;}
 
+  /* 搜尋結果面板表頭：說明文字 + 「自訂時間軸(多選)」切換按鈕同一列，
+     窄側邊欄允許換行，避免爆版。 */
+  .avail-summary-row{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:8px; flex-wrap:wrap; margin:0 0 4px;
+  }
+  .avail-summary-row .avail-empty{margin:0; flex:1 1 auto; min-width:120px;}
+  .avail-multiselect-btn{
+    flex-shrink:0; font-size:11.5px; font-weight:600; padding:5px 10px;
+    background:var(--paper); color:var(--brass-dark); border:1px solid var(--brass-dark);
+    border-radius:12px; cursor:pointer; white-space:nowrap;
+    transition:background .15s ease, color .15s ease;
+  }
+  .avail-multiselect-btn:hover{background:var(--brass-dark); color:var(--paper);}
+  .layer-avail-panel.selection-mode .avail-multiselect-btn{
+    background:var(--ink); color:var(--paper); border-color:var(--ink);
+  }
+
+  /* 自訂時間軸多選模式：獨立扁平清單（不透過 uiTree.js 的手風琴渲染），
+     每筆一張卡片，左側 checkbox 用 width/opacity transition 做「平滑
+     展開」效果（清單插入 DOM 後下一影格才加上 .ready，觸發過渡），
+     不用 display:none 硬切。 */
+  .avail-select-list{display:flex; flex-direction:column; gap:5px; margin:2px 0 4px;}
+  .avail-select-item{
+    display:flex; align-items:center; gap:0;
+    padding:7px 9px; border:1px solid var(--rule); border-radius:3px;
+    background:var(--paper); cursor:pointer;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  .avail-select-item:hover{background:var(--paper-dim);}
+  .avail-select-item.checked{background:rgba(181,140,74,.14); border-color:var(--brass-dark);}
+  /* 「已勾選要納入時間軸」(.checked，brass 底色) 跟「目前在地圖上瞬態
+     預覽中」(.is-previewing，stamp 外框) 是兩件獨立的事，卡片可能同時
+     符合兩者，用外框 outline 疊加而不是改背景色，避免互相蓋掉看不出來。 */
+  .avail-select-item.is-previewing{
+    outline:2px solid var(--stamp); outline-offset:-1px; border-color:var(--stamp);
+  }
+  .avail-select-checkbox-wrap{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:0; opacity:0; overflow:hidden; flex-shrink:0; margin-right:0;
+    transition:width .2s ease, opacity .2s ease, margin-right .2s ease;
+  }
+  .avail-select-list.ready .avail-select-checkbox-wrap{width:18px; opacity:1; margin-right:9px;}
+  .avail-select-checkbox{width:16px; height:16px; flex-shrink:0; cursor:pointer; accent-color:var(--brass-dark);}
+  .avail-select-info{flex:1; min-width:0;}
+  .avail-select-title{font-size:12.5px; color:var(--ink); line-height:1.35;}
+  .avail-select-meta{font-size:11px; color:var(--rule); margin-top:2px;}
+
   /* 搜尋結果面板頂端的「全部／類型／年代」頁籤列：純前端在已取得的
      available 陣列上重新分組／排序，視覺上沿用 .segmented 那套淡雅、
      方形邊框的語彙，維持跟結果清單協調。允許在窄側邊欄換行，避免爆版。 */
@@ -775,6 +823,110 @@
   .multi-layer-move:disabled:hover{background:var(--paper);}
   .multi-layer-remove{color:var(--stamp); border-color:var(--stamp);}
   .multi-layer-remove:hover{background:rgba(166,61,47,.1);}
+
+  /* ---------- 搜尋結果面板：自訂時間軸多選模式的懸浮操作列 ----------
+     跟 #mapTimelineBar／#multiOverlayBar 一樣是常駐在 DOM 裡、用 class
+     切換顯示的浮動元件，但這個是固定在整個視窗（不是地圖容器）底部
+     置中，所以用 position:fixed，預設用 opacity+pointer-events 隱藏，
+     不用 display:none，方便未來要加淡入淡出動畫時直接調整 transition。 */
+  .search-batch-bar{
+    position:fixed; left:50%; bottom:20px; z-index:30;
+    transform:translateX(-50%);
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    max-width:min(640px, calc(100% - 32px));
+    background:var(--ink); color:var(--paper);
+    border:1px solid var(--brass); border-radius:20px;
+    box-shadow:0 6px 20px rgba(0,0,0,.4);
+    padding:8px 16px;
+    opacity:0; pointer-events:none;
+    transition:opacity .18s ease, transform .18s ease;
+  }
+  .search-batch-bar.show{opacity:1; pointer-events:auto;}
+  .search-batch-count{font-size:12px; font-weight:600; color:var(--paper); white-space:nowrap;}
+  .search-batch-actions{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .search-batch-btn{
+    font-size:11.5px; padding:5px 11px; background:transparent; color:var(--paper);
+    border:1px solid var(--paper); border-radius:12px; cursor:pointer; white-space:nowrap;
+    transition:background .15s ease, color .15s ease, opacity .15s ease;
+  }
+  .search-batch-btn:hover{background:rgba(255,255,255,.15);}
+  .search-batch-confirm{background:var(--brass); color:var(--ink); border-color:var(--brass); font-weight:600;}
+  .search-batch-confirm:hover{background:var(--brass-dark); color:var(--paper);}
+  .search-batch-confirm:disabled{opacity:.4; cursor:default; background:transparent; color:var(--paper); border-color:var(--rule);}
+
+  /* ---------- 自訂時間軸浮動 dock（features/customTimelineUI.js） ----------
+     跟 .search-batch-bar 一樣是固定在整個視窗底部置中的浮動元件（不是
+     地圖容器內部），深色毛玻璃視覺沿用 #mapTimelineBar 的配色語彙，但
+     class 前綴一律自成一套 custom-timeline-*，不跟既有時間軸/操作列的
+     class 混用，也不共用容器。z-index 刻意比 .search-batch-bar 高一階：
+     confirmCustomTimeline() 會先 exitSelectionMode()（隱藏操作列）才
+     開 dock，時序上不會同時出現，但保守起見仍讓 dock 蓋在上面。 */
+  #custom-timeline-dock{
+    position:fixed; left:50%; bottom:20px; z-index:31;
+    transform:translateX(-50%) translateY(8px);
+    width:min(560px, calc(100% - 32px));
+    background:rgba(23,33,29,.92); backdrop-filter:blur(6px);
+    color:var(--paper); border:1px solid var(--brass); border-radius:10px;
+    box-shadow:0 6px 20px rgba(0,0,0,.4);
+    padding:10px 16px 12px;
+    opacity:0; pointer-events:none;
+    transition:opacity .18s ease, transform .18s ease;
+  }
+  #custom-timeline-dock.show{
+    opacity:1; pointer-events:auto; transform:translateX(-50%) translateY(0);
+  }
+  .custom-timeline-head{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+    padding-bottom:6px; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,.18);
+  }
+  .custom-timeline-head-text{min-width:0; flex:1;}
+  .custom-timeline-title{
+    font-size:13px; font-weight:600; color:var(--paper); line-height:1.35;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .custom-timeline-meta{font-size:11px; color:rgba(255,255,255,.7); margin-top:2px;}
+  .custom-timeline-close{
+    flex-shrink:0; width:22px; height:22px; padding:0; line-height:1;
+    background:transparent; color:var(--paper); border:1px solid rgba(255,255,255,.4);
+    border-radius:50%; cursor:pointer; font-size:11px;
+  }
+  .custom-timeline-close:hover{background:rgba(255,255,255,.15); border-color:var(--paper);}
+
+  .custom-timeline-dots{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:4px;
+    margin-bottom:6px; overflow-x:auto;
+  }
+  .custom-timeline-dot-wrap{
+    display:flex; flex-direction:column; align-items:center; gap:4px; flex-shrink:0;
+    min-width:28px;
+  }
+  .custom-timeline-dot{
+    width:11px; height:11px; padding:0; border-radius:50%;
+    background:rgba(255,255,255,.3); border:1px solid rgba(255,255,255,.5);
+    cursor:pointer;
+  }
+  .custom-timeline-dot:hover{background:rgba(255,255,255,.5);}
+  .custom-timeline-dot.active{background:var(--brass); border-color:var(--brass);}
+  .custom-timeline-dot-label{
+    font-size:10px; color:rgba(255,255,255,.65); white-space:nowrap;
+  }
+
+  .custom-timeline-slider-row{margin:2px 0 10px; display:flex; align-items:center; gap:8px;}
+  .custom-timeline-slider{flex:1; min-width:0; accent-color:var(--brass-dark);}
+  .custom-timeline-play-btn{
+    flex-shrink:0; font-size:11px; padding:3px 10px; background:transparent; color:var(--paper);
+    border:1px solid rgba(255,255,255,.4); border-radius:12px; cursor:pointer;
+  }
+  .custom-timeline-play-btn:hover{background:rgba(255,255,255,.15); border-color:var(--paper);}
+  .custom-timeline-play-btn.playing{background:var(--brass); color:var(--ink); border-color:var(--brass);}
+
+  .custom-timeline-opacity-row{display:flex; align-items:center; gap:8px;}
+  .custom-timeline-opacity-label{font-size:11px; color:rgba(255,255,255,.7); flex-shrink:0;}
+  .custom-timeline-opacity-slider{flex:1; min-width:0; accent-color:var(--brass-dark);}
+  .custom-timeline-opacity-value{
+    font-family:var(--serif); font-size:11.5px; color:var(--paper);
+    width:34px; text-align:right; flex-shrink:0;
+  }
 
   /* 圖層選擇器：按鈕 + 手風琴浮動面板 */
   .layer-picker{position:relative;}

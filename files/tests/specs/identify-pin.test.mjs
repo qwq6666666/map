@@ -77,6 +77,12 @@ function triggerSingleClick(coordinate = COORD){
   (map._handlers.singleclick || []).forEach(fn => fn({ coordinate }));
 }
 
+function triggerContextMenu(){
+  const evt = { defaultPrevented: false, preventDefault(){ evt.defaultPrevented = true; } };
+  (map.getViewport()._listeners.contextmenu || []).forEach(fn => fn(evt));
+  return evt;
+}
+
 test('isDrawToolActive()：預設沒有選任何繪圖工具時回傳 false', () => {
   assertEqual(isDrawToolActive(), false, '預設不應有啟用中的繪圖工具');
 });
@@ -175,7 +181,7 @@ test('彈窗關閉、Pin 存在時，再次點擊地圖空白處什麼都不會�
   assertEqual(identifyPopupBody.innerHTML, bodyHTMLBefore, 'Popup 內容不應該被改變');
 });
 
-test('點擊彈窗內「清除點位」按鈕會真正清除 Pin，之後點地圖才會建立新 Pin（狀態二 -> 狀態三 -> 狀態一）', () => {
+test('點擊彈窗內「清除點位」按鈕會真正清除 Pin（狀態二 -> 狀態三）', () => {
   const clearBtn = identifyPopupClearBtn;
   assertTrue(!!clearBtn, '前置條件：Popup header 內應該要有清除點位按鈕');
 
@@ -184,8 +190,21 @@ test('點擊彈窗內「清除點位」按鈕會真正清除 Pin，之後點地�
   assertTrue(!identifyPinEl.classList.contains('show'), '點擊清除標記後 Pin 應該消失');
   assertEqual(identifyPopupBody.children.length, 0, '點擊清除標記後 Popup 內容應該被清空');
   assertEqual(identifyPopupEl.hidden, true, '點擊清除標記後 Popup 應該回到關閉狀態');
+});
 
-  triggerSingleClick(COORD); // 回到狀態三後，點擊地圖空白處應該要能建立新 Pin
+test('沒有 Pin 時，右鍵點擊地圖不會有任何效果（僅阻止瀏覽器預設選單）', () => {
+  assertTrue(!identifyPinEl.classList.contains('show'), '前置條件：目前不應該有 Pin');
+  assertEqual(identifyPopupEl.hidden, true, '前置條件：Popup 應該是關閉中');
+
+  const evt = triggerContextMenu();
+
+  assertTrue(evt.defaultPrevented, '右鍵點擊應該阻止瀏覽器預設選單');
+  assertTrue(!identifyPinEl.classList.contains('show'), '沒有 Pin 時右鍵不應該憑空建立 Pin');
+  assertEqual(identifyPopupEl.hidden, true, '沒有 Pin 時右鍵不應該打開 Popup');
+});
+
+test('狀態三 -> 狀態一：清除後點地圖應該要能重新建立 Pin', () => {
+  triggerSingleClick(COORD);
 
   assertTrue(identifyPinEl.classList.contains('show'), '清除後再點地圖應該要能重新建立 Pin');
   assertEqual(identifyPopupEl.hidden, false, '重新建立的 Pin 應該會自動開啟彈窗');
@@ -201,6 +220,36 @@ test('點擊「搜尋涵蓋此點之歷史圖層」按鈕會呼叫 onSearchLayer
   const [lon, lat] = COORD;
   assertEqual(searchCalls[0].lon, lon, 'onSearchLayers 帶入的經度');
   assertEqual(searchCalls[0].lat, lat, 'onSearchLayers 帶入的緯度');
+});
+
+test('有 Pin、Popup 開啟中時，右鍵只關閉 Popup，Pin 本體維持存在（狀態一 -> 狀態二）', () => {
+  assertTrue(identifyPinEl.classList.contains('show'), '前置條件：Pin 應該存在');
+  assertEqual(identifyPopupEl.hidden, false, '前置條件：Popup 應該是開啟中');
+
+  const evt = triggerContextMenu();
+
+  assertTrue(evt.defaultPrevented, '右鍵點擊應該阻止瀏覽器預設選單');
+  assertEqual(identifyPopupEl.hidden, true, 'Popup 開啟中時右鍵應該只關閉 Popup');
+  assertTrue(identifyPinEl.classList.contains('show'), 'Popup 開啟中時右鍵不應該連帶清除 Pin');
+});
+
+test('有 Pin、Popup 已關閉時，再右鍵一次會真的清除 Pin（狀態二 -> 狀態三）', () => {
+  assertTrue(identifyPinEl.classList.contains('show'), '前置條件：Pin 應該存在');
+  assertEqual(identifyPopupEl.hidden, true, '前置條件：Popup 應該是關閉中');
+
+  const evt = triggerContextMenu();
+
+  assertTrue(evt.defaultPrevented, '右鍵點擊應該阻止瀏覽器預設選單');
+  assertTrue(!identifyPinEl.classList.contains('show'), 'Popup 已關閉時再右鍵一次應該清除 Pin');
+  assertEqual(identifyPopupEl.hidden, true, '清除 Pin 後 Popup 應該維持關閉狀態');
+});
+
+test('右鍵清除 Pin 後，左鍵仍能重新建立 Pin（兩者互不干擾）', () => {
+  assertTrue(!identifyPinEl.classList.contains('show'), '前置條件：Pin 應已被清除');
+
+  triggerSingleClick(COORD);
+
+  assertTrue(identifyPinEl.classList.contains('show'), '右鍵清除後，左鍵點擊地圖應該能重新建立 Pin');
 });
 
 await run();

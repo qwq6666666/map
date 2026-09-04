@@ -30,7 +30,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="./style.css?v=2">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#8A6A2E">
+
+<link rel="stylesheet" href="./style.css">
 </head>
 <body>
 
@@ -171,6 +174,15 @@
   <div class="multi-overlay-bar-inner" id="multiOverlayBarInner"></div>
 </div>
 
+<div id="searchBatchBar" class="search-batch-bar">
+  <span class="search-batch-count" id="searchBatchCount">已選取 0 筆圖資</span>
+  <div class="search-batch-actions">
+    <button type="button" id="searchBatchSelectAllBtn" class="search-batch-btn">全選當前結果</button>
+    <button type="button" id="searchBatchClearBtn" class="search-batch-btn">清除選取</button>
+    <button type="button" id="searchBatchConfirmBtn" class="search-batch-btn search-batch-confirm">＋ 確認建立自訂時間軸</button>
+  </div>
+</div>
+
 <div id="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-header-text">
@@ -287,6 +299,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/ol@v9.2.4/dist/ol.js"></script>
-<script type="module" src="./src/main.js?v=2"></script>
+<script type="module" src="/src/main.js"></script>
 </body>
 </html>

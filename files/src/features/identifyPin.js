@@ -196,6 +196,22 @@ export function initIdentifyPin({ onSearchLayers } = {}){
     identifyPinMarkerBtn.addEventListener('click', reopenPopup);
   }
 
+  // 地圖右鍵點擊：判斷依據改為「Pin 點資訊欄位（Popup）目前是否開啟」，
+  // 而非側邊欄收合狀態。規則：Popup 開啟時右鍵只關閉 Popup（跟左鍵點擊
+  // 地圖空白處關閉 Popup 的行為一致）；只有在 Popup 已關閉的情況下再次
+  // 右鍵，才真的清除 Pin（跟「清除標記」按鈕共用同一個 clearPin，避免
+  // 重寫一份清除邏輯）。沒有 Pin 時右鍵不做任何事。OL Map 本身不會轉發
+  // contextmenu 事件，需直接對 viewport 掛原生事件監聽。
+  map.getViewport().addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    if(!pinCoordinate) return;
+    if(identifyPopupEl && !identifyPopupEl.hidden){
+      closePopup();
+    } else {
+      clearPin();
+    }
+  });
+
   map.on('singleclick', (e) => {
     // 模式互斥避讓：非一般瀏覽模式／繪圖工具啟用中／比對模式分隔線拖曳中
     // 一律不觸發落點，避免搶走這些模式原本的點擊行為。
