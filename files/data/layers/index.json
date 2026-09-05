@@ -197,6 +197,7 @@
     { "id": "puli", "file": "puli.json", "name": "埔里百年歷史地圖", "layerCount": 6 },
     { "id": "penghu", "file": "penghu.json", "name": "澎湖百年歷史地圖", "layerCount": 64 },
     { "id": "taitung", "file": "taitung.json", "name": "臺東百年歷史地圖", "layerCount": 16 },
-    { "id": "japan", "file": "japan.json", "name": "日本百年歷史地圖", "layerCount": 38 }
+    { "id": "japan", "file": "japan.json", "name": "日本百年歷史地圖", "layerCount": 38 },
+    { "id": "southeast_asia", "file": "southeast_asia.json", "name": "東南亞百年歷史地圖", "layerCount": 31 }
   ]
 }

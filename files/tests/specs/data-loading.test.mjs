@@ -4,21 +4,21 @@ import { loadAppData, LAYER_SOURCES, REGION_EXTENTS } from '../../src/data.js';
 
 await loadAppData();
 
-test('資料載入後，38 個 WMTS 來源都在（含後來新增的北京／上海等中國城市與 ccts、nlsc、ls、korea、tamsui、puli、penghu、taitung、japan）', () => {
-  assertEqual(LAYER_SOURCES.length, 38, '來源數量');
+test('資料載入後，39 個 WMTS 來源都在（含後來新增的北京／上海等中國城市與 ccts、nlsc、ls、korea、tamsui、puli、penghu、taitung、japan、southeast_asia）', () => {
+  assertEqual(LAYER_SOURCES.length, 39, '來源數量');
 });
 
-test('資料載入後，總圖層數是 2394 筆（一筆都不能少）', () => {
+test('資料載入後，總圖層數是 2425 筆（一筆都不能少）', () => {
   let total = 0;
   LAYER_SOURCES.forEach(s => s.categories.forEach(c => {
     if(c.groups) c.groups.forEach(g => total += g.layers.length);
     else total += c.layers.length;
   }));
-  assertEqual(total, 2394, '總圖層數');
+  assertEqual(total, 2425, '總圖層數');
 });
 
 test('每個來源都有對應的地理範圍（REGION_EXTENTS）', () => {
-  assertEqual(Object.keys(REGION_EXTENTS).length, 38, 'REGION_EXTENTS 筆數');
+  assertEqual(Object.keys(REGION_EXTENTS).length, 39, 'REGION_EXTENTS 筆數');
 });
 
 test('sinica 來源的圖層有 yearNum（數字年份）跟 scale（比例尺）欄位', () => {

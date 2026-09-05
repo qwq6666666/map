@@ -70,7 +70,7 @@ export function appendLayerList(container, layers, onLayerClick, threshold = 8){
   container.appendChild(toggleBtn);
 }
 
-export function buildCategoryList(categories, container, onLayerClick, openFirst, singleOpen = true){
+export function buildCategoryList(categories, container, onLayerClick, openFirst, singleOpen = true, onCategoryOpen = null){
   categories.forEach((cat, ci) => {
     const wrap = document.createElement('div');
     wrap.className = 'category';
@@ -90,6 +90,17 @@ export function buildCategoryList(categories, container, onLayerClick, openFirst
         });
       }
       wrap.classList.toggle('open');
+      if(opening && singleOpen){
+        // 比照 sidebarUI.js 展開「來源」時的行為：展開分類後自動捲動，
+        // 讓分類標題貼齊側邊欄可視範圍頂端（.category-head 的
+        // scroll-margin-top 已避開吸附的透明度區塊，見 style.css）。
+        head.scrollIntoView({ behavior:'smooth', block:'start' });
+        // 只有呼叫端明確傳入 onCategoryOpen 才會觸發（目前只有
+        // sidebarUI.js 對日本／韓國／東南亞這幾個「分類＝城市」的
+        // 來源傳入，把地圖移到該分類的地理範圍；其他呼叫端不傳、
+        // 其他來源不受影響）。
+        if(onCategoryOpen) onCategoryOpen(cat);
+      }
     });
 
     const body = document.createElement('div');

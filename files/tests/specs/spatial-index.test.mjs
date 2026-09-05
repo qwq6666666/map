@@ -332,7 +332,7 @@ const bundlePath = path.join(process.cwd(), 'data/layers.bundle.json');
 const bundle = JSON.parse(readFileSync(bundlePath, 'utf-8'));
 
 // udd 沒有對應的 WMTS Capabilities 端點，目前是預期內、已知的 0% 覆蓋率來源，
-// 其餘 37 個來源（全站共 38 個）這次改造後應該全數 100% 補齊 region.bbox。
+// 其餘 38 個來源（全站共 39 個）這次改造後應該全數 100% 補齊 region.bbox。
 const KNOWN_ZERO_BBOX_SOURCES = ['udd'];
 
 (bundle.sources || []).forEach(src => {
@@ -351,10 +351,10 @@ const KNOWN_ZERO_BBOX_SOURCES = ['udd'];
   }
 });
 
-test('全站 bbox 覆蓋率：總計圖層數應為 2394 筆（新增 japan 來源後同步更新）', () => {
+test('全站 bbox 覆蓋率：總計圖層數應為 2425 筆（新增 southeast_asia 來源後同步更新）', () => {
   let totalLayers = 0;
   (bundle.sources || []).forEach(src => { totalLayers += countBboxCoverage(src).total; });
-  assertEqual(totalLayers, 2394, `全站圖層總數應為 2394 筆，實際 ${totalLayers} 筆（若有新增/移除圖層來源，請同步更新此測試）`);
+  assertEqual(totalLayers, 2425, `全站圖層總數應為 2425 筆，實際 ${totalLayers} 筆（若有新增/移除圖層來源，請同步更新此測試）`);
 });
 
 test('全站 bbox 覆蓋率：有合法 bbox 的圖層總數應 >= 1885 筆（用 >= 而非寫死等於，避免未來補齊 udd 或新增來源時擋路，但仍能抓到既有來源退化的回歸）', () => {

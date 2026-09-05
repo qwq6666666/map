@@ -8,7 +8,12 @@ import {
   selectOverlayLayer, state as store, subscribe,
   toggleFavoriteLayer, isFavoriteLayer, setMode, clearRecentLayers
 } from './store.js';
-import { flyToSourceExtent } from './mapCore.js';
+import { flyToSourceExtent, flyToCategoryExtent } from './mapCore.js';
+
+// 這幾個來源的「分類」是城市（例如日本的「函館」「神戶」、東南亞的
+// 「曼谷」），跟其他來源「分類＝地圖系列」不同——展開分類時飛到對應
+// 城市的地理位置才有意義，其他來源不套用這個行為（見下方呼叫端）。
+const FLY_TO_CATEGORY_SOURCE_IDS = new Set(['japan', 'korea', 'southeast_asia']);
 import { createCountryFilterBar } from './ui/countryFilter.js';
 
 /* 動態量測「歷史圖層透明度」吸附區塊的實際高度，寫成 CSS 變數，
@@ -216,7 +221,8 @@ export function initSidebar(){
 
     const srcBody = document.createElement('div');
     srcBody.className = 'source-body';
-    buildCategoryList(src.categories, srcBody, (layer) => selectOverlayLayer(layerKey(src, layer)), false);
+    buildCategoryList(src.categories, srcBody, (layer) => selectOverlayLayer(layerKey(src, layer)), false, true,
+      FLY_TO_CATEGORY_SOURCE_IDS.has(src.id) ? (cat) => flyToCategoryExtent(cat) : null);
 
     srcWrap.appendChild(srcHead);
     srcWrap.appendChild(srcBody);

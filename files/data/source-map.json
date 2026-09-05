@@ -334,6 +334,15 @@
       ]
     },
     {
+      "match": "county",
+      "includes": [
+        "東南亞", "Southeast Asia", "泰國", "Thailand", "曼谷", "Bangkok", "印尼", "Indonesia", "雅加達", "雅加达", "Jakarta", "Batavia", "巴達維亞", "菲律賓", "Philippines", "宿霧", "Cebu", "馬尼拉", "Manila", "越南", "Vietnam", "海防", "Haiphong", "馬來西亞", "Malaysia", "吉隆坡", "Kuala Lumpur", "Kualalumpur", "納閩", "Labuan", "新加坡", "Singapore"
+      ],
+      "sources": [
+        "southeast_asia"
+      ]
+    },
+    {
       "match": "county+district",
       "includes": [
         "淡水"

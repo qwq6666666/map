@@ -61,6 +61,28 @@ export function flyToSourceExtent(srcId){
 }
 
 /* ---------------------------------------------------------
+   點擊展開「分類」時，把地圖移動到該分類涵蓋的地理範圍——目前只給
+   日本／韓國／東南亞這幾個橫跨多個城市的來源用（分類＝城市，例如
+   「函館」「釜山」「曼谷」，跟其他來源「分類＝地圖系列」不同，展開
+   分類時飛到對應城市才有意義，見 sidebarUI.js 呼叫端的白名單）。
+   分類本身沒有預先算好的 bbox，直接從底下每張圖層的 region.bbox
+   （沿用 tools/fetch-wmts-bbox.js 寫入的資料）取聯集算出來，沒有任何
+   圖層帶 bbox 時就不動作。
+--------------------------------------------------------- */
+export function flyToCategoryExtent(cat){
+  if(!cat) return;
+  const layers = cat.groups ? cat.groups.flatMap(g => g.layers) : cat.layers;
+  const bboxes = (layers || []).map(l => l.region && l.region.bbox).filter(Boolean);
+  if(bboxes.length === 0) return;
+  const ext = bboxes.reduce((acc, b) => [
+    Math.min(acc[0], b[0]), Math.min(acc[1], b[1]),
+    Math.max(acc[2], b[2]), Math.max(acc[3], b[3])
+  ], [...bboxes[0]]);
+  const extent3857 = ol.proj.transformExtent(ext, 'EPSG:4326', 'EPSG:3857');
+  map.getView().fit(extent3857, { duration:700, padding:[40,40,40,40], maxZoom:14 });
+}
+
+/* ---------------------------------------------------------
    底圖切換（疊圖／比對／時間軸模式共用）：click handler 只呼叫
    setBaseLayer()，真正切換 osmLayer/satLayer 可見度、同步按鈕
    高亮，統一由 store 訂閱者（core/modeManager.js 的 render()）

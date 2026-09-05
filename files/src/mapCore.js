@@ -7,6 +7,8 @@
      - map：OL 地圖實例（來自 core/map.js）
      - flyToSourceExtent：sidebarUI 展開來源時要移動地圖視角
        （來自 core/map.js）
+     - flyToCategoryExtent：sidebarUI 展開分類時要移動地圖視角，
+       目前只給日本／韓國／東南亞來源用（來自 core/map.js）
      - showLocateToast：searchUI 的「定位搜尋」失敗時也會用到
        同一顆提示（來自 features/location.js）
      - syncActiveLayerItemClasses：側邊欄／搜尋結果清單同步高亮
@@ -20,7 +22,7 @@
      features/location.js、features/compareMode.js、
      features/multiOverlay.js、ui/sidebarToggle.js
 --------------------------------------------------------- */
-import { map, flyToSourceExtent, initBaseSwitch } from './core/map.js';
+import { map, flyToSourceExtent, flyToCategoryExtent, initBaseSwitch } from './core/map.js';
 import { showLocateToast, initLocateButton } from './features/location.js';
 import { preloadOverlayKeys, syncActiveLayerItemClasses, initOpacityControls } from './core/layerManager.js';
 import { initCompareMode } from './features/compareMode.js';
@@ -29,7 +31,7 @@ import { initSidebarToggle } from './ui/sidebarToggle.js';
 import { initModeManager } from './core/modeManager.js';
 import { initTimelineMode } from './timelineMode.js';
 
-export { map, flyToSourceExtent, showLocateToast, syncActiveLayerItemClasses };
+export { map, flyToSourceExtent, flyToCategoryExtent, showLocateToast, syncActiveLayerItemClasses };
 
 export function initMapCore(){
   initLocateButton();

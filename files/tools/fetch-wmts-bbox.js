@@ -35,7 +35,7 @@ const AUTO_IDS = [
   'hakkaliudui', 'yilan', 'hualien', 'kinmen', 'beijing', 'shanghai',
   'tianjin', 'hangzhou', 'nanjing', 'wuhan', 'guangzhou', 'kunming',
   'suzhou', 'ccts', 'hongkong', 'korea',
-  'tamsui', 'puli', 'penghu', 'taitung', 'japan',
+  'tamsui', 'puli', 'penghu', 'taitung', 'japan', 'southeast_asia',
 ];
 const AUTO_SOURCES = AUTO_IDS.map(id => ({
   name: id,
