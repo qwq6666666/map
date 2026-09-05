@@ -1930,7 +1930,8 @@
               25.07613584
             ]
           },
-          "keywords": []
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/Taipei_1897a"
         },
         {
           "id": "Taipei_1903",
@@ -1966,7 +1967,8 @@
               25.07201711
             ]
           },
-          "keywords": []
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/Taipei_1905"
         },
         {
           "id": "Taipei_1907",
@@ -1984,7 +1986,8 @@
               25.07431121
             ]
           },
-          "keywords": []
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/Taipei_1907"
         },
         {
           "id": "Taipei_1910",
@@ -2092,7 +2095,8 @@
               25.08800779
             ]
           },
-          "keywords": []
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/Taipei_1916"
         },
         {
           "id": "Taipei_10K_1919",

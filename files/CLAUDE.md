@@ -22,11 +22,11 @@
 
 ## 圖層空間索引 (WMTS bbox 空間篩選)
 搜尋流程已從「大量 WMTS file-exists probe 猜測圖層是否存在」改為「先用 bbox 本地篩選、只對少量候選圖層 probe」：
-- `tools/fetch-wmts-bbox.js`：建置階段解析 `SOURCES` 陣列列出的各來源 WMTS Capabilities，寫入對應 `data/layers/<id>.json` 圖層的 `region.bbox`（`[minLon,minLat,maxLon,maxLat]`，原始精度）。目前 30 個來源中 29 個已 100% 覆蓋（`node tools/build-layers-bundle.js` 執行時可見統計），只有 `udd`（都市地籍圖，54 筆）沒有對應 Capabilities 端點，維持 `region: null`。新增來源時只要在 `AUTO_IDS` 加一個 id（前提是該來源網址規則符合 `https://gis.sinica.edu.tw/<id>/wmts/1.0.0/WMTSCapabilities.xml`），不需要改解析邏輯。
+- `tools/fetch-wmts-bbox.js`：建置階段解析 `SOURCES` 陣列列出的各來源 WMTS Capabilities，寫入對應 `data/layers/<id>.json` 圖層的 `region.bbox`（`[minLon,minLat,maxLon,maxLat]`，原始精度）。目前全站 33 個來源中 32 個已 100% 覆蓋（`tests/specs/spatial-index.test.mjs` 的全站 bbox 覆蓋率回歸測試可見統計），只有 `udd`（都市地籍圖，54 筆）沒有對應 Capabilities 端點，維持 `region: null`。新增來源時只要在 `AUTO_IDS` 加一個 id（前提是該來源網址規則符合 `https://gis.sinica.edu.tw/<id>/wmts/1.0.0/WMTSCapabilities.xml`），不需要改解析邏輯；另外別忘了同步在 `data/source-map.json` 登記該來源該在哪些地址被列為候選（`alwaysInclude` 或 `rules`），否則地址搜尋不會用到新來源（`ls`、`korea` 這兩個來源就是前車之鑑）。
 - `pointInBbox(lon, lat, bbox)`（`src/core/tileGeo.js`）：純幾何比對，bbox 缺失／格式錯誤一律 `return true`（fallback，不可誤排除，退回原本「可能有資料就檢查」的行為）。
 - `filterCandidatesByBbox(candidates, lon, lat)`（`src/features/search.js`，已 export）：接在文字比對之後、`tileChecker.checkBatch()` 之前，篩掉「有合法 bbox 且確定不涵蓋座標」的候選；沒有 bbox 索引的圖層一律保留。
 - `TileChecker`（`src/tileChecker.js`）的 `_probe()` 一律包在 `RequestPool.run()` 裡才真的送出 `Image` 請求，確保 `checkBatchAny()` 巢狀 `Promise.all()`（鄰近圖磚 fallback）、timeout retry 都不會讓實際併發 HTTP 請求數超過上限。沒有明確傳入 `pool` 時，各 instance 用自己的 `concurrency` 建立專屬 pool；`search.js`／`timelineMode.js` 則明確共用同一個 `globalTileRequestPool`（上限 `TILE_REQUEST_MAX_CONCURRENCY = 8`），避免兩邊各自的請求量疊加超過總上限。
-- 測試集中在 `tests/specs/spatial-index.test.mjs`（含全站 29/30 來源 bbox 覆蓋率回歸測試）與 `tests/specs/tile-request-pool.test.mjs`（RequestPool 併發上限、cache/in-flight dedup、timeout 釋放 slot、retry 不繞過 pool）。
+- 測試集中在 `tests/specs/spatial-index.test.mjs`（含全站 32/33 來源 bbox 覆蓋率回歸測試，另有寫死的全站總圖層數斷言，新增/移除圖層來源時要同步更新）與 `tests/specs/tile-request-pool.test.mjs`（RequestPool 併發上限、cache/in-flight dedup、timeout 釋放 slot、retry 不繞過 pool）。
 
 ## 子代理分工與路由 (Subagents Routing)
 遇到具體模組需求時，主代理請即刻將任務派發給對應的 Subagent，勿在主階段載入過多非權責程式碼：

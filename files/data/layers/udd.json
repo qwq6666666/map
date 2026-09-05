@@ -617,7 +617,8 @@
           "scale": null,
           "region": null,
           "keywords": [],
-          "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Urban/EMap/MapServer/WMTS/tile/1.0.0/Urban_EMap/default/GoogleMapsCompatible/{z}/{y}/{x}"
+          "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Urban/EMap/MapServer/WMTS/tile/1.0.0/Urban_EMap/default/GoogleMapsCompatible/{z}/{y}/{x}",
+          "legend": "https://gis.sinica.edu.tw/legend/EMap/"
         },
         {
           "id": "EMap_nolabel",

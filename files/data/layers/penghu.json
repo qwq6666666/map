@@ -1,0 +1,1176 @@
+{
+  "id": "penghu",
+  "name": "澎湖百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（澎湖百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/penghu/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      117.03868944,
+      23.02275208,
+      120.24728964,
+      24.99391679
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "澎湖百年歷史地圖",
+      "layers": [
+        {
+          "id": "Penghu_3K_1906",
+          "title": "媽宮城內料理店與貸座敷分布圖(1906)",
+          "format": "png",
+          "year": 1906,
+          "dateLabel": "1906",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.56032004,
+              23.56162693,
+              119.57073149,
+              23.56960331
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_1.8K_1912A",
+          "title": "媽宮街井位置圖(1912)",
+          "format": "png",
+          "year": 1912,
+          "dateLabel": "1912",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.55920458,
+              23.56152692,
+              119.57118348,
+              23.57035672
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_1.8K_1912B",
+          "title": "媽宮市區改正計畫圖(1912)",
+          "format": "png",
+          "year": 1912,
+          "dateLabel": "1912",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.55972722,
+              23.55970102,
+              119.57132598,
+              23.57272015
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_300K_1940",
+          "title": "南澎列島至烏坵嶼(含澎湖列島)",
+          "format": "png",
+          "year": 1940,
+          "dateLabel": "1940",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.03868944,
+              23.07519419,
+              120.24728964,
+              24.99391679
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_100K_1942",
+          "title": "澎湖列島水道圖",
+          "format": "png",
+          "year": 1942,
+          "dateLabel": "1942",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.1930377,
+              23.06509024,
+              119.82230838,
+              23.93188025
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_aerialphoto_1943",
+          "title": "馬公港歷史航照(1943)",
+          "format": "png",
+          "year": 1943,
+          "dateLabel": "1943",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.53038277,
+              23.51430046,
+              119.60909727,
+              23.58381415
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_25K_1945",
+          "title": "澎湖二戰陣地編成要圖(1945)",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.37765011,
+              23.40754384,
+              119.77480506,
+              23.75990479
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_aerialphoto_1948",
+          "title": "澎湖縣湖西鄉歷史航照(1948)",
+          "format": "png",
+          "year": 1948,
+          "dateLabel": "1948",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.54129303,
+              23.49302479,
+              119.71194527,
+              23.6382363
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_100K_1952",
+          "title": "澎湖群島水道圖",
+          "format": "png",
+          "year": 1952,
+          "dateLabel": "1952",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.19168847,
+              23.06531827,
+              119.81386121,
+              23.92865614
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_4K_1954",
+          "title": "馬公港(1954)",
+          "format": "png",
+          "year": 1954,
+          "dateLabel": "1954",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.55523577,
+              23.55511141,
+              119.57291488,
+              23.5674289
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_200K_1957",
+          "title": "澎湖縣全圖(1957)",
+          "format": "png",
+          "year": 1957,
+          "dateLabel": "1957",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.25125508,
+              23.02275208,
+              119.84106147,
+              23.83002808
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_1.8K_1964",
+          "title": "馬公市街道圖",
+          "format": "png",
+          "year": 1964,
+          "dateLabel": "1964",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.56050434,
+              23.56213334,
+              119.57342098,
+              23.57190654
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_100K_1964",
+          "title": "澎湖縣地圖(1964)",
+          "format": "png",
+          "year": 1964,
+          "dateLabel": "1964",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.27035451,
+              23.16303683,
+              119.76953508,
+              23.8250936
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_3K_1970",
+          "title": "澎湖縣馬公鎮都市計畫地形測量原圖(1970)",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.54585572,
+              23.54484931,
+              119.60570358,
+              23.60181535
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_aerialphoto_1974",
+          "title": "澎湖縣湖西鄉歷史航照(1974)",
+          "format": "png",
+          "year": 1974,
+          "dateLabel": "1974",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.59988933,
+              23.53776115,
+              119.69537522,
+              23.61287624
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_3K_1981",
+          "title": "澎湖縣白沙鄉都市計畫地形測量原圖(1981)",
+          "format": "png",
+          "year": 1981,
+          "dateLabel": "1981",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.55125054,
+              23.65480307,
+              119.56721634,
+              23.66292346
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_100K_1982",
+          "title": "澎湖縣圖",
+          "format": "png",
+          "year": 1982,
+          "dateLabel": "1982",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.25436208,
+              23.1692661,
+              119.75942833,
+              23.80961798
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001602_1991",
+          "title": "澎湖縣湖西鄉行政區域圖(1991)",
+          "format": "png",
+          "year": 1991,
+          "dateLabel": "1991",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.57732319,
+              23.51869228,
+              119.77129494,
+              23.64280803
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_1K_1991",
+          "title": "澎湖縣馬公市都市計畫地形測量原圖(1991)",
+          "format": "png",
+          "year": 1991,
+          "dateLabel": "1991",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.55349979,
+              23.55289936,
+              119.59710798,
+              23.58235959
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_25K_1992",
+          "title": "澎湖縣造林地鹽霧災害調查林木受害程度分級圖(1992)",
+          "format": "png",
+          "year": 1992,
+          "dateLabel": "1992",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.44449747,
+              23.486262,
+              119.71201744,
+              23.77939778
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001601_1993",
+          "title": "澎湖縣馬公市行政區域圖(1993)",
+          "format": "png",
+          "year": 1993,
+          "dateLabel": "1993",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.50876169,
+              23.44541053,
+              119.64332709,
+              23.6228132
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001603_1993",
+          "title": "澎湖縣白沙鄉行政區域圖(1993)",
+          "format": "png",
+          "year": 1993,
+          "dateLabel": "1993",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.53011732,
+              23.58036409,
+              119.69343139,
+              23.80636964
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001604_1993",
+          "title": "澎湖縣西嶼鄉行政區域圖(1993)",
+          "format": "png",
+          "year": 1993,
+          "dateLabel": "1993",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.46207229,
+              23.53680503,
+              119.56468501,
+              23.67250991
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001605_1993",
+          "title": "澎湖縣望安鄉行政區域圖(1993)",
+          "format": "png",
+          "year": 1993,
+          "dateLabel": "1993",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.48539818,
+              23.35144308,
+              119.55557094,
+              23.39759201
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001606_1993",
+          "title": "澎湖縣七美鄉行政區域圖(1993)",
+          "format": "png",
+          "year": 1993,
+          "dateLabel": "1993",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.39821575,
+              23.18407944,
+              119.45353046,
+              23.223419
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001601_2004",
+          "title": "澎湖縣馬公市行政區域圖(2004)",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.50087668,
+              23.43262947,
+              119.63613249,
+              23.60077662
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001602_2004",
+          "title": "澎湖縣湖西鄉行政區域圖(2004)",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.58223272,
+              23.52853533,
+              119.73453424,
+              23.63275981
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001603_2004",
+          "title": "澎湖縣白沙鄉行政區域圖(2004)",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.52419577,
+              23.60161044,
+              119.69326469,
+              23.80636129
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001604_2004",
+          "title": "澎湖縣西嶼鄉行政區域圖(2004)",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.46230535,
+              23.55213802,
+              119.55235989,
+              23.66380264
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001605_2004",
+          "title": "澎湖縣望安鄉行政區域圖(2004)",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.45845334,
+              23.33332784,
+              119.55962686,
+              23.40250314
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001606_2004",
+          "title": "澎湖縣七美鄉行政區域圖(2004)",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.40683902,
+              23.17026016,
+              119.45207252,
+              23.22586136
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_20K_2016",
+          "title": "馬公港及其附近水道圖",
+          "format": "png",
+          "year": 2016,
+          "dateLabel": "2016",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.42834872,
+              23.472291,
+              119.61160865,
+              23.58755171
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_7.5K_2016",
+          "title": "馬公港水道圖",
+          "format": "png",
+          "year": 2016,
+          "dateLabel": "2016",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.53890957,
+              23.52318844,
+              119.60830912,
+              23.56917407
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001601_2021",
+          "title": "澎湖縣馬公市行政區域圖(2021)",
+          "format": "png",
+          "year": 2021,
+          "dateLabel": "2021",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.50215769,
+              23.47971379,
+              119.64176619,
+              23.61575733
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001602_2021",
+          "title": "澎湖縣湖西鄉行政區域圖(2021)",
+          "format": "png",
+          "year": 2021,
+          "dateLabel": "2021",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.59755342,
+              23.5300963,
+              119.7640577,
+              23.63755148
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001603_2021",
+          "title": "澎湖縣白沙鄉行政區域圖(2021)",
+          "format": "png",
+          "year": 2021,
+          "dateLabel": "2021",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.52180458,
+              23.59789423,
+              119.69081759,
+              23.82432751
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001604_2021",
+          "title": "澎湖縣西嶼鄉行政區域圖(2021)",
+          "format": "png",
+          "year": 2021,
+          "dateLabel": "2021",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.46472413,
+              23.55219699,
+              119.54944845,
+              23.66570306
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001605_2021",
+          "title": "澎湖縣望安鄉行政區域圖(2021)",
+          "format": "png",
+          "year": 2021,
+          "dateLabel": "2021",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.4516822,
+              23.3272062,
+              119.56318008,
+              23.39889573
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001606_2021",
+          "title": "澎湖縣七美鄉行政區域圖(2021)",
+          "format": "png",
+          "year": 2021,
+          "dateLabel": "2021",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.40691884,
+              23.17368876,
+              119.45108836,
+              23.23229787
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "MAP_LSB1_Penghu",
+          "title": "日治官有林野圖(澎湖廳)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.299426,
+              23.1732018,
+              119.7263648,
+              23.7710837
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0001",
+          "title": "澎湖縣馬公市舊地籍圖：馬公",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.55638132,
+              23.55930037,
+              119.57428654,
+              23.57231963
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0002",
+          "title": "澎湖縣馬公市舊地籍圖：雞母塢",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.5786402,
+              23.51663227,
+              119.59674273,
+              23.53625463
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0003",
+          "title": "澎湖縣馬公市舊地籍圖：雙頭掛",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.59654039,
+              23.5300639,
+              119.62408097,
+              23.56234076
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0004",
+          "title": "澎湖縣馬公市舊地籍圖：鐵線尾",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.5875494,
+              23.52975518,
+              119.61449585,
+              23.54285801
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0005",
+          "title": "澎湖縣馬公市舊地籍圖：鎖管港",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.5873925,
+              23.50995362,
+              119.61435375,
+              23.53610699
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0006",
+          "title": "澎湖縣馬公市舊地籍圖：豬母水",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.57865906,
+              23.50347241,
+              119.61433452,
+              23.52312773
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0007",
+          "title": "澎湖縣馬公市舊地籍圖：西衛",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.56997253,
+              23.56936858,
+              119.59716131,
+              23.59511845
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0008",
+          "title": "澎湖縣馬公市舊地籍圖：虎井",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.50744978,
+              23.47738138,
+              119.55228152,
+              23.50364454
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0009",
+          "title": "澎湖縣馬公市舊地籍圖：菜園",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.58769215,
+              23.54948553,
+              119.61434807,
+              23.5626146
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0010",
+          "title": "澎湖縣馬公市舊地籍圖：紅木埕",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.56974255,
+              23.56914821,
+              119.58762823,
+              23.58228914
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0011",
+          "title": "澎湖縣馬公市舊地籍圖：石泉",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.58689449,
+              23.54951222,
+              119.60554551,
+              23.5630298
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0012",
+          "title": "澎湖縣馬公市舊地籍圖：烏崁",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.60514167,
+              23.53655043,
+              119.64113566,
+              23.56244031
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0013",
+          "title": "澎湖縣馬公市舊地籍圖：火燒坪",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.56085254,
+              23.56911677,
+              119.57867074,
+              23.58225508
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0014",
+          "title": "澎湖縣馬公市舊地籍圖：桶盤",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.50740835,
+              23.50346957,
+              119.52535537,
+              23.51661865
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0015",
+          "title": "澎湖縣馬公市舊地籍圖：東衛",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.58749948,
+              23.55605167,
+              119.61486173,
+              23.57556414
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0016",
+          "title": "澎湖縣馬公市舊地籍圖：文澳",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.56970485,
+              23.54963041,
+              119.60561995,
+              23.57574677
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0017",
+          "title": "澎湖縣馬公市舊地籍圖：後窟潭",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.56095756,
+              23.57573315,
+              119.5791285,
+              23.58884186
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0018",
+          "title": "澎湖縣馬公市舊地籍圖：嵵裡",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.55179415,
+              23.51664412,
+              119.57872048,
+              23.53615972
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0019",
+          "title": "澎湖縣馬公市舊地籍圖：小案山",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.56085106,
+              23.56255341,
+              119.56085106,
+              23.56255341
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0020",
+          "title": "澎湖縣馬公市舊地籍圖：宅腳嶼",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.59643209,
+              23.56916952,
+              119.61492378,
+              23.58879198
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0021",
+          "title": "澎湖縣馬公市舊地籍圖：大案山",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.56064465,
+              23.54288043,
+              119.58765399,
+              23.56245753
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0022",
+          "title": "澎湖縣馬公市舊地籍圖：前寮",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.57865806,
+              23.5429787,
+              119.59706092,
+              23.56254763
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0023",
+          "title": "澎湖縣馬公市舊地籍圖：井子垵",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.56936273,
+              23.50362549,
+              119.58837481,
+              23.52974174
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Penghu_MK_0024",
+          "title": "澎湖縣馬公市舊地籍圖：風櫃尾",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.5341527,
+              23.52312491,
+              119.56112967,
+              23.55578288
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

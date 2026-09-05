@@ -323,6 +323,51 @@
       "sources": [
         "korea"
       ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "日本", "Japan", "東京", "Tokyo", "大阪", "Osaka", "神戶", "Kobe", "橫濱", "横浜", "Yokohama", "沖繩", "琉球", "Okinawa", "Ryukyu", "下田", "Shimoda", "函館", "Hakodate", "四日市", "Yokkaichi", "浦賀", "Uraga"
+      ],
+      "sources": [
+        "japan"
+      ]
+    },
+    {
+      "match": "county+district",
+      "includes": [
+        "淡水"
+      ],
+      "sources": [
+        "tamsui"
+      ]
+    },
+    {
+      "match": "county+district",
+      "includes": [
+        "埔里"
+      ],
+      "sources": [
+        "puli"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "澎湖"
+      ],
+      "sources": [
+        "penghu"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "臺東", "台東"
+      ],
+      "sources": [
+        "taitung"
+      ]
     }
   ],
   "districtSets": {

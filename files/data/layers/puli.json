@@ -1,0 +1,132 @@
+{
+  "id": "puli",
+  "name": "埔里百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（埔里百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/puli/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      120.8462335,
+      23.8891581,
+      121.1299075,
+      24.1030935
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "埔里百年歷史地圖",
+      "layers": [
+        {
+          "id": "Puli_2.5K_1957",
+          "title": "埔里灌溉工程地形圖",
+          "format": "png",
+          "year": 1957,
+          "dateLabel": "1957",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9308117,
+              23.9802945,
+              121.0490495,
+              24.1030935
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Puli_5K_1961",
+          "title": "烏溪計劃埔里水庫地形圖",
+          "format": "png",
+          "year": 1961,
+          "dateLabel": "1961",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.8913847,
+              23.9442558,
+              120.9700805,
+              24.0166056
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Puli_10K_1992",
+          "title": "埔里街道圖(1992)",
+          "format": "png",
+          "year": 1992,
+          "dateLabel": "1992",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9523417,
+              23.9551605,
+              120.9802398,
+              23.9755252
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Puli_25K_1992",
+          "title": "埔里鎮行政區域圖(1992)",
+          "format": "png",
+          "year": 1992,
+          "dateLabel": "1992",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.8462335,
+              23.8902839,
+              121.0938342,
+              24.0648233
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Puli_25K_2005",
+          "title": "南投縣埔里鎮行政區域圖(2005)",
+          "format": "png",
+          "year": 2005,
+          "dateLabel": "2005",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.8735845,
+              23.8891581,
+              121.1299075,
+              24.0646327
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Puli_8K_2005",
+          "title": "埔里行政中心圖(2005)",
+          "format": "png",
+          "year": 2005,
+          "dateLabel": "2005",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9513969,
+              23.9554427,
+              120.9805317,
+              23.9763518
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

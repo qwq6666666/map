@@ -52,7 +52,8 @@
               25.64233621
             ]
           },
-          "keywords": []
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/JM20K_1904"
         },
         {
           "id": "JM25K_1921",
@@ -88,7 +89,8 @@
               25.64233621
             ]
           },
-          "keywords": []
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/AM50K_1944"
         },
         {
           "id": "Tainan_25K_1944",
@@ -142,7 +144,8 @@
               25.64233621
             ]
           },
-          "keywords": []
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/TM25K_1989"
         },
         {
           "id": "TM25K_2001",
@@ -580,7 +583,8 @@
               23.214636
             ]
           },
-          "keywords": []
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/Tainan_1924B"
         },
         {
           "id": "Tainan_1924C",

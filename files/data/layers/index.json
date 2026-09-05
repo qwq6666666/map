@@ -192,6 +192,11 @@
       "name": "中華文明之時空基礎架構",
       "layerCount": 114
     },
-    { "id": "nlsc", "file": "nlsc.json", "name": "國土測繪圖資（現代參考圖層）", "layerCount": 221 }
+    { "id": "nlsc", "file": "nlsc.json", "name": "國土測繪圖資（現代參考圖層）", "layerCount": 221 },
+    { "id": "tamsui", "file": "tamsui.json", "name": "淡水百年歷史地圖", "layerCount": 9 },
+    { "id": "puli", "file": "puli.json", "name": "埔里百年歷史地圖", "layerCount": 6 },
+    { "id": "penghu", "file": "penghu.json", "name": "澎湖百年歷史地圖", "layerCount": 64 },
+    { "id": "taitung", "file": "taitung.json", "name": "臺東百年歷史地圖", "layerCount": 16 },
+    { "id": "japan", "file": "japan.json", "name": "日本百年歷史地圖", "layerCount": 38 }
   ]
 }

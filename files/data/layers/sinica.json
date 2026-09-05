@@ -34,7 +34,8 @@
               25.64233621
             ]
           },
-          "keywords": []
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/JM20K_1904"
         },
         {
           "id": "JM20K_1904_triangulation",
@@ -214,7 +215,8 @@
               25.64233621
             ]
           },
-          "keywords": []
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/JM100K_1905"
         },
         {
           "id": "JM200K_1897",
@@ -268,7 +270,8 @@
               25.64233621
             ]
           },
-          "keywords": []
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/JM200K_1932"
         },
         {
           "id": "JM200K_1944",
@@ -304,7 +307,8 @@
               25.5403769
             ]
           },
-          "keywords": []
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/JM300K_1924"
         },
         {
           "id": "JM300K_1934",
@@ -376,7 +380,8 @@
               25.64233621
             ]
           },
-          "keywords": []
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/JM500K_1936"
         },
         {
           "id": "JMWar_1895",
@@ -658,7 +663,8 @@
               25.64233621
             ]
           },
-          "keywords": []
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/AM50K_1944"
         },
         {
           "id": "AMCityPlan_1945",
@@ -772,7 +778,8 @@
               25.64233621
             ]
           },
-          "keywords": []
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/TM25K_1989"
         },
         {
           "id": "TM25K_1993",
@@ -862,7 +869,8 @@
               25.64233621
             ]
           },
-          "keywords": []
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/TM50K_1956"
         },
         {
           "id": "TM50K_1966",
@@ -880,7 +888,8 @@
               25.64233621
             ]
           },
-          "keywords": []
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/TM50K_1966"
         },
         {
           "id": "TM50K_1990",
@@ -1060,7 +1069,8 @@
               25.64233621
             ]
           },
-          "keywords": []
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/TM100K_1987/"
         },
         {
           "id": "TM250K_1963",
@@ -1600,7 +1610,8 @@
               25.64233621
             ]
           },
-          "keywords": []
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/abm/"
         }
       ]
     }

@@ -27,6 +27,19 @@ export function buildLayerItem(layer, onLayerClick){
   item.className = 'layer-item';
   item.dataset.layerId = layer.id;
   item.innerHTML = `<span class="layer-year">${layer.year}</span><span class="layer-title">${layer.title}</span>`;
+  if (layer.legend) {
+    const legendBtn = document.createElement('button');
+    legendBtn.type = 'button';
+    legendBtn.className = 'layer-legend-btn';
+    legendBtn.title = '圖例';
+    legendBtn.setAttribute('aria-label', '圖例');
+    legendBtn.textContent = '🛈';
+    legendBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      window.open(layer.legend, 'Legend', 'width=500,height=600,scrollbars=yes');
+    });
+    item.appendChild(legendBtn);
+  }
   item.addEventListener('click', ()=> onLayerClick(layer, item));
   return item;
 }
