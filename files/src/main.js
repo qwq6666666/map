@@ -15,6 +15,7 @@ import { initDrawTool } from './drawTool.js';
 import { initIdentifyPin } from './features/identifyPin.js';
 import { showLocationAndFindLayers } from './ui/search.js';
 import { initOnboarding } from './ui/onboarding.js';
+import { initMobileLayout } from './ui/mobileLayout.js';
 
 async function main(){
   try{
@@ -31,6 +32,7 @@ async function main(){
   initDrawTool();  // 點／線／面繪製標註、量測、匯出 GeoJSON／截圖
   initIdentifyPin({ onSearchLayers: showLocationAndFindLayers }); // 免開關地圖自由落點探針
   initOnboarding(); // 新手導覽／使用指南（獨立疊加層，不依賴地圖或側欄初始化狀態）
+  initMobileLayout(); // 手機版 (<=768px) Bottom Sheet／頂部搜尋列協調，>768px 為 no-op
 }
 
 main();

@@ -13,7 +13,13 @@ import { runtime } from '../runtime.js';
 import { map } from '../core/map.js';
 import { toTWD97, formatWGS84, formatTWD97 } from '../core/tileGeo.js';
 
-let locateMarkerEl, locateOverlay, locateBtn, locateToast, locateCoordInfoEl;
+let locateMarkerEl, locateOverlay, locateBtn, locateToast;
+let locatePopupEl, locatePopupBody, locatePopupCloseBtn;
+
+// 只隱藏彈窗、不清除藍點標記（關閉彈窗跟清除 Pin 是兩件事，比照 identifyPin.js 的 closePopup()）。
+export function closeLocatePopup(){
+  if(locatePopupEl) locatePopupEl.hidden = true;
+}
 
 export function showLocateToast(msg){
   locateToast.textContent = msg;
@@ -61,20 +67,16 @@ function buildCoordRow(label, text){
   return row;
 }
 
-// 定位成功後，在藍色定位圓點旁附加座標資訊區塊（WGS84／TWD97 各一行＋複製按鈕）。
-// locateMarkerEl 本身設定 pointer-events:none（避免藍點擋住地圖操作），這裡
-// 額外把座標區塊自己的 pointer-events 開回 auto，複製按鈕才能正常點擊。
-// 每次定位成功都先移除前一次附加的區塊，避免重複點擊定位按鈕時越疊越多。
+// 定位成功後，在獨立的彈窗卡片（#locatePopup）顯示座標資訊（WGS84／TWD97 各一行＋複製按鈕），
+// 而非塞進 0 寬高的 #locateMarker（比照 identifyPin.js 的彈窗模式，避免版面被擠壓變形）。
+// 每次定位成功都先清空 popup body，避免重複點擊定位按鈕時越疊越多，並重新顯示彈窗
+// （就算使用者先前手動關閉過也一樣，跟現有行為一致）。
 function renderLocateCoordInfo(lat, lon){
-  if(locateCoordInfoEl){ locateCoordInfoEl.remove(); locateCoordInfoEl = null; }
-  const wrap = document.createElement('div');
-  wrap.className = 'coord-info';
-  wrap.style.pointerEvents = 'auto';
-  wrap.appendChild(buildCoordRow('WGS84', formatWGS84(lat, lon)));
+  locatePopupBody.innerHTML = '';
+  locatePopupBody.appendChild(buildCoordRow('WGS84', formatWGS84(lat, lon)));
   const { x, y } = toTWD97(lat, lon);
-  wrap.appendChild(buildCoordRow('TWD97', formatTWD97(x, y)));
-  locateMarkerEl.appendChild(wrap);
-  locateCoordInfoEl = wrap;
+  locatePopupBody.appendChild(buildCoordRow('TWD97', formatTWD97(x, y)));
+  locatePopupEl.hidden = false;
 }
 
 export function initLocateButton(){
@@ -88,6 +90,10 @@ export function initLocateButton(){
 
   locateBtn = document.getElementById('locateBtn');
   locateToast = document.getElementById('locateToast');
+  locatePopupEl = document.getElementById('locatePopup');
+  locatePopupBody = document.getElementById('locatePopupBody');
+  locatePopupCloseBtn = document.getElementById('locatePopupClose');
+  if(locatePopupCloseBtn) locatePopupCloseBtn.addEventListener('click', closeLocatePopup);
 
   locateBtn.addEventListener('click', ()=>{
     if(!navigator.geolocation){

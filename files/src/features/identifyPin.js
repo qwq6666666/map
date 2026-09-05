@@ -22,7 +22,7 @@
    一律直接略過，不觸發落點，避免搶走那些模式原本的點擊行為。
 --------------------------------------------------------- */
 import { map } from '../core/map.js';
-import { state as store } from '../store.js';
+import { state as store, subscribe } from '../store.js';
 import { runtime } from '../runtime.js';
 import { isDrawToolActive } from '../drawTool.js';
 import { buildCoordInfoElement } from './search.js';
@@ -208,6 +208,17 @@ export function initIdentifyPin({ onSearchLayers } = {}){
     if(identifyPopupEl && !identifyPopupEl.hidden){
       closePopup();
     } else {
+      clearPin();
+    }
+  });
+
+  // 離開一般瀏覽模式（切到比對／時間軸／複合疊圖模式）時，Pin／彈窗
+  // 這個 ol.Overlay 完全獨立於 store.mode，不會因為切模式而自動收起——
+  // 這裡訂閱 store 補上這段清理，避免落點探針的彈窗浮貼在其他模式
+  // 自己的浮動面板（比對模式分隔線、複合疊圖清單等）上面，維持檔頭
+  // 說明的「這個功能限定一般瀏覽模式」設計。
+  subscribe((state, prevState, changedKeys) => {
+    if(changedKeys.includes('mode') && state.mode !== 'overlay' && pinCoordinate){
       clearPin();
     }
   });

@@ -435,6 +435,9 @@
     position:absolute; left:-8px; top:-8px; width:16px; height:16px; border-radius:50%;
     background:#2f6fed; border:2px solid #fff; box-shadow:0 0 0 4px rgba(47,111,237,.35);
   }
+  /* .locate-marker 為 0 寬容器且 pointer-events:none（避免藍點擋住地圖拖曳），
+     彈窗本身需能點擊（關閉鈕／複製按鈕），故補回 pointer-events:auto。 */
+  .locate-popup{pointer-events:auto;}
 
   @media (max-width:640px){
     .locate-toast{right:10px; max-width:70vw;}
@@ -1412,4 +1415,272 @@
     .tour-tooltip{width:calc(100vw - 32px);}
     .guide-drawer{width:100vw; max-width:100vw;}
     .onboarding-modal-card{padding:18px 16px 14px;}
+  }
+
+  /* =========================
+     Mobile Responsive Layout
+     =========================
+     只在 <=768px 生效（平板 769~1024px 維持桌面版互動，不套用這裡任何
+     規則）。所有覆寫都靠「同 specificity、後宣告」贏過前面桌面規則
+     （見各規則上方註解），刻意不用 !important、不改動前面任何既有規則，
+     確保 >768px 的桌面／平板外觀與操作完全不受影響。
+
+     新增的手機專屬 DOM（#mobileSearchBar／.sheet-handle／#mobileModeBtn／
+     #mobileModePopover／.floating-layer-name）預設一律隱藏在這裡，
+     只有下面 @media (max-width:768px) 裡才會顯示，>768px 永遠是空殼。
+     這些元件本身不包含任何搜尋／模式切換／圖層邏輯：
+       - #mobileSearchBar 由 src/ui/mobileLayout.js 把桌面版
+         .search-row／#addressSuggest 這兩個「真正的」DOM 節點搬進來
+         （不是複製），事件監聽器原封不動，同一套 features/search.js。
+       - #mobileModeBtn／#mobileModePopover 點擊只是轉呼叫 #modeSwitch
+         裡對應按鈕的 .click()，核心切換邏輯仍在 core/modeManager.js。
+  ------------------------------------------------------------- */
+  #mobileSearchBar{display:none;}
+  .sheet-handle{display:none;}
+  #mobileModeBtn{display:none;}
+  #mobileModePopover{display:none;}
+  .floating-layer-name{display:none;}
+
+  @media (max-width:768px){
+    :root{
+      --mobile-topbar-h:52px;
+      --mobile-sheet-peek:60px;
+      --mobile-sheet-half:45vh;
+      --mobile-sheet-full:75vh;
+    }
+
+    /* ---------- 頂部固定搜尋列 ---------- */
+    #mobileSearchBar{
+      display:block;
+      position:fixed; left:50%; top:calc(env(safe-area-inset-top) + 10px);
+      transform:translateX(-50%);
+      width:90%; max-width:520px; z-index:40;
+    }
+    #mobileSearchBar .search-row{
+      background:var(--paper); border:1px solid var(--rule); border-radius:22px;
+      padding:5px 6px; box-shadow:0 4px 16px rgba(0,0,0,.32); gap:5px;
+    }
+    #mobileSearchBar .address-input{
+      border:none; background:transparent; border-radius:0;
+      font-size:14px; padding:9px 8px; min-height:24px;
+    }
+    #mobileSearchBar .address-input:focus{outline:none; border-color:transparent;}
+    #mobileSearchBar .address-search-btn{width:40px; height:40px; border-radius:50%; flex-shrink:0;}
+    #mobileSearchBar .address-suggest{
+      position:absolute; top:calc(100% + 6px); left:0; right:0;
+      border-radius:12px; max-height:min(360px, 55vh);
+    }
+
+    /* ---------- 浮動地圖控制項：避開頂部搜尋列，改直排在右側 ---------- */
+    .locate-btn{
+      top:calc(env(safe-area-inset-top) + var(--mobile-topbar-h) + 56px);
+      right:calc(10px + env(safe-area-inset-right));
+      width:44px; height:44px;
+    }
+    .draw-toggle-btn{
+      top:calc(env(safe-area-inset-top) + var(--mobile-topbar-h) + 108px);
+      right:calc(10px + env(safe-area-inset-right));
+      width:44px; height:44px;
+    }
+    .draw-toolbar{
+      top:calc(env(safe-area-inset-top) + var(--mobile-topbar-h) + 158px);
+      right:calc(10px + env(safe-area-inset-right));
+      max-height:min(420px, 58vh); overflow-y:auto; -webkit-overflow-scrolling:touch;
+    }
+    .draw-tool-btn{padding:9px 4px; min-height:44px;}
+    .draw-color-swatch, .draw-color-custom{width:26px; height:26px;}
+
+    .locate-toast{top:calc(env(safe-area-inset-top) + var(--mobile-topbar-h) + 10px); right:10px;}
+
+    /* ---------- OpenLayers 內建縮放按鈕：疊到「地圖工具」快速選單按鈕
+       正上方，避免兩者在右下角同一欄互相重疊（見下方 #mobileModeBtn）。 ---------- */
+    .ol-zoom{
+      right:calc(10px + env(safe-area-inset-right));
+      bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 128px);
+    }
+    .ol-zoom button{width:40px !important; height:40px !important;}
+
+    /* ---------- 日期印章：縮小並疊到左右比對浮動選單（#compareWrapB）
+       正上方，維持跟桌面版一樣在右下角，但避開同一欄的其他控制項。 ---------- */
+    #stamp{
+      width:64px; height:64px;
+      right:calc(8px + env(safe-area-inset-right));
+      bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 56px);
+    }
+    #stamp .stamp-year{font-size:15px;}
+    #stamp .stamp-label{font-size:7px; max-width:52px;}
+
+    /* ---------- 手機「目前圖層」浮動列：取代桌面版左下角浮動透明度，
+       改成貼齊底部工作表 peek 區上緣的橫幅，預設只顯示一行「圖名＋
+       百分比」，點一下展開透明度拉桿。存在歷史圖層時才顯示
+       （.has-layer，由 src/sidebarUI.js 的 renderCurrentLayer() 同步）。 ---------- */
+    .floating-opacity{
+      display:none !important; /* 預設不顯示，由 .show.has-layer 覆寫 */
+      /* 左邊留給「地圖工具」快速選單按鈕（#mobileModeBtn，左下角）的欄位，
+         展開狀態（含透明度拉桿）高度會長高，避免疊到按鈕上蓋住文字。 */
+      left:calc(68px + env(safe-area-inset-left));
+      right:calc(8px + env(safe-area-inset-right));
+      bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px);
+      width:auto; min-width:0; max-width:none;
+      flex-wrap:wrap; row-gap:8px;
+      border-radius:14px; padding:10px 14px;
+      z-index:22;
+    }
+    .floating-opacity.show.has-layer{display:flex !important;}
+    .floating-layer-name{
+      display:block; order:1; flex:1 1 auto; min-width:0;
+      font-family:var(--serif); font-size:13px; color:var(--ink);
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
+    .floating-opacity .opacity-val{order:2;}
+    .floating-opacity .field-label{order:3; flex-basis:100%; display:none; margin:2px 0 0;}
+    .floating-opacity input[type=range]{order:4; flex-basis:100%; display:none; height:32px;}
+    /* 展開狀態（點一下橫幅）：補顯示「透明度」標籤與拉桿，卡片高度自然撐開 */
+    .floating-opacity.expanded .field-label,
+    .floating-opacity.expanded input[type=range]{display:block;}
+
+    /* ---------- 手機「地圖工具」快速模式選單 ---------- */
+    /* 放左下角（不是右下角）：右下角已經有縮放／日期印章／左右比對 B 側
+       選單排成一欄，「地圖工具」按鈕改疊在左下角 #compareWrapA（左右比對
+       A 側選單）正上方，避免整欄控制項互相重疊（見任務規格九）。 */
+    #mobileModeBtn{
+      display:flex; align-items:center; justify-content:center;
+      position:fixed; z-index:26;
+      left:calc(10px + env(safe-area-inset-left));
+      bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 56px);
+      width:48px; height:48px; border-radius:50%;
+      background:var(--ink); color:var(--paper); border:2px solid var(--brass);
+      box-shadow:0 3px 12px rgba(0,0,0,.35); cursor:pointer;
+    }
+    #mobileModeBtn svg{width:20px; height:20px;}
+    #mobileModeBtn.active{background:var(--stamp); border-color:var(--stamp);}
+    #mobileModePopover{
+      display:none; position:fixed; z-index:26;
+      left:calc(10px + env(safe-area-inset-left));
+      bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 112px);
+      width:min(220px, calc(100vw - 32px));
+      background:var(--paper); border:1px solid var(--rule); border-radius:12px;
+      box-shadow:0 8px 24px rgba(0,0,0,.35); padding:8px;
+    }
+    #mobileModePopover.open{display:block;}
+    .mobile-mode-popover-title{
+      font-size:11px; font-weight:700; color:var(--rule); letter-spacing:.03em;
+      padding:4px 8px 6px;
+    }
+    .mobile-mode-option{
+      display:flex; align-items:center; gap:8px; width:100%;
+      min-height:44px; padding:8px 10px; margin-bottom:2px;
+      background:none; border:none; border-radius:8px;
+      font-family:var(--sans); font-size:13.5px; color:var(--ink); text-align:left; cursor:pointer;
+    }
+    .mobile-mode-option:last-child{margin-bottom:0;}
+    .mobile-mode-option:hover{background:var(--paper-dim);}
+    .mobile-mode-option::before{
+      content:"○"; color:var(--rule); font-size:12px; flex-shrink:0;
+    }
+    .mobile-mode-option.active{background:var(--paper-dim); font-weight:700; color:var(--brass-dark);}
+    .mobile-mode-option.active::before{content:"●"; color:var(--brass-dark);}
+
+    /* ---------- 其餘地圖下方浮動列：一律讓到底部工作表 peek 區之上 ---------- */
+    .compare-float-item{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px);}
+    #mapTimelineBar{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px); width:calc(100% - 24px); max-height:34vh;}
+    #multiOverlayBar{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px); width:calc(100% - 24px); max-height:32vh;}
+    .search-batch-bar{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px); max-width:calc(100% - 24px);}
+    #custom-timeline-dock{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px); width:calc(100% - 24px);}
+    .draw-storage-toast{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px); right:10px;}
+
+    /* ---------- Bottom Sheet 本體：#sidebar 從桌面左側浮動面板
+       改成貼齊底部、可拖曳三態（收合/半開/展開）的工作表。
+       #sidebar.collapsed 沿用既有「收合」class（桌面版是圓形收合鈕，
+       這裡整段覆寫成 peek 態，語意一致：都是「目前最小化」）；
+       多出來的「展開至 75vh」用 .sheet-expanded 疊加，只在
+       未收合時才有效（collapseSidebar()／#toggleSidebar 點擊都會
+       一併移除 .sheet-expanded，見 src/ui/sidebarToggle.js）。
+       高度固定在 --mobile-sheet-full，用 transform:translateY 位移出
+       露出高度的差值來實作三態，全程只用 transform + transition，
+       沒有動畫框架。 ---------- */
+    #sidebar{
+      position:fixed; left:0; right:0; top:auto; bottom:0;
+      width:100%; height:var(--mobile-sheet-full); max-height:var(--mobile-sheet-full);
+      border-radius:16px 16px 0 0; border-bottom:none;
+      box-shadow:0 -6px 24px rgba(0,0,0,.35);
+      padding-bottom:env(safe-area-inset-bottom);
+      transform:translateY(calc(var(--mobile-sheet-full) - var(--mobile-sheet-half)));
+      transition:transform .28s cubic-bezier(.4,0,.2,1);
+      z-index:20;
+    }
+    #sidebar.dragging{transition:none;}
+    #sidebar.sheet-expanded{transform:translateY(0);}
+    #sidebar.collapsed{
+      width:100%; height:var(--mobile-sheet-full); top:auto; bottom:0;
+      border-radius:16px 16px 0 0; box-shadow:0 -6px 24px rgba(0,0,0,.35);
+      transform:translateY(calc(var(--mobile-sheet-full) - var(--mobile-sheet-peek)));
+    }
+    /* 桌面版收合是 36px 圓鈕，手機版沿用同一顆按鈕但恢復成一般方形按鈕，
+       放在 peek 區內跟拖曳把手並排即可，不需要圓形浮動樣式。 */
+    #sidebar.collapsed .sidebar-header{
+      padding:8px 16px 6px; height:auto; align-items:center; justify-content:space-between;
+    }
+    #sidebar.collapsed #toggleSidebar{
+      width:36px; height:36px; border-radius:6px;
+    }
+    #sidebar #toggleSidebar{width:36px; height:36px; font-size:15px;}
+
+    .sheet-handle{
+      display:flex; align-items:center; justify-content:center;
+      width:100%; min-height:26px; padding:8px 0 4px; cursor:grab;
+      touch-action:none; flex-shrink:0;
+    }
+    .sheet-handle:active{cursor:grabbing;}
+    .sheet-handle-bar{width:40px; height:5px; border-radius:3px; background:var(--rule); opacity:.6;}
+
+    .sidebar-header{flex-shrink:0;}
+    .sidebar-body{
+      touch-action:pan-y; overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
+      padding-bottom:calc(18px + env(safe-area-inset-bottom));
+    }
+
+    /* ---------- 觸控友善：手風琴標題與圖層項目至少 44px 高、字級不小於 12px ---------- */
+    .side-section-head, .source-head, .category-head, .subcategory-head{min-height:44px;}
+    .layer-item{min-height:44px; padding-top:9px; padding-bottom:9px;}
+    .layer-year, .layer-title{font-size:13px;}
+    .avail-tab-btn{min-height:44px; font-size:12.5px;}
+    .avail-select-item{min-height:44px;}
+    .avail-select-checkbox{width:20px; height:20px;}
+    .mode-switch button{min-height:44px;}
+    .segmented button{min-height:44px;}
+    .layer-search-item, .favorites-item, .recent-item{min-height:44px;}
+    .layer-list-toggle{min-height:40px; line-height:24px;}
+    input[type=range]{min-height:32px;}
+    .opacity-row input[type=range]{height:32px;}
+    .current-layer-fav-btn, .location-clear-btn{width:32px; height:32px;}
+    .address-search-btn, .locate-search-btn{width:40px; height:40px;}
+
+    .layer-search-list{max-height:38vh;}
+    .favorites-list, .recent-list{max-height:32vh;}
+
+    /* Bottom Sheet 展開至 75vh 時，z-index 比 #sidebar 高的浮動控制項
+       （半開狀態要能疊在面板之上才能點擊）反而會蓋住展開後的面板內容，
+       這裡統一先藏起來；同樣的操作在展開後的「地圖模式」「目前圖層」
+       區塊都找得到，不影響功能完整性。body class 由
+       src/ui/mobileLayout.js 的 initExpandedStateSync() 同步。 */
+    body.mobile-sheet-expanded #mobileModeBtn,
+    body.mobile-sheet-expanded #mobileModePopover,
+    body.mobile-sheet-expanded .floating-opacity{
+      display:none !important;
+    }
+  }
+
+  @media (max-width:480px){
+    #mobileSearchBar{width:94%;}
+    #mobileSearchBar .address-input{font-size:13.5px;}
+    :root{--mobile-topbar-h:48px;}
+    #stamp{width:52px; height:52px;}
+    #stamp .stamp-year{font-size:13px;}
+    #stamp .stamp-label{display:none;} /* 過窄螢幕上省略文字，只留年份，避免跟工具按鈕擠在一起 */
+    .draw-toolbar{width:min(200px, calc(100vw - 20px));}
+    #mobileModePopover{width:min(200px, calc(100vw - 20px));}
+    .layer-search-item, .favorites-item, .recent-item, .avail-select-item{padding-left:8px; padding-right:8px;}
+    .search-batch-bar{padding:7px 12px; gap:10px;}
+    .search-batch-btn{padding:5px 9px; font-size:11px;}
   }

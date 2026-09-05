@@ -75,6 +75,15 @@ function renderCurrentLayer(){
   const fav = key ? isFavoriteLayer(key) : false;
   favBtn.textContent = fav ? '★' : '☆';
   favBtn.classList.toggle('active', fav);
+
+  // 手機版「目前圖層」浮動列（#floatingOpacity 內的 .floating-layer-name，
+  // 見 style.css Mobile Responsive Layout／src/ui/mobileLayout.js）跟桌面版
+  // 側邊欄共用同一份 activeOverlayKey，這裡只是多同步一個文字節點跟
+  // 顯示與否的 class，不是另一套圖層邏輯。桌面版此 class 恆為 CSS 隱藏，不受影響。
+  const floatingNameEl = document.getElementById('floatingLayerName');
+  const floatingOpacityEl = document.getElementById('floatingOpacity');
+  if(floatingNameEl) floatingNameEl.textContent = key ? titleForKey(key) : '';
+  if(floatingOpacityEl) floatingOpacityEl.classList.toggle('has-layer', !!key);
 }
 
 function initCurrentLayerFavButton(){

@@ -3,6 +3,8 @@
 // 純 DOM 疊加層，只讀取既有元素的 getBoundingClientRect() 做定位，
 // 不呼叫地圖／模式切換／搜尋等模組的內部邏輯，只靠 localStorage 記錄已讀旗標。
 
+import { expandSidebar } from './sidebarToggle.js';
+
 const STORAGE_KEY = 'has_seen_map_tour';
 
 /** 5 步聚光燈導覽腳本。selector 找不到時該步驟會被跳過。 */
@@ -88,12 +90,10 @@ function markSeenTour() {
 }
 
 function ensureSidebarExpanded() {
-  const sidebar = document.getElementById('sidebar');
-  const toggleBtn = document.getElementById('toggleSidebar');
-  if (sidebar && sidebar.classList.contains('collapsed')) {
-    sidebar.classList.remove('collapsed');
-    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'true');
-  }
+  // 改呼叫 sidebarToggle.js 共用的 expandSidebar()，一併同步收合按鈕
+  // 圖示／title／aria-label 與浮動透明度控制的顯示狀態，避免這裡自己
+  // 手動改 classList／aria-expanded 卻遺漏其他跟著收合狀態連動的畫面。
+  expandSidebar();
 }
 
 /* ---------------- Welcome Modal ---------------- */

@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>臺灣百年歷史地圖疊圖器</title>
 
 <!-- Content Security Policy：靜態網站（GitHub Pages 等）用 meta 形式設定。
@@ -39,6 +39,12 @@
 
 <div id="map"></div>
 
+<!-- 手機版頂部搜尋列（<=768px）：src/ui/mobileLayout.js 會把桌面版
+     .search-block 裡的 .search-row／#addressSuggest 實際搬進這個容器
+     （同一份 DOM／事件，不是複製一份新的輸入框），寬度大於 768px 時
+     一律隱藏、且淨空無內容。 -->
+<div id="mobileSearchBar" class="mobile-search-bar"></div>
+
 <button type="button" id="locateBtn" class="locate-btn" title="定位到目前位置">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="12" cy="12" r="3"></circle>
@@ -46,7 +52,16 @@
   </svg>
 </button>
 <div id="locateToast" class="locate-toast"></div>
-<div id="locateMarker" class="locate-marker"><div class="locate-marker-dot"></div></div>
+<div id="locateMarker" class="locate-marker">
+  <div class="locate-marker-dot"></div>
+  <div id="locatePopup" class="identify-popup locate-popup" hidden>
+    <div class="identify-popup-header">
+      <span class="identify-popup-title">📍 目前位置</span>
+      <button type="button" id="locatePopupClose" class="identify-popup-close" aria-label="關閉">×</button>
+    </div>
+    <div id="locatePopupBody" class="identify-popup-body"></div>
+  </div>
+</div>
 <div id="addressMarker" class="address-marker"><div class="address-marker-pin"></div></div>
 
 <div id="identifyPin" class="identify-pin">
@@ -64,9 +79,28 @@
 </div>
 
 <div class="floating-opacity" id="floatingOpacity">
+  <span class="floating-layer-name" id="floatingLayerName"></span>
   <span class="field-label">透明度</span>
   <input type="range" id="floatingOpacitySlider" min="0" max="100" value="100">
   <span class="opacity-val" id="floatingOpacityVal">100%</span>
+</div>
+
+<!-- 手機版「地圖工具」快速模式選單：只是 #modeSwitch 既有按鈕的
+     UI 捷徑，點下去會轉呼叫 #modeSwitch 裡對應按鈕的 click()，
+     不重新實作模式切換邏輯。>768px 一律隱藏。 -->
+<button type="button" id="mobileModeBtn" class="mobile-mode-btn" title="地圖工具" aria-label="地圖工具" aria-expanded="false">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+    <line x1="8" y1="2" x2="8" y2="18"></line>
+    <line x1="16" y1="6" x2="16" y2="22"></line>
+  </svg>
+</button>
+<div id="mobileModePopover" class="mobile-mode-popover">
+  <div class="mobile-mode-popover-title">地圖模式</div>
+  <button type="button" class="mobile-mode-option" data-mode="overlay">歷史疊圖</button>
+  <button type="button" class="mobile-mode-option" data-mode="compare">左右比對</button>
+  <button type="button" class="mobile-mode-option" data-mode="timeline">時間軸</button>
+  <button type="button" class="mobile-mode-option" data-mode="multi">多重疊圖</button>
 </div>
 
 <div class="compare-float-item" id="compareWrapA">
@@ -184,6 +218,10 @@
 </div>
 
 <div id="sidebar">
+  <!-- 手機版 Bottom Sheet 拖曳把手：只在 <=768px 顯示，桌面版無作用。
+       點擊在收合／半開／展開三態間循環，也可垂直拖曳（見
+       src/ui/mobileLayout.js）。 -->
+  <div class="sheet-handle" id="sheetHandle" aria-hidden="true"><span class="sheet-handle-bar"></span></div>
   <div class="sidebar-header">
     <div class="sidebar-header-top">
       <div class="sidebar-header-text">

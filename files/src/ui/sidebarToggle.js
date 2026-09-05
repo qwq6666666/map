@@ -37,8 +37,24 @@ export function collapseSidebar(){
   const sb = document.getElementById('sidebar');
   if(sb.classList.contains('collapsed')) return; // 已經是收合狀態就不用重複處理
   sb.classList.add('collapsed');
+  // .sheet-expanded 是手機版 Bottom Sheet 的「展開至 75vh」疊加狀態
+  // （見 src/ui/mobileLayout.js），跟 .collapsed 同時存在沒有意義；
+  // 桌面版沒有這個 class，remove 是沒有作用的 no-op，不影響桌面行為。
+  sb.classList.remove('sheet-expanded');
   if(toggleSidebarBtn) toggleSidebarBtn.textContent = '▸';
   syncToggleBtnA11y(true);
+  updateFloatingOpacityVisibility();
+}
+
+// 共用的展開動作：與 collapseSidebar() 對稱，供其他模組（例如
+// ui/onboarding.js 開始導覽前強制展開側邊欄）呼叫，避免各自直接改
+// classList／aria 屬性卻漏更新收合按鈕圖示或浮動透明度控制的顯示狀態。
+export function expandSidebar(){
+  const sb = document.getElementById('sidebar');
+  if(!sb.classList.contains('collapsed')) return; // 已經是展開狀態就不用重複處理
+  sb.classList.remove('collapsed');
+  if(toggleSidebarBtn) toggleSidebarBtn.textContent = '◂';
+  syncToggleBtnA11y(false);
   updateFloatingOpacityVisibility();
 }
 
@@ -50,6 +66,7 @@ export function initSidebarToggle(){
     const sb = document.getElementById('sidebar');
     sb.classList.toggle('collapsed');
     const collapsed = sb.classList.contains('collapsed');
+    if(collapsed) sb.classList.remove('sheet-expanded'); // 見 collapseSidebar() 同一段說明
     e.target.textContent = collapsed ? '▸' : '◂';
     syncToggleBtnA11y(collapsed);
     updateFloatingOpacityVisibility();
