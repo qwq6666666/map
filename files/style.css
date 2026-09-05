@@ -1505,7 +1505,7 @@
       right:calc(10px + env(safe-area-inset-right));
       bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 128px);
     }
-    .ol-zoom button{width:40px !important; height:40px !important;}
+    .ol-zoom button{width:44px !important; height:44px !important;}
 
     /* ---------- 日期印章：縮小並疊到左右比對浮動選單（#compareWrapB）
        正上方，維持跟桌面版一樣在右下角，但避開同一欄的其他控制項。 ---------- */
@@ -1557,12 +1557,20 @@
       bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 56px);
       width:48px; height:48px; border-radius:50%;
       background:var(--ink); color:var(--paper); border:2px solid var(--brass);
-      box-shadow:0 3px 12px rgba(0,0,0,.35); cursor:pointer;
+      box-shadow:0 3px 12px rgba(0,0,0,.35); cursor:grab;
+      /* 可拖曳到螢幕任何位置（見 src/ui/mobileLayout.js 的
+         initDraggableModeButton()），touch-action:none 讓瀏覽器把整段
+         手勢交給 JS 處理，不會被系統手勢（例如捲動）搶走。 */
+      touch-action:none;
     }
+    #mobileModeBtn:active{cursor:grabbing;}
     #mobileModeBtn svg{width:20px; height:20px;}
     #mobileModeBtn.active{background:var(--stamp); border-color:var(--stamp);}
     #mobileModePopover{
       display:none; position:fixed; z-index:26;
+      /* 預設位置只在 JS 還沒開過選單前的保險，實際每次開啟都會由
+         src/ui/mobileLayout.js 的 positionPopover() 依按鈕目前位置
+         （可能已被拖到別處）重新計算 left/top。 */
       left:calc(10px + env(safe-area-inset-left));
       bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 112px);
       width:min(220px, calc(100vw - 32px));
@@ -1707,13 +1715,39 @@
       bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 244px);
     }
 
+    /* 時間軸模式進一步簡化畫面：頂部搜尋列、定位、繪圖工具入口先隱藏，
+       這幾個功能仍可切回其他模式使用，只是時間軸模式不需要同時常駐
+       （使用者回報「時間軸模式應該能簡化，搜尋/定位/繪圖都可不顯示」）。
+       左右比對／複合疊圖模式的頂部搜尋列也一併隱藏（僅透明疊圖模式
+       常駐頂部搜尋，見使用者回報），但定位／繪圖工具在這兩個模式
+       仍保留，因為使用者只點名時間軸模式要簡化這兩項。 */
+    body.mobile-mode-compare #mobileSearchBar,
+    body.mobile-mode-timeline #mobileSearchBar,
+    body.mobile-mode-multi #mobileSearchBar{
+      display:none;
+    }
+    body.mobile-mode-timeline .locate-btn,
+    body.mobile-mode-timeline .draw-toggle-btn,
+    body.mobile-mode-timeline .draw-toolbar{
+      display:none !important;
+    }
+
     /* 時間軸浮動列在手機上內容偏多（比例尺切換＋年份刻度＋播放列），
        進一步壓縮高度與留白，讓地圖保留更多可視範圍。 */
     #mapTimelineBar{
-      max-height:min(220px, 30vh);
-      padding:8px 12px 10px;
+      max-height:min(160px, 26vh);
+      padding:6px 10px 8px;
     }
-    .map-timeline-bar-head{padding-bottom:4px; margin-bottom:6px;}
+    .map-timeline-bar-head{padding-bottom:3px; margin-bottom:4px;}
+    #mapTimelineBar .map-timeline-scale-switch button{padding:2px 6px; font-size:10px;}
+    #mapTimelineBar .map-timeline-refresh-btn{padding:2px 7px; font-size:10px;}
+    #mapTimelineBar .timeline-dots{padding:2px 2px 2px; gap:4px;}
+    #mapTimelineBar .timeline-dot-wrap{min-width:22px;}
+    #mapTimelineBar .timeline-dot{width:9px; height:9px;}
+    #mapTimelineBar .timeline-dot-label{font-size:9px;}
+    #mapTimelineBar .timeline-slider-row{margin:0 0 2px;}
+    #mapTimelineBar .timeline-play-btn,
+    #mapTimelineBar .timeline-speed-btn{padding:2px 8px; font-size:10px;}
   }
 
   @media (max-width:480px){

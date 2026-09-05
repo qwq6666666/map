@@ -21,8 +21,11 @@
       Sheet 高度（手機瀏覽器工具列會動態顯示/收起，純 vh 對不上實際
       可視高度），並同步 body class（mobile-sheet-open／
       mobile-mode-<mode>）讓 CSS 在 Sheet 打開／特定模式下藏起會互相
-      重疊的浮動控制項——這些都只是「暫時隱藏＋別處找得到同樣功能」，
+      重疊的浮動控制項，或依模式簡化畫面（例如時間軸模式隱藏頂部搜尋
+      列／定位／繪圖）——這些都只是「暫時隱藏＋別處找得到同樣功能」，
       不是刪除功能。
+   5. 「地圖工具」浮動按鈕可拖曳到螢幕任何位置並記住（localStorage），
+      選單面板開啟時改成跟著按鈕目前位置浮出，純呈現層面的調整。
 
    >768px（平板／桌面）時，這裡所有動作都是 no-op，畫面與操作維持
    桌面版原樣。
@@ -170,8 +173,13 @@ function initSheetHandle(){
 
 /* ---------------------------------------------------------
    3a. 「地圖工具」快速模式選單：純轉發點擊到 #modeSwitch 既有按鈕，
-   高亮狀態訂閱 store 跟真正的按鈕 .active class 保持一致。
+   高亮狀態訂閱 store 跟真正的按鈕 .active class 保持一致。按鈕本身
+   可拖曳（見下方 initDraggableModeButton()），拖曳中放開不應該再觸發
+   開合選單，兩者用 dragJustHappened 這個共用旗標互相協調。
 --------------------------------------------------------- */
+const MODE_BTN_POS_KEY = 'mobile_mode_btn_pos';
+let dragJustHappened = false;
+
 function initModePopover(){
   const btn = document.getElementById('mobileModeBtn');
   const popover = document.getElementById('mobileModePopover');
@@ -182,8 +190,29 @@ function initModePopover(){
     btn.classList.remove('active');
     btn.setAttribute('aria-expanded', 'false');
   }
+  // 選單面板改成跟著按鈕目前位置（可能已被拖到別處）浮出，優先貼在
+  // 按鈕上方，上方放不下才貼下方；水平方向夾在螢幕範圍內，不超出。
+  function positionPopover(){
+    const rect = btn.getBoundingClientRect();
+    const margin = 8;
+    const popW = popover.offsetWidth || 220;
+    const popH = popover.offsetHeight || 200;
+
+    let left = rect.left;
+    if(left + popW > window.innerWidth - margin) left = window.innerWidth - popW - margin;
+    if(left < margin) left = margin;
+
+    let top = rect.top - popH - 8;
+    if(top < margin) top = Math.min(rect.bottom + 8, window.innerHeight - popH - margin);
+
+    popover.style.left = `${left}px`;
+    popover.style.top = `${top}px`;
+    popover.style.right = 'auto';
+    popover.style.bottom = 'auto';
+  }
   function openPopover(){
     popover.classList.add('open');
+    positionPopover();
     btn.classList.add('active');
     btn.setAttribute('aria-expanded', 'true');
   }
@@ -196,6 +225,7 @@ function initModePopover(){
 
   btn.addEventListener('click', (e)=>{
     e.stopPropagation();
+    if(dragJustHappened){ dragJustHappened = false; return; } // 剛拖完放開，這次點擊不算數
     if(popover.classList.contains('open')) closePopover();
     else { syncActiveOption(); openPopover(); }
   });
@@ -211,6 +241,86 @@ function initModePopover(){
 
   subscribe((state, prev, changedKeys)=>{ if(changedKeys.includes('mode')) syncActiveOption(); });
   syncActiveOption();
+}
+
+/* ---------------------------------------------------------
+   3a-2. 讓「地圖工具」浮動按鈕可以拖到螢幕任何地方，並記住位置
+   （localStorage），下次載入沿用；用 pointerdown/move/up 判斷位移量，
+   超過門檻才算拖曳（否則視為單純點擊，交給 initModePopover() 的
+   click 事件開合選單），彼此不衝突。
+--------------------------------------------------------- */
+function initDraggableModeButton(){
+  const btn = document.getElementById('mobileModeBtn');
+  if(!btn) return;
+
+  function clampPos(pos){
+    const margin = 6;
+    const w = btn.offsetWidth || 48, h = btn.offsetHeight || 48;
+    const maxLeft = Math.max(margin, window.innerWidth - w - margin);
+    const maxTop = Math.max(margin, window.innerHeight - h - margin);
+    return {
+      left: Math.min(Math.max(pos.left, margin), maxLeft),
+      top: Math.min(Math.max(pos.top, margin), maxTop),
+    };
+  }
+  function applyPos(pos){
+    btn.style.left = `${pos.left}px`;
+    btn.style.top = `${pos.top}px`;
+    btn.style.right = 'auto';
+    btn.style.bottom = 'auto';
+  }
+  function loadSavedPos(){
+    try{
+      const raw = window.localStorage.getItem(MODE_BTN_POS_KEY);
+      if(!raw) return null;
+      const pos = JSON.parse(raw);
+      if(typeof pos?.left === 'number' && typeof pos?.top === 'number') return pos;
+    }catch{ /* localStorage 不可用時忽略，維持 CSS 預設位置即可 */ }
+    return null;
+  }
+  function savePos(pos){
+    try{ window.localStorage.setItem(MODE_BTN_POS_KEY, JSON.stringify(pos)); }
+    catch{ /* 無痕模式或被封鎖時忽略 */ }
+  }
+
+  const saved = loadSavedPos();
+  if(saved) applyPos(clampPos(saved));
+
+  let dragging = false, moved = false, startX = 0, startY = 0, startLeft = 0, startTop = 0;
+
+  btn.addEventListener('pointerdown', (e)=>{
+    if(!mq.matches) return;
+    dragging = true; moved = false;
+    const rect = btn.getBoundingClientRect();
+    startX = e.clientX; startY = e.clientY;
+    startLeft = rect.left; startTop = rect.top;
+    try{ btn.setPointerCapture(e.pointerId); }catch{ /* 部分瀏覽器/測試環境不支援，忽略即可 */ }
+  });
+  btn.addEventListener('pointermove', (e)=>{
+    if(!dragging) return;
+    const dx = e.clientX - startX, dy = e.clientY - startY;
+    if(!moved && Math.hypot(dx, dy) < 6) return; // 位移太小先當作還沒開始拖曳
+    moved = true;
+    applyPos(clampPos({ left: startLeft + dx, top: startTop + dy }));
+  });
+  function onPointerUp(){
+    if(!dragging) return;
+    dragging = false;
+    if(moved){
+      dragJustHappened = true; // 告訴 initModePopover() 的 click handler 這次放開不要開選單
+      const rect = btn.getBoundingClientRect();
+      savePos({ left: rect.left, top: rect.top });
+    }
+  }
+  btn.addEventListener('pointerup', onPointerUp);
+  btn.addEventListener('pointercancel', onPointerUp);
+
+  // 螢幕旋轉／尺寸改變時，確保按鈕還在可視範圍內（不會被夾到看不到的地方）。
+  window.addEventListener('resize', ()=>{
+    const rect = btn.getBoundingClientRect();
+    const clamped = clampPos({ left: rect.left, top: rect.top });
+    if(clamped.left !== rect.left || clamped.top !== rect.top) applyPos(clamped);
+  });
 }
 
 /* ---------------------------------------------------------
@@ -317,6 +427,7 @@ export function initMobileLayout(){
 
   initSheetHandle();
   initModePopover();
+  initDraggableModeButton();
   initFloatingOpacityExpand();
   initSearchResultAutoExpand();
   initSheetOpenStateSync();
