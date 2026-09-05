@@ -17,11 +17,17 @@
       只是轉呼叫 #modeSwitch 裡對應按鈕的 .click()，核心模式切換邏輯
       仍在 core/modeManager.js；「目前圖層」浮動列點擊展開/收合透明度
       拉桿；搜尋結果出現時自動把 Bottom Sheet 打開到半開，方便直接看到。
+   4. 即時量測 window.visualViewport.height 寫成 --vvh 供 style.css 算
+      Sheet 高度（手機瀏覽器工具列會動態顯示/收起，純 vh 對不上實際
+      可視高度），並同步 body class（mobile-sheet-open／
+      mobile-mode-<mode>）讓 CSS 在 Sheet 打開／特定模式下藏起會互相
+      重疊的浮動控制項——這些都只是「暫時隱藏＋別處找得到同樣功能」，
+      不是刪除功能。
 
    >768px（平板／桌面）時，這裡所有動作都是 no-op，畫面與操作維持
    桌面版原樣。
 --------------------------------------------------------- */
-import { subscribe } from '../store.js';
+import { state as store, subscribe } from '../store.js';
 import { collapseSidebar, expandSidebar } from './sidebarToggle.js';
 
 const MOBILE_QUERY = '(max-width:768px)';
@@ -29,6 +35,22 @@ const MOBILE_PLACEHOLDER = '🔍 搜尋地址、地點……';
 
 const mq = window.matchMedia(MOBILE_QUERY);
 let desktopPlaceholder = null;
+
+/* ---------------------------------------------------------
+   實機測試（見專案回報）發現手機瀏覽器的網址列／工具列會動態
+   顯示/收起，若直接用 CSS `vh` 算 Bottom Sheet 高度，`vh` 是以「工具列
+   收起後」的最大視窗換算，跟當下實際看得到的可視高度對不上，導致
+   Sheet 實際佔用的高度比算出來的短一截、露出底下地圖與浮動控制項
+   （左右比對／時間軸的浮動列因此「跑出來」蓋住畫面，即回報中的
+   「展開下欄會跑上去遮擋畫面」）。這裡改用
+   `window.visualViewport.height`（沒有就退回 innerHeight）即時量測，
+   寫成 CSS 變數 --vvh 讓 style.css 的 --mobile-sheet-full／
+   --mobile-sheet-half 用 px 精確計算，取代原本純 vh 的算法。
+--------------------------------------------------------- */
+function updateViewportMetrics(){
+  const h = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+  document.documentElement.style.setProperty('--vvh', `${h}px`);
+}
 
 /* ---------------------------------------------------------
    1. 搜尋列搬移：只搬「搜尋列本體」與「建議清單」這兩個節點，
@@ -73,8 +95,12 @@ function initSheetHandle(){
   if(!handle || !sidebar) return;
 
   const PEEK_PX = 60; // 需與 style.css 的 --mobile-sheet-peek 一致
-  const fullPx = () => window.innerHeight * 0.75;   // 對應 --mobile-sheet-full: 75vh
-  const halfPx = () => window.innerHeight * 0.45;   // 對應 --mobile-sheet-half: 45vh
+  // 跟 style.css 的 --mobile-sheet-full／--mobile-sheet-half 用同一份
+  // 「實際可視高度」（見 updateViewportMetrics()），不要各自用不同基準
+  // 算，否則拖曳中的即時位置會跟放開後 CSS 對不齊、放開瞬間跳一下。
+  const viewportH = () => (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+  const fullPx = () => viewportH() * 0.75;
+  const halfPx = () => viewportH() * 0.45;
 
   function currentTranslate(){
     if(sidebar.classList.contains('collapsed')) return fullPx() - PEEK_PX;
@@ -234,19 +260,36 @@ let everEnteredMobile = false;
 
 /* ---------------------------------------------------------
    #mobileModeBtn／#mobileModePopover／.floating-opacity 的 z-index
-   刻意比 #sidebar 高（半開狀態時仍要能點擊），但展開至 75vh 時 Bottom
-   Sheet 幾乎佔滿螢幕，這幾顆浮動控制項反而會蓋在展開後的面板內容
-   上面。這裡監看 #sidebar 的 class 變化，同步一個 body class，讓
-   style.css 在「完全展開」時把這幾顆暫時藏起來——功能本來就能在展開
-   後的面板裡找到（「地圖模式」「目前圖層」），不算移除功能。
+   刻意比 #sidebar 高，只有 Sheet 收合成 peek 時才需要靠它們補位——
+   Sheet 只要一打開（半開或展開皆然），面板裡本來就看得到「地圖模式」
+   「目前圖層」，這幾顆浮動捷徑反而會蓋住剛打開的面板內容（實機回報
+   「浮動功能會影響拉起選單」）。這裡監看 #sidebar 的 class 變化，同步
+   一個 body class，只要不是收合狀態就統一藏起來，不算移除功能。
 --------------------------------------------------------- */
-function initExpandedStateSync(){
+function initSheetOpenStateSync(){
   const sidebar = document.getElementById('sidebar');
   if(!sidebar) return;
   const sync = () => {
-    document.body.classList.toggle('mobile-sheet-expanded', sidebar.classList.contains('sheet-expanded'));
+    document.body.classList.toggle('mobile-sheet-open', !sidebar.classList.contains('collapsed'));
   };
   new MutationObserver(sync).observe(sidebar, { attributes:true, attributeFilter:['class'] });
+  sync();
+}
+
+/* ---------------------------------------------------------
+   依目前模式同步一個 body class（mobile-mode-overlay/compare/timeline/
+   multi）。時間軸／複合疊圖模式的浮動列（#mapTimelineBar／
+   #multiOverlayBar）在手機上會拉到接近全寬，跟右下角的日期印章
+   （#stamp）搶同一塊位置（實機回報「圖資名稱遮擋時間軸」），這裡只
+   用來讓 style.css 在這兩個模式下暫時藏起印章——印章是純裝飾用途，
+   不是操作入口，藏起來不影響任何功能。
+--------------------------------------------------------- */
+function initModeClassSync(){
+  const sync = () => {
+    document.body.classList.remove('mobile-mode-overlay', 'mobile-mode-compare', 'mobile-mode-timeline', 'mobile-mode-multi');
+    document.body.classList.add(`mobile-mode-${store.mode}`);
+  };
+  subscribe((state, prev, changedKeys)=>{ if(changedKeys.includes('mode')) sync(); });
   sync();
 }
 
@@ -263,6 +306,11 @@ function applyBreakpoint(isMobile){
 }
 
 export function initMobileLayout(){
+  updateViewportMetrics();
+  window.addEventListener('resize', updateViewportMetrics);
+  window.addEventListener('orientationchange', updateViewportMetrics);
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', updateViewportMetrics);
+
   applyBreakpoint(mq.matches);
   if(mq.addEventListener) mq.addEventListener('change', (e)=> applyBreakpoint(e.matches));
   else mq.addListener((e)=> applyBreakpoint(e.matches)); // 舊版 Safari 相容
@@ -271,5 +319,6 @@ export function initMobileLayout(){
   initModePopover();
   initFloatingOpacityExpand();
   initSearchResultAutoExpand();
-  initExpandedStateSync();
+  initSheetOpenStateSync();
+  initModeClassSync();
 }

@@ -1445,8 +1445,15 @@
     :root{
       --mobile-topbar-h:52px;
       --mobile-sheet-peek:60px;
-      --mobile-sheet-half:45vh;
-      --mobile-sheet-full:75vh;
+      /* 手機瀏覽器的網址列／工具列會動態顯示收起，純 CSS vh 是以
+         「工具列收起後」的最大視窗換算，跟當下實際可視高度對不上，
+         會讓 Sheet 實際佔用高度比算出來的短一截、下方浮動列因此露出來
+         蓋住畫面（見 src/ui/mobileLayout.js 的 updateViewportMetrics()）。
+         --vvh 由 JS 即時量測 window.visualViewport.height 寫入，這裡
+         優先用它算 px，JS 還沒跑到之前才退回 svh（小可視高度，比一般
+         vh 更接近工具列展開時的實際高度）當保險。 */
+      --mobile-sheet-half:calc(var(--vvh, 100svh) * 0.45);
+      --mobile-sheet-full:calc(var(--vvh, 100svh) * 0.75);
     }
 
     /* ---------- 頂部固定搜尋列 ---------- */
@@ -1659,16 +1666,54 @@
     .layer-search-list{max-height:38vh;}
     .favorites-list, .recent-list{max-height:32vh;}
 
-    /* Bottom Sheet 展開至 75vh 時，z-index 比 #sidebar 高的浮動控制項
-       （半開狀態要能疊在面板之上才能點擊）反而會蓋住展開後的面板內容，
-       這裡統一先藏起來；同樣的操作在展開後的「地圖模式」「目前圖層」
-       區塊都找得到，不影響功能完整性。body class 由
-       src/ui/mobileLayout.js 的 initExpandedStateSync() 同步。 */
-    body.mobile-sheet-expanded #mobileModeBtn,
-    body.mobile-sheet-expanded #mobileModePopover,
-    body.mobile-sheet-expanded .floating-opacity{
+    /* Bottom Sheet 只要不是收合(peek)狀態，z-index 比 #sidebar 高的
+       浮動捷徑（半開狀態要能疊在面板之上才能點擊）就會蓋住已經打開的
+       面板內容（實機回報「浮動功能會影響拉起選單」），這裡統一先藏
+       起來；同樣的操作在打開後的「地圖模式」「目前圖層」區塊都找得到，
+       不影響功能完整性。body class 由 src/ui/mobileLayout.js 的
+       initSheetOpenStateSync() 同步。 */
+    body.mobile-sheet-open #mobileModeBtn,
+    body.mobile-sheet-open #mobileModePopover,
+    body.mobile-sheet-open .floating-opacity.show.has-layer{
+      /* .floating-opacity 這邊特別補 .show.has-layer 兩個 class：
+         CSS specificity 是先比對 class 數量，.floating-opacity.show.has-layer
+         那條規則（見該規則定義處）本身就有 3 個 class，比這裡若只寫
+         .floating-opacity（1 個 class）specificity 還高，後宣告也贏不了，
+         必須補滿相同/更多 class 才能確實蓋過去。 */
       display:none !important;
     }
+
+    /* 時間軸／複合疊圖模式的浮動列（#mapTimelineBar／#multiOverlayBar）
+       會拉到接近全寬、高度也可能偏高，跟右下角日期印章、「目前圖層」
+       浮動列搶同一塊位置（實機回報「圖資名稱遮擋時間軸」）。印章純
+       裝飾用途、「目前圖層」摘要在時間軸模式下本來就能從年份刻度看出
+       目前套疊哪一張，兩者在這兩個模式下都先藏起來，非操作入口，不
+       影響功能完整性。body class 由 src/ui/mobileLayout.js 的
+       initModeClassSync() 同步。 */
+    body.mobile-mode-timeline #stamp,
+    body.mobile-mode-multi #stamp,
+    body.mobile-mode-timeline .floating-opacity.show.has-layer{
+      /* 這裡的 .floating-opacity 要蓋掉的是 .floating-opacity.show.has-layer
+         那條 3 個 class 的 !important 規則（see 上方定義），選擇器裡多補
+         .show.has-layer 兩個 class 拉高 specificity，否則後宣告也贏不了
+         class 數較多的規則。 */
+      display:none !important;
+    }
+    /* 縮放按鈕平常疊在「地圖工具」按鈕正上方即可（見 #mobileModeBtn
+       附近規則），但時間軸／複合疊圖的浮動列比較高，這兩個模式下
+       縮放按鈕額外再往上讓，避免疊到浮動列內容。 */
+    body.mobile-mode-timeline .ol-zoom,
+    body.mobile-mode-multi .ol-zoom{
+      bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 244px);
+    }
+
+    /* 時間軸浮動列在手機上內容偏多（比例尺切換＋年份刻度＋播放列），
+       進一步壓縮高度與留白，讓地圖保留更多可視範圍。 */
+    #mapTimelineBar{
+      max-height:min(220px, 30vh);
+      padding:8px 12px 10px;
+    }
+    .map-timeline-bar-head{padding-bottom:4px; margin-bottom:6px;}
   }
 
   @media (max-width:480px){
