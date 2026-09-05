@@ -64,10 +64,25 @@ export function buildCustomTimelineCandidates(selected){
 // ---------------------------------------------------------
 let previewedKey = null;
 
+// getProtectedKeys() 完全不知道 previewedKey 的存在（它刻意不寫進 store，
+// 見上方說明），所以單純呼叫 getProtectedKeys() 沒辦法保護 previewedKey
+// 不被 LRU 淘汰——cache 超過 hardLimit 時，dock 開啟期間預覽過的這一張
+// 可能被淘汰掉，之後 setPreviewOpacity() 對著已消失的 cache entry 變成
+// 靜默 no-op。這裡在自己呼叫 getOrCreateLayer() 前，把目前的 previewedKey
+// 額外加進保護名單。注意：這只能保護「這個模組自己觸發的那次淘汰」，
+// 沒辦法涵蓋其他模組（例如 timelineMode.js）觸發的淘汰批次，那類情況要
+// protectedKeys.js 本身認得 previewedKey 才能完整解決，但那支檔案不在
+// customTimeline.js 的權責範圍內，這裡先做能力所及的部分。
+function getProtectedKeysForPreview(){
+  const keys = getProtectedKeys();
+  if(previewedKey) keys.add(previewedKey);
+  return keys;
+}
+
 export function previewLayerOnMap(src, layer, opacityPercent = 100){
   const key = layerKey(src, layer);
   if(previewedKey && previewedKey !== key) hideLayer(previewedKey);
-  const tileLayer = getOrCreateLayer(key, getProtectedKeys());
+  const tileLayer = getOrCreateLayer(key, getProtectedKeysForPreview());
   tileLayer.setOpacity(Math.max(0, Math.min(100, opacityPercent)) / 100);
   previewedKey = key;
   return key;

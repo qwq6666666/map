@@ -45,6 +45,55 @@ function persistCustomSources(){
   }
 }
 
+// 使用者「收藏」與「最近使用」的歷史圖層清單，存的都是 layerKey() 產生
+// 的字串 key（例如 "hist:sinica:xxx:jpg"），不是完整圖層物件——跟
+// customSources 不同，這兩份清單只是「記住使用者點過/收藏過哪些 key」，
+// 實際的圖層 metadata 還是要透過 data.js 的 resolveOverlayKey() 之類的
+// 函式即時查，避免兩邊資料不同步（例如圖資更新後 key 對應的圖層變了）。
+const FAVORITE_LAYERS_STORAGE_KEY = 'hundredYearMap:favoriteLayers';
+const RECENT_LAYERS_STORAGE_KEY = 'hundredYearMap:recentLayers';
+const RECENT_LAYERS_MAX = 8;
+
+function loadFavoriteLayersFromStorage(){
+  try{
+    const raw = localStorage.getItem(FAVORITE_LAYERS_STORAGE_KEY);
+    if(!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  }catch(err){
+    console.warn('讀取收藏圖層清單失敗，忽略本機儲存的資料', err);
+    return [];
+  }
+}
+
+function persistFavoriteLayers(){
+  try{
+    localStorage.setItem(FAVORITE_LAYERS_STORAGE_KEY, JSON.stringify(state.favoriteLayers));
+  }catch(err){
+    console.warn('儲存收藏圖層清單失敗（可能是無痕模式或儲存空間已滿）', err);
+  }
+}
+
+function loadRecentLayersFromStorage(){
+  try{
+    const raw = localStorage.getItem(RECENT_LAYERS_STORAGE_KEY);
+    if(!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  }catch(err){
+    console.warn('讀取最近使用圖層清單失敗，忽略本機儲存的資料', err);
+    return [];
+  }
+}
+
+function persistRecentLayers(){
+  try{
+    localStorage.setItem(RECENT_LAYERS_STORAGE_KEY, JSON.stringify(state.recentLayers));
+  }catch(err){
+    console.warn('儲存最近使用圖層清單失敗（可能是無痕模式或儲存空間已滿）', err);
+  }
+}
+
 export const state = {
   mode: 'overlay',        // 'overlay'／'compare'／'timeline'／'multi'（複合疊圖：可同時疊加多張）
   baseLayer: 'osm',       // 'osm' 或 'sat'，兩種模式共用的底圖
@@ -63,7 +112,12 @@ export const state = {
   // 每次新增／刪除都自動寫回，離開頁面不會遺失（見與使用者的討論：
   // 這個功能沒有帳號系統，「保存」只能是「留在這台瀏覽器裡」，所以
   // 預設自動保存，把「要不要清掉」的主控權交給使用者自己按刪除）。
-  customSources: loadCustomSourcesFromStorage()
+  customSources: loadCustomSourcesFromStorage(),
+  // 收藏圖層：使用者主動標記想要之後快速找到的歷史圖層 key，順序不重要。
+  favoriteLayers: loadFavoriteLayersFromStorage(),
+  // 最近使用圖層：MRU 順序（index 0 = 最近一次），只記錄歷史圖層
+  // （'hist:' 開頭的 key），不記錄底圖切換，見 selectOverlayLayer()。
+  recentLayers: loadRecentLayersFromStorage()
 };
 
 const listeners = [];
@@ -94,12 +148,29 @@ export function setState(patch){
 --------------------------------------------------------- */
 
 // 點選歷史圖層：再次點擊目前已啟用的同一個圖層 -> 取消（回到未套疊狀態）。
+// 切換到新的歷史圖層（'hist:' 開頭，不含底圖）時，一併更新 recentLayers
+// 這份 MRU 清單，跟 activeOverlayKey 包在同一次 setState() 裡，避免訂閱者
+// 被觸發兩次。
 export function selectOverlayLayer(key){
-  setState({ activeOverlayKey: state.activeOverlayKey === key ? null : key });
+  const nextKey = state.activeOverlayKey === key ? null : key;
+  const patch = { activeOverlayKey: nextKey };
+  if(nextKey && nextKey.startsWith('hist:')){
+    const withoutKey = state.recentLayers.filter(k => k !== nextKey);
+    patch.recentLayers = [nextKey, ...withoutKey].slice(0, RECENT_LAYERS_MAX);
+  }
+  setState(patch);
+  if(patch.recentLayers) persistRecentLayers();
 }
 
 export function clearOverlayLayer(){
   setState({ activeOverlayKey: null });
+}
+
+// 一鍵清空「最近使用」紀錄，不影響目前疊圖中的 activeOverlayKey。
+export function clearRecentLayers(){
+  if(state.recentLayers.length === 0) return;
+  setState({ recentLayers: [] });
+  persistRecentLayers();
 }
 
 export function setMode(mode){
@@ -215,4 +286,23 @@ export function clearCustomSources(){
   const nextMulti = state.multiOverlayLayers.filter(e => !customKeys.has(e.key));
   setState({ customSources: [], multiOverlayLayers: nextMulti });
   persistCustomSources();
+}
+
+/* ---------------------------------------------------------
+   收藏圖層的意圖動作。
+--------------------------------------------------------- */
+
+// 切換收藏狀態：已收藏就移除，未收藏就加入（順序不重要，不排序）。
+export function toggleFavoriteLayer(key){
+  const idx = state.favoriteLayers.indexOf(key);
+  const next = idx === -1
+    ? [...state.favoriteLayers, key]
+    : state.favoriteLayers.filter(k => k !== key);
+  setState({ favoriteLayers: next });
+  persistFavoriteLayers();
+}
+
+// 純函式查詢，方便 UI 端不用直接戳 state.favoriteLayers。
+export function isFavoriteLayer(key){
+  return state.favoriteLayers.includes(key);
 }

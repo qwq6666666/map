@@ -107,6 +107,11 @@ export class FakeNode {
   }
   scrollIntoView(){}
   getBoundingClientRect(){ return { height: 20, width: parseFloat(this.attrs.width || 800), left: 0 }; }
+  // 沒有真的排版引擎，clientWidth 跟 getBoundingClientRect().width 用同一份
+  // 假設（attrs.width 可指定，否則預設 800），供 features/compareMode.js 的
+  // positionDivider() 這類「讀容器寬度算像素位置」的邏輯在測試環境下有值
+  // 可用，不會因為 undefined 算出 NaN。
+  get clientWidth(){ return parseFloat(this.attrs.width || 800); }
   set innerHTML(v){ this.children = []; this._innerHTML = v; }
   get innerHTML(){ return this._innerHTML || ''; }
 }
@@ -248,7 +253,9 @@ globalThis.fetch = async (url) => {
 /* ---------- 假 OpenLayers ---------- */
 
 class FakeTileSource {
-  constructor(opts){ this.opts = opts; }
+  constructor(opts){ this.opts = opts; this._attributions = (opts && opts.attributions) || null; }
+  getAttributions(){ return this._attributions; }
+  setAttributions(attr){ this._attributions = attr; }
 }
 // 假 ol.source.WMTS：跟 FakeTileSource 一樣只記錄 opts，另外掛一個
 // static optionsFromCapabilities()，讓 tests/specs/wmts-import.test.mjs

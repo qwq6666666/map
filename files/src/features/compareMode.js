@@ -24,6 +24,7 @@ import { buildCategoryList } from '../uiTree.js';
 import { map } from '../core/map.js';
 import { collapseSidebar } from '../ui/sidebarToggle.js';
 import { getOrCreateSource } from '../core/layerCache.js';
+import { getProtectedKeys } from '../core/protectedKeys.js';
 import { createCountryFilterBar } from '../ui/countryFilter.js';
 
 let swipeDividerEl, compareWrapA, compareWrapB;
@@ -51,11 +52,10 @@ export function enterCompareMode(){
   compareWrapB.classList.add('show');
 
   // 左側初始值以「透明疊圖」目前選擇的圖層為準（沒選歷史圖層則用目前底圖）。
-  // 這是進入比對模式當下算出來的預設值，直接寫回 store（跟原本
-  // pickerValues.A = activeOverlayKey || currentBaseKey 是同一件事），
-  // 不用另外呼叫 setState() 觸發第二次廣播。
+  // 這是進入比對模式當下算出來的預設值，透過既有的 setCompareSide()
+  // 寫回 store，讓其他訂閱者也能收到這次狀態變更的廣播。
   const currentBaseKey = store.baseLayer === 'sat' ? 'base:sat' : 'base:osm';
-  store.compareA = store.activeOverlayKey || currentBaseKey;
+  setCompareSide('A', store.activeOverlayKey || currentBaseKey);
 
   if(runtime.historyLayer){ map.removeLayer(runtime.historyLayer); runtime.historyLayer = null; }
   document.querySelectorAll('.layer-item.active').forEach(el=>el.classList.remove('active'));
@@ -96,11 +96,10 @@ function resolveSourceForCompareKey(key){
 }
 
 function getCompareProtectedKeys(){
-  const keys = new Set();
-  if(typeof store.compareA === 'string' && store.compareA.startsWith('hist:')) keys.add(store.compareA);
-  if(typeof store.compareB === 'string' && store.compareB.startsWith('hist:')) keys.add(store.compareB);
-  if(store.activeOverlayKey) keys.add(store.activeOverlayKey);
-  return keys;
+  // 統一改用 core/protectedKeys.js 的 getProtectedKeys()，避免自己維護一份
+  // 子集漏掉 store.multiOverlayLayers／runtime.historyLayerKey，導致複合疊圖
+  // 選好的圖層在比對模式底下被 layerCache 的 LRU 誤淘汰。
+  return getProtectedKeys();
 }
 
 function rebuildSwipeLayer(side, key){

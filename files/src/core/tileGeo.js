@@ -55,6 +55,30 @@ export function neighborTiles(tile){
   return result;
 }
 
+/**
+ * 判斷一個 WGS84 經緯度點是否落在給定的 bbox 範圍內。
+ *
+ * 用途：WMTS 圖層空間索引化——先用圖層的 WGS84 bbox 做本地空間篩選，
+ * 篩掉明顯不涵蓋查詢點的候選圖層，再只對少量候選圖層做真正的
+ * tile file-exists 探測，減少不必要的 HTTP probe。
+ *
+ * 防呆規則（重要）：bbox 缺失（null/undefined）、不是陣列、長度不是
+ * 4、或裡面任何一個值不是有限數字，一律直接回傳 true——代表「沒有
+ * 可靠的索引資料時，不可以把這個候選排除掉」，寧可多檢查也不能漏判，
+ * 退回原本「可能有資料就檢查」的行為。
+ *
+ * @param {number} lon 經度（十進位度）
+ * @param {number} lat 緯度（十進位度）
+ * @param {[number, number, number, number]} bbox [minLon, minLat, maxLon, maxLat]，EPSG:4326
+ * @returns {boolean} 點是否落在 bbox 範圍內（邊界視為在範圍內）；bbox 格式不合法時一律回傳 true
+ */
+export function pointInBbox(lon, lat, bbox){
+  if(!Array.isArray(bbox) || bbox.length !== 4) return true;
+  const [minLon, minLat, maxLon, maxLat] = bbox;
+  if(![minLon, minLat, maxLon, maxLat].every(Number.isFinite)) return true;
+  return lon >= minLon && lon <= maxLon && lat >= minLat && lat <= maxLat;
+}
+
 /* ---------------------------------------------------------
    toTWD97() — WGS84 經緯度 → TWD97 二分帶橫麥卡托投影座標
    （EPSG:3826）正算轉換。

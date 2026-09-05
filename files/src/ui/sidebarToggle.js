@@ -22,22 +22,36 @@ export function updateFloatingOpacityVisibility(){
   floatingOpacityEl.classList.toggle('show', collapsed && (store.mode === 'overlay' || store.mode === 'timeline'));
 }
 
+// 依目前收合狀態同步按鈕的 title／aria-label／aria-expanded，避免 hover
+// 提示與螢幕報讀器念出跟實際點擊動作相反的文字（收合後應提示「展開」）。
+function syncToggleBtnA11y(collapsed){
+  if(!toggleSidebarBtn) return;
+  const label = collapsed ? '展開面板' : '收合面板';
+  toggleSidebarBtn.title = label;
+  toggleSidebarBtn.setAttribute('aria-label', label);
+  toggleSidebarBtn.setAttribute('aria-expanded', String(!collapsed));
+}
+
 // 共用的收合動作：手動點收合按鈕、跟左右比對模式點左下圖層切換按鈕時都會用到。
 export function collapseSidebar(){
   const sb = document.getElementById('sidebar');
   if(sb.classList.contains('collapsed')) return; // 已經是收合狀態就不用重複處理
   sb.classList.add('collapsed');
   if(toggleSidebarBtn) toggleSidebarBtn.textContent = '▸';
+  syncToggleBtnA11y(true);
   updateFloatingOpacityVisibility();
 }
 
 export function initSidebarToggle(){
   floatingOpacityEl = document.getElementById('floatingOpacity');
   toggleSidebarBtn = document.getElementById('toggleSidebar');
+  syncToggleBtnA11y(document.getElementById('sidebar').classList.contains('collapsed'));
   toggleSidebarBtn.addEventListener('click', (e)=>{
     const sb = document.getElementById('sidebar');
     sb.classList.toggle('collapsed');
-    e.target.textContent = sb.classList.contains('collapsed') ? '▸' : '◂';
+    const collapsed = sb.classList.contains('collapsed');
+    e.target.textContent = collapsed ? '▸' : '◂';
+    syncToggleBtnA11y(collapsed);
     updateFloatingOpacityVisibility();
   });
 }

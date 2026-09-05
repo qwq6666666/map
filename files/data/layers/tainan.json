@@ -26,7 +26,14 @@
           "dateLabel": "1904",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
           "keywords": []
         },
         {
@@ -37,7 +44,14 @@
           "dateLabel": "1904",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
           "keywords": []
         },
         {
@@ -48,7 +62,14 @@
           "dateLabel": "1921",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
           "keywords": []
         },
         {
@@ -59,7 +80,14 @@
           "dateLabel": "1944",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
           "keywords": []
         },
         {
@@ -70,7 +98,14 @@
           "dateLabel": "1944",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
           "keywords": []
         },
         {
@@ -81,7 +116,14 @@
           "dateLabel": "1945",
           "type": "行政區劃圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
           "keywords": []
         },
         {
@@ -92,7 +134,14 @@
           "dateLabel": "1989",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
           "keywords": []
         },
         {
@@ -103,7 +152,14 @@
           "dateLabel": "2001",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
           "keywords": []
         }
       ]
@@ -120,7 +176,14 @@
           "dateLabel": "1875",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -131,7 +194,14 @@
           "dateLabel": "1875",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -142,7 +212,14 @@
           "dateLabel": "1895",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -153,7 +230,14 @@
           "dateLabel": "1895",
           "type": "行政區劃圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -164,7 +248,14 @@
           "dateLabel": "1896",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.0869348,
+              22.9394574,
+              120.2112973,
+              23.0240709
+            ]
+          },
           "keywords": []
         },
         {
@@ -175,7 +266,14 @@
           "dateLabel": "1896",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.18448656488,
+              22.966700037396,
+              120.23206811268,
+              23.011498131853
+            ]
+          },
           "keywords": []
         },
         {
@@ -186,7 +284,14 @@
           "dateLabel": "1896",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.19238129,
+              22.98232434,
+              120.2216636,
+              23.01206187
+            ]
+          },
           "keywords": []
         },
         {
@@ -197,7 +302,14 @@
           "dateLabel": "1900",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -208,7 +320,14 @@
           "dateLabel": "1901",
           "type": "行政區劃圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.1945394,
+              22.9809307,
+              120.2195263,
+              23.0120734
+            ]
+          },
           "keywords": []
         },
         {
@@ -219,7 +338,14 @@
           "dateLabel": "1907",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -230,7 +356,14 @@
           "dateLabel": "1907",
           "type": "行政區劃圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -241,7 +374,14 @@
           "dateLabel": "1909",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.18756697,
+              22.98404549,
+              120.22079161,
+              23.00853112
+            ]
+          },
           "keywords": []
         },
         {
@@ -252,7 +392,14 @@
           "dateLabel": "1911",
           "type": "行政區劃圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -263,7 +410,14 @@
           "dateLabel": "1911",
           "type": "行政區劃圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -274,7 +428,14 @@
           "dateLabel": "1911",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.18754315,
+              22.98283117,
+              120.22249115,
+              23.00811056
+            ]
+          },
           "keywords": []
         },
         {
@@ -285,7 +446,14 @@
           "dateLabel": "1916",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.18981934,
+              22.98203269,
+              120.22361775,
+              23.00910515
+            ]
+          },
           "keywords": []
         },
         {
@@ -296,7 +464,14 @@
           "dateLabel": "1917",
           "type": "行政區劃圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -307,7 +482,14 @@
           "dateLabel": "1915",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -318,7 +500,14 @@
           "dateLabel": "1918",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -329,7 +518,14 @@
           "dateLabel": "1919",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.18607319,
+              22.98347836,
+              120.22216657,
+              23.00621602
+            ]
+          },
           "keywords": []
         },
         {
@@ -340,7 +536,14 @@
           "dateLabel": "1920",
           "type": "行政區劃圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -351,7 +554,14 @@
           "dateLabel": "1921",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -362,7 +572,14 @@
           "dateLabel": "1924",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -373,7 +590,14 @@
           "dateLabel": "1924",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.09826822,
+              22.86951023,
+              120.29351412,
+              23.05985671
+            ]
+          },
           "keywords": []
         },
         {
@@ -384,7 +608,14 @@
           "dateLabel": "1928",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.16743224,
+              22.96424057,
+              120.24512954,
+              23.01779299
+            ]
+          },
           "keywords": []
         },
         {
@@ -395,7 +626,14 @@
           "dateLabel": "1933",
           "type": "地籍圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.16891202,
+              22.96460684,
+              120.22578444,
+              23.02004081
+            ]
+          },
           "keywords": []
         },
         {
@@ -406,7 +644,14 @@
           "dateLabel": "1933",
           "type": "行政區劃圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.17590235,
+              22.96951377,
+              120.24107413,
+              23.01729882
+            ]
+          },
           "keywords": []
         },
         {
@@ -417,7 +662,14 @@
           "dateLabel": "1935",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -428,7 +680,14 @@
           "dateLabel": "1936",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -439,7 +698,14 @@
           "dateLabel": "1939",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         }
       ]
@@ -456,7 +722,14 @@
           "dateLabel": "1946",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -467,7 +740,14 @@
           "dateLabel": "1946",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.16743224,
+              22.96424057,
+              120.24512954,
+              23.01779299
+            ]
+          },
           "keywords": []
         },
         {
@@ -478,7 +758,14 @@
           "dateLabel": "1946",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.0406305,
+              22.8778892,
+              120.2977553,
+              23.1562855
+            ]
+          },
           "keywords": []
         },
         {
@@ -489,7 +776,14 @@
           "dateLabel": "1946",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.0225598,
+              22.8740637,
+              120.370269,
+              23.133235
+            ]
+          },
           "keywords": []
         },
         {
@@ -500,7 +794,14 @@
           "dateLabel": "1946",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.0361606,
+              22.8698826,
+              120.3559029,
+              23.1420726
+            ]
+          },
           "keywords": []
         },
         {
@@ -511,7 +812,14 @@
           "dateLabel": "1951",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.0847935,
+              22.9587697,
+              120.2037064,
+              23.0412566
+            ]
+          },
           "keywords": []
         },
         {
@@ -522,7 +830,14 @@
           "dateLabel": "1955",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.81563194,
+              22.74966327,
+              120.51981189,
+              23.41115876
+            ]
+          },
           "keywords": []
         },
         {
@@ -533,7 +848,14 @@
           "dateLabel": "1959",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -544,7 +866,14 @@
           "dateLabel": "1959",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.1808523,
+              22.9575596,
+              120.2338717,
+              23.0293488
+            ]
+          },
           "keywords": []
         },
         {
@@ -555,7 +884,14 @@
           "dateLabel": "1959",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.1783844,
+              22.9629918,
+              120.2312673,
+              23.035013
+            ]
+          },
           "keywords": []
         },
         {
@@ -566,7 +902,14 @@
           "dateLabel": "1961",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.0199524,
+              23.0373307,
+              120.095487,
+              23.1469696
+            ]
+          },
           "keywords": []
         },
         {
@@ -577,7 +920,14 @@
           "dateLabel": "1962",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.0558788,
+              22.9026518,
+              120.2054984,
+              23.0677144
+            ]
+          },
           "keywords": []
         },
         {
@@ -588,7 +938,14 @@
           "dateLabel": "1964",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.1277444,
+              22.9387788,
+              120.2638829,
+              23.0328078
+            ]
+          },
           "keywords": []
         },
         {
@@ -599,7 +956,14 @@
           "dateLabel": "1970",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.208119454,
+              22.932643995,
+              120.286685346,
+              23.0232692
+            ]
+          },
           "keywords": []
         },
         {
@@ -610,7 +974,14 @@
           "dateLabel": "1971",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -621,7 +992,14 @@
           "dateLabel": "1970s",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.1336896,
+              22.9361913,
+              120.2619057,
+              23.0414498
+            ]
+          },
           "keywords": []
         },
         {
@@ -632,7 +1010,14 @@
           "dateLabel": "1974",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -643,7 +1028,14 @@
           "dateLabel": "1976",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -654,7 +1046,14 @@
           "dateLabel": "1981",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.18113078,
+              22.9679353,
+              120.2259957,
+              23.00958082
+            ]
+          },
           "keywords": []
         },
         {
@@ -665,7 +1064,14 @@
           "dateLabel": "1982",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -676,7 +1082,14 @@
           "dateLabel": "1982",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.0490955,
+              22.8801987,
+              120.265084,
+              23.1399001
+            ]
+          },
           "keywords": []
         },
         {
@@ -687,7 +1100,14 @@
           "dateLabel": "1982",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.1884612,
+              22.9681812,
+              120.2227285,
+              23.0067965
+            ]
+          },
           "keywords": []
         },
         {
@@ -698,7 +1118,14 @@
           "dateLabel": "1984",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -709,7 +1136,14 @@
           "dateLabel": "1984",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.1781917,
+              22.9637716,
+              120.2313643,
+              23.0337828
+            ]
+          },
           "keywords": []
         },
         {
@@ -720,7 +1154,14 @@
           "dateLabel": "1986",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -731,7 +1172,14 @@
           "dateLabel": "1996",
           "type": "行政區劃圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -742,7 +1190,14 @@
           "dateLabel": "2003",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -753,7 +1208,14 @@
           "dateLabel": "—",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.15574562,
+              22.94996572,
+              120.24728019,
+              23.0431444
+            ]
+          },
           "keywords": []
         },
         {
@@ -764,7 +1226,14 @@
           "dateLabel": "—",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.853106,
+              23.874926
+            ]
+          },
           "keywords": []
         },
         {
@@ -775,7 +1244,14 @@
           "dateLabel": "—",
           "type": "行政區劃圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.20189101,
+              22.99042664,
+              120.20967502,
+              22.99790943
+            ]
+          },
           "keywords": []
         },
         {
@@ -786,7 +1262,14 @@
           "dateLabel": "—",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
           "keywords": []
         }
       ]
@@ -803,7 +1286,14 @@
           "dateLabel": "1945",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -814,7 +1304,14 @@
           "dateLabel": "1945",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.1837755,
+              22.9709254,
+              120.2277228,
+              23.0152862
+            ]
+          },
           "keywords": []
         },
         {
@@ -825,7 +1322,14 @@
           "dateLabel": "1947",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -836,7 +1340,14 @@
           "dateLabel": "1947",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -847,7 +1358,14 @@
           "dateLabel": "1947",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
           "keywords": []
         },
         {
@@ -858,7 +1376,14 @@
           "dateLabel": "1948",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -869,7 +1394,14 @@
           "dateLabel": "1948",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -880,7 +1412,14 @@
           "dateLabel": "1951",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -891,7 +1430,14 @@
           "dateLabel": "1974",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -902,7 +1448,14 @@
           "dateLabel": "1974",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -913,7 +1466,14 @@
           "dateLabel": "1975",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -924,7 +1484,14 @@
           "dateLabel": "1975",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
           "keywords": []
         },
         {
@@ -935,7 +1502,14 @@
           "dateLabel": "2000",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -946,7 +1520,14 @@
           "dateLabel": "2010",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -957,7 +1538,14 @@
           "dateLabel": "2011",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -968,7 +1556,14 @@
           "dateLabel": "2007",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -979,7 +1574,14 @@
           "dateLabel": "2010",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         }
       ]
@@ -996,7 +1598,14 @@
           "dateLabel": "1953",
           "type": "地籍圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.853106,
+              23.874926
+            ]
+          },
           "keywords": []
         },
         {
@@ -1007,7 +1616,14 @@
           "dateLabel": "1954",
           "type": "地籍圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.19305267,
+              22.98850513,
+              120.21331733,
+              23.00156563
+            ]
+          },
           "keywords": []
         },
         {
@@ -1018,7 +1634,14 @@
           "dateLabel": "1970s",
           "type": "地籍圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.853106,
+              23.874926
+            ]
+          },
           "keywords": []
         },
         {
@@ -1029,7 +1652,14 @@
           "dateLabel": "1980s",
           "type": "地籍圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.853106,
+              23.874926
+            ]
+          },
           "keywords": []
         },
         {
@@ -1040,7 +1670,14 @@
           "dateLabel": "1980s",
           "type": "地籍圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.853106,
+              23.874926
+            ]
+          },
           "keywords": []
         },
         {
@@ -1051,7 +1688,14 @@
           "dateLabel": "2016",
           "type": "地籍圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.853106,
+              23.874926
+            ]
+          },
           "keywords": []
         }
       ]
@@ -1068,7 +1712,14 @@
           "dateLabel": "1928",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -1079,7 +1730,14 @@
           "dateLabel": "1928",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -1090,7 +1748,14 @@
           "dateLabel": "1928",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.4124267,
+              23.214636
+            ]
+          },
           "keywords": []
         },
         {
@@ -1101,7 +1766,14 @@
           "dateLabel": "1928",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.11154689,
+              23.24453942,
+              120.40595276,
+              23.34142206
+            ]
+          },
           "keywords": []
         },
         {
@@ -1112,7 +1784,14 @@
           "dateLabel": "—",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.0953005,
+              22.9257878,
+              120.3127495,
+              23.143744
+            ]
+          },
           "keywords": []
         },
         {
@@ -1123,7 +1802,14 @@
           "dateLabel": "—",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.0992145,
+              22.996067,
+              120.3091441,
+              23.1427112
+            ]
+          },
           "keywords": []
         },
         {
@@ -1134,7 +1820,14 @@
           "dateLabel": "2003",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
           "keywords": []
         },
         {
@@ -1145,7 +1838,14 @@
           "dateLabel": "1924",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.04875337232,
+              22.987970776376,
+              120.34791388172,
+              23.312427094632
+            ]
+          },
           "keywords": []
         },
         {
@@ -1156,7 +1856,14 @@
           "dateLabel": "1928",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.17725376,
+              23.06442632,
+              120.3935528,
+              23.19260365
+            ]
+          },
           "keywords": []
         },
         {
@@ -1167,7 +1874,14 @@
           "dateLabel": "—",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.0120673187,
+              23.011944636652,
+              120.41008096781,
+              23.211796092534
+            ]
+          },
           "keywords": []
         },
         {
@@ -1178,7 +1892,14 @@
           "dateLabel": "—",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.0084222,
+              22.9891383,
+              120.4347607,
+              23.231111
+            ]
+          },
           "keywords": []
         },
         {
@@ -1189,7 +1910,14 @@
           "dateLabel": "—",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.99683684708,
+              22.92505207809,
+              120.41068500401,
+              23.343777205887
+            ]
+          },
           "keywords": []
         },
         {
@@ -1200,7 +1928,14 @@
           "dateLabel": "—",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.04338622018,
+              22.962455127669,
+              120.40191793159,
+              23.218311649443
+            ]
+          },
           "keywords": []
         },
         {
@@ -1211,7 +1946,14 @@
           "dateLabel": "—",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.22795735561,
+              23.084173534795,
+              120.39455443084,
+              23.19872245252
+            ]
+          },
           "keywords": []
         },
         {
@@ -1222,7 +1964,14 @@
           "dateLabel": "—",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.00451000212,
+              22.988773204364,
+              120.39518164047,
+              23.260534217306
+            ]
+          },
           "keywords": []
         },
         {
@@ -1233,7 +1982,14 @@
           "dateLabel": "—",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.99301557239,
+              22.978793887371,
+              120.40043328118,
+              23.263945179435
+            ]
+          },
           "keywords": []
         },
         {
@@ -1244,7 +2000,14 @@
           "dateLabel": "—",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.05610944158,
+              23.053166292316,
+              120.38235423637,
+              23.197830630486
+            ]
+          },
           "keywords": []
         },
         {
@@ -1255,7 +2018,14 @@
           "dateLabel": "—",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.97523376168,
+              22.983009798447,
+              120.36483899026,
+              23.242859938546
+            ]
+          },
           "keywords": []
         },
         {
@@ -1266,7 +2036,14 @@
           "dateLabel": "1962",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.46564849,
+              23.20531081,
+              120.68538688,
+              23.35431642
+            ]
+          },
           "keywords": []
         },
         {
@@ -1277,7 +2054,14 @@
           "dateLabel": "1932",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
           "keywords": []
         },
         {
@@ -1288,7 +2072,14 @@
           "dateLabel": "2003",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
           "keywords": []
         },
         {
@@ -1299,7 +2090,14 @@
           "dateLabel": "—",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.16900383,
+              22.87024788,
+              120.36492665,
+              22.93533706
+            ]
+          },
           "keywords": []
         },
         {
@@ -1310,7 +2108,14 @@
           "dateLabel": "2003",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
           "keywords": []
         },
         {
@@ -1321,7 +2126,14 @@
           "dateLabel": "2019",
           "type": "行政區劃圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.283174,
+              23.1391958,
+              120.3690557,
+              23.250776
+            ]
+          },
           "keywords": []
         },
         {
@@ -1332,7 +2144,14 @@
           "dateLabel": "2019",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.2831882,
+              23.1392024,
+              120.3690484,
+              23.250775
+            ]
+          },
           "keywords": []
         },
         {
@@ -1343,7 +2162,14 @@
           "dateLabel": "1930",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.26888685405,
+              23.13857118642,
+              120.41833233482,
+              23.325357634702
+            ]
+          },
           "keywords": []
         },
         {
@@ -1354,7 +2180,14 @@
           "dateLabel": "1933",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.71297564,
+              22.87605969,
+              120.81377716,
+              24.04825967
+            ]
+          },
           "keywords": []
         },
         {
@@ -1365,7 +2198,14 @@
           "dateLabel": "1933",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.78839892228,
+              22.910788097422,
+              120.72495891965,
+              23.960671831277
+            ]
+          },
           "keywords": []
         },
         {
@@ -1376,7 +2216,14 @@
           "dateLabel": "1959",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.853106,
+              23.874926
+            ]
+          },
           "keywords": []
         },
         {
@@ -1387,7 +2234,14 @@
           "dateLabel": "1978",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.853106,
+              23.874926
+            ]
+          },
           "keywords": []
         },
         {
@@ -1398,7 +2252,14 @@
           "dateLabel": "1995",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.853106,
+              23.874926
+            ]
+          },
           "keywords": []
         },
         {
@@ -1409,7 +2270,14 @@
           "dateLabel": "—",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              119.77226311,
+              22.75676309,
+              120.853106,
+              23.874926
+            ]
+          },
           "keywords": []
         }
       ]
@@ -1426,7 +2294,14 @@
           "dateLabel": "1992",
           "type": "行政區劃圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.3454795,
+              22.9553612,
+              120.458306,
+              23.0981201
+            ]
+          },
           "keywords": []
         },
         {
@@ -1437,7 +2312,14 @@
           "dateLabel": "2005",
           "type": "行政區劃圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.3514525,
+              22.9479005,
+              120.4756254,
+              23.0991652
+            ]
+          },
           "keywords": []
         },
         {
@@ -1448,7 +2330,14 @@
           "dateLabel": "1952",
           "type": "地籍圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.39045519,
+              23.0282978513,
+              120.425967892,
+              23.0808750486
+            ]
+          },
           "keywords": []
         },
         {
@@ -1459,7 +2348,14 @@
           "dateLabel": "1947",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.3314819336,
+              22.7827130508,
+              120.5607299336,
+              23.1077270508
+            ]
+          },
           "keywords": []
         },
         {
@@ -1470,7 +2366,14 @@
           "dateLabel": "1967",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.3754492,
+              23.0260425,
+              120.4553303,
+              23.1019573
+            ]
+          },
           "keywords": []
         },
         {
@@ -1481,7 +2384,14 @@
           "dateLabel": "1973",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.328674316,
+              22.7893068281,
+              120.540528316,
+              23.0969238281
+            ]
+          },
           "keywords": []
         },
         {
@@ -1492,7 +2402,14 @@
           "dateLabel": "1976",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.3567492,
+              22.9465875,
+              120.4842902,
+              23.1001737
+            ]
+          },
           "keywords": []
         },
         {
@@ -1503,7 +2420,14 @@
           "dateLabel": "1970s",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.358060508,
+              22.9482258559,
+              120.48308292,
+              23.0982409753
+            ]
+          },
           "keywords": []
         },
         {
@@ -1514,7 +2438,14 @@
           "dateLabel": "1980s",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.433065358,
+              22.948232144,
+              120.483088948,
+              22.9982360965
+            ]
+          },
           "keywords": []
         },
         {
@@ -1525,7 +2456,14 @@
           "dateLabel": "1990s",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.358074296,
+              22.9482339028,
+              120.483100508,
+              23.0982433592
+            ]
+          },
           "keywords": []
         },
         {
@@ -1536,7 +2474,14 @@
           "dateLabel": "2000s",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.358044113,
+              22.9483296141,
+              120.483066604,
+              23.0983353345
+            ]
+          },
           "keywords": []
         }
       ]
@@ -1553,7 +2498,14 @@
           "dateLabel": "—",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.195332787,
+              22.9547262072,
+              120.209769543,
+              22.9752183815
+            ]
+          },
           "keywords": []
         },
         {
@@ -1564,7 +2516,14 @@
           "dateLabel": "—",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              120.195357908,
+              22.9672261828,
+              120.19776983,
+              22.9749560587
+            ]
+          },
           "keywords": []
         }
       ]

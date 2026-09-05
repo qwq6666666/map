@@ -25,7 +25,7 @@
 --------------------------------------------------------- */
 import { state as store, selectOverlayLayer } from './store.js';
 import { LAYER_SOURCES, layerKey } from './data.js';
-import { TileChecker } from './tileChecker.js';
+import { TileChecker, globalTileRequestPool } from './tileChecker.js';
 import { buildTimeline } from './timelineUI.js';
 import { lonLatToTileXY, neighborTiles } from './core/tileGeo.js';
 
@@ -61,7 +61,9 @@ const SCALE_MODES = {
 };
 let currentScaleMode = '25k';
 
-const tileChecker = new TileChecker({ concurrency: 10, timeoutMs: 6000 });
+// pool 明確指定共用 globalTileRequestPool，理由同 features/search.js：
+// 跟搜尋流程共用同一份全域 HTTP 請求名額，避免兩邊各自的請求量疊加。
+const tileChecker = new TileChecker({ concurrency: 10, timeoutMs: 6000, pool: globalTileRequestPool });
 
 let mapRef = null;
 let containerEl = null;

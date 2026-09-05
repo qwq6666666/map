@@ -13,6 +13,7 @@ model: sonnet
 - 城市與區域圖層：`data/layers/*.json`(包含 `taipei.json`、`tainan.json`、`index.json` 等)
 - 歷史名稱與來源映射：`data/historical-names.json`、`data/source-map.json`
 - 資料打包與載入：`data/layers.bundle.json`、`src/data.js`、`tools/build-layers-bundle.js`、`tools/tag-layer-types.js`（圖層類型自動打標，CLAUDE.md 資料管線守則明訂新增圖層後、打包前要執行）
+- WMTS Capabilities 空間索引建置：`tools/fetch-wmts-bbox.js`（解析中研院 WMTS Capabilities XML，將每個 Layer 的 `ows:WGS84BoundingBox` 寫入對應來源檔案的 `layer.region.bbox`，供前端做 bbox 空間篩選）
 - 跨網域代理服務：`tools/cors-proxy-worker/`
 - 預設歷史主題圖資目錄：`data/presets/`（供使用者按需 `fetch()` 載入的主題 GeoJSON，如車站、河道等；不得在 JS 模組頂層靜態 import）
 

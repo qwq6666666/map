@@ -10,6 +10,12 @@
     --sans:'Public Sans', -apple-system, sans-serif;
   }
   *{box-sizing:border-box;}
+  /* 有些既有 class（.address-search-btn／.layer-list-toggle／
+     .current-layer-fav-btn 等）自己設定了 display:flex/block，specificity
+     跟 [hidden] 的 UA 預設一樣，author 樣式會蓋掉 UA 樣式，導致 JS 設
+     element.hidden = true 卻沒有真的隱藏。這裡統一補回 [hidden] 的優先權，
+     所有用 .hidden 屬性控制顯示的元素都適用，不用每個 class 各自補一次。 */
+  [hidden]{display:none !important;}
   html,body{margin:0;padding:0;height:100%;font-family:var(--sans);background:var(--ink);}
   #map{position:absolute;inset:0;background:#0e1512;}
 
@@ -32,7 +38,8 @@
     overflow:visible;
   }
   #sidebar.collapsed .sidebar-body,
-  #sidebar.collapsed .sidebar-header-text{display:none;}
+  #sidebar.collapsed .sidebar-header-text,
+  #sidebar.collapsed .tour-btn-row{display:none;}
   #sidebar.collapsed .sidebar-header{
     padding:0; border-bottom:none; height:100%;
     align-items:center; justify-content:center;
@@ -42,10 +49,13 @@
   }
 
   .sidebar-header{
-    display:flex; align-items:flex-start; justify-content:space-between;
+    display:flex; flex-direction:column;
     padding:18px 18px 14px;
     border-bottom:1px solid var(--rule);
     flex-shrink:0;
+  }
+  .sidebar-header-top{
+    display:flex; align-items:flex-start; justify-content:space-between;
   }
   .sidebar-header-text h1{
     font-family:var(--serif); font-weight:600; font-size:19px;
@@ -582,39 +592,60 @@
      微調左側留白，跟 .source-body 既有的 padding-left 疊加起來不會太擠。 */
   .avail-layer-list .layer-item{padding-left:4px;}
 
-  /* 時間軸模式（timelineMode.js）專用樣式，搜尋結果面板已不再使用時間軸檢視 */
-  .timeline-scroll{overflow-x:auto; padding:4px 2px 8px; -webkit-overflow-scrolling:touch;}
-  .timeline-svg{display:block;}
-  .timeline-tick-label{font-size:10px; fill:var(--rule); font-family:var(--sans);}
-
-  /* 時間軸：箭頭形狀，顏色代表播放進度 */
-  .timeline-arrow{
-    fill:var(--paper); stroke:var(--rule); stroke-width:1.2; cursor:pointer;
-    transition:fill .15s ease, stroke .15s ease;
+  /* 時間軸模式（timelineMode.js）專用樣式，搜尋結果面板已不再使用時間軸檢視。
+     視覺語彙直接比照自訂時間軸浮動 dock（features/customTimelineUI.js／
+     .custom-timeline-*）抄一份數值：圓點刻度＋滑桿＋brass 強調色的深色
+     卡片語言，兩邊 class 前綴各自獨立（.timeline-* vs .custom-timeline-*）、
+     不共用同一條規則，只是看起來像同一套設計。 */
+  .timeline-dots{
+    display:flex; align-items:flex-start; gap:6px;
+    margin-bottom:6px; padding:2px 2px 4px;
+    overflow-x:auto; -webkit-overflow-scrolling:touch;
   }
-  .timeline-arrow:hover{stroke:var(--brass-dark);}
-  .timeline-arrow.passed{fill:var(--brass); stroke:var(--brass-dark);}
-  .timeline-arrow.active{fill:var(--stamp); stroke:var(--stamp);}
-  .timeline-svg.dragging .timeline-arrow{cursor:grabbing;}
+  .timeline-dot-wrap{
+    display:flex; flex-direction:column; align-items:center; gap:4px; flex-shrink:0;
+    min-width:28px;
+  }
+  /* 圓點刻度：沿用 .layer-item 讓 syncActiveLayerItemClasses() 能正確同步
+     「目前實際套疊中」高亮，這裡的規則要蓋掉 .layer-item 原本 display:flex
+     ／padding／background 等 list-item 樣式（後宣告的同specificity規則
+     蓋掉先宣告的，見 .layer-item 定義處），改成一顆圓點。 */
+  .timeline-dot{
+    display:block; width:11px; height:11px; padding:0; border-radius:50%;
+    background:rgba(255,255,255,.3); border:1px solid rgba(255,255,255,.5);
+    cursor:pointer; transition:background .15s ease, border-color .15s ease;
+  }
+  .timeline-dot:hover{background:rgba(255,255,255,.5);}
+  .timeline-dot.passed{background:var(--brass); border-color:var(--brass-dark);}
+  .timeline-dot.active{background:var(--stamp); border-color:var(--stamp);}
+  .timeline-dot-label{
+    font-size:10px; color:rgba(255,255,255,.65); white-space:nowrap; cursor:pointer;
+  }
 
-  .timeline-undated{margin-top:10px; padding-top:8px; border-top:1px dashed var(--rule);}
-  .timeline-undated-label{font-size:11px; color:var(--rule); margin-bottom:6px;}
+  .timeline-undated{margin-top:10px; padding-top:8px; border-top:1px dashed rgba(255,255,255,.2);}
+  .timeline-undated-label{font-size:11px; color:rgba(255,255,255,.7); margin-bottom:6px;}
   .timeline-undated-list{display:flex; flex-wrap:wrap; gap:6px;}
   .timeline-undated-chip{
-    font-size:11.5px; padding:5px 10px; background:var(--paper); border:1px solid var(--rule);
+    font-size:11.5px; padding:5px 10px; background:rgba(255,255,255,.08); color:var(--paper);
+    border:1px solid rgba(255,255,255,.4);
     border-radius:14px; cursor:pointer; white-space:nowrap;
   }
-  .timeline-undated-chip:hover{background:var(--paper-dim);}
-  .timeline-undated-chip.active{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+  .timeline-undated-chip:hover{background:rgba(255,255,255,.18);}
+  .timeline-undated-chip.active{background:var(--stamp); color:var(--paper); border-color:var(--stamp);}
 
-  /* 時間軸：自動播放 */
-  .timeline-controls{margin:1px 2px 3px;}
-  .timeline-play-btn{
-    font-size:11px; padding:3px 10px; background:var(--paper); color:var(--ink);
-    border:1px solid var(--rule); border-radius:12px; cursor:pointer;
+  /* 時間軸：播放列（播放/暫停鈕＋加速播放鈕＋橫向滑桿），數值直接比照
+     .custom-timeline-slider-row／.custom-timeline-play-btn／
+     .custom-timeline-speed-btn 抄一份。 */
+  .timeline-slider-row{margin:2px 0 4px; display:flex; align-items:center; gap:8px;}
+  .timeline-slider{flex:1; min-width:0; accent-color:var(--brass-dark);}
+  .timeline-play-btn, .timeline-speed-btn{
+    flex-shrink:0; font-size:11px; padding:3px 10px; background:transparent; color:var(--paper);
+    border:1px solid rgba(255,255,255,.4); border-radius:12px; cursor:pointer;
+    transition:background .15s ease, border-color .15s ease, color .15s ease;
   }
-  .timeline-play-btn:hover{background:var(--paper-dim);}
-  .timeline-play-btn.playing{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+  .timeline-play-btn:hover, .timeline-speed-btn:hover{background:rgba(255,255,255,.15); border-color:var(--paper);}
+  .timeline-play-btn.playing{background:var(--brass); color:var(--ink); border-color:var(--brass);}
+  .timeline-speed-btn{padding:3px 8px; font-variant-numeric:tabular-nums;}
   .avail-source-label{
     font-size:11px; font-weight:600; color:var(--brass-dark); letter-spacing:.02em;
     padding:8px 2px 3px; border-top:1px dashed var(--rule); margin-top:4px;
@@ -738,39 +769,54 @@
   select.compare-select-floating:hover,
   select.compare-select-floating:focus{border-color:var(--stamp); outline:none;}
 
-  /* ---------- 時間軸模式：地圖下方浮動列 ---------- */
+  /* ---------- 時間軸模式：地圖下方浮動列 ----------
+     整個面板改成跟 #custom-timeline-dock 一致的深色卡片視覺語言（背景／
+     邊框／圓角／陰影數值直接抄一份），兩者仍各自獨立成一條 CSS 規則、
+     不共用同一個選擇器。比例尺切換膠囊與重新整理按鈕改用 ID 選擇器
+     （#mapTimelineRefreshBtn）疊加深色配色，刻意不直接改
+     .map-timeline-refresh-btn 這個共用 class 本身——它同時也被
+     #multiOverlayBar／自訂圖層清單等其他淺色面板的按鈕共用，改共用
+     class 會連帶把那些面板也染成深色，超出這次的範圍。 */
   #mapTimelineBar{
     position:absolute; left:50%; bottom:16px; z-index:9;
     transform:translateX(-50%);
     width:min(560px, calc(100% - 32px)); /* 固定寬度、置中，兩側留出地圖可視空間；小螢幕才會頂到邊界 */
     display:none;
-    background:var(--paper); border:1px solid var(--rule); border-radius:6px;
-    box-shadow:0 4px 14px rgba(0,0,0,.35);
-    padding:6px 14px 3px;
-    max-height:130px; overflow-y:auto; overflow-x:hidden;
+    background:rgba(23,33,29,.92); backdrop-filter:blur(6px);
+    color:var(--paper); border:1px solid var(--brass); border-radius:12px;
+    box-shadow:0 6px 20px rgba(0,0,0,.4);
+    padding:10px 16px 12px;
+    max-height:220px; overflow-y:auto; overflow-x:hidden;
   }
   #mapTimelineBar.show{display:block;}
-  .map-timeline-bar-inner .avail-empty{margin:4px 2px;}
+  .map-timeline-bar-inner .avail-empty{margin:4px 2px; color:rgba(255,255,255,.75);}
   .map-timeline-bar-head{
     display:flex; align-items:center; justify-content:space-between; gap:8px;
-    padding-bottom:4px; margin-bottom:1px; border-bottom:1px solid var(--paper-dim);
+    padding-bottom:6px; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,.18);
   }
-  .map-timeline-hint{font-size:11px; color:var(--rule); font-weight:600; letter-spacing:.02em;}
   .map-timeline-scale-switch{display:flex; gap:4px;}
   .map-timeline-scale-switch button{
-    font-size:10.5px; padding:3px 8px; background:var(--paper); color:var(--rule);
-    border:1px solid var(--rule); border-radius:10px; cursor:pointer; white-space:nowrap;
+    font-size:10.5px; padding:3px 8px; background:transparent; color:var(--paper);
+    border:1px solid rgba(255,255,255,.4); border-radius:10px; cursor:pointer; white-space:nowrap;
   }
-  .map-timeline-scale-switch button:hover{background:var(--paper-dim);}
-  .map-timeline-scale-switch button.active{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+  .map-timeline-scale-switch button:hover{background:rgba(255,255,255,.15); border-color:var(--paper);}
+  .map-timeline-scale-switch button.active{background:var(--brass); color:var(--ink); border-color:var(--brass);}
+  /* .map-timeline-refresh-btn 這個 class 同時也被 #multiOverlayBar／
+     自訂圖層清單等其他淺色面板的按鈕共用（見該 class 原本定義處），
+     這裡只用 ID 選擇器疊加深色配色，不動共用 class 本身。 */
   .map-timeline-refresh-btn{
     font-size:11px; padding:3px 9px; background:var(--paper); color:var(--ink);
     border:1px solid var(--rule); border-radius:12px; cursor:pointer; white-space:nowrap;
     flex-shrink:0;
   }
   .map-timeline-refresh-btn:hover{background:var(--paper-dim);}
+  .map-timeline-hint{font-size:11px; color:var(--rule); font-weight:600; letter-spacing:.02em;}
+  #mapTimelineRefreshBtn{
+    background:transparent; color:var(--paper); border:1px solid rgba(255,255,255,.4);
+  }
+  #mapTimelineRefreshBtn:hover{background:rgba(255,255,255,.15); border-color:var(--paper);}
   /* 地圖已經移動、但使用者還沒按重新整理：按鈕改用醒目色提示 */
-  .map-timeline-refresh-btn.stale{
+  #mapTimelineRefreshBtn.stale{
     background:var(--stamp); color:var(--paper); border-color:var(--stamp);
     animation:timeline-stale-pulse 1.6s ease-in-out infinite;
   }
@@ -866,7 +912,7 @@
     transform:translateX(-50%) translateY(8px);
     width:min(560px, calc(100% - 32px));
     background:rgba(23,33,29,.92); backdrop-filter:blur(6px);
-    color:var(--paper); border:1px solid var(--brass); border-radius:10px;
+    color:var(--paper); border:1px solid var(--brass); border-radius:12px;
     box-shadow:0 6px 20px rgba(0,0,0,.4);
     padding:10px 16px 12px;
     opacity:0; pointer-events:none;
@@ -908,7 +954,7 @@
   .custom-timeline-dot:hover{background:rgba(255,255,255,.5);}
   .custom-timeline-dot.active{background:var(--brass); border-color:var(--brass);}
   .custom-timeline-dot-label{
-    font-size:10px; color:rgba(255,255,255,.65); white-space:nowrap;
+    font-size:10px; color:rgba(255,255,255,.65); white-space:nowrap; cursor:pointer;
   }
 
   .custom-timeline-slider-row{margin:2px 0 10px; display:flex; align-items:center; gap:8px;}
@@ -919,6 +965,14 @@
   }
   .custom-timeline-play-btn:hover{background:rgba(255,255,255,.15); border-color:var(--paper);}
   .custom-timeline-play-btn.playing{background:var(--brass); color:var(--ink); border-color:var(--brass);}
+
+  /* 加速播放：1x/2x/0.5x 循環切換鈕，只影響自動播放間隔 */
+  .custom-timeline-speed-btn{
+    flex-shrink:0; font-size:11px; padding:3px 8px; background:transparent; color:var(--paper);
+    border:1px solid rgba(255,255,255,.4); border-radius:12px; cursor:pointer;
+    font-variant-numeric:tabular-nums;
+  }
+  .custom-timeline-speed-btn:hover{background:rgba(255,255,255,.15); border-color:var(--paper);}
 
   .custom-timeline-opacity-row{display:flex; align-items:center; gap:8px;}
   .custom-timeline-opacity-label{font-size:11px; color:rgba(255,255,255,.7); flex-shrink:0;}
@@ -960,23 +1014,29 @@
      一起貼齊側邊欄可視範圍最上方，收合掉不想看的來源後，
      不用捲很長就能找到剩下的來源。 */
   .country-filter{
-    position:sticky; top:var(--sticky-offset, 0px); z-index:4;
-    background:var(--paper); margin:0 0 10px; box-shadow:0 4px 6px -6px rgba(0,0,0,.18);
+    /* 注意：這裡刻意用 --opacity-block-height（只有 .opacity-block 自己的
+       高度），不是 --sticky-offset（.opacity-block + .country-filter 兩者
+       加總，給 .source-head/.category-head 的 scroll-margin-top 用）。
+       如果誤用 --sticky-offset，會把自己的高度也算進自己的 sticky top，
+       導致跟 .opacity-block 之間永遠留一道等於自己高度的縫（不是快速捲動
+       才出現的偶發問題，是每次都會發生的固定錯位），下面捲上來的清單
+       內容就會從這道縫「穿過」吸附列，這正是這條規則要修的 bug。 */
+    position:sticky; top:var(--opacity-block-height, 0px); z-index:4;
+    background:var(--paper); margin:0 0 10px;
+    /* 第二個 box-shadow 是向上延伸 14px 的實色「布幕」，補強跟上方
+       .opacity-block（目前圖層）之間的接縫，跟 .opacity-block 那顆
+       downward 布幕互相重疊覆蓋，即使兩個獨立 sticky 元素其中一個晚了
+       一影格更新，接縫處還是有另一邊的實色布幕擋著，不會露出下面捲上來
+       的來源清單內容。改用 box-shadow（原本是額外的 ::before 偽元素）
+       是因為 box-shadow 跟元素本體共用同一次繪製，不會有獨立圖層各自
+       重繪的時間差；14px 在非吸附狀態（自然排版位置）量測過跟上一個
+       區塊（底圖切換鈕）之間還有 ~18px 空隙，不會蓋到真正的內容。 */
+    box-shadow:0 4px 6px -6px rgba(0,0,0,.18), 0 -14px 0 0 var(--paper);
     /* 跟 .opacity-block 同樣強制獨立合成層，避免快速捲動／手機彈性回彈時
        這條吸附列來不及跟上捲動位移，短暫露出下方被捲上來的來源清單內容。 */
     transform:translateZ(0);
     -webkit-transform:translateZ(0);
     will-change:transform;
-  }
-  /* 向上延伸與吸附列相同底色的遮罩，補滿吸附瞬間／回彈時上方（跟前一個
-     吸附區塊接縫處）可能露出的空白，避免清單內容從縫隙「穿過」吸附列。 */
-  .country-filter::before{
-    content:"";
-    position:absolute;
-    left:-1px; right:-1px; top:-10px;
-    height:10px;
-    background:var(--paper);
-    z-index:1;
   }
   .country-filter button{padding:6px 2px; font-size:11px;}
   .source-group.country-hidden{display:none;}
@@ -1083,3 +1143,260 @@
   .wmts-layer-row input[type=checkbox]{accent-color:var(--brass-dark); flex-shrink:0;}
   .wmts-layer-title{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .wmts-add-selected-btn{margin-top:8px; width:100%;}
+
+  /* ---------- 側邊欄可摺疊區塊（src/sidebarUI.js 的 initCollapsibleSections()） ----------
+     視覺語彙比照 .source-head／.category-head 手風琴標題列（淡底色方塊、
+     chevron 指示展開方向），但獨立成一組 class，因為這裡包的是整個功能
+     區塊（模式切換、圖資、目前圖層…）而不是圖層清單節點，語意上分開。 */
+  .side-section{margin-bottom:14px;}
+  /* 不能用 :last-child 讓「最後一塊」少掉這段間距——#layersSection 雖然
+     是側邊欄視覺上中間的區塊，但因為外面包了 #overlayPanel（模式切換用
+     的顯示/隱藏包裝 div），DOM 結構上反而是它自己父層裡唯一的子元素，
+     :last-child 選到的其實是它，導致「圖資」跟下面「收藏」之間的間距
+     被歸零，跟其他區塊間距不一致。統一每塊都固定 14px，不看 DOM 位置。 */
+  .side-section-head{
+    width:100%; text-align:left; background:var(--paper-dim); border:1px solid var(--rule);
+    padding:9px 10px; cursor:pointer; border-radius:2px;
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:var(--sans); font-weight:700; font-size:12.5px; color:var(--ink);
+  }
+  .side-section-head:hover{background:var(--paper);}
+  .side-section-head::after{
+    content:"▸"; font-size:10px; color:var(--rule); margin-left:8px;
+    transition:transform .15s ease;
+  }
+  .side-section.open > .side-section-head::after{transform:rotate(90deg);}
+  .side-section-body{padding-top:8px;}
+  .side-section:not(.open) .side-section-body{display:none;}
+  /* #opacityBlock 本身仍維持吸附行為（見上方 .opacity-block 規則），這裡
+     只補摺疊標題／內容的間距，不動吸附相關屬性。 */
+  #opacityBlock.side-section .side-section-head{background:var(--paper); border:none; padding:0 0 8px; margin-bottom:0;}
+  #opacityBlock.side-section .side-section-head:hover{background:var(--paper);}
+  #opacityBlock.side-section .side-section-body{padding-top:0;}
+
+  /* ---------- 目前圖層（#opacityBlock 內） ---------- */
+  .current-layer-row{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    margin-bottom:10px;
+  }
+  .current-layer-name{
+    font-family:var(--serif); font-size:12.5px; color:var(--ink); line-height:1.4;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; min-width:0;
+  }
+  .current-layer-fav-btn{
+    flex-shrink:0; width:24px; height:24px; padding:0; line-height:1;
+    background:var(--paper); border:1px solid var(--rule); border-radius:50%;
+    font-size:14px; color:var(--rule); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .current-layer-fav-btn:hover{border-color:var(--brass-dark); color:var(--brass-dark);}
+  .current-layer-fav-btn.active{border-color:var(--brass-dark); color:var(--brass-dark); background:rgba(181,140,74,.14);}
+
+  /* ---------- 圖資搜尋（src/ui/layerSearch.js） ----------
+     跟地址搜尋（.search-block／.address-suggest）視覺語彙一致，但完全
+     獨立的一組結果面板，不共用任何 DOM／狀態。 */
+  .layer-search-panel{
+    margin-top:10px; padding-top:10px; border-top:1px solid var(--rule);
+  }
+  .layer-search-panel-head{
+    display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px;
+  }
+  .layer-search-count{font-size:11.5px; color:var(--rule); font-weight:600;}
+  .layer-search-collapse-btn{
+    flex-shrink:0; width:22px; height:22px; padding:0; line-height:1;
+    background:none; border:1px solid var(--rule); border-radius:2px;
+    font-size:10px; color:var(--rule); cursor:pointer;
+  }
+  .layer-search-collapse-btn:hover{border-color:var(--brass-dark); color:var(--brass-dark);}
+  .layer-search-panel.collapsed .layer-search-list,
+  .layer-search-panel.collapsed #layerSearchMoreBtn{display:none;}
+  .layer-search-list{
+    display:flex; flex-direction:column; gap:5px;
+    max-height:360px; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  }
+  .layer-search-item{
+    padding:7px 9px; border:1px solid var(--rule); border-radius:3px;
+    background:var(--paper); cursor:pointer;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  .layer-search-item:hover{background:var(--paper-dim); border-color:var(--brass-dark);}
+  .layer-search-item-title{font-size:12.5px; color:var(--ink); line-height:1.35;}
+  .layer-search-item-meta{font-size:11px; color:var(--rule); margin-top:2px;}
+  .layer-search-empty{font-size:12px; color:var(--rule); padding:6px 2px; line-height:1.6;}
+
+  /* ---------- 收藏／最近使用清單（src/sidebarUI.js） ----------
+     項目格式比照 .layer-search-item（標題＋meta），收藏清單多一個
+     移除鈕（沿用 .current-layer-fav-btn 的星號視覺）。 */
+  .favorites-list, .recent-list{
+    display:flex; flex-direction:column; gap:5px;
+    max-height:280px; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  }
+  .favorites-empty, .recent-empty{font-size:12px; color:var(--rule); padding:4px 2px; line-height:1.6;}
+  .favorites-item, .recent-item{
+    display:flex; align-items:center; gap:8px;
+    padding:7px 9px; border:1px solid var(--rule); border-radius:3px;
+    background:var(--paper); cursor:pointer;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  .favorites-item:hover, .recent-item:hover{background:var(--paper-dim); border-color:var(--brass-dark);}
+  .favorites-item-info, .recent-item-info{flex:1; min-width:0;}
+  .favorites-item-title, .recent-item-title{
+    font-size:12.5px; color:var(--ink); line-height:1.35;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .favorites-item-meta, .recent-item-meta{font-size:11px; color:var(--rule); margin-top:2px;}
+  .favorites-item-remove{
+    flex-shrink:0; width:22px; height:22px; padding:0; line-height:1;
+    background:var(--paper); border:1px solid var(--brass-dark); border-radius:50%;
+    font-size:13px; color:var(--brass-dark); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .favorites-item-remove:hover{background:rgba(181,140,74,.14);}
+
+  /* .recent-section 不是可摺疊區塊（不用 .side-section），永遠展開，
+     視覺上維持跟 .side-section-head 一致的標題列外觀，只是不能點擊摺疊。 */
+  .recent-section{margin-bottom:0;}
+  .recent-section-head{
+    background:var(--paper-dim); border:1px solid var(--rule);
+    padding:9px 10px; border-radius:2px 2px 0 0; border-bottom:none;
+    font-family:var(--sans); font-weight:700; font-size:12.5px; color:var(--ink);
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+  }
+  .recent-clear-btn{
+    font-family:var(--sans); font-weight:400; font-size:11px; color:var(--brass-dark);
+    background:none; border:none; padding:2px 4px; cursor:pointer; text-decoration:underline;
+  }
+  .recent-clear-btn:hover{color:var(--stamp);}
+  .recent-section .recent-list{
+    border:1px solid var(--rule); border-top:none; border-radius:0 0 2px 2px;
+    padding:8px; margin:0;
+  }
+  .recent-section .recent-list:empty{padding:0;}
+
+  @media (max-width:640px){
+    .layer-search-list{max-height:44vh;}
+    .favorites-list, .recent-list{max-height:34vh;}
+  }
+
+  /* ---------- 新手導覽／使用指南（src/ui/onboarding.js） ----------
+     獨立疊加層，不共用側邊欄既有摺疊語彙的 class（避免跟 initCollapsibleSections()
+     的選擇器互相誤觸），只借用同一套顏色變數維持視覺一致。 */
+  .tour-btn-row{display:flex; gap:8px; margin-top:12px;}
+  .tour-btn-row-btn{
+    flex:1; padding:8px 4px; background:var(--paper); border:1px solid var(--rule);
+    border-radius:2px; font-family:var(--sans); font-size:12px; font-weight:600;
+    color:var(--ink); cursor:pointer; text-align:center;
+  }
+  .tour-btn-row-btn:hover{background:var(--paper-dim); border-color:var(--brass-dark); color:var(--brass-dark);}
+
+  /* -- Welcome Modal -- */
+  .onboarding-modal-overlay{
+    position:fixed; inset:0; background:rgba(15,15,10,.55);
+    display:flex; align-items:center; justify-content:center;
+    z-index:120; padding:16px;
+  }
+  .onboarding-modal-card{
+    width:100%; max-width:400px; background:var(--paper); border:1px solid var(--rule);
+    border-radius:4px; box-shadow:0 12px 32px rgba(0,0,0,.4); padding:22px 22px 18px;
+  }
+  .onboarding-modal-title{
+    font-family:var(--serif); font-weight:700; font-size:18px; color:var(--ink);
+    margin:0 0 12px; line-height:1.4;
+  }
+  .onboarding-modal-list{
+    margin:0 0 16px; padding-left:20px; font-size:13px; color:var(--ink); line-height:1.7;
+  }
+  .onboarding-modal-list li{margin-bottom:4px;}
+  .onboarding-modal-actions{display:flex; flex-direction:column; gap:8px;}
+  .onboarding-modal-btn{
+    width:100%; padding:10px 12px; border-radius:2px; font-family:var(--sans);
+    font-size:13px; font-weight:700; cursor:pointer; border:1px solid var(--rule);
+  }
+  .onboarding-modal-btn.primary{background:var(--brass-dark); border-color:var(--brass-dark); color:var(--paper);}
+  .onboarding-modal-btn.primary:hover{background:var(--ink); border-color:var(--ink);}
+  .onboarding-modal-btn.secondary{background:var(--paper); color:var(--ink);}
+  .onboarding-modal-btn.secondary:hover{background:var(--paper-dim); border-color:var(--brass-dark);}
+  .onboarding-modal-btn.text{
+    border:none; background:none; color:var(--rule); font-weight:400; text-decoration:underline;
+    padding:4px 12px;
+  }
+  .onboarding-modal-btn.text:hover{color:var(--stamp);}
+
+  /* -- 5 步聚光燈導覽 -- */
+  .tour-highlight{
+    position:fixed; z-index:130; border:2px solid var(--brass-dark); border-radius:4px;
+    box-shadow:0 0 0 9999px rgba(15,15,10,.62);
+    pointer-events:none; transition:top .2s ease, left .2s ease, width .2s ease, height .2s ease;
+  }
+  .tour-tooltip{
+    position:fixed; z-index:131; width:280px; max-width:calc(100vw - 32px);
+    background:var(--paper); border:1px solid var(--rule); border-radius:4px;
+    box-shadow:0 8px 24px rgba(0,0,0,.35); padding:14px 16px;
+    transition:top .2s ease, left .2s ease;
+  }
+  .tour-tooltip-step{font-size:11px; color:var(--rule); font-weight:600; letter-spacing:.02em;}
+  .tour-tooltip-title{
+    font-family:var(--serif); font-weight:700; font-size:15px; color:var(--ink);
+    margin:4px 0 6px; line-height:1.35;
+  }
+  .tour-tooltip-desc{font-size:12.5px; color:var(--ink); line-height:1.55; margin:0;}
+  .tour-tooltip-extra{
+    margin:8px 0 0; font-size:12px; color:var(--brass-dark); font-weight:700; line-height:1.5;
+  }
+  .tour-tooltip-actions{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:12px;}
+  .tour-tooltip-actions-right{display:flex; gap:6px;}
+  .tour-btn-skip{
+    background:none; border:none; color:var(--rule); font-family:var(--sans); font-size:11.5px;
+    text-decoration:underline; cursor:pointer; padding:4px 2px;
+  }
+  .tour-btn-skip:hover{color:var(--stamp);}
+  .tour-btn-prev, .tour-btn-next{
+    font-family:var(--sans); font-size:12px; font-weight:700; border-radius:2px;
+    padding:7px 12px; cursor:pointer;
+  }
+  .tour-btn-prev{background:var(--paper); border:1px solid var(--rule); color:var(--ink);}
+  .tour-btn-prev:hover{background:var(--paper-dim); border-color:var(--brass-dark);}
+  .tour-btn-next{background:var(--brass-dark); border:1px solid var(--brass-dark); color:var(--paper);}
+  .tour-btn-next:hover{background:var(--ink); border-color:var(--ink);}
+
+  /* -- 使用指南抽屜 -- */
+  .guide-drawer-overlay{
+    position:fixed; inset:0; background:rgba(15,15,10,.45); z-index:120;
+  }
+  .guide-drawer{
+    position:fixed; top:0; right:0; bottom:0; width:380px; max-width:92vw;
+    background:var(--paper); box-shadow:-8px 0 24px rgba(0,0,0,.35);
+    z-index:121; display:flex; flex-direction:column; overflow:hidden;
+  }
+  .guide-drawer-header{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:16px 18px; border-bottom:1px solid var(--rule); flex-shrink:0;
+  }
+  .guide-drawer-title{font-family:var(--serif); font-weight:700; font-size:17px; color:var(--ink); margin:0;}
+  .guide-drawer-close{
+    flex-shrink:0; width:28px; height:28px; padding:0; background:none;
+    border:1px solid var(--rule); border-radius:2px; color:var(--ink); font-size:14px; cursor:pointer;
+  }
+  .guide-drawer-close:hover{background:var(--paper-dim); border-color:var(--brass-dark);}
+  .guide-drawer-body{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:14px 18px 24px;}
+  .guide-acc-item{border-bottom:1px dashed var(--paper-dim);}
+  .guide-acc-item:last-child{border-bottom:none;}
+  .guide-acc-head{
+    width:100%; text-align:left; background:none; border:none; padding:12px 2px;
+    cursor:pointer; display:flex; justify-content:space-between; align-items:center;
+    font-family:var(--sans); font-weight:700; font-size:13px; color:var(--ink);
+  }
+  .guide-acc-head::after{
+    content:"▸"; font-size:10px; color:var(--rule); margin-left:8px; transition:transform .15s ease;
+  }
+  .guide-acc-item.open .guide-acc-head::after{transform:rotate(90deg);}
+  .guide-acc-body{
+    display:none; padding:0 2px 14px; font-size:12.5px; color:var(--ink); line-height:1.65;
+  }
+  .guide-acc-item.open .guide-acc-body{display:block;}
+
+  @media (max-width:640px){
+    .tour-tooltip{width:calc(100vw - 32px);}
+    .guide-drawer{width:100vw; max-width:100vw;}
+    .onboarding-modal-card{padding:18px 16px 14px;}
+  }

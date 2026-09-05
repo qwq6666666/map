@@ -13,7 +13,7 @@ model: sonnet
 - 全域狀態與模式排程：`src/store.js`、`src/runtime.js`（執行期內部狀態，跟 store.js 是同一組「狀態管理」的兩支模組，見 DEVELOPMENT.md）、`src/core/modeManager.js`、`src/timelineMode.js`
 - 進階比對與多層疊加：`src/features/compareMode.js`、`src/features/multiOverlay.js`、`src/core/multiOverlayManager.js`
 - 繪圖工具與位置功能：`src/drawTool.js`、`src/features/location.js`
-- 外部圖資匯入與搜尋：`src/features/wmtsImport.js`、`src/features/search.js`
+- 外部圖資匯入與搜尋：`src/features/wmtsImport.js`、`src/features/search.js`、`src/features/layerSearch.js`（圖資搜尋的 metadata 索引/排序/模式感知啟用邏輯，純函式、不碰 DOM，跟 `search.js` 的地址搜尋邏輯完全獨立——兩者不共用輸入值、不互相觸發，只在啟用圖層時共用 `activateFromSearch()`）
 - 地圖點位互動：`src/features/identifyPin.js`（免開關落點探針 Identify Pin，含三態點擊防禦狀態機）
 - 使用者繪圖／匯入資料本地持久化：`src/features/storage.js`（localStorage 快取，鍵值 `taiwan_map_user_features`）
 - 自訂時間軸資料邏輯：`src/features/customTimeline.js`（年份解析、依年代排序、獨立於 store 的單張圖層預覽/卸載機制，串接 `src/features/customTimelineUI.js`——這是 ui-frontend-agent 的檔案，只能 import 它匯出的函式，不能修改它）。**`src/timelineMode.js`／`src/timelineUI.js` 屬於全站共用時間軸模式，自訂時間軸功能嚴禁修改這兩個檔案**，避免污染全域時間軸狀態。
@@ -28,5 +28,5 @@ model: sonnet
 
 # 驗證規範
 - 修改後執行對應的功能規格測試：
-  `node tests/run-all.mjs tests/specs/store-and-modes.test.mjs tests/specs/multi-overlay.test.mjs tests/specs/draw-tool.test.mjs tests/specs/wmts-import.test.mjs tests/specs/identify-pin.test.mjs tests/specs/coordinate-transform.test.mjs`
+  `node tests/run-all.mjs tests/specs/store-and-modes.test.mjs tests/specs/multi-overlay.test.mjs tests/specs/draw-tool.test.mjs tests/specs/wmts-import.test.mjs tests/specs/identify-pin.test.mjs tests/specs/coordinate-transform.test.mjs tests/specs/custom-timeline.test.mjs`
   （`coordinate-transform.test.mjs` 有一部分測的是 `src/features/search.js` 的 `buildCoordInfoElement`，屬於本代理權責檔案）

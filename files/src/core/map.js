@@ -12,11 +12,25 @@ import { state as store, setBaseLayer } from '../store.js';
 import { REGION_EXTENTS } from '../data.js';
 import { getBaseLayerConfig } from '../config/baseLayers.js';
 
+const osmConfig = getBaseLayerConfig('osm');
 const satConfig = getBaseLayerConfig('sat');
 
-const osmLayer = new ol.layer.Tile({ source: new ol.source.OSM({ crossOrigin: 'anonymous' }), visible: true });
+const osmLayer = new ol.layer.Tile({
+  source: new ol.source.OSM({
+    crossOrigin: 'anonymous',
+    minZoom: osmConfig.minZoom,
+    maxZoom: osmConfig.maxZoom
+  }),
+  visible: true
+});
 const satLayer = new ol.layer.Tile({
-  source: new ol.source.XYZ({ url: satConfig.urlTemplate, attributions: satConfig.attribution, crossOrigin: 'anonymous' }),
+  source: new ol.source.XYZ({
+    url: satConfig.urlTemplate,
+    attributions: satConfig.attribution,
+    crossOrigin: 'anonymous',
+    minZoom: satConfig.minZoom,
+    maxZoom: satConfig.maxZoom
+  }),
   visible: false
 });
 
@@ -26,8 +40,11 @@ export const map = new ol.Map({
   view: new ol.View({
     center: ol.proj.fromLonLat([120.9, 23.7]),
     zoom: 8,
-    minZoom: 3,
-    maxZoom: 21
+    // View 的縮放範圍取兩個底圖設定的聯集，確保切換底圖時都能用滿
+    // 各自允許的縮放級距（實際圖磚可用範圍仍由各 Source 的
+    // minZoom/maxZoom 限制，超出範圍時 OL 會 overzoom 既有圖磚）。
+    minZoom: Math.min(osmConfig.minZoom, satConfig.minZoom),
+    maxZoom: Math.max(osmConfig.maxZoom, satConfig.maxZoom)
   })
 });
 

@@ -185,26 +185,40 @@
 
 <div id="sidebar">
   <div class="sidebar-header">
-    <div class="sidebar-header-text">
-      <h1>百年歷史疊圖器</h1>
+    <div class="sidebar-header-top">
+      <div class="sidebar-header-text">
+        <h1>百年歷史地圖</h1>
+        <p>探索各地百年地圖變遷</p>
+      </div>
+      <button id="toggleSidebar" title="收合面板" aria-label="收合面板" aria-expanded="true">◂</button>
     </div>
-    <button id="toggleSidebar" title="收合面板">◂</button>
+    <div class="tour-btn-row">
+      <button type="button" id="tourStartBtn" class="tour-btn-row-btn">🧭 新手導覽</button>
+      <button type="button" id="guideOpenBtn" class="tour-btn-row-btn">❔ 使用指南</button>
+    </div>
   </div>
 
   <div class="sidebar-body">
-    <div class="opacity-block" id="opacityBlock">
-      <div class="field-label">歷史圖層透明度</div>
-      <div class="opacity-row">
-        <input type="range" id="opacitySlider" min="0" max="100" value="100">
-        <span class="opacity-val" id="opacityVal">100%</span>
+    <div class="opacity-block side-section" id="opacityBlock">
+      <button type="button" class="side-section-head">📌 目前圖層</button>
+      <div class="side-section-body">
+        <div class="current-layer-row">
+          <span id="currentLayerName" class="current-layer-name">尚未選取圖層</span>
+          <button type="button" id="currentLayerFavBtn" class="current-layer-fav-btn" title="收藏此圖層" hidden>☆</button>
+        </div>
+        <div class="field-label">透明度</div>
+        <div class="opacity-row">
+          <input type="range" id="opacitySlider" min="0" max="100" value="100" aria-label="透明度">
+          <span class="opacity-val" id="opacityVal">100%</span>
+        </div>
+        <button class="clear-btn" id="clearBtn">清除疊圖</button>
       </div>
-      <button class="clear-btn" id="clearBtn">清除疊圖</button>
     </div>
 
     <div class="search-block">
-      <div class="field-label">搜尋地址</div>
+      <div class="field-label">🔎 地址／位置搜尋</div>
       <div class="search-row">
-        <input type="text" id="addressInput" class="address-input" placeholder="輸入地址、地標或路口" autocomplete="off">
+        <input type="text" id="addressInput" class="address-input" placeholder="請輸入地址或地點…" autocomplete="off">
         <button type="button" id="locateSearchBtn" class="address-search-btn locate-search-btn" title="使用目前位置尋找圖層">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"></circle>
@@ -228,21 +242,49 @@
       </div>
     </div>
 
-    <div class="mode-switch" id="modeSwitch">
-      <button data-mode="overlay" class="active">透明疊圖</button>
-      <button data-mode="compare">左右比對</button>
-      <button data-mode="timeline">時間軸</button>
-      <button data-mode="multi">複合疊圖</button>
+    <div class="search-block layer-search-block">
+      <div class="field-label">🗺 圖資搜尋</div>
+      <div class="search-row">
+        <input type="text" id="layerSearchInput" class="address-input" placeholder="搜尋圖層名稱、年份、來源或分類…" autocomplete="off">
+        <button type="button" id="layerSearchClearBtn" class="address-search-btn" title="清除圖資搜尋" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div id="layerSearchPanel" class="layer-search-panel" hidden>
+        <div class="layer-search-panel-head">
+          <span id="layerSearchCount" class="layer-search-count"></span>
+          <button type="button" id="layerSearchCollapseBtn" class="layer-search-collapse-btn" title="收合／展開搜尋結果">▾</button>
+        </div>
+        <div id="layerSearchList" class="layer-search-list"></div>
+        <button type="button" id="layerSearchMoreBtn" class="layer-list-toggle" hidden>顯示更多</button>
+      </div>
+    </div>
+
+    <div class="side-section open" id="modeSection">
+      <button type="button" class="side-section-head">🗺 地圖模式</button>
+      <div class="side-section-body">
+        <div class="mode-switch" id="modeSwitch">
+          <button data-mode="overlay" class="active">透明疊圖</button>
+          <button data-mode="compare">左右比對</button>
+          <button data-mode="timeline">時間軸</button>
+          <button data-mode="multi">複合疊圖</button>
+        </div>
+      </div>
     </div>
 
     <div id="overlayPanel">
-      <div class="field-label">底圖</div>
-      <div class="segmented" id="baseSwitch">
-        <button data-base="osm" class="active">現代地圖</button>
-        <button data-base="sat">衛星影像</button>
-      </div>
+      <div class="side-section" id="layersSection">
+        <button type="button" class="side-section-head">📚 圖資</button>
+        <div class="side-section-body">
+          <div class="field-label">底圖</div>
+          <div class="segmented" id="baseSwitch">
+            <button data-base="osm" class="active">現代地圖</button>
+            <button data-base="sat">衛星影像</button>
+          </div>
 
-      <div id="categories"></div>
+          <div id="categories"></div>
+        </div>
+      </div>
     </div>
 
     <div id="comparePanel">
@@ -294,6 +336,21 @@
       </div>
 
       <div id="multiCategories" class="multi-categories"></div>
+    </div>
+
+    <div class="side-section" id="favoritesSection">
+      <button type="button" class="side-section-head">⭐ 收藏</button>
+      <div class="side-section-body">
+        <div id="favoritesList" class="favorites-list"></div>
+      </div>
+    </div>
+
+    <div class="recent-section" id="recentSection">
+      <div class="recent-section-head">
+        <span>🕘 最近使用</span>
+        <button type="button" id="recentClearBtn" class="recent-clear-btn" hidden>清除紀錄</button>
+      </div>
+      <div id="recentList" class="recent-list"></div>
     </div>
   </div>
 </div>

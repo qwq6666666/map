@@ -10,9 +10,11 @@ import { loadAppData } from './data.js';
 import { initMapCore } from './mapCore.js';
 import { initSidebar } from './sidebarUI.js';
 import { initSearchUI } from './searchUI.js';
+import { initLayerSearchUI } from './ui/layerSearch.js';
 import { initDrawTool } from './drawTool.js';
 import { initIdentifyPin } from './features/identifyPin.js';
 import { showLocationAndFindLayers } from './ui/search.js';
+import { initOnboarding } from './ui/onboarding.js';
 
 async function main(){
   try{
@@ -25,8 +27,10 @@ async function main(){
   initMapCore();   // 地圖、底圖切換、疊圖／比對模式、透明度、定位藍點
   initSidebar();   // 左側 WMTS 來源／分類手風琴（需要 LAYER_SOURCES 已載入）
   initSearchUI();  // 地址搜尋、定位搜尋、自動完成、逐筆圖磚驗證
+  initLayerSearchUI(); // 圖資搜尋（metadata 比對，跟地址搜尋完全獨立）
   initDrawTool();  // 點／線／面繪製標註、量測、匯出 GeoJSON／截圖
   initIdentifyPin({ onSearchLayers: showLocationAndFindLayers }); // 免開關地圖自由落點探針
+  initOnboarding(); // 新手導覽／使用指南（獨立疊加層，不依賴地圖或側欄初始化狀態）
 }
 
 main();

@@ -24,10 +24,19 @@ let sliderEl = null;
 
 // ---- 自動播放：跟 src/timelineUI.js 的播放邏輯精神一致，但完全獨立
 //      重新實作，不 import、不共用任何狀態或 timer。 ----
-const PLAY_INTERVAL_MS = 1800; // 自動播放時每一筆停留的時間
+const PLAY_INTERVAL_MS = 1800; // 自動播放時每一筆停留的時間（1x 速度）
+// 加速播放：可循環切換的倍率選項，1x 為預設、不影響既有行為，只改變
+// 自動播放的步進間隔，不影響刻度點點擊／滑桿拖曳「立即套用」的互動。
+const SPEED_LEVELS = [1, 2, 0.5];
 let playTimer = null;
 let playing = false;
 let playBtn = null;
+let speedBtn = null;
+let speedIndex = 0;
+
+function currentInterval(){
+  return PLAY_INTERVAL_MS / SPEED_LEVELS[speedIndex];
+}
 
 function yearLabelOf(layer){
   if(layer && layer.year) return String(layer.year);
@@ -46,7 +55,11 @@ function paint(idx, candidates){
   const item = candidates[idx];
   if(titleEl) titleEl.textContent = item.layer.title || '（未命名圖層）';
   if(metaEl) metaEl.textContent = `${yearLabelOf(item.layer)} · ${item.src.name}`;
-  dotEls.forEach((dot, i) => dot.classList.toggle('active', i === idx));
+  dotEls.forEach((dot, i) => {
+    dot.classList.toggle('active', i === idx);
+    if(i === idx) dot.setAttribute('aria-current', 'step');
+    else dot.removeAttribute('aria-current');
+  });
 }
 
 // 滑桿拖曳與刻度點點擊共用的「切換到第 idx 筆」邏輯：更新畫面、同步
@@ -77,7 +90,7 @@ function stepPlay(candidates){
   if(nextIdx >= candidates.length){ stopPlaying(); return; }
   selectIndex(nextIdx, candidates);
   if(nextIdx >= candidates.length - 1) stopPlaying();
-  else playTimer = setTimeout(() => stepPlay(candidates), PLAY_INTERVAL_MS);
+  else playTimer = setTimeout(() => stepPlay(candidates), currentInterval());
 }
 
 // 開始自動播放：只有一筆時沒什麼好播放的，不啟動。若目前已經在最後
@@ -86,12 +99,12 @@ function startPlaying(candidates){
   if(candidates.length < 2) return;
   playing = true;
   if(playBtn){
-    playBtn.textContent = '⏸ 暫停';
+    playBtn.textContent = '❚❚ 暫停';
     playBtn.classList.add('playing');
   }
   const startIdx = currentIndex >= candidates.length - 1 ? 0 : Math.max(0, currentIndex);
   selectIndex(startIdx, candidates);
-  playTimer = setTimeout(() => stepPlay(candidates), PLAY_INTERVAL_MS);
+  playTimer = setTimeout(() => stepPlay(candidates), currentInterval());
 }
 
 /**
@@ -109,6 +122,7 @@ export function openCustomTimelineDock(candidates, callbacks){
   currentCallbacks = callbacks || {};
   currentIndex = 0;
   dotEls = [];
+  speedIndex = 0; // 每次開啟 dock 都從 1x 重新開始
 
   const dock = document.createElement('div');
   dock.id = 'custom-timeline-dock';
@@ -154,6 +168,7 @@ export function openCustomTimelineDock(candidates, callbacks){
     const label = document.createElement('div');
     label.className = 'custom-timeline-dot-label';
     label.textContent = shortYearLabelOf(c.layer);
+    label.addEventListener('click', () => { stopPlaying(); selectIndex(i, candidates); });
 
     dotWrap.appendChild(dot);
     dotWrap.appendChild(label);
@@ -165,6 +180,7 @@ export function openCustomTimelineDock(candidates, callbacks){
   // ---- 滑動軌道：只有一筆時不用顯示可拖曳滑桿 ----
   sliderEl = null;
   playBtn = null;
+  speedBtn = null;
   if(candidates.length > 1){
     const sliderRow = document.createElement('div');
     sliderRow.className = 'custom-timeline-slider-row';
@@ -175,6 +191,22 @@ export function openCustomTimelineDock(candidates, callbacks){
     playBtn.textContent = '▶ 播放';
     playBtn.addEventListener('click', () => { playing ? stopPlaying() : startPlaying(candidates); });
 
+    // 加速播放：1x/2x/0.5x 循環切換，只改變自動播放的步進間隔，
+    // 對刻度點點擊／滑桿拖曳「立即套用」的互動完全沒有影響。
+    speedBtn = document.createElement('button');
+    speedBtn.type = 'button';
+    speedBtn.className = 'custom-timeline-speed-btn';
+    speedBtn.textContent = `${SPEED_LEVELS[speedIndex]}x`;
+    speedBtn.setAttribute('aria-label', '切換自動播放速度');
+    speedBtn.addEventListener('click', () => {
+      speedIndex = (speedIndex + 1) % SPEED_LEVELS.length;
+      speedBtn.textContent = `${SPEED_LEVELS[speedIndex]}x`;
+      if(playing){ // 播放中立即套用新速度，不用等目前這一步走完
+        if(playTimer){ clearTimeout(playTimer); }
+        playTimer = setTimeout(() => stepPlay(candidates), currentInterval());
+      }
+    });
+
     sliderEl = document.createElement('input');
     sliderEl.type = 'range';
     sliderEl.className = 'custom-timeline-slider';
@@ -182,12 +214,14 @@ export function openCustomTimelineDock(candidates, callbacks){
     sliderEl.max = String(candidates.length - 1);
     sliderEl.step = '1';
     sliderEl.value = '0';
+    sliderEl.setAttribute('aria-label', '年代進度');
     sliderEl.addEventListener('input', () => {
       stopPlaying();
       selectIndex(parseInt(sliderEl.value, 10) || 0, candidates);
     });
     sliderRow.appendChild(playBtn);
     sliderRow.appendChild(sliderEl);
+    sliderRow.appendChild(speedBtn);
     dock.appendChild(sliderRow);
   }
 
@@ -203,6 +237,7 @@ export function openCustomTimelineDock(candidates, callbacks){
   opacitySlider.min = '0';
   opacitySlider.max = '100';
   opacitySlider.value = '100';
+  opacitySlider.setAttribute('aria-label', '透明度');
   const opacityValue = document.createElement('span');
   opacityValue.className = 'custom-timeline-opacity-value';
   opacityValue.textContent = '100%';
@@ -237,6 +272,8 @@ function teardown(){
   if(playTimer){ clearTimeout(playTimer); playTimer = null; }
   playing = false;
   playBtn = null;
+  speedBtn = null;
+  speedIndex = 0;
   if(dockEl && dockEl.parentElement) dockEl.parentElement.removeChild(dockEl);
   else if(dockEl && dockEl.remove) dockEl.remove();
   dockEl = null;

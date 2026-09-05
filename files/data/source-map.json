@@ -1,6 +1,7 @@
 {
   "alwaysInclude": [
-    "sinica"
+    "sinica",
+    "ls"
   ],
   "alwaysIncludeUnless": [
     {
@@ -312,6 +313,15 @@
       ],
       "sources": [
         "hongkong"
+      ]
+    },
+    {
+      "match": "county",
+      "includes": [
+        "韓國", "Korea", "South Korea", "North Korea", "首爾", "서울", "Seoul", "釜山", "Busan", "仁川", "Incheon", "木浦", "Mokpo", "馬山", "Masan", "元山", "Wonsan", "朝鮮"
+      ],
+      "sources": [
+        "korea"
       ]
     }
   ],

@@ -26,7 +26,14 @@
           "dateLabel": "1914",
           "type": null,
           "scale": "1:8000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.242554,
+              30.53289,
+              114.287252,
+              30.56834
+            ]
+          },
           "keywords": []
         },
         {
@@ -37,7 +44,14 @@
           "dateLabel": "1919",
           "type": null,
           "scale": "1:12000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.25395,
+              30.53403,
+              114.3409,
+              30.63928
+            ]
+          },
           "keywords": []
         }
       ]
@@ -54,7 +68,14 @@
           "dateLabel": "1922",
           "type": null,
           "scale": "1:10000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.234,
+              30.5183,
+              114.31791,
+              30.61801
+            ]
+          },
           "keywords": []
         },
         {
@@ -65,7 +86,14 @@
           "dateLabel": "1928",
           "type": null,
           "scale": "1:14000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.24687,
+              30.51805,
+              114.31407,
+              30.61401
+            ]
+          },
           "keywords": []
         }
       ]
@@ -82,7 +110,14 @@
           "dateLabel": "1931",
           "type": null,
           "scale": "1:6000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.2729387,
+              30.5749703,
+              114.3140928,
+              30.6193895
+            ]
+          },
           "keywords": []
         },
         {
@@ -93,7 +128,14 @@
           "dateLabel": "1931",
           "type": null,
           "scale": "1:10000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.21399,
+              30.50558,
+              114.35149,
+              30.62825
+            ]
+          },
           "keywords": []
         },
         {
@@ -104,7 +146,14 @@
           "dateLabel": "1933",
           "type": null,
           "scale": "1:250000",
-          "region": null,
+          "region": {
+            "bbox": [
+              112.373191645,
+              29.2291748829,
+              116.665726965,
+              31.5177413823
+            ]
+          },
           "keywords": []
         },
         {
@@ -115,7 +164,14 @@
           "dateLabel": "1933",
           "type": null,
           "scale": "1:20000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.15153,
+              30.56118,
+              114.3574,
+              30.69126
+            ]
+          },
           "keywords": []
         },
         {
@@ -126,7 +182,14 @@
           "dateLabel": "1934",
           "type": null,
           "scale": "1:4000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.236964,
+              30.537235,
+              114.286492,
+              30.570612
+            ]
+          },
           "keywords": []
         },
         {
@@ -137,7 +200,14 @@
           "dateLabel": "1935",
           "type": "行政區劃圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              114.2661372,
+              30.542109,
+              114.3158821,
+              30.6325463
+            ]
+          },
           "keywords": []
         },
         {
@@ -148,7 +218,14 @@
           "dateLabel": "1937",
           "type": null,
           "scale": "1:10000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.23632,
+              30.51093,
+              114.33123,
+              30.62825
+            ]
+          },
           "keywords": []
         },
         {
@@ -159,7 +236,14 @@
           "dateLabel": "1938",
           "type": null,
           "scale": "1:10000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.2290976,
+              30.5567232,
+              114.3228457,
+              30.6163222
+            ]
+          },
           "keywords": []
         },
         {
@@ -170,7 +254,14 @@
           "dateLabel": "1938",
           "type": null,
           "scale": "1:25000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.22923,
+              30.46298,
+              114.38905,
+              30.63872
+            ]
+          },
           "keywords": []
         }
       ]
@@ -187,7 +278,14 @@
           "dateLabel": "1939",
           "type": null,
           "scale": "1:10000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.2293795,
+              30.5559234,
+              114.3227677,
+              30.6169018
+            ]
+          },
           "keywords": []
         },
         {
@@ -198,7 +296,14 @@
           "dateLabel": "1939",
           "type": null,
           "scale": "1:10000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.2605854,
+              30.5185792,
+              114.3168962,
+              30.5704235
+            ]
+          },
           "keywords": []
         },
         {
@@ -209,7 +314,14 @@
           "dateLabel": "1944",
           "type": null,
           "scale": "1:12000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.21709,
+              30.55296,
+              114.32234,
+              30.61668
+            ]
+          },
           "keywords": []
         },
         {
@@ -220,7 +332,14 @@
           "dateLabel": "1946",
           "type": null,
           "scale": "1:50000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.1376774,
+              30.5445458,
+              114.3979659,
+              30.7065353
+            ]
+          },
           "keywords": []
         }
       ]
@@ -237,7 +356,14 @@
           "dateLabel": "—",
           "type": null,
           "scale": "1:10000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.27975,
+              30.494,
+              114.33226,
+              30.60814
+            ]
+          },
           "keywords": []
         },
         {
@@ -248,7 +374,14 @@
           "dateLabel": "—",
           "type": null,
           "scale": "1:4000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.283587,
+              30.518664,
+              114.321887,
+              30.570636
+            ]
+          },
           "keywords": []
         },
         {
@@ -259,7 +392,14 @@
           "dateLabel": "—",
           "type": null,
           "scale": "1:10000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.22537,
+              30.49347,
+              114.33102,
+              30.62949
+            ]
+          },
           "keywords": []
         },
         {
@@ -270,7 +410,14 @@
           "dateLabel": "—",
           "type": null,
           "scale": "1:10000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.22515,
+              30.4932,
+              114.33278,
+              30.63035
+            ]
+          },
           "keywords": []
         }
       ]

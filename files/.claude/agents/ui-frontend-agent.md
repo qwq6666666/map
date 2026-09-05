@@ -13,9 +13,10 @@ model: sonnet
 - 頁面骨架與樣式：`index.html`、`style.css`
 - 側邊欄控制：`src/sidebarUI.js`、`src/ui/sidebarToggle.js`
 - 時間軸介面：`src/timelineUI.js`
-- 搜尋互動介面：`src/searchUI.js`、`src/ui/search.js`
+- 搜尋互動介面：`src/searchUI.js`、`src/ui/search.js`（地址／位置搜尋，維持原邏輯不動）、`src/ui/layerSearch.js`（圖資搜尋，獨立輸入框與結果渲染，只呼叫 `src/features/layerSearch.js` 的 metadata 搜尋函式，不呼叫任何地理編碼 API）
 - 圖層樹狀目錄與篩選：`src/uiTree.js`、`src/ui/countryFilter.js`
 - 自訂時間軸專屬介面：`src/features/customTimelineUI.js`（獨立的自訂時間軸浮動 dock：刻度點／滑桿／透明度拉桿／關閉鈕，跟全站時間軸模式 `src/timelineUI.js`／`src/timelineMode.js` 完全獨立，不共用容器也不共用狀態）
+- 新手導覽／使用指南：`src/ui/onboarding.js`（側邊欄「🧭 新手導覽」「❔ 使用指南」按鈕、首訪 Welcome Modal、5 步聚光燈導覽、使用指南手風琴抽屜；純 DOM 疊加層與 `localStorage` 已讀旗標，不呼叫地圖／模式切換的內部邏輯，只讀取既有元素的 `getBoundingClientRect()` 做定位）
 
 # 核心工作準則
 1. **響應式佈局與樣式 (Layout & RWD)：**
@@ -27,4 +28,4 @@ model: sonnet
 
 # 驗證規範
 - 修改後執行介面相關測試：
-  `node tests/run-all.mjs tests/specs/timeline-ui.test.mjs tests/specs/search-two-tier.test.mjs`
+  `node tests/run-all.mjs tests/specs/timeline-ui.test.mjs tests/specs/search-two-tier.test.mjs tests/specs/custom-timeline.test.mjs`

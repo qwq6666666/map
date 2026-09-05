@@ -26,7 +26,14 @@
           "dateLabel": "1900s",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              113.4328549,
+              21.9397465,
+              114.5805257,
+              22.7073598
+            ]
+          },
           "keywords": []
         },
         {
@@ -37,7 +44,14 @@
           "dateLabel": "1931",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              113.6094587,
+              21.6983474,
+              114.6540639,
+              22.8257609
+            ]
+          },
           "keywords": []
         },
         {
@@ -48,7 +62,14 @@
           "dateLabel": "1932",
           "type": null,
           "scale": "1:84500",
-          "region": null,
+          "region": {
+            "bbox": [
+              113.8138453,
+              22.1137733,
+              114.5274424,
+              22.6524849
+            ]
+          },
           "keywords": []
         },
         {
@@ -59,7 +80,14 @@
           "dateLabel": "1935",
           "type": null,
           "scale": "1:6000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.1406328,
+              22.2717635,
+              114.202292,
+              22.3124285
+            ]
+          },
           "keywords": []
         },
         {
@@ -70,7 +98,14 @@
           "dateLabel": "1936",
           "type": null,
           "scale": "1:80000",
-          "region": null,
+          "region": {
+            "bbox": [
+              113.7813573,
+              22.1099652,
+              114.5563715,
+              22.6412589
+            ]
+          },
           "keywords": []
         }
       ]
@@ -87,7 +122,14 @@
           "dateLabel": "1945",
           "type": null,
           "scale": "1:10000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.128389,
+              22.269035,
+              114.196983,
+              22.313433
+            ]
+          },
           "keywords": []
         },
         {
@@ -98,7 +140,14 @@
           "dateLabel": "1945",
           "type": null,
           "scale": "1:10000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.128389,
+              22.269035,
+              114.196983,
+              22.313433
+            ]
+          },
           "keywords": []
         }
       ]
@@ -115,7 +164,14 @@
           "dateLabel": "1964",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              112.511054,
+              21.62773479,
+              114.26471484,
+              23.06819239
+            ]
+          },
           "keywords": []
         },
         {
@@ -126,7 +182,14 @@
           "dateLabel": "1967",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              113.7826725,
+              22.1365538,
+              114.5455382,
+              22.6426738
+            ]
+          },
           "keywords": []
         },
         {
@@ -137,7 +200,14 @@
           "dateLabel": "1967",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              114.1600793,
+              22.2924321,
+              114.1881149,
+              22.3138468
+            ]
+          },
           "keywords": []
         },
         {
@@ -148,7 +218,14 @@
           "dateLabel": "1967",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              114.1377052,
+              22.2573998,
+              114.1731345,
+              22.2788925
+            ]
+          },
           "keywords": []
         },
         {
@@ -159,7 +236,14 @@
           "dateLabel": "1967",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              114.1448578,
+              22.2754807,
+              114.1890421,
+              22.3054531
+            ]
+          },
           "keywords": []
         },
         {
@@ -170,7 +254,14 @@
           "dateLabel": "1970",
           "type": null,
           "scale": "1:25000",
-          "region": null,
+          "region": {
+            "bbox": [
+              114.10349,
+              22.24772,
+              114.209264,
+              22.361933
+            ]
+          },
           "keywords": []
         }
       ]

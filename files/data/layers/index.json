@@ -7,6 +7,12 @@
       "layerCount": 86
     },
     {
+      "id": "ls",
+      "file": "ls.json",
+      "name": "地方社會研究WMTS圖資",
+      "layerCount": 85
+    },
+    {
       "id": "keelung",
       "file": "keelung.json",
       "name": "基隆百年歷史地圖",
@@ -175,10 +181,17 @@
       "layerCount": 13
     },
     {
+      "id": "korea",
+      "file": "korea.json",
+      "name": "韓國百年歷史地圖",
+      "layerCount": 16
+    },
+    {
       "id": "ccts",
       "file": "ccts.json",
       "name": "中華文明之時空基礎架構",
       "layerCount": 114
-    }
+    },
+    { "id": "nlsc", "file": "nlsc.json", "name": "國土測繪圖資（現代參考圖層）", "layerCount": 221 }
   ]
 }

@@ -12,6 +12,10 @@
    2. 文字比對候選圖層（僅作用在有堡／庄次分類結構的來源，目前只有
       thm）：用地址元件的地名核心字跟圖層標題做子字串比對，命中的
       優先檢查，沒命中的留著當備援，確保新舊地名對不上時不會漏掉。
+   2.5 圖層層級 bbox 篩選：對每筆候選圖層各自的 WGS84 bbox（layer.
+      region.bbox，見 tileGeo.js 的 pointInBbox()）做座標範圍比對，
+      確定不在圖層範圍內的候選直接排除，減少下一步要送出的圖磚請求
+      數量；沒有 bbox 索引資料的圖層一律保留、不受影響。
    3. 逐筆資料驗證：候選圖層各自對該地點座標實際發送一次圖磚請求，
       只列出真的成功回傳影像的圖層。
 
@@ -32,16 +36,20 @@ import {
   LAYER_SOURCES, REGION_EXTENTS, layerKey,
   matchSourceIdsForAddress, extractPlaceKeywords, prefilterLayersByPlaceName
 } from '../data.js';
-import { TileChecker } from '../tileChecker.js';
+import { TileChecker, globalTileRequestPool } from '../tileChecker.js';
 import { state as store, setMode, selectOverlayLayer } from '../store.js';
-import { lonLatToTileXY, toTWD97, formatWGS84, formatTWD97 } from '../core/tileGeo.js';
+import { lonLatToTileXY, toTWD97, formatWGS84, formatTWD97, pointInBbox } from '../core/tileGeo.js';
 
 export const SEARCH_ZOOM = 15;
 
 // 全站共用同一個 TileChecker 實例，才能真的發揮快取效果：使用者
 // 短時間內搜尋相近地點、或重新搜尋同一個地址，只要落在同一顆
 // z/x/y 圖磚上，就會直接讀到剛才探測過的結果，不用再發送 HTTP 請求。
-const tileChecker = new TileChecker({ concurrency: 10, timeoutMs: 6000 });
+// concurrency=10 只決定同時處理幾筆候選圖層（worker/task concurrency）；
+// pool 明確指定共用 globalTileRequestPool，讓這裡跟 timelineMode.js
+// 的 TileChecker 共用同一份「真正 HTTP 請求」名額，兩邊同時運作時
+// 加總的併發請求數也不會超過 TILE_REQUEST_MAX_CONCURRENCY。
+const tileChecker = new TileChecker({ concurrency: 10, timeoutMs: 6000, pool: globalTileRequestPool });
 
 // 用搜尋到的經緯度，跟每個來源的概略 bounding box（REGION_EXTENTS）比對，
 // 完全落在範圍外的來源可以直接跳過。這是純數學運算、沒有任何網路請求，
@@ -61,6 +69,15 @@ function isPointNearExtent(lon, lat, ext){
          lat >= minLat - EXTENT_BUFFER_DEG && lat <= maxLat + EXTENT_BUFFER_DEG;
 }
 
+// 圖層層級的 bbox 篩選：candidates 是 { src, layer } 的陣列，只保留
+// pointInBbox(lon, lat, layer.region?.bbox) 為 true 的項目——也就是
+// 「沒有 bbox 索引資料」或「座標確實落在 bbox 範圍內」的候選都會保留，
+// 只有「有合法 bbox、且座標確定在範圍外」的候選才會被排除。純函式，
+// 不 mutate 傳入的 candidates 陣列，方便獨立測試。
+export function filterCandidatesByBbox(candidates, lon, lat){
+  return candidates.filter(c => pointInBbox(lon, lat, c.layer.region && c.layer.region.bbox));
+}
+
 /* ---------------------------------------------------------
    核心搜尋流程：找出候選來源 → 兩階段 priority/fallback 篩選 →
    逐筆圖磚驗證。
@@ -78,18 +95,12 @@ function isPointNearExtent(lon, lat, ext){
 --------------------------------------------------------- */
 export async function findAvailableLayersAt(lon, lat, addr, { onProgress, isStale } = {}){
   const sourceIds = matchSourceIdsForAddress(addr);
-  console.log('[DEBUG identify-search] 輸入座標與地址', { lon, lat, addr, sourceIds });
   const bboxExcluded = []; // 記錄被座標 bbox 排除掉的來源名稱，僅供進度顯示參考
   const candidateSources = LAYER_SOURCES.filter(s=>{
     if(!sourceIds.includes(s.id)) return false;
     const nearby = isPointNearExtent(lon, lat, REGION_EXTENTS[s.id]);
     if(!nearby) bboxExcluded.push({ name: s.name, extent: REGION_EXTENTS[s.id] });
     return nearby;
-  });
-  console.log('[DEBUG identify-search] 候選來源篩選結果', {
-    候選來源數: candidateSources.length,
-    總來源數: LAYER_SOURCES.length,
-    bbox排除前5筆: bboxExcluded.slice(0, 5)
   });
   const placeKeywords = extractPlaceKeywords(addr);
 
@@ -101,7 +112,7 @@ export async function findAvailableLayersAt(lon, lat, addr, { onProgress, isStal
   //                命中的圖層。只要 priority 裡這個來源一筆有資料的都沒有，
   //                就把 fallback 名單也一起檢查，確保不會因為文字篩選誤判
   //                而漏掉圖層。
-  const priority = [];
+  let priority = [];
   const fallbackBySource = new Map(); // srcId -> 候選圖層陣列
   let textFilteredSourceCount = 0; // 有多少個來源是靠文字比對縮小範圍的（僅供進度顯示參考）
 
@@ -136,6 +147,20 @@ export async function findAvailableLayersAt(lon, lat, addr, { onProgress, isStal
     }
   });
 
+  // 圖層層級 bbox 篩選：priority、fallbackBySource 都套用，只排除「有
+  // 合法 bbox、且這個座標確定不在範圍內」的候選，沒有 bbox 索引資料的
+  // 圖層一律保留（pointInBbox 內建的 fallback 行為已經處理好這件事）。
+  const priorityBeforeBbox = priority.length;
+  priority = filterCandidatesByBbox(priority, lon, lat);
+  let bboxFilteredCount = priorityBeforeBbox - priority.length;
+
+  fallbackBySource.forEach((layers, srcId) => {
+    const beforeCount = layers.length;
+    const filtered = filterCandidatesByBbox(layers, lon, lat);
+    bboxFilteredCount += beforeCount - filtered.length;
+    fallbackBySource.set(srcId, filtered);
+  });
+
   if(priority.length === 0){
     return { status: 'no-source' };
   }
@@ -143,6 +168,7 @@ export async function findAvailableLayersAt(lon, lat, addr, { onProgress, isStal
   const noteParts = [];
   if(bboxExcluded.length > 0) noteParts.push(`已用座標排除 ${bboxExcluded.length} 個範圍不重疊的來源`);
   if(textFilteredSourceCount > 0) noteParts.push(`已用地址文字比對優先檢查 ${textFilteredSourceCount} 個來源的候選圖層`);
+  if(bboxFilteredCount > 0) noteParts.push(`已用圖層 bbox 排除 ${bboxFilteredCount} 筆範圍不重疊的候選圖層`);
   const filterNote = noteParts.length > 0 ? `（${noteParts.join('；')}）` : '';
 
   onProgress?.(`正在確認 0 / ${priority.length} 筆圖層是否有資料…${filterNote}`);
@@ -183,7 +209,6 @@ export async function findAvailableLayersAt(lon, lat, addr, { onProgress, isStal
     available = available.concat(moreAvailable);
   }
 
-  console.log('[DEBUG identify-search] 最終結果', { available長度: available.length, totalChecked });
   return { status: 'ok', available, totalChecked };
 }
 

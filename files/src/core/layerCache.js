@@ -60,12 +60,32 @@ function touch(entry){
 function createEntry(key){
   const source = makeSourceForKey(key);
   const layer = new ol.layer.Tile({ source, preload: 0 });
+  bindAttributionSync(layer, source);
   layer.setOpacity(0);
   map.addLayer(layer);
   const entry = { key, source, layer, metadata: { key }, createdAt: Date.now(), lastUsedAt: Date.now() };
   cache.set(key, entry);
   log('CACHE CREATE', key);
   return entry;
+}
+
+/* ---------------------------------------------------------
+   OL 的預設 Attribution 控制項只認 layer.getVisible()，不管
+   opacity——這個快取機制刻意讓「暫時不顯示」的歷史圖層維持
+   visible:true、只把 opacity 設 0（見檔頭說明，為了預熱圖磚），
+   結果所有點過的圖層 attribution 會永遠留在控制項裡疊加，越點
+   越長。這裡改成監聽 opacity 變化，opacity 歸零時把 source 的
+   attributions 暫時清空、大於 0 時還原，不影響快取／預熱行為。
+--------------------------------------------------------- */
+function bindAttributionSync(layer, source){
+  const originalAttributions = source.getAttributions();
+  let shown = true; // 下面 setOpacity(0) 會觸發第一次 sync，讓它變成 false
+  layer.on('change:opacity', () => {
+    const shouldShow = layer.getOpacity() > 0;
+    if(shouldShow === shown) return;
+    shown = shouldShow;
+    source.setAttributions(shouldShow ? originalAttributions : null);
+  });
 }
 
 /* ---------------------------------------------------------

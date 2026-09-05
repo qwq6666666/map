@@ -19,8 +19,8 @@ test('時間軸模式：進入後會依方案 A 清單探測，得到 15 筆圖�
   setMode('timeline');
   await sleep(500);
   const inner = document.getElementById('mapTimelineBarInner');
-  const arrows = inner.querySelectorAll('.timeline-arrow');
-  assertEqual(arrows.length, 15, '方案 A（1:25,000 系列）應該有 15 筆');
+  const dots = inner.querySelectorAll('.timeline-dot');
+  assertEqual(dots.length, 15, '方案 A（1:25,000 系列）應該有 15 筆');
 });
 
 test('時間軸模式：切換到 1:50,000 系列會重新探測，得到 9 筆', async () => {
@@ -39,8 +39,8 @@ test('時間軸模式：切換到 1:50,000 系列會重新探測，得到 9 筆'
   scaleSwitch._listeners['click'][0]({ target: btn50k, preventDefault(){}, stopPropagation(){} });
   await sleep(400);
   const inner = document.getElementById('mapTimelineBarInner');
-  const arrows = inner.querySelectorAll('.timeline-arrow');
-  assertEqual(arrows.length, 9, '1:50,000 系列應該有 9 筆');
+  const dots = inner.querySelectorAll('.timeline-dot');
+  assertEqual(dots.length, 9, '1:50,000 系列應該有 9 筆');
 });
 
 test('三種模式可以依序切換回疊圖模式，不拋出例外', async () => {
