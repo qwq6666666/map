@@ -1478,19 +1478,18 @@
       border-radius:12px; max-height:min(360px, 55vh);
     }
 
-    /* ---------- 浮動地圖控制項：避開頂部搜尋列，改直排在右側 ---------- */
-    .locate-btn{
-      top:calc(env(safe-area-inset-top) + var(--mobile-topbar-h) + 56px);
-      right:calc(10px + env(safe-area-inset-right));
-      width:44px; height:44px;
-    }
-    .draw-toggle-btn{
-      top:calc(env(safe-area-inset-top) + var(--mobile-topbar-h) + 108px);
-      right:calc(10px + env(safe-area-inset-right));
-      width:44px; height:44px;
+    /* ---------- 浮動地圖控制項 ----------
+       定位按鈕、繪圖工具開關兩顆常駐浮動鈕在手機版收起來：定位保留在
+       搜尋列裡的「用目前位置搜尋圖資」按鈕（#locateSearchBtn，已經在
+       #mobileSearchBar 裡）；繪圖工具開關改移進「地圖工具」浮動選單
+       （#mobileDrawToggle，見 index.html／src/ui/mobileLayout.js），
+       預設不開啟，跟桌面版一樣，只是入口換位置。放大縮小按鈕也收起來，
+       手機直接用雙指縮放即可（見使用者回報）。 ---------- */
+    .locate-btn, .draw-toggle-btn, .ol-zoom{
+      display:none;
     }
     .draw-toolbar{
-      top:calc(env(safe-area-inset-top) + var(--mobile-topbar-h) + 158px);
+      top:calc(env(safe-area-inset-top) + var(--mobile-topbar-h) + 10px);
       right:calc(10px + env(safe-area-inset-right));
       max-height:min(420px, 58vh); overflow-y:auto; -webkit-overflow-scrolling:touch;
     }
@@ -1498,14 +1497,6 @@
     .draw-color-swatch, .draw-color-custom{width:26px; height:26px;}
 
     .locate-toast{top:calc(env(safe-area-inset-top) + var(--mobile-topbar-h) + 10px); right:10px;}
-
-    /* ---------- OpenLayers 內建縮放按鈕：疊到「地圖工具」快速選單按鈕
-       正上方，避免兩者在右下角同一欄互相重疊（見下方 #mobileModeBtn）。 ---------- */
-    .ol-zoom{
-      right:calc(10px + env(safe-area-inset-right));
-      bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 128px);
-    }
-    .ol-zoom button{width:44px !important; height:44px !important;}
 
     /* ---------- 日期印章：縮小並疊到左右比對浮動選單（#compareWrapB）
        正上方，維持跟桌面版一樣在右下角，但避開同一欄的其他控制項。 ---------- */
@@ -1550,9 +1541,13 @@
     /* 放左下角（不是右下角）：右下角已經有縮放／日期印章／左右比對 B 側
        選單排成一欄，「地圖工具」按鈕改疊在左下角 #compareWrapA（左右比對
        A 側選單）正上方，避免整欄控制項互相重疊（見任務規格九）。 */
+    /* z-index:50 刻意比全站所有手機浮動列都高（含 .search-batch-bar 的
+       30、#custom-timeline-dock 的 31），確保「地圖模式」按鈕永遠在
+       最上層、不會被任何浮動面板蓋住（新手導覽／使用指南等全螢幕疊加
+       層 z-index 120 起跳，屬於刻意需要蓋過一切的情境，不受此限）。 */
     #mobileModeBtn{
       display:flex; align-items:center; justify-content:center;
-      position:fixed; z-index:26;
+      position:fixed; z-index:50;
       left:calc(10px + env(safe-area-inset-left));
       bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 56px);
       width:48px; height:48px; border-radius:50%;
@@ -1567,7 +1562,7 @@
     #mobileModeBtn svg{width:20px; height:20px;}
     #mobileModeBtn.active{background:var(--stamp); border-color:var(--stamp);}
     #mobileModePopover{
-      display:none; position:fixed; z-index:26;
+      display:none; position:fixed; z-index:50;
       /* 預設位置只在 JS 還沒開過選單前的保險，實際每次開啟都會由
          src/ui/mobileLayout.js 的 positionPopover() 依按鈕目前位置
          （可能已被拖到別處）重新計算 left/top。 */
@@ -1595,6 +1590,18 @@
     }
     .mobile-mode-option.active{background:var(--paper-dim); font-weight:700; color:var(--brass-dark);}
     .mobile-mode-option.active::before{content:"●"; color:var(--brass-dark);}
+
+    .mobile-mode-popover-divider{height:1px; background:var(--rule); opacity:.35; margin:4px 2px 6px;}
+    /* 繪圖工具是開關（可多次切換），不是單選，用方塊勾選視覺跟上面的
+       模式單選圓點區隔開；.active 代表繪圖工具目前是開啟狀態。 */
+    .mobile-mode-toggle::before{content:"☐"; font-size:13px;}
+    .mobile-mode-toggle.active::before{content:"☑"; color:var(--brass-dark);}
+
+    /* 「地圖模式」手風琴已經被浮動選單（#mobileModePopover）取代，
+       手機版側邊欄不再需要這排按鈕，避免同一個功能兩個地方都要維護
+       視覺一致性（見使用者回報）。#overlayPanel／#comparePanel 等模式
+       內容面板不受影響，仍依 store.mode 正常顯示/隱藏。 */
+    #modeSection{display:none;}
 
     /* ---------- 其餘地圖下方浮動列：一律讓到底部工作表 peek 區之上 ---------- */
     .compare-float-item{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px);}
@@ -1675,19 +1682,19 @@
     .favorites-list, .recent-list{max-height:32vh;}
 
     /* Bottom Sheet 只要不是收合(peek)狀態，z-index 比 #sidebar 高的
-       浮動捷徑（半開狀態要能疊在面板之上才能點擊）就會蓋住已經打開的
-       面板內容（實機回報「浮動功能會影響拉起選單」），這裡統一先藏
-       起來；同樣的操作在打開後的「地圖模式」「目前圖層」區塊都找得到，
-       不影響功能完整性。body class 由 src/ui/mobileLayout.js 的
-       initSheetOpenStateSync() 同步。 */
-    body.mobile-sheet-open #mobileModeBtn,
-    body.mobile-sheet-open #mobileModePopover,
+       「目前圖層」浮動列就會蓋住已經打開的面板內容（實機回報「浮動
+       功能會影響拉起選單」），這裡先藏起來；同樣的資訊在打開後的
+       「目前圖層」區塊都找得到，不影響功能完整性。body class 由
+       src/ui/mobileLayout.js 的 initSheetOpenStateSync() 同步。
+       #mobileModeBtn／#mobileModePopover 不在這裡藏——使用者希望「地圖
+       模式」按鈕永遠在最上層、不論 Sheet 開合都能點到，見下方
+       #mobileModeBtn 的 z-index。 */
     body.mobile-sheet-open .floating-opacity.show.has-layer{
-      /* .floating-opacity 這邊特別補 .show.has-layer 兩個 class：
-         CSS specificity 是先比對 class 數量，.floating-opacity.show.has-layer
-         那條規則（見該規則定義處）本身就有 3 個 class，比這裡若只寫
-         .floating-opacity（1 個 class）specificity 還高，後宣告也贏不了，
-         必須補滿相同/更多 class 才能確實蓋過去。 */
+      /* 補 .show.has-layer 兩個 class：CSS specificity 是先比對 class
+         數量，.floating-opacity.show.has-layer 那條規則（見該規則定義處）
+         本身就有 3 個 class，比這裡若只寫 .floating-opacity（1 個 class）
+         specificity 還高，後宣告也贏不了，必須補滿相同/更多 class 才能
+         確實蓋過去。 */
       display:none !important;
     }
 
@@ -1707,29 +1714,14 @@
          class 數較多的規則。 */
       display:none !important;
     }
-    /* 縮放按鈕平常疊在「地圖工具」按鈕正上方即可（見 #mobileModeBtn
-       附近規則），但時間軸／複合疊圖的浮動列比較高，這兩個模式下
-       縮放按鈕額外再往上讓，避免疊到浮動列內容。 */
-    body.mobile-mode-timeline .ol-zoom,
-    body.mobile-mode-multi .ol-zoom{
-      bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 244px);
-    }
-
-    /* 時間軸模式進一步簡化畫面：頂部搜尋列、定位、繪圖工具入口先隱藏，
-       這幾個功能仍可切回其他模式使用，只是時間軸模式不需要同時常駐
-       （使用者回報「時間軸模式應該能簡化，搜尋/定位/繪圖都可不顯示」）。
-       左右比對／複合疊圖模式的頂部搜尋列也一併隱藏（僅透明疊圖模式
-       常駐頂部搜尋，見使用者回報），但定位／繪圖工具在這兩個模式
-       仍保留，因為使用者只點名時間軸模式要簡化這兩項。 */
+    /* 頂部搜尋列僅透明疊圖模式常駐，其他模式先隱藏，畫面更單純
+       （定位／繪圖工具已經全站收進「地圖工具」浮動選單，見上方
+       .locate-btn／.draw-toggle-btn／.ol-zoom{display:none} 那條規則，
+       不需要再依模式個別隱藏）。 */
     body.mobile-mode-compare #mobileSearchBar,
     body.mobile-mode-timeline #mobileSearchBar,
     body.mobile-mode-multi #mobileSearchBar{
       display:none;
-    }
-    body.mobile-mode-timeline .locate-btn,
-    body.mobile-mode-timeline .draw-toggle-btn,
-    body.mobile-mode-timeline .draw-toolbar{
-      display:none !important;
     }
 
     /* 時間軸浮動列在手機上內容偏多（比例尺切換＋年份刻度＋播放列），

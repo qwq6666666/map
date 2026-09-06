@@ -172,10 +172,11 @@ function initSheetHandle(){
 }
 
 /* ---------------------------------------------------------
-   3a. 「地圖工具」快速模式選單：純轉發點擊到 #modeSwitch 既有按鈕，
-   高亮狀態訂閱 store 跟真正的按鈕 .active class 保持一致。按鈕本身
-   可拖曳（見下方 initDraggableModeButton()），拖曳中放開不應該再觸發
-   開合選單，兩者用 dragJustHappened 這個共用旗標互相協調。
+   3a. 「地圖工具」快速模式選單：純轉發點擊到 #modeSwitch 既有按鈕、
+   繪圖工具開關純轉發點擊到 #drawToggleBtn，高亮／開關狀態分別訂閱
+   store 與觀察 #drawToggleBtn 的 class，跟真正的按鈕狀態保持一致。
+   按鈕本身可拖曳（見下方 initDraggableModeButton()），拖曳中放開不
+   應該再觸發開合選單，兩者用 dragJustHappened 這個共用旗標互相協調。
 --------------------------------------------------------- */
 const MODE_BTN_POS_KEY = 'mobile_mode_btn_pos';
 let dragJustHappened = false;
@@ -183,6 +184,8 @@ let dragJustHappened = false;
 function initModePopover(){
   const btn = document.getElementById('mobileModeBtn');
   const popover = document.getElementById('mobileModePopover');
+  const drawToggleOption = document.getElementById('mobileDrawToggle');
+  const realDrawToggleBtn = document.getElementById('drawToggleBtn');
   if(!btn || !popover) return;
 
   function closePopover(){
@@ -217,10 +220,13 @@ function initModePopover(){
     btn.setAttribute('aria-expanded', 'true');
   }
   function syncActiveOption(){
-    popover.querySelectorAll('.mobile-mode-option').forEach(optBtn=>{
+    popover.querySelectorAll('.mobile-mode-option[data-mode]').forEach(optBtn=>{
       const realBtn = document.querySelector(`#modeSwitch button[data-mode="${optBtn.dataset.mode}"]`);
       optBtn.classList.toggle('active', !!realBtn?.classList.contains('active'));
     });
+    if(drawToggleOption && realDrawToggleBtn){
+      drawToggleOption.classList.toggle('active', realDrawToggleBtn.classList.contains('active'));
+    }
   }
 
   btn.addEventListener('click', (e)=>{
@@ -232,14 +238,24 @@ function initModePopover(){
   document.addEventListener('click', (e)=>{
     if(popover.classList.contains('open') && !popover.contains(e.target) && e.target !== btn) closePopover();
   });
-  popover.querySelectorAll('.mobile-mode-option').forEach(optBtn=>{
+  popover.querySelectorAll('.mobile-mode-option[data-mode]').forEach(optBtn=>{
     optBtn.addEventListener('click', ()=>{
       document.querySelector(`#modeSwitch button[data-mode="${optBtn.dataset.mode}"]`)?.click();
       closePopover();
     });
   });
+  drawToggleOption?.addEventListener('click', ()=>{
+    realDrawToggleBtn?.click();
+    closePopover();
+  });
 
   subscribe((state, prev, changedKeys)=>{ if(changedKeys.includes('mode')) syncActiveOption(); });
+  // 繪圖工具開關不是走 store（見 src/drawTool.js 自己管理 .active class），
+  // 用 MutationObserver 盯 #drawToggleBtn 的 class，涵蓋所有讓它開關的
+  // 途徑（不只是這個選單本身點擊），保持兩邊顯示一致。
+  if(realDrawToggleBtn){
+    new MutationObserver(syncActiveOption).observe(realDrawToggleBtn, { attributes:true, attributeFilter:['class'] });
+  }
   syncActiveOption();
 }
 

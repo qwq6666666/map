@@ -85,9 +85,9 @@
   <span class="opacity-val" id="floatingOpacityVal">100%</span>
 </div>
 
-<!-- 手機版「地圖工具」快速模式選單：只是 #modeSwitch 既有按鈕的
-     UI 捷徑，點下去會轉呼叫 #modeSwitch 裡對應按鈕的 click()，
-     不重新實作模式切換邏輯。>768px 一律隱藏。 -->
+<!-- 手機版「地圖工具」快速模式選單：只是 #modeSwitch 既有按鈕（與
+     #drawToggleBtn 繪圖工具開關）的 UI 捷徑，點下去轉呼叫對應按鈕的
+     click()，不重新實作模式切換／繪圖工具邏輯。>768px 一律隱藏。 -->
 <button type="button" id="mobileModeBtn" class="mobile-mode-btn" title="地圖工具" aria-label="地圖工具" aria-expanded="false">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
@@ -101,6 +101,10 @@
   <button type="button" class="mobile-mode-option" data-mode="compare">左右比對</button>
   <button type="button" class="mobile-mode-option" data-mode="timeline">時間軸</button>
   <button type="button" class="mobile-mode-option" data-mode="multi">多重疊圖</button>
+  <div class="mobile-mode-popover-divider"></div>
+  <div class="mobile-mode-popover-title">工具</div>
+  <!-- 轉呼叫既有 #drawToggleBtn 的 click()，不重新實作繪圖工具開關邏輯 -->
+  <button type="button" class="mobile-mode-option mobile-mode-toggle" id="mobileDrawToggle">繪圖工具</button>
 </div>
 
 <div class="compare-float-item" id="compareWrapA">

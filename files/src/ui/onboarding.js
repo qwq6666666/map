@@ -7,38 +7,65 @@ import { expandSidebar } from './sidebarToggle.js';
 
 const STORAGE_KEY = 'has_seen_map_tour';
 
-/** 5 步聚光燈導覽腳本。selector 找不到時該步驟會被跳過。 */
-const TOUR_STEPS = [
-  {
-    selector: '#addressInput',
-    fallbackSelector: '.search-block',
-    title: '📍 找一個地方',
-    desc: '輸入現在的地址或地標，系統會帶您定焦至該地點。',
-  },
-  {
-    selector: '#layerSearchInput',
-    fallbackSelector: '.layer-search-block',
-    title: '🗺️ 找歷史地圖',
-    desc: '想看特定歷史圖資？在這裡搜尋年代、圖層名稱或來源（與上方地址搜尋不同）。',
-  },
-  {
-    selector: '#modeSwitch button[data-mode="overlay"]',
-    title: '🪟 透明疊圖',
-    desc: '將歷史地圖疊加在現代圖資上，滑動透明度拉桿透視百年變遷。',
-  },
-  {
-    selector: '#modeSwitch button[data-mode="compare"]',
-    title: '↔️ 左右比對',
-    desc: '左右拖曳滑動分割線，直接比對兩張地圖的地景差異。',
-  },
-  {
-    selector: '#modeSwitch button[data-mode="timeline"]',
-    title: '🕰️ 時空時間軸',
-    desc: '依年代順序穿梭歷史地圖。',
-    extra: '現在輸入一個您熟悉的地點開始探索吧！',
-    finalStep: true,
-  },
-];
+/** 5 步聚光燈導覽腳本。selector 找不到（或存在但目前不可見）時該步驟會被跳過。
+ *
+ *  手機版 (<=768px) 的「地圖模式」側邊欄手風琴（#modeSwitch）已經隱藏、
+ *  改由常駐的浮動按鈕 #mobileModeBtn 負責（見 style.css 的 Mobile
+ *  Responsive Layout／src/ui/mobileLayout.js），所以桌面版原本後三步
+ *  （分別點名疊圖／比對／時間軸三顆按鈕）在手機上改成合併成一步，
+ *  直接介紹那顆浮動按鈕，不用另外操作彈出選單去逐一 highlight 四個
+ *  選項——這裡只是「換一種呈現」，模式切換的實際行為完全沒變。
+ *  buildTourSteps() 在 startTour() 當下判斷一次即可，不需要跟著視窗
+ *  縮放即時切換腳本內容。 */
+function buildTourSteps() {
+  const isMobile = window.matchMedia('(max-width:768px)').matches;
+  const steps = [
+    {
+      selector: '#addressInput',
+      fallbackSelector: '.search-block',
+      title: '📍 找一個地方',
+      desc: '輸入現在的地址或地標，系統會帶您定焦至該地點。',
+    },
+    {
+      selector: '#layerSearchInput',
+      fallbackSelector: '.layer-search-block',
+      title: '🗺️ 找歷史地圖',
+      desc: '想看特定歷史圖資？在這裡搜尋年代、圖層名稱或來源（與上方地址搜尋不同）。',
+    },
+  ];
+  if (isMobile) {
+    steps.push({
+      selector: '#mobileModeBtn',
+      title: '🗺️ 地圖模式',
+      desc: '點這顆浮動按鈕切換「透明疊圖／左右比對／時間軸／複合疊圖」四種瀏覽模式，也能拖曳到您喜歡的位置。',
+      extra: '現在輸入一個您熟悉的地點開始探索吧！',
+      finalStep: true,
+    });
+  } else {
+    steps.push(
+      {
+        selector: '#modeSwitch button[data-mode="overlay"]',
+        title: '🪟 透明疊圖',
+        desc: '將歷史地圖疊加在現代圖資上，滑動透明度拉桿透視百年變遷。',
+      },
+      {
+        selector: '#modeSwitch button[data-mode="compare"]',
+        title: '↔️ 左右比對',
+        desc: '左右拖曳滑動分割線，直接比對兩張地圖的地景差異。',
+      },
+      {
+        selector: '#modeSwitch button[data-mode="timeline"]',
+        title: '🕰️ 時空時間軸',
+        desc: '依年代順序穿梭歷史地圖。',
+        extra: '現在輸入一個您熟悉的地點開始探索吧！',
+        finalStep: true,
+      },
+    );
+  }
+  return steps;
+}
+
+let activeTourSteps = buildTourSteps();
 
 /** 使用指南手風琴內容。 */
 const GUIDE_SECTIONS = [
@@ -167,7 +194,7 @@ function resolveStepTarget(step) {
 
 function positionTourStep() {
   if (!tourEls) return;
-  const step = TOUR_STEPS[tourIndex];
+  const step = activeTourSteps[tourIndex];
   const target = resolveStepTarget(step);
   if (!target) {
     // 找不到目標元素就跳到下一步，避免導覽卡住
@@ -207,12 +234,12 @@ function positionTourStep() {
 
 function renderTourStep() {
   if (!tourEls) return;
-  const step = TOUR_STEPS[tourIndex];
+  const step = activeTourSteps[tourIndex];
   const isFirst = tourIndex === 0;
-  const isLast = tourIndex === TOUR_STEPS.length - 1;
+  const isLast = tourIndex === activeTourSteps.length - 1;
   const nextLabel = step.finalStep ? '完成並開始探索' : '下一步';
   tourEls.tooltip.innerHTML = `
-    <div class="tour-tooltip-step">第 ${tourIndex + 1} / ${TOUR_STEPS.length} 步</div>
+    <div class="tour-tooltip-step">第 ${tourIndex + 1} / ${activeTourSteps.length} 步</div>
     <h3 class="tour-tooltip-title">${step.title}</h3>
     <p class="tour-tooltip-desc">${step.desc}</p>
     ${step.extra ? `<p class="tour-tooltip-extra">${step.extra}</p>` : ''}
@@ -238,7 +265,7 @@ function renderTourStep() {
 
 function goToStep(index, direction) {
   if (index < 0) return endTour();
-  if (index >= TOUR_STEPS.length) return endTour();
+  if (index >= activeTourSteps.length) return endTour();
   tourIndex = index;
   renderTourStep();
 }
@@ -269,6 +296,7 @@ function unbindReposition() {
 export function startTour() {
   if (tourEls) endTour();
   ensureSidebarExpanded();
+  activeTourSteps = buildTourSteps(); // 依當下是否為手機尺寸決定腳本版本
 
   const highlight = document.createElement('div');
   highlight.className = 'tour-highlight';
