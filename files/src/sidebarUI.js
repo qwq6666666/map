@@ -84,14 +84,24 @@ function renderCurrentLayer(){
   const floatingOpacityEl = document.getElementById('floatingOpacity');
   if(floatingNameEl) floatingNameEl.textContent = key ? titleForKey(key) : '';
   if(floatingOpacityEl) floatingOpacityEl.classList.toggle('has-layer', !!key);
+
+  // 手機版 #opacityBlock 整條隱藏（見 style.css），收藏功能唯一入口
+  // 改成浮動列裡的 #floatingLayerFavBtn，跟 #currentLayerFavBtn 同步同一份
+  // 收藏狀態，桌面版此按鈕恆為 CSS 隱藏，不受影響。
+  const floatingFavBtn = document.getElementById('floatingLayerFavBtn');
+  if(floatingFavBtn){
+    floatingFavBtn.hidden = !key;
+    floatingFavBtn.textContent = fav ? '★' : '☆';
+    floatingFavBtn.classList.toggle('active', fav);
+  }
 }
 
 function initCurrentLayerFavButton(){
   const favBtn = document.getElementById('currentLayerFavBtn');
-  if(!favBtn) return;
-  favBtn.addEventListener('click', () => {
-    if(store.activeOverlayKey) toggleFavoriteLayer(store.activeOverlayKey);
-  });
+  const floatingFavBtn = document.getElementById('floatingLayerFavBtn');
+  const toggle = () => { if(store.activeOverlayKey) toggleFavoriteLayer(store.activeOverlayKey); };
+  favBtn?.addEventListener('click', toggle);
+  floatingFavBtn?.addEventListener('click', toggle);
 }
 
 function initRecentClearButton(){

@@ -28,6 +28,14 @@
 - `TileChecker`（`src/tileChecker.js`）的 `_probe()` 一律包在 `RequestPool.run()` 裡才真的送出 `Image` 請求，確保 `checkBatchAny()` 巢狀 `Promise.all()`（鄰近圖磚 fallback）、timeout retry 都不會讓實際併發 HTTP 請求數超過上限。沒有明確傳入 `pool` 時，各 instance 用自己的 `concurrency` 建立專屬 pool；`search.js`／`timelineMode.js` 則明確共用同一個 `globalTileRequestPool`（上限 `TILE_REQUEST_MAX_CONCURRENCY = 8`），避免兩邊各自的請求量疊加超過總上限。
 - 測試集中在 `tests/specs/spatial-index.test.mjs`（含全站 32/33 來源 bbox 覆蓋率回歸測試，另有寫死的全站總圖層數斷言，新增/移除圖層來源時要同步更新）與 `tests/specs/tile-request-pool.test.mjs`（RequestPool 併發上限、cache/in-flight dedup、timeout 釋放 slot、retry 不繞過 pool）。
 
+## 手機版 Responsive UI (<=768px Bottom Sheet)
+手機版不是把桌面 `#sidebar` 縮小，而是「地圖為主、可拖曳三態 Bottom Sheet 為輔」；平板 (769~1024px) 與桌面互動完全不受影響。協調層在 `src/ui/mobileLayout.js`（**不**重新實作搜尋／模式切換／圖層邏輯，只做既有 DOM 節點搬移與 UI 狀態同步），對應樣式集中在 `style.css` 檔尾的「Mobile Responsive Layout」區塊（全部包在 `@media (max-width:768px)`，同選擇器靠後宣告覆寫桌面規則，不改動原規則本身）。
+- **Bottom Sheet 三態**：收合(peek) 沿用桌面既有 `#sidebar.collapsed`，半開／展開額外疊加 `.sheet-expanded`，靠 `transform:translateY` 實作。高度算式吃 `--vvh`（`updateViewportMetrics()` 即時量測 `window.visualViewport.height` 寫入的 CSS 變數），**不能改回純 `vh`**——手機瀏覽器工具列動態顯示/收起會讓 `100vh` 跟實際可視高度對不上，這是實機踩過的坑。
+- **頂部搜尋列**（`#mobileSearchBar`，僅透明疊圖模式顯示）是把桌面版 `.search-row`／`#addressSuggest` 這兩個「真正的」DOM 節點搬過去，不是複製，兩邊只會有一份輸入框存在畫面上。
+- **「地圖模式」浮動按鈕**（`#mobileModeBtn`/`#mobileModePopover`）只轉發點擊到 `#modeSwitch`/`#drawToggleBtn` 既有按鈕；可拖曳、位置存 `localStorage`；`z-index:50` 蓋過所有手機浮動列、不受 Sheet 開合影響。側邊欄裡原本的模式切換手風琴（`#modeSection`）已被取代，手機版整段隱藏。
+- 依 Sheet 開合（`body.mobile-sheet-open`）與目前模式（`body.mobile-mode-<mode>`）動態隱藏會互相重疊的浮動控制項，這兩個 body class 由 `initSheetOpenStateSync()`/`initModeClassSync()` 同步，改動前先確認有沒有規則吃這兩個 class。
+- **CSS specificity 陷阱**：`.floating-opacity.show.has-layer` 這類多 class 規則，要蓋過去的新規則 class 數量必須相等或更多，只靠「後宣告」贏不了 class 數較少的規則（style.css 對應規則已加註解，新增類似隱藏規則前先確認蓋得過去）。
+
 ## 子代理分工與路由 (Subagents Routing)
 遇到具體模組需求時，主代理請即刻將任務派發給對應的 Subagent，勿在主階段載入過多非權責程式碼：
 

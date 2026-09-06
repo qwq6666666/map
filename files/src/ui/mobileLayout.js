@@ -26,6 +26,9 @@
       不是刪除功能。
    5. 「地圖工具」浮動按鈕可拖曳到螢幕任何位置並記住（localStorage），
       選單面板開啟時改成跟著按鈕目前位置浮出，純呈現層面的調整。
+   6. 頂部搜尋列 15 秒閒置（無 focus／無輸入）自動摺疊成圓形圖示按鈕，
+      點擊摺疊態立即展開並 focus 回輸入框；純 CSS transition 做動畫，
+      這裡只管 class 的加減與計時器排程。
 
    >768px（平板／桌面）時，這裡所有動作都是 no-op，畫面與操作維持
    桌面版原樣。
@@ -83,6 +86,64 @@ function relocateSearchBar(isMobile){
     if(suggestEl.parentElement !== searchBlock) searchBlock.insertBefore(suggestEl, locationResultEl);
     if(addressInput && desktopPlaceholder !== null) addressInput.placeholder = desktopPlaceholder;
   }
+}
+
+/* ---------------------------------------------------------
+   1b. 頂部搜尋列 15 秒閒置自動摺疊成圖示：手機螢幕寸土寸金，搜尋列
+   常駐展開會一直佔掉地圖上方一整條，但使用者大多數時間並非在搜尋。
+   閒置 15 秒沒有互動（沒 focus／沒打字）就摺疊成只剩放大鏡圓鈕，
+   點一下立刻展開並 focus 回輸入框，同時重新排程倒數——計時器只用
+   setTimeout 手動管理，摺疊/展開純靠 CSS class + transition 做動畫，
+   不需要 JS 動畫函式庫。
+--------------------------------------------------------- */
+const SEARCH_BAR_IDLE_MS = 15000;
+const SEARCH_BAR_COLLAPSED_CLASS = 'mobile-search-collapsed';
+let searchBarCollapseTimer = null;
+
+function clearSearchBarCollapseTimer(){
+  if(searchBarCollapseTimer){ clearTimeout(searchBarCollapseTimer); searchBarCollapseTimer = null; }
+}
+function scheduleSearchBarCollapse(){
+  clearSearchBarCollapseTimer();
+  if(!mq.matches) return; // 桌面版沒有這條浮動列，不排程也不用清 class
+  searchBarCollapseTimer = setTimeout(()=>{
+    document.getElementById('mobileSearchBar')?.classList.add(SEARCH_BAR_COLLAPSED_CLASS);
+  }, SEARCH_BAR_IDLE_MS);
+}
+function expandSearchBar(){
+  document.getElementById('mobileSearchBar')?.classList.remove(SEARCH_BAR_COLLAPSED_CLASS);
+}
+
+function initSearchBarAutoCollapse(){
+  const mobileBar = document.getElementById('mobileSearchBar');
+  const addressInput = document.getElementById('addressInput');
+  if(!mobileBar) return;
+
+  // 點擊已摺疊狀態的整條 bar（此時內容只剩下 #addressSearchBtn 圓鈕）
+  // 立刻展開＋focus 輸入框，展開中或未摺疊時點擊交給輸入框/按鈕自己的
+  // 既有行為，不攔截。
+  mobileBar.addEventListener('click', ()=>{
+    if(!mq.matches) return;
+    if(!mobileBar.classList.contains(SEARCH_BAR_COLLAPSED_CLASS)) return;
+    expandSearchBar();
+    document.getElementById('addressInput')?.focus();
+    scheduleSearchBarCollapse();
+  });
+
+  // focus 中代表正在互動，先取消倒數；blur／打字（input）都算「有事發生」，
+  // 重新起算 15 秒，不是「維持已經過去的時間」。
+  addressInput?.addEventListener('focus', ()=>{ if(mq.matches) clearSearchBarCollapseTimer(); });
+  addressInput?.addEventListener('blur', ()=>{ if(mq.matches) scheduleSearchBarCollapse(); });
+  addressInput?.addEventListener('input', ()=>{ if(mq.matches) scheduleSearchBarCollapse(); });
+
+  // 手機版某些模式（比對／時間軸／多重疊圖）會把整條 #mobileSearchBar
+  // 用 body class 隱藏（見 style.css），切走時計時器留著沒意義（使用者
+  // 根本看不到這條 bar），切回歷史疊圖模式才需要展開＋重新倒數。
+  subscribe((state, prev, changedKeys)=>{
+    if(!changedKeys.includes('mode') || !mq.matches) return;
+    if(state.mode === 'overlay'){ expandSearchBar(); scheduleSearchBarCollapse(); }
+    else clearSearchBarCollapseTimer();
+  });
 }
 
 /* ---------------------------------------------------------
@@ -429,6 +490,14 @@ function applyBreakpoint(isMobile){
     const sidebar = document.getElementById('sidebar');
     if(sidebar && !sidebar.classList.contains('collapsed')) collapseSidebar();
   }
+  // 跨越 768px 門檻：進入手機版重新起算 15 秒摺疊倒數；跳回桌面版要
+  // 清掉計時器並拿掉摺疊 class，避免桌面版（此時 #mobileSearchBar 本來
+  // 就是空殼）殘留一顆用不到的計時器或 class。
+  if(isMobile) scheduleSearchBarCollapse();
+  else{
+    clearSearchBarCollapseTimer();
+    expandSearchBar();
+  }
 }
 
 export function initMobileLayout(){
@@ -441,6 +510,7 @@ export function initMobileLayout(){
   if(mq.addEventListener) mq.addEventListener('change', (e)=> applyBreakpoint(e.matches));
   else mq.addListener((e)=> applyBreakpoint(e.matches)); // 舊版 Safari 相容
 
+  initSearchBarAutoCollapse();
   initSheetHandle();
   initModePopover();
   initDraggableModeButton();

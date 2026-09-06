@@ -174,6 +174,7 @@ export function initOpacityControls(){
   floatingOpacitySlider.addEventListener('input', ()=> setOverlayOpacity(parseInt(floatingOpacitySlider.value,10)));
 
   document.getElementById('clearBtn').addEventListener('click', clearOverlayLayer);
+  document.getElementById('floatingClearBtn')?.addEventListener('click', clearOverlayLayer);
 }
 
 // 方便未來在畫面上（或 console）顯示 Cache 現況用；目前沒有 UI 掛這個，

@@ -1440,6 +1440,8 @@
   #mobileModeBtn{display:none;}
   #mobileModePopover{display:none;}
   .floating-layer-name{display:none;}
+  .floating-layer-fav-btn{display:none;}
+  .floating-clear-btn{display:none;}
 
   @media (max-width:768px){
     :root{
@@ -1462,17 +1464,43 @@
       position:fixed; left:50%; top:calc(env(safe-area-inset-top) + 10px);
       transform:translateX(-50%);
       width:90%; max-width:520px; z-index:40;
+      /* 15 秒閒置自動摺疊成圓鈕（見 src/ui/mobileLayout.js 的
+         initSearchBarAutoCollapse()）只改 width，靠 transition 做出
+         絲滑的收合/展開動畫，不需要 JS 動畫函式庫。 */
+      transition:width .32s cubic-bezier(.4,0,.2,1);
     }
+    #mobileSearchBar.mobile-search-collapsed{width:48px;}
     #mobileSearchBar .search-row{
       background:var(--paper); border:1px solid var(--rule); border-radius:22px;
       padding:5px 6px; box-shadow:0 4px 16px rgba(0,0,0,.32); gap:5px;
+      overflow:hidden; justify-content:center;
+      transition:padding .32s cubic-bezier(.4,0,.2,1), box-shadow .32s cubic-bezier(.4,0,.2,1);
     }
     #mobileSearchBar .address-input{
       border:none; background:transparent; border-radius:0;
       font-size:14px; padding:9px 8px; min-height:24px;
+      flex:1 1 auto; min-width:0; opacity:1;
+      /* 摺疊時靠 flex-basis/width/opacity 一起淡出＋收合寬度，展開時
+         反向播放同一組 transition，避免內容瞬間消失顯得生硬。 */
+      transition:flex-basis .32s cubic-bezier(.4,0,.2,1), width .32s cubic-bezier(.4,0,.2,1),
+                 opacity .2s ease, margin .32s cubic-bezier(.4,0,.2,1), padding .32s cubic-bezier(.4,0,.2,1);
     }
     #mobileSearchBar .address-input:focus{outline:none; border-color:transparent;}
-    #mobileSearchBar .address-search-btn{width:40px; height:40px; border-radius:50%; flex-shrink:0;}
+    #mobileSearchBar .address-search-btn{
+      width:40px; height:40px; border-radius:50%; flex-shrink:0;
+      transition:transform .32s cubic-bezier(.4,0,.2,1);
+    }
+    #mobileSearchBar #locateSearchBtn{
+      /* 定位鈕跟輸入框一起淡出/收合，只留放大鏡圓鈕代表整條搜尋列 */
+      transition:flex-basis .32s cubic-bezier(.4,0,.2,1), width .32s cubic-bezier(.4,0,.2,1),
+                 opacity .2s ease, margin .32s cubic-bezier(.4,0,.2,1);
+    }
+    #mobileSearchBar.mobile-search-collapsed .search-row{padding:5px; box-shadow:0 2px 10px rgba(0,0,0,.28);}
+    #mobileSearchBar.mobile-search-collapsed .address-input,
+    #mobileSearchBar.mobile-search-collapsed #locateSearchBtn{
+      flex:0 0 0; width:0; min-width:0; opacity:0; margin:0; padding:0;
+      border:none; pointer-events:none; overflow:hidden;
+    }
     #mobileSearchBar .address-suggest{
       position:absolute; top:calc(100% + 6px); left:0; right:0;
       border-radius:12px; max-height:min(360px, 55vh);
@@ -1508,10 +1536,24 @@
     #stamp .stamp-year{font-size:15px;}
     #stamp .stamp-label{font-size:7px; max-width:52px;}
 
+    /* 側邊欄「📌 目前圖層」欄位在手機版整條隱藏：收藏／清除疊圖／透明度
+       這三項功能都已併入下方「目前圖層」浮動列（.floating-opacity），
+       避免同一份資訊在 Bottom Sheet 與浮動列重複出現兩次。
+       必須用 !important：src/core/modeManager.js 切換疊圖／時間軸模式時
+       會對這顆節點寫入 inline style（opacityBlockEl.style.display=
+       'block'/'none'），inline style 的優先權高於一般 CSS 規則（不論
+       selector specificity），只有 !important 才蓋得過去，比照同檔案
+       .floating-opacity／[hidden] 已經在用的手法。 */
+    #opacityBlock{display:none !important;}
+
     /* ---------- 手機「目前圖層」浮動列：取代桌面版左下角浮動透明度，
        改成貼齊底部工作表 peek 區上緣的橫幅，預設只顯示一行「圖名＋
-       百分比」，點一下展開透明度拉桿。存在歷史圖層時才顯示
-       （.has-layer，由 src/sidebarUI.js 的 renderCurrentLayer() 同步）。 ---------- */
+       收藏星號＋清除鈕＋百分比」，點一下展開透明度拉桿。存在歷史圖層時
+       才顯示（.has-layer，由 src/sidebarUI.js 的 renderCurrentLayer()
+       同步）。收藏／清除疊圖兩顆按鈕是桌面版 #opacityBlock 裡
+       #currentLayerFavBtn／#clearBtn 在手機版的唯一入口（桌面版整欄
+       隱藏，見上方 #opacityBlock{display:none;}），事件監聽器另見
+       src/sidebarUI.js（收藏）／src/core/layerManager.js（清除疊圖）。 ---------- */
     .floating-opacity{
       display:none !important; /* 預設不顯示，由 .show.has-layer 覆寫 */
       /* 左邊留給「地圖工具」快速選單按鈕（#mobileModeBtn，左下角）的欄位，
@@ -1530,9 +1572,18 @@
       font-family:var(--serif); font-size:13px; color:var(--ink);
       overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
     }
-    .floating-opacity .opacity-val{order:2;}
-    .floating-opacity .field-label{order:3; flex-basis:100%; display:none; margin:2px 0 0;}
-    .floating-opacity input[type=range]{order:4; flex-basis:100%; display:none; height:32px;}
+    /* 收藏／清除疊圖：沿用桌面版 .current-layer-fav-btn 圓形按鈕樣式
+       （顏色／hover/active 邏輯不重寫），這裡只縮小尺寸塞進同一行橫幅。 */
+    .floating-layer-fav-btn,
+    .floating-clear-btn{
+      display:flex; flex-shrink:0;
+      width:24px; height:24px; font-size:12px;
+    }
+    .floating-layer-fav-btn{order:2;}
+    .floating-clear-btn{order:3;}
+    .floating-opacity .opacity-val{order:4;}
+    .floating-opacity .field-label{order:5; flex-basis:100%; display:none; margin:2px 0 0;}
+    .floating-opacity input[type=range]{order:6; flex-basis:100%; display:none; height:32px;}
     /* 展開狀態（點一下橫幅）：補顯示「透明度」標籤與拉桿，卡片高度自然撐開 */
     .floating-opacity.expanded .field-label,
     .floating-opacity.expanded input[type=range]{display:block;}
