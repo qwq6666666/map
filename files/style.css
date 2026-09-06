@@ -1467,6 +1467,9 @@
   .floating-layer-name{display:none;}
   .floating-layer-fav-btn{display:none;}
   .floating-clear-btn{display:none;}
+  /* 地址／圖資搜尋合併切換鈕：只在手機版有意義（見下方 @media），桌面版
+     兩個 .search-block 各自獨立顯示、不需要切換，一律隱藏。 */
+  .mobile-search-mode-btn{display:none;}
 
   @media (max-width:768px){
     :root{
@@ -1538,7 +1541,9 @@
       border-color:transparent; background:transparent; box-shadow:none;
     }
     #mobileSearchBar.mobile-search-collapsed .address-input,
-    #mobileSearchBar.mobile-search-collapsed #locateSearchBtn{
+    #mobileSearchBar.mobile-search-collapsed #locateSearchBtn,
+    #mobileSearchBar.mobile-search-collapsed #mobileSearchModeBtn,
+    #mobileSearchBar.mobile-search-collapsed #layerSearchClearBtn{
       flex:0 0 0; width:0; min-width:0; opacity:0; margin:0; padding:0;
       border:none; pointer-events:none; overflow:hidden;
     }
@@ -1546,6 +1551,36 @@
       position:absolute; top:calc(100% + 6px); left:0; right:0;
       border-radius:12px; max-height:min(360px, 55vh);
     }
+
+    /* ---------- 地址／圖資搜尋合併成一個輸入框 ----------
+       兩個 .search-row（.address-search-row／.layer-search-row）都會被
+       src/ui/mobileLayout.js 搬進 #mobileSearchBar（見 relocateSearchBar()／
+       relocateLayerSearchRow()），這裡只依 body class 決定同一時間只顯示
+       其中一條，讓使用者看起來像單一個輸入框＋切換鈕，實際上兩邊各自
+       仍是獨立的真實 DOM 節點與事件監聽器，互不接管對方的搜尋邏輯。
+       body class（mobile-search-mode-address／mobile-search-mode-layer）
+       由 applyMobileSearchMode() 同步，預設（尚未套用 class 時）顯示
+       地址列，跟目前手機版既有行為一致。 ---------- */
+    #mobileSearchBar .mobile-search-mode-btn{
+      display:flex; align-items:center; justify-content:center;
+      width:36px; height:36px; border-radius:50%; flex-shrink:0;
+      font-size:15px; padding:0;
+      transition:flex-basis .32s cubic-bezier(.4,0,.2,1), width .32s cubic-bezier(.4,0,.2,1),
+                 opacity .2s ease, margin .32s cubic-bezier(.4,0,.2,1);
+    }
+    #mobileSearchBar .layer-search-row{display:none;}
+    body.mobile-search-mode-layer #mobileSearchBar .address-search-row{display:none;}
+    body.mobile-search-mode-layer #mobileSearchBar .layer-search-row{display:flex;}
+    /* 切到圖資模式時，地址建議清單（若剛好還開著）一併隱藏，只是視覺
+       蓋掉，不呼叫 hideSuggest()，內容與 .show class 都原封不動保留，
+       切回地點模式馬上恢復顯示。 */
+    body.mobile-search-mode-layer #mobileSearchBar .address-suggest{display:none;}
+
+    /* 非啟用中的搜尋整塊（含各自結果面板 #locationResult／
+       #layerSearchPanel）在手機版隱藏，只用 CSS class 隱藏、不清除任何
+       搜尋狀態，切回來時先前的搜尋結果原封不動還在，不用重新搜。 */
+    body.mobile-search-mode-layer .search-block:not(.layer-search-block){display:none;}
+    body.mobile-search-mode-address .layer-search-block{display:none;}
 
     /* ---------- 浮動地圖控制項 ----------
        定位按鈕、繪圖工具開關兩顆常駐浮動鈕在手機版收起來：定位保留在

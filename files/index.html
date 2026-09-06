@@ -261,8 +261,15 @@
 
     <div class="search-block">
       <div class="field-label">🔎 地址／位置搜尋</div>
-      <div class="search-row">
+      <div class="search-row address-search-row">
         <input type="text" id="addressInput" class="address-input" placeholder="請輸入地址或地點…" autocomplete="off">
+        <!-- 手機版專屬：地址／圖資搜尋合併切換鈕。桌面版一律隱藏（見
+             style.css 的 .mobile-search-mode-btn{display:none}），只有
+             <=768px 才會顯示；行為見 src/ui/mobileLayout.js 的
+             initMobileSearchModeToggle()／applyMobileSearchMode()。 -->
+        <button type="button" id="mobileSearchModeBtn" class="address-search-btn mobile-search-mode-btn" title="切換成圖資搜尋">
+          <span class="mobile-search-mode-icon" aria-hidden="true">📍</span>
+        </button>
         <button type="button" id="locateSearchBtn" class="address-search-btn locate-search-btn" title="使用目前位置尋找圖層">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"></circle>
@@ -288,7 +295,7 @@
 
     <div class="search-block layer-search-block">
       <div class="field-label">🗺 圖資搜尋</div>
-      <div class="search-row">
+      <div class="search-row layer-search-row">
         <input type="text" id="layerSearchInput" class="address-input" placeholder="搜尋圖層名稱、年份、來源或分類…" autocomplete="off">
         <button type="button" id="layerSearchClearBtn" class="address-search-btn" title="清除圖資搜尋" hidden>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>

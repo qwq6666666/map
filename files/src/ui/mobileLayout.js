@@ -4,10 +4,17 @@
    這支檔案不重新實作任何搜尋／模式切換／圖層邏輯，只做三件事：
 
    1. 監看 matchMedia('(max-width:768px)')，跨越 768px 門檻時把
-      「真正的」DOM 節點（.search-row／#addressSuggest）搬進／搬出
-      手機版頂部搜尋列 #mobileSearchBar——是搬移不是複製，事件監聽器
-      跟 features/search.js／ui/search.js 完全沒有改變，兩邊只會有
-      一份輸入框存在於畫面上。
+      「真正的」DOM 節點（.address-search-row／#addressSuggest／
+      .layer-search-row）搬進／搬出手機版頂部搜尋列 #mobileSearchBar
+      ——是搬移不是複製，事件監聽器跟 features/search.js、
+      features/layerSearch.js、ui/search.js、ui/layerSearch.js 完全沒有
+      改變。地址搜尋列與圖資搜尋列會「同時」搬進 #mobileSearchBar，但
+      靠 body class（mobile-search-mode-address／mobile-search-mode-layer，
+      由 initMobileSearchModeToggle()／applyMobileSearchMode() 同步）
+      同一時間只顯示其中一條，加上一顆合併切換鈕（#mobileSearchModeBtn，
+      放在地址搜尋列裡），讓使用者視覺上只看到一個輸入框，實際上兩邊
+      仍是各自獨立的真實 DOM 節點，互不接管對方的搜尋邏輯與狀態，切換
+      模式不會清除任何一邊已經搜尋出來的結果。
    2. 讓 #sidebar 在手機版變成可拖曳／點擊循環三態的 Bottom Sheet
       （收合 peek／半開 45vh／展開 75vh），沿用既有的
       collapseSidebar()／expandSidebar()（ui/sidebarToggle.js）做
@@ -38,9 +45,11 @@ import { collapseSidebar, expandSidebar } from './sidebarToggle.js';
 
 const MOBILE_QUERY = '(max-width:768px)';
 const MOBILE_PLACEHOLDER = '🔍 搜尋地址、地點……';
+const MOBILE_LAYER_PLACEHOLDER = '🗺 搜尋圖層名稱、年份……';
 
 const mq = window.matchMedia(MOBILE_QUERY);
 let desktopPlaceholder = null;
+let desktopLayerPlaceholder = null;
 
 /* ---------------------------------------------------------
    實機測試（見專案回報）發現手機瀏覽器的網址列／工具列會動態
@@ -89,6 +98,91 @@ function relocateSearchBar(isMobile){
 }
 
 /* ---------------------------------------------------------
+   1a. 圖資搜尋列搬移：跟 relocateSearchBar() 對稱，只搬「搜尋列本體」
+   （.layer-search-row，含 #layerSearchInput／#layerSearchClearBtn）這一個
+   節點，#layerSearchPanel（搜尋結果）留在側邊欄 Bottom Sheet 裡不動。
+   跟地址搜尋的 .search-row 搬進同一個 #mobileSearchBar，是否顯示由
+   applyMobileSearchMode() 同步的 body class 決定（見 style.css），這裡
+   完全不碰 ui/layerSearch.js 的比對邏輯與事件監聽器。
+--------------------------------------------------------- */
+function relocateLayerSearchRow(isMobile){
+  const layerBlock = document.querySelector('.layer-search-block');
+  const layerRow = layerBlock?.querySelector('.layer-search-row');
+  const layerPanelEl = document.getElementById('layerSearchPanel');
+  const mobileBar = document.getElementById('mobileSearchBar');
+  const layerInput = document.getElementById('layerSearchInput');
+  if(!layerBlock || !layerRow || !layerPanelEl || !mobileBar) return;
+
+  if(isMobile){
+    if(layerRow.parentElement !== mobileBar) mobileBar.appendChild(layerRow);
+    if(layerInput){
+      if(desktopLayerPlaceholder === null) desktopLayerPlaceholder = layerInput.placeholder;
+      layerInput.placeholder = MOBILE_LAYER_PLACEHOLDER;
+    }
+  } else {
+    if(layerRow.parentElement !== layerBlock) layerBlock.insertBefore(layerRow, layerPanelEl);
+    if(layerInput && desktopLayerPlaceholder !== null) layerInput.placeholder = desktopLayerPlaceholder;
+  }
+}
+
+/* ---------------------------------------------------------
+   1a-2. 手機版「地址／位置搜尋」與「圖資搜尋」合併成同一個輸入框：
+   兩條 .search-row 都常駐在 #mobileSearchBar 裡（見上方兩個
+   relocate 函式），這裡只負責切換鈕的點擊與一個 body class
+   （mobile-search-mode-address／mobile-search-mode-layer），實際的
+   顯示/隱藏交給 style.css，兩邊各自的輸入邏輯（geocodeAddress() debounce
+   ／searchLayers() 立即比對）完全不受影響，也不互相接管對方的輸入框。
+--------------------------------------------------------- */
+let mobileSearchMode = 'address'; // 'address' | 'layer'，只在手機版有意義
+
+/* 切換鈕（#mobileSearchModeBtn）本身沒有專屬容器，必須跟著「目前顯示
+   中」的那條 .search-row 走，否則另一條 row 被 display:none 隱藏時，
+   放在裡面的切換鈕會被連帶隱藏、使用者卡在圖資模式切不回地址模式。
+   這裡用純 DOM 搬移（跟 relocateSearchBar()／relocateLayerSearchRow()
+   同一種手法）把按鈕塞進目前可見的那條 row，不改變按鈕的事件監聽器。
+   mode 參數預設吃目前 mobileSearchMode，desktop 收尾時會明確傳
+   'address' 把按鈕搬回原始位置（見 applyBreakpoint()）。 */
+function relocateModeToggleBtn(mode = mobileSearchMode){
+  const btn = document.getElementById('mobileSearchModeBtn');
+  if(!btn) return;
+  const targetRow = mode === 'layer'
+    ? document.querySelector('.layer-search-row')
+    : document.querySelector('.address-search-row');
+  const anchor = mode === 'layer'
+    ? document.getElementById('layerSearchClearBtn')
+    : document.getElementById('locateSearchBtn');
+  if(targetRow && btn.parentElement !== targetRow){
+    targetRow.insertBefore(btn, anchor || null);
+  }
+}
+
+function applyMobileSearchMode(){
+  document.body.classList.toggle('mobile-search-mode-address', mobileSearchMode === 'address');
+  document.body.classList.toggle('mobile-search-mode-layer', mobileSearchMode === 'layer');
+  relocateModeToggleBtn();
+  const btn = document.getElementById('mobileSearchModeBtn');
+  const icon = btn?.querySelector('.mobile-search-mode-icon');
+  if(icon) icon.textContent = mobileSearchMode === 'address' ? '📍' : '🗺';
+  if(btn) btn.title = mobileSearchMode === 'address' ? '切換成圖資搜尋' : '切換成地址／位置搜尋';
+}
+
+function initMobileSearchModeToggle(){
+  const btn = document.getElementById('mobileSearchModeBtn');
+  if(!btn) return;
+  btn.addEventListener('click', ()=>{
+    if(!mq.matches) return; // 桌面版沒有這顆按鈕（見 style.css），這裡多一層保險
+    mobileSearchMode = mobileSearchMode === 'address' ? 'layer' : 'address';
+    applyMobileSearchMode();
+    // 切換模式當下代表使用者正要打字，展開頂部搜尋列並重新起算閒置倒數，
+    // 並把 focus 交給切過去之後對應的那個輸入框。
+    expandSearchBar();
+    scheduleSearchBarCollapse();
+    const nextInputId = mobileSearchMode === 'address' ? 'addressInput' : 'layerSearchInput';
+    document.getElementById(nextInputId)?.focus();
+  });
+}
+
+/* ---------------------------------------------------------
    1b. 頂部搜尋列 15 秒閒置自動摺疊成圖示：手機螢幕寸土寸金，搜尋列
    常駐展開會一直佔掉地圖上方一整條，但使用者大多數時間並非在搜尋。
    閒置 15 秒沒有互動（沒 focus／沒打字）就摺疊成只剩放大鏡圓鈕，
@@ -117,24 +211,32 @@ function expandSearchBar(){
 function initSearchBarAutoCollapse(){
   const mobileBar = document.getElementById('mobileSearchBar');
   const addressInput = document.getElementById('addressInput');
+  const layerSearchInput = document.getElementById('layerSearchInput');
   if(!mobileBar) return;
 
-  // 點擊已摺疊狀態的整條 bar（此時內容只剩下 #addressSearchBtn 圓鈕）
-  // 立刻展開＋focus 輸入框，展開中或未摺疊時點擊交給輸入框/按鈕自己的
-  // 既有行為，不攔截。
+  // 點擊已摺疊狀態的整條 bar（此時內容只剩下一顆圓鈕）立刻展開＋focus
+  // 回目前模式對應的輸入框（地址／圖資合併後，focus 目標要看
+  // mobileSearchMode，不能寫死 addressInput，否則圖資模式下點開會
+  // focus 錯輸入框）；展開中或未摺疊時點擊交給輸入框/按鈕自己的既有
+  // 行為，不攔截。
   mobileBar.addEventListener('click', ()=>{
     if(!mq.matches) return;
     if(!mobileBar.classList.contains(SEARCH_BAR_COLLAPSED_CLASS)) return;
     expandSearchBar();
-    document.getElementById('addressInput')?.focus();
+    document.getElementById(mobileSearchMode === 'layer' ? 'layerSearchInput' : 'addressInput')?.focus();
     scheduleSearchBarCollapse();
   });
 
   // focus 中代表正在互動，先取消倒數；blur／打字（input）都算「有事發生」，
-  // 重新起算 15 秒，不是「維持已經過去的時間」。
+  // 重新起算 15 秒，不是「維持已經過去的時間」。地址／圖資兩個輸入框都要
+  // 各自綁定，因為合併後兩者都常駐在 #mobileSearchBar 裡（只是同一時間
+  // 只顯示一個），不論使用者在哪個模式打字都要重新起算倒數。
   addressInput?.addEventListener('focus', ()=>{ if(mq.matches) clearSearchBarCollapseTimer(); });
   addressInput?.addEventListener('blur', ()=>{ if(mq.matches) scheduleSearchBarCollapse(); });
   addressInput?.addEventListener('input', ()=>{ if(mq.matches) scheduleSearchBarCollapse(); });
+  layerSearchInput?.addEventListener('focus', ()=>{ if(mq.matches) clearSearchBarCollapseTimer(); });
+  layerSearchInput?.addEventListener('blur', ()=>{ if(mq.matches) scheduleSearchBarCollapse(); });
+  layerSearchInput?.addEventListener('input', ()=>{ if(mq.matches) scheduleSearchBarCollapse(); });
 
   // 手機版某些模式（比對／時間軸／多重疊圖）會把整條 #mobileSearchBar
   // 用 body class 隱藏（見 style.css），切走時計時器留著沒意義（使用者
@@ -443,6 +545,34 @@ function initSearchResultAutoExpand(){
   observer.observe(locationResultEl, { attributes:true, attributeFilter:['style'] });
 }
 
+/* ---------------------------------------------------------
+   3c-2. 跟上面對稱：圖資搜尋出現結果時也自動把 Bottom Sheet 打開到
+   半開，因為合併輸入框搬到頂部後 #layerSearchPanel 仍留在 Bottom Sheet
+   裡（見 relocateLayerSearchRow()），收合(peek)狀態下使用者看不到搜尋
+   結果。只監看 #layerSearchPanel 的 hidden 屬性（ui/layerSearch.js 既有
+   的顯示/隱藏開關），不碰任何搜尋比對邏輯本身。
+--------------------------------------------------------- */
+function initLayerSearchResultAutoExpand(){
+  const layerPanelEl = document.getElementById('layerSearchPanel');
+  const sidebar = document.getElementById('sidebar');
+  if(!layerPanelEl || !sidebar) return;
+
+  let autoOpened = false;
+  const observer = new MutationObserver(()=>{
+    if(!mq.matches) return;
+    const visible = !layerPanelEl.hidden;
+    if(visible && sidebar.classList.contains('collapsed')){
+      expandSidebar();
+      sidebar.classList.remove('sheet-expanded');
+      autoOpened = true;
+    } else if(!visible && autoOpened){
+      collapseSidebar();
+      autoOpened = false;
+    }
+  });
+  observer.observe(layerPanelEl, { attributes:true, attributeFilter:['hidden'] });
+}
+
 let everEnteredMobile = false;
 
 /* ---------------------------------------------------------
@@ -482,6 +612,21 @@ function initModeClassSync(){
 
 function applyBreakpoint(isMobile){
   relocateSearchBar(isMobile);
+  relocateLayerSearchRow(isMobile);
+  // 同步「地址／圖資搜尋合併」的 body class：只在手機版有意義，離開
+  // 手機版時兩個 class 都拿掉，避免殘留（>768px 底下 style.css 對應規則
+  // 都包在 @media (max-width:768px) 裡，就算殘留 class 也不會有效果，
+  // 這裡拿掉純粹是保持乾淨）。不重設 mobileSearchMode 本身，維持使用者
+  // 上次選的模式。
+  if(isMobile) applyMobileSearchMode();
+  else{
+    document.body.classList.remove('mobile-search-mode-address', 'mobile-search-mode-layer');
+    // 離開手機版時把切換鈕搬回地址搜尋列原始位置，避免（曾切到圖資
+    // 模式後跨回桌面版時）按鈕留在 .layer-search-row 裡；桌面版本來就
+    // 靠 .mobile-search-mode-btn{display:none} 隱藏這顆鈕，這裡純粹是
+    // 保持 DOM 結構乾淨，不影響任何顯示邏輯。
+    relocateModeToggleBtn('address');
+  }
   // 手機初始狀態要「地圖接近全螢幕」（見任務規格四），第一次跨進手機
   // 尺寸時強制收合成 peek 態；之後在手機尺寸內縮放視窗（例如轉橫向）
   // 不會再重複強制收合，避免打斷使用者當下手動展開的操作。
@@ -511,11 +656,13 @@ export function initMobileLayout(){
   else mq.addListener((e)=> applyBreakpoint(e.matches)); // 舊版 Safari 相容
 
   initSearchBarAutoCollapse();
+  initMobileSearchModeToggle();
   initSheetHandle();
   initModePopover();
   initDraggableModeButton();
   initFloatingOpacityExpand();
   initSearchResultAutoExpand();
+  initLayerSearchResultAutoExpand();
   initSheetOpenStateSync();
   initModeClassSync();
 }
