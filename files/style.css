@@ -1465,16 +1465,29 @@
       transform:translateX(-50%);
       width:90%; max-width:520px; z-index:40;
       /* 15 秒閒置自動摺疊成圓鈕（見 src/ui/mobileLayout.js 的
-         initSearchBarAutoCollapse()）只改 width，靠 transition 做出
-         絲滑的收合/展開動畫，不需要 JS 動畫函式庫。 */
-      transition:width .32s cubic-bezier(.4,0,.2,1);
+         initSearchBarAutoCollapse()）：摺疊後改錨定右上角（見下方
+         .mobile-search-collapsed），跟這裡「置中」用的是同一組
+         left/transform 屬性，只是數值不同，兩者才能被 transition
+         平滑插值，不會因為切換定位方式（例如 left⇄right）而瞬間跳位。 */
+      transition:width .32s cubic-bezier(.4,0,.2,1),
+                 left .32s cubic-bezier(.4,0,.2,1),
+                 transform .32s cubic-bezier(.4,0,.2,1);
     }
-    #mobileSearchBar.mobile-search-collapsed{width:48px;}
+    /* 摺疊狀態：改貼右上角（比照其餘手機浮動控制項都是貼邊角，不會浮在
+       畫面正中央），寬度與圓角一併收到跟 #addressSearchBtn 本體一樣大，
+       避免摺疊後仍殘留一圈長條留白（實機回報「仍會有突出空間」）。 */
+    #mobileSearchBar.mobile-search-collapsed{
+      left:calc(100% - 44px - 10px - env(safe-area-inset-right));
+      transform:translateX(0);
+      width:44px; max-width:44px;
+    }
     #mobileSearchBar .search-row{
       background:var(--paper); border:1px solid var(--rule); border-radius:22px;
       padding:5px 6px; box-shadow:0 4px 16px rgba(0,0,0,.32); gap:5px;
-      overflow:hidden; justify-content:center;
-      transition:padding .32s cubic-bezier(.4,0,.2,1), box-shadow .32s cubic-bezier(.4,0,.2,1);
+      overflow:hidden; justify-content:center; align-items:center;
+      transition:padding .32s cubic-bezier(.4,0,.2,1), gap .32s cubic-bezier(.4,0,.2,1),
+                 box-shadow .32s cubic-bezier(.4,0,.2,1), background .32s cubic-bezier(.4,0,.2,1),
+                 border-color .32s cubic-bezier(.4,0,.2,1);
     }
     #mobileSearchBar .address-input{
       border:none; background:transparent; border-radius:0;
@@ -1495,7 +1508,10 @@
       transition:flex-basis .32s cubic-bezier(.4,0,.2,1), width .32s cubic-bezier(.4,0,.2,1),
                  opacity .2s ease, margin .32s cubic-bezier(.4,0,.2,1);
     }
-    #mobileSearchBar.mobile-search-collapsed .search-row{padding:5px; box-shadow:0 2px 10px rgba(0,0,0,.28);}
+    #mobileSearchBar.mobile-search-collapsed .search-row{
+      width:44px; height:44px; padding:0; gap:0;
+      border-color:transparent; background:transparent; box-shadow:none;
+    }
     #mobileSearchBar.mobile-search-collapsed .address-input,
     #mobileSearchBar.mobile-search-collapsed #locateSearchBtn{
       flex:0 0 0; width:0; min-width:0; opacity:0; margin:0; padding:0;
