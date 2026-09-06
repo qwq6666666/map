@@ -1417,6 +1417,31 @@
     .onboarding-modal-card{padding:18px 16px 14px;}
   }
 
+  /* ---------- 圖例預覽 Modal（src/uiTree.js buildLayerItem） ----------
+     桌機／手機共用同一份 DOM 與邏輯，僅靠 <=768px 覆寫規則改成全螢幕。
+     z-index 刻意設得比 5 步聚光燈導覽（.tour-tooltip 的 131）更高，
+     確保無論在哪個模式、Bottom Sheet 展開與否都一定蓋在最上層。 */
+  .legend-modal-overlay{
+    position:fixed; inset:0; background:rgba(15,15,10,.6);
+    display:flex; align-items:center; justify-content:center;
+    z-index:200; padding:24px;
+  }
+  .legend-modal-card{
+    position:relative; max-width:520px; width:100%; max-height:80vh;
+    background:var(--paper); border:1px solid var(--rule); border-radius:4px;
+    box-shadow:0 12px 32px rgba(0,0,0,.4); padding:36px 16px 16px; overflow:hidden;
+    display:flex; flex-direction:column;
+  }
+  .legend-modal-close{
+    position:absolute; top:8px; right:8px; width:28px; height:28px; padding:0;
+    background:var(--paper); border:1px solid var(--rule); border-radius:2px;
+    color:var(--ink); font-size:14px; cursor:pointer;
+  }
+  .legend-modal-close:hover{background:var(--paper-dim); border-color:var(--brass-dark);}
+  .legend-modal-body{flex:1; overflow:auto; display:flex; align-items:center; justify-content:center;}
+  .legend-modal-img{max-width:100%; max-height:70vh; display:block;}
+  .legend-modal-error{font-size:13px; color:var(--ink); text-align:center; margin:0;}
+
   /* =========================
      Mobile Responsive Layout
      =========================
@@ -1740,6 +1765,15 @@
     .segmented button{min-height:44px;}
     .layer-search-item, .favorites-item, .recent-item{min-height:44px;}
     .layer-list-toggle{min-height:40px; line-height:24px;}
+    /* 圖例按鈕熱區加大：用絕對定位的透明偽元素撐大可點擊範圍到 34px，
+       不改動按鈕本身 18px 的視覺尺寸／不佔用 flex 版面空間，避免跟
+       .layer-year／.layer-title 擠壓換行（沿用 .layer-legend-btn 定義處的
+       版面顧慮，這裡刻意不直接放大 width/height）。 */
+    .layer-legend-btn{position:relative;}
+    .layer-legend-btn::after{
+      content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+      width:34px; height:34px;
+    }
     input[type=range]{min-height:32px;}
     .opacity-row input[type=range]{height:32px;}
     .current-layer-fav-btn, .location-clear-btn{width:32px; height:32px;}
@@ -1807,6 +1841,14 @@
     #mapTimelineBar .timeline-slider-row{margin:0 0 2px;}
     #mapTimelineBar .timeline-play-btn,
     #mapTimelineBar .timeline-speed-btn{padding:2px 8px; font-size:10px;}
+
+    /* 圖例預覽 Modal：手機版改全螢幕呈現，圖片盡量佔滿可視空間。 */
+    .legend-modal-overlay{padding:0;}
+    .legend-modal-card{
+      max-width:100vw; width:100vw; height:100%; max-height:100%;
+      border-radius:0; padding:44px 12px 12px;
+    }
+    .legend-modal-img{max-height:calc(100vh - 80px);}
   }
 
   @media (max-width:480px){

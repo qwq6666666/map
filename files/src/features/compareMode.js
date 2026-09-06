@@ -167,11 +167,34 @@ export function positionDivider(){
   swipeDividerEl.style.left = (w * store.swipePercent/100) + 'px';
 }
 
+// 分隔線可拖曳的判定範圍：以「目前分隔線實際 x 座標」為中心，左右各再擴大
+// 這麼多 px 都算命中，不用精準點在 34px 的 #swipeHandle 圓形上（手機上很難點準）。
+const DIVIDER_HIT_MARGIN = 22;
+
 function initSwipeDivider(){
-  document.getElementById('swipeHandle').addEventListener('pointerdown', (e)=>{
+  function startDrag(e){
     runtime.dragging = true;
     e.preventDefault();
-  });
+  }
+
+  document.getElementById('swipeHandle').addEventListener('pointerdown', startDrag);
+
+  // #swipeDivider／#swipeLine 都設了 pointer-events:none（分隔線視覺本身不擋
+  // 地圖操作），所以點在分隔線附近但沒點準把手時，pointerdown 會直接落在
+  // #map 底下的 OL 畫布上。這裡在 #map 用 capture 階段攔截：算出目前分隔線
+  // 實際 x 座標，落在 ±DIVIDER_HIT_MARGIN px 範圍內就視為要拖曳分隔線，並
+  // stopPropagation() 讓事件不再往下傳給 OL 自己的拖曳平移監聽，效果等同
+  // 直接點中把手；非比對模式或距離太遠則完全不介入，事件正常流向地圖。
+  document.getElementById('map').addEventListener('pointerdown', (e)=>{
+    if(store.mode !== 'compare') return;
+    const mapEl = document.getElementById('map');
+    const rect = mapEl.getBoundingClientRect();
+    const dividerX = rect.left + rect.width * (store.swipePercent / 100);
+    if(Math.abs(e.clientX - dividerX) > DIVIDER_HIT_MARGIN) return;
+    startDrag(e);
+    e.stopPropagation();
+  }, true);
+
   window.addEventListener('pointerup', ()=> runtime.dragging = false);
   window.addEventListener('pointercancel', ()=> runtime.dragging = false);
   window.addEventListener('pointermove', (e)=>{

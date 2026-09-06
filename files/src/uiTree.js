@@ -22,6 +22,46 @@
    false，維持「可同時展開多個」的原行為。
 --------------------------------------------------------- */
 
+// 圖例預覽 Modal：全站共用同一個 DOM（lazy singleton），桌機／手機都走
+// 這一套，只靠 CSS media query 切換置中卡片／全螢幕呈現，避免維護兩套邏輯。
+let legendModalEls = null;
+function ensureLegendModal(){
+  if (legendModalEls) return legendModalEls;
+  const overlay = document.createElement('div');
+  overlay.className = 'legend-modal-overlay';
+  overlay.style.display = 'none';
+  overlay.innerHTML = `
+    <div class="legend-modal-card">
+      <button type="button" class="legend-modal-close" aria-label="關閉圖例">✕</button>
+      <div class="legend-modal-body">
+        <img class="legend-modal-img" alt="圖例">
+        <p class="legend-modal-error" style="display:none;">圖例載入失敗</p>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  const card = overlay.querySelector('.legend-modal-card');
+  const img = overlay.querySelector('.legend-modal-img');
+  const errorMsg = overlay.querySelector('.legend-modal-error');
+  const closeBtn = overlay.querySelector('.legend-modal-close');
+
+  const close = () => { overlay.style.display = 'none'; img.src = ''; };
+  overlay.addEventListener('click', close); // 點擊遮罩關閉
+  card.addEventListener('click', (e) => e.stopPropagation()); // 卡片本身不觸發遮罩關閉
+  closeBtn.addEventListener('click', close);
+
+  legendModalEls = { overlay, img, errorMsg, close };
+  return legendModalEls;
+}
+
+function showLegendModal(url){
+  const { overlay, img, errorMsg } = ensureLegendModal();
+  errorMsg.style.display = 'none';
+  img.style.display = '';
+  img.onerror = () => { img.style.display = 'none'; errorMsg.style.display = ''; };
+  img.src = url;
+  overlay.style.display = 'flex';
+}
+
 export function buildLayerItem(layer, onLayerClick){
   const item = document.createElement('div');
   item.className = 'layer-item';
@@ -36,7 +76,7 @@ export function buildLayerItem(layer, onLayerClick){
     legendBtn.textContent = '🛈';
     legendBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      window.open(layer.legend, 'Legend', 'width=500,height=600,scrollbars=yes');
+      showLegendModal(layer.legend);
     });
     item.appendChild(legendBtn);
   }
