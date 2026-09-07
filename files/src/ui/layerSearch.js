@@ -13,8 +13,9 @@
 import { searchLayers, activateLayerSearchResult } from '../features/layerSearch.js';
 import { layerKey } from '../data.js';
 
-const INITIAL_DISPLAY_LIMIT = 8;
-const DISPLAY_STEP = 8;
+// 結果筆數安全上限：超過這個數字仍然全部渲染（不分批、不截斷），只在
+// 清單最上方加一行提示文字，避免極端情況下使用者誤以為卡住。
+const RESULT_WARN_THRESHOLD = 200;
 
 export function initLayerSearchUI(){
   const input = document.getElementById('layerSearchInput');
@@ -23,12 +24,15 @@ export function initLayerSearchUI(){
   const countEl = document.getElementById('layerSearchCount');
   const collapseBtn = document.getElementById('layerSearchCollapseBtn');
   const listEl = document.getElementById('layerSearchList');
-  const moreBtn = document.getElementById('layerSearchMoreBtn');
-  if(!input || !clearBtn || !panel || !countEl || !collapseBtn || !listEl || !moreBtn) return;
+  if(!input || !clearBtn || !panel || !countEl || !collapseBtn || !listEl) return;
 
   let currentResults = [];
-  let displayLimit = INITIAL_DISPLAY_LIMIT;
 
+  // 改為浮動下拉卡片後不再分批載入：直接把 currentResults 全部渲染，
+  // 交給 CSS 的 .layer-search-list{max-height;overflow-y:auto} 處理捲動。
+  // 注意：點擊 .layer-search-item 只呼叫 activateLayerSearchResult()，
+  // 不會呼叫 clearResults() 或把 panel 設回 hidden，讓使用者可以連續
+  // 點多個結果疊圖，結果清單全程保留顯示。
   function renderResults(){
     panel.hidden = false;
 
@@ -39,14 +43,20 @@ export function initLayerSearchUI(){
       empty.className = 'layer-search-empty';
       empty.textContent = '找不到符合的圖資';
       listEl.appendChild(empty);
-      moreBtn.hidden = true;
       return;
     }
 
     countEl.textContent = `共 ${currentResults.length} 筆結果`;
     listEl.innerHTML = '';
 
-    currentResults.slice(0, displayLimit).forEach(entry => {
+    if(currentResults.length > RESULT_WARN_THRESHOLD){
+      const notice = document.createElement('div');
+      notice.className = 'layer-search-list-notice';
+      notice.textContent = '結果過多，請輸入更精確的關鍵字以縮小範圍。';
+      listEl.appendChild(notice);
+    }
+
+    currentResults.forEach(entry => {
       const { src, layer } = entry;
       const item = document.createElement('div');
       item.className = 'layer-search-item';
@@ -65,21 +75,12 @@ export function initLayerSearchUI(){
       item.addEventListener('click', () => activateLayerSearchResult(entry));
       listEl.appendChild(item);
     });
-
-    const remaining = currentResults.length - displayLimit;
-    if(remaining > 0){
-      moreBtn.hidden = false;
-      moreBtn.textContent = `顯示更多（還有 ${remaining} 筆）`;
-    } else {
-      moreBtn.hidden = true;
-    }
   }
 
   function clearResults(){
     panel.hidden = true;
     listEl.innerHTML = '';
     currentResults = [];
-    moreBtn.hidden = true;
   }
 
   input.addEventListener('input', () => {
@@ -92,12 +93,6 @@ export function initLayerSearchUI(){
     }
 
     currentResults = searchLayers(query);
-    displayLimit = INITIAL_DISPLAY_LIMIT;
-    renderResults();
-  });
-
-  moreBtn.addEventListener('click', () => {
-    displayLimit += DISPLAY_STEP;
     renderResults();
   });
 

@@ -1209,10 +1209,19 @@
   .current-layer-fav-btn.active{border-color:var(--brass-dark); color:var(--brass-dark); background:rgba(181,140,74,.14);}
 
   /* ---------- 圖資搜尋（src/ui/layerSearch.js） ----------
-     跟地址搜尋（.search-block／.address-suggest）視覺語彙一致，但完全
-     獨立的一組結果面板，不共用任何 DOM／狀態。 */
+     比照地址搜尋建議清單（.address-suggest）改成「浮動下拉卡片」：
+     position:absolute 疊在 #layerSearchInput 正下方，不再推開下面
+     #modeSection 等側邊欄內容，結果超過清單可視高度時卡片內部捲動
+     （.layer-search-list 的 max-height/overflow-y）。錨定用的
+     position:relative 由 .layer-search-block 同時具備的 .search-block
+     class 提供（見上方 .search-block 定義），這裡不用再另外補。
+     z-index 對齊 .address-suggest（同為 15），避免疊圖時被地圖蓋住，
+     兩邊仍是完全獨立的 DOM／狀態，不共用任何節點。 */
   .layer-search-panel{
-    margin-top:10px; padding-top:10px; border-top:1px solid var(--rule);
+    position:absolute; left:0; right:0; top:calc(100% + 2px); z-index:15;
+    background:var(--paper); border:1px solid var(--rule); border-radius:2px;
+    box-shadow:0 8px 20px rgba(0,0,0,.3);
+    padding:8px 8px 6px;
   }
   .layer-search-panel-head{
     display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px;
@@ -1224,8 +1233,7 @@
     font-size:10px; color:var(--rule); cursor:pointer;
   }
   .layer-search-collapse-btn:hover{border-color:var(--brass-dark); color:var(--brass-dark);}
-  .layer-search-panel.collapsed .layer-search-list,
-  .layer-search-panel.collapsed #layerSearchMoreBtn{display:none;}
+  .layer-search-panel.collapsed .layer-search-list{display:none;}
   .layer-search-list{
     display:flex; flex-direction:column; gap:5px;
     max-height:360px; overflow-y:auto; -webkit-overflow-scrolling:touch;
@@ -1239,6 +1247,9 @@
   .layer-search-item-title{font-size:12.5px; color:var(--ink); line-height:1.35;}
   .layer-search-item-meta{font-size:11px; color:var(--rule); margin-top:2px;}
   .layer-search-empty{font-size:12px; color:var(--rule); padding:6px 2px; line-height:1.6;}
+  /* 結果超過 200 筆的安全提示（見 src/ui/layerSearch.js 的
+     RESULT_WARN_THRESHOLD），一律全部渲染、只加這行文字提醒縮小範圍。 */
+  .layer-search-list-notice{font-size:11px; color:var(--brass-dark); padding:4px 2px 6px; line-height:1.5;}
 
   /* ---------- 收藏／最近使用清單（src/sidebarUI.js） ----------
      項目格式比照 .layer-search-item（標題＋meta），收藏清單多一個
@@ -1546,6 +1557,21 @@
     #mobileSearchBar.mobile-search-collapsed #layerSearchClearBtn{
       flex:0 0 0; width:0; min-width:0; opacity:0; margin:0; padding:0;
       border:none; pointer-events:none; overflow:hidden;
+    }
+    /* 圖資模式收合時的例外：地址模式收合後會留下 #addressSearchBtn
+       （放大鏡）當作視覺錨點，但 #addressSearchBtn 不在圖資搜尋列裡；
+       圖資搜尋列（.layer-search-row）僅有的三個子節點（輸入框／模式
+       切換鈕／清除鈕）都被上面那條通用規則收合隱藏，導致收合圓圈裡
+       完全沒有圖示可看（見 relocateModeToggleBtn()，圖資模式下
+       #mobileSearchModeBtn 會被搬進 .layer-search-row）。這裡借用
+       #mobileSearchModeBtn 本身當作圖資模式的收合錨點，逐一還原被
+       上面那條規則歸零的屬性，讓圓圈裡留一顆清楚可辨識的 📍/🗺 圖示
+       （點擊整個圓圈展開搜尋列的既有邏輯不受影響）。用 body class 疊
+       specificity 蓋過通用隱藏規則，不需要動到規則的原本順序。 */
+    body.mobile-search-mode-layer #mobileSearchBar.mobile-search-collapsed #mobileSearchModeBtn{
+      flex:0 0 36px; width:36px; height:36px; min-width:36px;
+      opacity:1; margin:0; padding:0; border:1px solid var(--ink);
+      pointer-events:auto; overflow:visible;
     }
     #mobileSearchBar .address-suggest{
       position:absolute; top:calc(100% + 6px); left:0; right:0;

@@ -130,9 +130,37 @@ export function applyActiveOverlayKey(){
   map.render();
 }
 
+// 同一顆圖層在畫面上可能同時存在兩份 .layer-item DOM：一份常駐在主
+// 側邊欄「📚 圖資」清單（#categories）裡，一份是地址搜尋結果「目前可用
+// 圖層」面板（#layerAvailPanel）動態建出來的。用「使用者這次實際點擊
+// 的是哪一份」判斷要展開哪一邊的分類手風琴，避免搜尋結果套用圖層時
+// 連帶展開主清單裡使用者刻意保持摺疊的分類，反之亦然——兩邊互不影響。
+//
+// 用 capture 監聽 document 上的 click，保證比 .layer-item 自己的
+// click handler（buildLayerItem() 裡 addEventListener('click', ...)，
+// 之後同步觸發 selectOverlayLayer -> store 變動 -> 這支模組的
+// syncActiveLayerItemClasses()）更早記錄下來，才能在真正展開手風琴
+// 之前就知道這次動作的來源是哪個面板。
+let lastLayerItemClickScope = null;
+function resolveLayerItemScope(el){
+  if(!el || !el.closest) return null;
+  if(el.closest('#layerAvailPanel')) return 'search';
+  if(el.closest('#categories')) return 'main';
+  return null; // 比對模式等其他圖層選擇器不透過這裡同步展開狀態，忽略
+}
+if(typeof document !== 'undefined' && document.addEventListener){
+  document.addEventListener('click', (e)=>{
+    const itemEl = e.target && e.target.closest ? e.target.closest('.layer-item') : null;
+    if(!itemEl) return; // 不是點在 .layer-item 上（例如點分類手風琴標題），不更新來源面板記錄
+    const scope = resolveLayerItemScope(itemEl);
+    if(scope) lastLayerItemClickScope = scope;
+  }, true);
+}
+
 // 側邊欄主清單與搜尋結果清單，兩個地方都有同一顆圖層的 .layer-item，
-// 統一在這裡依 store.activeOverlayKey 同步 .active class 與展開對應的
-// 分類／次分類／來源手風琴。
+// 統一在這裡依 store.activeOverlayKey 同步 .active class；展開對應的
+// 分類／次分類／來源手風琴則只限定在 lastLayerItemClickScope 記錄的
+// 那個面板，不會波及另一邊（見上方 resolveLayerItemScope 說明）。
 export function syncActiveLayerItemClasses(){
   document.querySelectorAll('.layer-item.active').forEach(el=>el.classList.remove('active'));
   const resolved = resolveOverlayKey(store.activeOverlayKey);
@@ -143,6 +171,14 @@ export function syncActiveLayerItemClasses(){
     // 對應的分類／來源手風琴強制展開；等使用者自己手動展開側邊欄時，
     // 才不會發現分類已經被時間軸切換過程悄悄展開到某個地方。
     if(store.mode === 'timeline') return;
+    // lastLayerItemClickScope 為 null 代表這次套用圖層不是來自使用者
+    // 點擊 .layer-item（例如頁面初始還原上次選過的圖層），沿用保守的
+    // 原行為：兩邊都展開，讓使用者一打開任一個清單就能看到目前套用中
+    // 的是哪一筆。一旦有明確的點擊來源，才限定只展開該面板自己這邊。
+    if(lastLayerItemClickScope){
+      const itemScope = resolveLayerItemScope(itemEl);
+      if(itemScope && itemScope !== lastLayerItemClickScope) return;
+    }
     let p = itemEl.parentElement;
     while(p){
       if(p.classList && (p.classList.contains('category') || p.classList.contains('subcategory') || p.classList.contains('source-group'))) p.classList.add('open');
