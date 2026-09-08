@@ -1765,45 +1765,11 @@
        內容面板不受影響，仍依 store.mode 正常顯示/隱藏。 */
     #modeSection{display:none;}
 
-    /* 「新手導覽／使用指南」入口已被下方浮動按鈕（#mobileHelpBtn／
-       #mobileHelpPopover）取代，手機版側邊欄 header 不再需要這排按鈕，
-       避免同一個功能兩個地方都要維護視覺一致性；桌面版 .tour-btn-row
-       （見上方約 1311 行）完全不受影響。 */
+    /* 「新手導覽／使用指南」入口已併入地圖工具浮動選單（#mobileModePopover
+       裡的「說明」分類，見 index.html）取代，手機版側邊欄 header 不再
+       需要這排按鈕，避免同一個功能兩個地方都要維護視覺一致性；桌面版
+       .tour-btn-row（見上方約 1311 行）完全不受影響。 */
     .tour-btn-row{display:none;}
-
-    /* ---------- 手機「新手導覽／使用指南」浮動入口 ----------
-       比照 #mobileModeBtn／#mobileModePopover：純轉發點擊到側邊欄裡
-       原本的 #tourStartBtn／#guideOpenBtn（已被上面 .tour-btn-row
-       隱藏，不是從 DOM 移除），不重新實作導覽/指南邏輯，見
-       src/ui/mobileLayout.js 的 initHelpPopover()。
-       位置放在頂部搜尋列下緣、螢幕左上角：這個 y 帶（topbar 高度以下）
-       在所有模式下都是空的——#mobileSearchBar 只在疊圖模式顯示且高度
-       在 topbar 帶內，不會延伸到這裡；.draw-toolbar／.locate-toast
-       雖然用同一個 y 帶但都貼右上角，這裡貼左上角完全不重疊；
-       其餘手機浮動列（地圖工具、目前圖層、日期印章等）都在畫面下半部。
-       低頻功能，不需要像 #mobileModeBtn 一樣可拖曳，固定位置即可，但
-       z-index 仍用 50（與 #mobileModeBtn 同一層級），確保 Sheet 收合
-       或展開任何狀態下都看得到點得到。 ---------- */
-    #mobileHelpBtn{
-      display:flex; align-items:center; justify-content:center;
-      position:fixed; z-index:50;
-      left:calc(10px + env(safe-area-inset-left));
-      top:calc(env(safe-area-inset-top) + var(--mobile-topbar-h) + 10px);
-      width:40px; height:40px; border-radius:50%;
-      background:var(--ink); color:var(--paper); border:2px solid var(--brass);
-      box-shadow:0 3px 12px rgba(0,0,0,.35); cursor:pointer;
-      font-size:16px;
-    }
-    #mobileHelpBtn.active{background:var(--stamp); border-color:var(--stamp);}
-    #mobileHelpPopover{
-      display:none; position:fixed; z-index:50;
-      left:calc(10px + env(safe-area-inset-left));
-      top:calc(env(safe-area-inset-top) + var(--mobile-topbar-h) + 56px);
-      width:min(200px, calc(100vw - 32px));
-      background:var(--paper); border:1px solid var(--rule); border-radius:12px;
-      box-shadow:0 8px 24px rgba(0,0,0,.35); padding:8px;
-    }
-    #mobileHelpPopover.open{display:block;}
 
     /* ---------- 其餘地圖下方浮動列：一律讓到底部工作表 peek 區之上 ---------- */
     .compare-float-item{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px);}

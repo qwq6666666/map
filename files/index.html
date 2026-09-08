@@ -107,13 +107,10 @@
   <div class="mobile-mode-popover-title">工具</div>
   <!-- 轉呼叫既有 #drawToggleBtn 的 click()，不重新實作繪圖工具開關邏輯 -->
   <button type="button" class="mobile-mode-option mobile-mode-toggle" id="mobileDrawToggle">繪圖工具</button>
-</div>
-
-<!-- 手機版「新手導覽／使用指南」浮動入口：純轉發點擊到側邊欄裡原本的
-     #tourStartBtn／#guideOpenBtn（已被 style.css 隱藏，不是從 DOM 移除），
-     不重新實作導覽/指南邏輯，見 src/ui/onboarding.js。>768px 一律隱藏。 -->
-<button type="button" id="mobileHelpBtn" class="mobile-help-btn" title="新手導覽／使用指南" aria-label="新手導覽／使用指南" aria-expanded="false">❔</button>
-<div id="mobileHelpPopover" class="mobile-mode-popover">
+  <div class="mobile-mode-popover-divider"></div>
+  <div class="mobile-mode-popover-title">說明</div>
+  <!-- 轉呼叫側邊欄裡原本的 #tourStartBtn／#guideOpenBtn（已被 style.css
+       隱藏，不是從 DOM 移除），不重新實作導覽/指南邏輯，見 src/ui/onboarding.js -->
   <button type="button" class="mobile-mode-option" data-help-action="tour">🧭 新手導覽</button>
   <button type="button" class="mobile-mode-option" data-help-action="guide">❔ 使用指南</button>
 </div>

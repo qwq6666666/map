@@ -21,9 +21,9 @@
       幾何全部交給 style.css 的 Mobile Responsive Layout 區塊。
    3. 手機版「地圖工具」快速選單（#mobileModeBtn／#mobileModePopover）
       只是轉呼叫 #modeSwitch 裡對應按鈕的 .click()，核心模式切換邏輯
-      仍在 core/modeManager.js；「新手導覽／使用指南」浮動入口
-      （#mobileHelpBtn／#mobileHelpPopover）同理只轉呼叫側邊欄裡原本的
-      #tourStartBtn／#guideOpenBtn，取代被隱藏的 .tour-btn-row；
+      仍在 core/modeManager.js；選單裡另外併了「說明」分類（🧭 新手導覽／
+      ❔ 使用指南兩個選項），同理只轉呼叫側邊欄裡原本的 #tourStartBtn／
+      #guideOpenBtn，取代被隱藏的 .tour-btn-row；
       「目前圖層」浮動列點擊展開/收合透明度拉桿；搜尋結果出現時自動
       把 Bottom Sheet 打開到展開態，方便直接看到。
    4. 即時量測 window.visualViewport.height 寫成 --vvh 供 style.css 算
@@ -402,6 +402,14 @@ function initModePopover(){
     realDrawToggleBtn?.click();
     closePopover();
   });
+  popover.querySelectorAll('.mobile-mode-option[data-help-action]').forEach(optBtn=>{
+    optBtn.addEventListener('click', ()=>{
+      const action = optBtn.dataset.helpAction;
+      if(action === 'tour') document.getElementById('tourStartBtn')?.click();
+      else if(action === 'guide') document.getElementById('guideOpenBtn')?.click();
+      closePopover();
+    });
+  });
 
   subscribe((state, prev, changedKeys)=>{ if(changedKeys.includes('mode')) syncActiveOption(); });
   // 繪圖工具開關不是走 store（見 src/drawTool.js 自己管理 .active class），
@@ -411,47 +419,6 @@ function initModePopover(){
     new MutationObserver(syncActiveOption).observe(realDrawToggleBtn, { attributes:true, attributeFilter:['class'] });
   }
   syncActiveOption();
-}
-
-/* ---------------------------------------------------------
-   3a-3. 「新手導覽／使用指南」浮動入口：跟 initModePopover() 同一種
-   開合邏輯，但只是純轉發點擊到側邊欄裡原本的 #tourStartBtn／
-   #guideOpenBtn（見 index.html 的 .tour-btn-row，手機版被 style.css
-   隱藏但仍在 DOM 裡），完全不碰 src/ui/onboarding.js 內部邏輯。
-   固定位置不可拖曳，不需要 positionPopover() 那套跟隨按鈕位置的計算。
---------------------------------------------------------- */
-function initHelpPopover(){
-  const btn = document.getElementById('mobileHelpBtn');
-  const popover = document.getElementById('mobileHelpPopover');
-  if(!btn || !popover) return;
-
-  function closePopover(){
-    popover.classList.remove('open');
-    btn.classList.remove('active');
-    btn.setAttribute('aria-expanded', 'false');
-  }
-  function openPopover(){
-    popover.classList.add('open');
-    btn.classList.add('active');
-    btn.setAttribute('aria-expanded', 'true');
-  }
-
-  btn.addEventListener('click', (e)=>{
-    e.stopPropagation();
-    if(popover.classList.contains('open')) closePopover();
-    else openPopover();
-  });
-  document.addEventListener('click', (e)=>{
-    if(popover.classList.contains('open') && !popover.contains(e.target) && e.target !== btn) closePopover();
-  });
-  popover.querySelectorAll('.mobile-mode-option[data-help-action]').forEach(optBtn=>{
-    optBtn.addEventListener('click', ()=>{
-      const action = optBtn.dataset.helpAction;
-      if(action === 'tour') document.getElementById('tourStartBtn')?.click();
-      else if(action === 'guide') document.getElementById('guideOpenBtn')?.click();
-      closePopover();
-    });
-  });
 }
 
 /* ---------------------------------------------------------
@@ -689,7 +656,6 @@ export function initMobileLayout(){
   initMobileSearchModeToggle();
   initSheetHandle();
   initModePopover();
-  initHelpPopover();
   initDraggableModeButton();
   initFloatingOpacityExpand();
   initSearchResultAutoExpand();
