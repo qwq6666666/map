@@ -1482,6 +1482,16 @@
      兩個 .search-block 各自獨立顯示、不需要切換，一律隱藏。 */
   .mobile-search-mode-btn{display:none;}
 
+  /* 手機版「台灣」分頁三段式瀏覽（src/ui/mobileTwBrowse.js）：桌機／
+     平板一律隱藏，只在下方 @media (max-width:768px) 且 sidebarUI.js 的
+     syncMobileTwView() 判定該顯示時才會現身。
+     注意：這裡刻意用 class 選擇器而不是 #mobileTwBrowse 這種 ID 選擇器
+     ——sidebarUI.js 用原生 hidden attribute（[hidden]{display:none} 是
+     瀏覽器內建規則，specificity 很低）控制顯示與否，如果這裡用 ID
+     選擇器寫 display:flex，specificity 會蓋過 [hidden]，導致 hidden
+     怎麼設都藏不住（CLAUDE.md 已記錄過同類陷阱）。 */
+  .mobile-tw-browse{display:none;}
+
   @media (max-width:768px){
     :root{
       --mobile-topbar-h:52px;
@@ -1910,6 +1920,44 @@
       border-radius:0; padding:44px 12px 12px;
     }
     .legend-modal-img{max-height:calc(100vh - 80px);}
+
+    /* ---------- 手機版「台灣」分頁：年代→地區→扁平圖層清單
+       （src/ui/mobileTwBrowse.js）取代來源手風琴 ----------
+       顯示與否由 sidebarUI.js 的 syncMobileTwView() 用 hidden attribute
+       控制（[hidden] 是瀏覽器內建規則，這裡用 class 選擇器 :not([hidden])
+       維持 specificity 不蓋過它，見上方 .mobile-tw-browse{display:none} 的
+       說明）。手機版「中國」「其他」分頁、以及桌機／平板任何情況都不會
+       套用這裡的規則。 */
+    .mobile-tw-browse:not([hidden]){
+      display:flex; flex-direction:column; gap:8px; margin-bottom:10px;
+    }
+    /* 手機版「台灣」分頁顯示三段式瀏覽時，隱藏對應的來源手風琴
+       （中國／其他分頁的手風琴、以及桌機任何情況都不受影響——見
+       sidebarUI.js 的 syncMobileTwView() 只對 src.country==='tw' 的
+       .source-group 加這個 class）。class 選擇器對 class 選擇器，
+       specificity 跟 .source-group 本身相當，靠後宣告蓋過去即可。 */
+    .source-group.mobile-tw-accordion-hidden{display:none;}
+
+    /* 年代／地區 chip 列：視覺比照既有 .avail-year-sort-btn／.segmented
+       語彙，橫向可滑動、不換行。 */
+    .mobile-tw-year-row, .mobile-tw-region-row{
+      display:flex; flex-wrap:nowrap; gap:6px; overflow-x:auto;
+      -webkit-overflow-scrolling:touch; padding:2px 2px 4px;
+    }
+    .mobile-tw-year-btn, .mobile-tw-region-btn{flex-shrink:0; min-height:32px;}
+    .mobile-tw-hint{font-size:12px; color:var(--rule); padding:4px 2px; line-height:1.6;}
+
+    .mobile-tw-layer-list{display:flex; flex-direction:column; gap:5px;}
+    .mobile-tw-layer-item{min-height:44px;} /* 跟 .layer-search-item 等既有清單項目一致的觸控熱區 */
+    .mobile-tw-region-heading{
+      font-family:var(--sans); font-size:11.5px; font-weight:700; color:var(--rule);
+      padding:6px 2px 2px; margin-top:2px;
+    }
+    /* 超過 8 筆（不含分隔標題）先隱藏，跟 uiTree.js 的 appendLayerList()／
+       .layer-item-overflow 同一種「先隱藏、按鈕展開整個容器切 .expanded」
+       pattern，不用 IntersectionObserver 或無限捲動。 */
+    .mobile-tw-overflow{display:none;}
+    .mobile-tw-layer-list.expanded .mobile-tw-overflow{display:block;}
   }
 
   @media (max-width:480px){

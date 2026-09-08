@@ -19,14 +19,19 @@ const COUNTRY_LABELS = [
 ];
 
 /**
- * 建立一條篩選按鈕列，回傳 { bar, refresh }。
+ * 建立一條篩選按鈕列，回傳 { bar, refresh, getCurrent }。
  * @param {() => Array<{src:object, wrap:HTMLElement}>} getEntries
  *   回傳目前所有「來源物件＋對應的 .source-group DOM」配對的函式。
  *   用函式而不是直接傳陣列，是因為呼叫端（例如 multiOverlay.js）
  *   建立來源列表跟建立篩選列不一定同時發生，用函式可以延後查詢，
  *   永遠拿到當下最新的清單。
+ * @param {(current:string) => void} [onChange]
+ *   選填：使用者點擊篩選按鈕、分類真的改變時額外呼叫一次（在 refresh()
+ *   之後），不傳就是原本行為（sidebarUI.js 用來額外同步手機版「台灣」
+ *   分頁三段式瀏覽的顯示與否，multiOverlay.js／compareMode.js 不需要
+ *   這個行為，不傳即可，向下相容）。
  */
-export function createCountryFilterBar(getEntries){
+export function createCountryFilterBar(getEntries, onChange){
   const bar = document.createElement('div');
   bar.className = 'segmented country-filter';
 
@@ -55,10 +60,11 @@ export function createCountryFilterBar(getEntries){
       buttons.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       refresh();
+      onChange?.(current);
     });
     buttons.set(key, btn);
     bar.appendChild(btn);
   });
 
-  return { bar, refresh };
+  return { bar, refresh, getCurrent: () => current };
 }

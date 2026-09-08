@@ -15,6 +15,20 @@ import { flyToSourceExtent, flyToCategoryExtent } from './mapCore.js';
 // 城市的地理位置才有意義，其他來源不套用這個行為（見下方呼叫端）。
 const FLY_TO_CATEGORY_SOURCE_IDS = new Set(['japan', 'korea', 'southeast_asia']);
 import { createCountryFilterBar } from './ui/countryFilter.js';
+import { buildMobileTwBrowseUI } from './ui/mobileTwBrowse.js';
+
+// 手機版（<=768px）「台灣」分頁改用年代→地區→扁平圖層清單瀏覽
+// （src/ui/mobileTwBrowse.js），取代原本的來源手風琴；桌機／中國／
+// 其他分頁不受影響，一律靠這個 matchMedia 判斷式決定要不要顯示，
+// 比照 src/ui/mobileLayout.js 的既有寫法。
+// 保留 typeof 防呆：tests/env-stub.mjs 的假 window 沒有 matchMedia
+// （mobileLayout.js 目前沒有任何測試會 import 到，沒踩過這個問題；
+// sidebarUI.js 幾乎每份整合測試都會 import，沒防呆會讓一大片既有
+// 測試檔案直接拋例外），退化成「永遠桌面版」不影響邏輯正確性，
+// 真的瀏覽器環境一律有 matchMedia，不受影響。
+const mq = (typeof window.matchMedia === 'function')
+  ? window.matchMedia('(max-width:768px)')
+  : { matches: false, addEventListener(){}, addListener(){} };
 
 /* 動態量測「歷史圖層透明度」吸附區塊的實際高度，寫成 CSS 變數，
    讓 .source-head / .category-head 的 scroll-snap-margin-top 精準對齊
@@ -201,16 +215,11 @@ function renderRecentList(){
   });
 }
 
-export function initSidebar(){
-  const categoriesEl = document.getElementById('categories');
-
-  window.addEventListener('resize', updateStickyOffset);
-  window.addEventListener('load', updateStickyOffset);
-
-  const sourceWraps = []; // [{ src, wrap }]，篩選列用來知道要顯示／隱藏哪些來源
-  const { bar: filterBar, refresh: refreshCountryFilter } = createCountryFilterBar(() => sourceWraps);
-  categoriesEl.appendChild(filterBar);
-
+// 原本 initSidebar() 內建立「來源(機構)→分類→次分類→圖層」手風琴的邏輯，
+// 抽成獨立函式：桌機所有分頁、以及手機版「中國」「其他」分頁都還是要
+// 顯示這份手風琴，只有手機版「台灣」分頁改顯示三段式瀏覽（見
+// syncMobileTwView()），內容邏輯本身不變。
+function renderSourceAccordion(categoriesEl, sourceWraps){
   LAYER_SOURCES.forEach((src) => {
     const srcWrap = document.createElement('div');
     srcWrap.className = 'source-group';
@@ -248,9 +257,47 @@ export function initSidebar(){
     categoriesEl.appendChild(srcWrap);
     sourceWraps.push({ src, wrap: srcWrap });
   });
+}
+
+export function initSidebar(){
+  const categoriesEl = document.getElementById('categories');
+
+  window.addEventListener('resize', updateStickyOffset);
+  window.addEventListener('load', updateStickyOffset);
+
+  const sourceWraps = []; // [{ src, wrap }]，篩選列用來知道要顯示／隱藏哪些來源
+
+  // syncMobileTwView() 要在 createCountryFilterBar() 的 onChange 裡呼叫，
+  // 但 mobileTwBrowseEl 要等 renderSourceAccordion() 之後才會建立，用一個
+  // 可以延後綁定的變數承接，避免兩者互相依賴的宣告順序問題。
+  let mobileTwBrowseEl = null;
+  function syncMobileTwView(){
+    if(!mobileTwBrowseEl) return;
+    const showMobileTw = mq.matches && getCurrentCountry() === 'tw';
+    mobileTwBrowseEl.hidden = !showMobileTw;
+    sourceWraps.forEach(({ src, wrap }) => {
+      if(src.country === 'tw') wrap.classList.toggle('mobile-tw-accordion-hidden', showMobileTw);
+    });
+  }
+
+  const { bar: filterBar, refresh: refreshCountryFilter, getCurrent: getCurrentCountry } =
+    createCountryFilterBar(() => sourceWraps, () => syncMobileTwView());
+  categoriesEl.appendChild(filterBar);
+
+  renderSourceAccordion(categoriesEl, sourceWraps);
+
+  const twSources = LAYER_SOURCES.filter(s => s.country === 'tw');
+  mobileTwBrowseEl = buildMobileTwBrowseUI(twSources, (src, layer) => selectOverlayLayer(layerKey(src, layer)));
+  categoriesEl.appendChild(mobileTwBrowseEl);
 
   refreshCountryFilter();
   updateStickyOffset();
+  syncMobileTwView(); // 初始化同步：onChange 只在使用者「切換」分頁時觸發，這裡補一次
+
+  // 跨越 768px 門檻時（即使沒有切換國家分頁）也要重新同步顯示狀態，
+  // 比照 src/ui/mobileLayout.js 監聽 matchMedia 變化的既有寫法。
+  if(mq.addEventListener) mq.addEventListener('change', syncMobileTwView);
+  else mq.addListener(syncMobileTwView);
 
   initCollapsibleSections();
   initCurrentLayerFavButton();
