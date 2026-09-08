@@ -215,45 +215,59 @@ function renderRecentList(){
   });
 }
 
+// 建立單一來源的「分類→次分類→圖層」手風琴區塊（source-head 展開/收合、
+// flyToSourceExtent、buildCategoryList），只建立、不 append、不 push 進
+// sourceWraps，交由呼叫端決定要放進哪個容器。桌機的 renderSourceAccordion()
+// 跟手機版「台灣」分頁三段式瀏覽（src/ui/mobileTwBrowse.js 的
+// buildMobileTwBrowseUI() 第二參數）共用同一份邏輯，各自呼叫會各自建立
+// 獨立的 DOM 節點，不會互相搶節點或需要同步展開狀態。
+function buildSourceGroup(src){
+  const srcWrap = document.createElement('div');
+  srcWrap.className = 'source-group';
+
+  const srcHead = document.createElement('button');
+  srcHead.type = 'button';
+  srcHead.className = 'source-head';
+  const total = src.categories.reduce((s,c)=> s + (c.groups ? c.groups.reduce((gs,g)=>gs+g.layers.length,0) : c.layers.length), 0);
+  srcHead.innerHTML = `<span><span class="chevron">▸</span>${src.name}</span><span class="count">${total}</span>`;
+  srcHead.addEventListener('click', ()=>{
+    const opening = !srcWrap.classList.contains('open');
+    if(opening){
+      // 手風琴行為：展開這個來源時，先收合其他已展開的來源，
+      // 一次只保留一個最大階層是開啟的狀態。
+      const container = srcWrap.parentElement;
+      if(container){
+        container.querySelectorAll('.source-group.open').forEach(g=>{
+          if(g !== srcWrap) g.classList.remove('open');
+        });
+      }
+    }
+    srcWrap.classList.toggle('open');
+    if(opening){
+      flyToSourceExtent(src.id);
+      // 展開後自動捲動，讓來源標題貼齊側邊欄可視範圍頂端
+      // （已透過 .source-head 的 scroll-margin-top 自動避開吸附的透明度區塊）。
+      srcHead.scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+  });
+
+  const srcBody = document.createElement('div');
+  srcBody.className = 'source-body';
+  buildCategoryList(src.categories, srcBody, (layer) => selectOverlayLayer(layerKey(src, layer)), false, true,
+    FLY_TO_CATEGORY_SOURCE_IDS.has(src.id) ? (cat) => flyToCategoryExtent(cat) : null);
+
+  srcWrap.appendChild(srcHead);
+  srcWrap.appendChild(srcBody);
+  return srcWrap;
+}
+
 // 原本 initSidebar() 內建立「來源(機構)→分類→次分類→圖層」手風琴的邏輯，
 // 抽成獨立函式：桌機所有分頁、以及手機版「中國」「其他」分頁都還是要
 // 顯示這份手風琴，只有手機版「台灣」分頁改顯示三段式瀏覽（見
 // syncMobileTwView()），內容邏輯本身不變。
 function renderSourceAccordion(categoriesEl, sourceWraps){
   LAYER_SOURCES.forEach((src) => {
-    const srcWrap = document.createElement('div');
-    srcWrap.className = 'source-group';
-
-    const srcHead = document.createElement('button');
-    srcHead.type = 'button';
-    srcHead.className = 'source-head';
-    const total = src.categories.reduce((s,c)=> s + (c.groups ? c.groups.reduce((gs,g)=>gs+g.layers.length,0) : c.layers.length), 0);
-    srcHead.innerHTML = `<span><span class="chevron">▸</span>${src.name}</span><span class="count">${total}</span>`;
-    srcHead.addEventListener('click', ()=>{
-      const opening = !srcWrap.classList.contains('open');
-      if(opening){
-        // 手風琴行為：展開這個來源時，先收合其他已展開的來源，
-        // 一次只保留一個最大階層是開啟的狀態。
-        categoriesEl.querySelectorAll('.source-group.open').forEach(g=>{
-          if(g !== srcWrap) g.classList.remove('open');
-        });
-      }
-      srcWrap.classList.toggle('open');
-      if(opening){
-        flyToSourceExtent(src.id);
-        // 展開後自動捲動，讓來源標題貼齊側邊欄可視範圍頂端
-        // （已透過 .source-head 的 scroll-margin-top 自動避開吸附的透明度區塊）。
-        srcHead.scrollIntoView({ behavior:'smooth', block:'start' });
-      }
-    });
-
-    const srcBody = document.createElement('div');
-    srcBody.className = 'source-body';
-    buildCategoryList(src.categories, srcBody, (layer) => selectOverlayLayer(layerKey(src, layer)), false, true,
-      FLY_TO_CATEGORY_SOURCE_IDS.has(src.id) ? (cat) => flyToCategoryExtent(cat) : null);
-
-    srcWrap.appendChild(srcHead);
-    srcWrap.appendChild(srcBody);
+    const srcWrap = buildSourceGroup(src);
     categoriesEl.appendChild(srcWrap);
     sourceWraps.push({ src, wrap: srcWrap });
   });
@@ -287,7 +301,7 @@ export function initSidebar(){
   renderSourceAccordion(categoriesEl, sourceWraps);
 
   const twSources = LAYER_SOURCES.filter(s => s.country === 'tw');
-  mobileTwBrowseEl = buildMobileTwBrowseUI(twSources, (src, layer) => selectOverlayLayer(layerKey(src, layer)));
+  mobileTwBrowseEl = buildMobileTwBrowseUI(twSources, buildSourceGroup);
   categoriesEl.appendChild(mobileTwBrowseEl);
 
   refreshCountryFilter();
