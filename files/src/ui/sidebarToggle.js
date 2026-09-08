@@ -37,10 +37,6 @@ export function collapseSidebar(){
   const sb = document.getElementById('sidebar');
   if(sb.classList.contains('collapsed')) return; // 已經是收合狀態就不用重複處理
   sb.classList.add('collapsed');
-  // .sheet-expanded 是手機版 Bottom Sheet 的「展開至 75vh」疊加狀態
-  // （見 src/ui/mobileLayout.js），跟 .collapsed 同時存在沒有意義；
-  // 桌面版沒有這個 class，remove 是沒有作用的 no-op，不影響桌面行為。
-  sb.classList.remove('sheet-expanded');
   if(toggleSidebarBtn) toggleSidebarBtn.textContent = '▸';
   syncToggleBtnA11y(true);
   updateFloatingOpacityVisibility();
@@ -66,7 +62,6 @@ export function initSidebarToggle(){
     const sb = document.getElementById('sidebar');
     sb.classList.toggle('collapsed');
     const collapsed = sb.classList.contains('collapsed');
-    if(collapsed) sb.classList.remove('sheet-expanded'); // 見 collapseSidebar() 同一段說明
     e.target.textContent = collapsed ? '▸' : '◂';
     syncToggleBtnA11y(collapsed);
     updateFloatingOpacityVisibility();

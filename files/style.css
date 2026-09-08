@@ -1503,7 +1503,6 @@
          --vvh 由 JS 即時量測 window.visualViewport.height 寫入，這裡
          優先用它算 px，JS 還沒跑到之前才退回 svh（小可視高度，比一般
          vh 更接近工具列展開時的實際高度）當保險。 */
-      --mobile-sheet-half:calc(var(--vvh, 100svh) * 0.45);
       --mobile-sheet-full:calc(var(--vvh, 100svh) * 0.75);
     }
 
@@ -1766,6 +1765,46 @@
        內容面板不受影響，仍依 store.mode 正常顯示/隱藏。 */
     #modeSection{display:none;}
 
+    /* 「新手導覽／使用指南」入口已被下方浮動按鈕（#mobileHelpBtn／
+       #mobileHelpPopover）取代，手機版側邊欄 header 不再需要這排按鈕，
+       避免同一個功能兩個地方都要維護視覺一致性；桌面版 .tour-btn-row
+       （見上方約 1311 行）完全不受影響。 */
+    .tour-btn-row{display:none;}
+
+    /* ---------- 手機「新手導覽／使用指南」浮動入口 ----------
+       比照 #mobileModeBtn／#mobileModePopover：純轉發點擊到側邊欄裡
+       原本的 #tourStartBtn／#guideOpenBtn（已被上面 .tour-btn-row
+       隱藏，不是從 DOM 移除），不重新實作導覽/指南邏輯，見
+       src/ui/mobileLayout.js 的 initHelpPopover()。
+       位置放在頂部搜尋列下緣、螢幕左上角：這個 y 帶（topbar 高度以下）
+       在所有模式下都是空的——#mobileSearchBar 只在疊圖模式顯示且高度
+       在 topbar 帶內，不會延伸到這裡；.draw-toolbar／.locate-toast
+       雖然用同一個 y 帶但都貼右上角，這裡貼左上角完全不重疊；
+       其餘手機浮動列（地圖工具、目前圖層、日期印章等）都在畫面下半部。
+       低頻功能，不需要像 #mobileModeBtn 一樣可拖曳，固定位置即可，但
+       z-index 仍用 50（與 #mobileModeBtn 同一層級），確保 Sheet 收合
+       或展開任何狀態下都看得到點得到。 ---------- */
+    #mobileHelpBtn{
+      display:flex; align-items:center; justify-content:center;
+      position:fixed; z-index:50;
+      left:calc(10px + env(safe-area-inset-left));
+      top:calc(env(safe-area-inset-top) + var(--mobile-topbar-h) + 10px);
+      width:40px; height:40px; border-radius:50%;
+      background:var(--ink); color:var(--paper); border:2px solid var(--brass);
+      box-shadow:0 3px 12px rgba(0,0,0,.35); cursor:pointer;
+      font-size:16px;
+    }
+    #mobileHelpBtn.active{background:var(--stamp); border-color:var(--stamp);}
+    #mobileHelpPopover{
+      display:none; position:fixed; z-index:50;
+      left:calc(10px + env(safe-area-inset-left));
+      top:calc(env(safe-area-inset-top) + var(--mobile-topbar-h) + 56px);
+      width:min(200px, calc(100vw - 32px));
+      background:var(--paper); border:1px solid var(--rule); border-radius:12px;
+      box-shadow:0 8px 24px rgba(0,0,0,.35); padding:8px;
+    }
+    #mobileHelpPopover.open{display:block;}
+
     /* ---------- 其餘地圖下方浮動列：一律讓到底部工作表 peek 區之上 ---------- */
     .compare-float-item{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px);}
     #mapTimelineBar{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px); width:calc(100% - 24px); max-height:34vh;}
@@ -1775,14 +1814,13 @@
     .draw-storage-toast{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px); right:10px;}
 
     /* ---------- Bottom Sheet 本體：#sidebar 從桌面左側浮動面板
-       改成貼齊底部、可拖曳三態（收合/半開/展開）的工作表。
+       改成貼齊底部、可拖曳二態（縮小/展開）的工作表。
        #sidebar.collapsed 沿用既有「收合」class（桌面版是圓形收合鈕，
        這裡整段覆寫成 peek 態，語意一致：都是「目前最小化」）；
-       多出來的「展開至 75vh」用 .sheet-expanded 疊加，只在
-       未收合時才有效（collapseSidebar()／#toggleSidebar 點擊都會
-       一併移除 .sheet-expanded，見 src/ui/sidebarToggle.js）。
+       沒有 .collapsed 時就是唯一的非收合態「展開至 75vh」，單純用
+       有無 .collapsed 這一個 class 表達兩態，不再疊加額外 class。
        高度固定在 --mobile-sheet-full，用 transform:translateY 位移出
-       露出高度的差值來實作三態，全程只用 transform + transition，
+       露出高度的差值來實作兩態，全程只用 transform + transition，
        沒有動畫框架。 ---------- */
     #sidebar{
       position:fixed; left:0; right:0; top:auto; bottom:0;
@@ -1790,12 +1828,11 @@
       border-radius:16px 16px 0 0; border-bottom:none;
       box-shadow:0 -6px 24px rgba(0,0,0,.35);
       padding-bottom:env(safe-area-inset-bottom);
-      transform:translateY(calc(var(--mobile-sheet-full) - var(--mobile-sheet-half)));
+      transform:translateY(0);
       transition:transform .28s cubic-bezier(.4,0,.2,1);
       z-index:20;
     }
     #sidebar.dragging{transition:none;}
-    #sidebar.sheet-expanded{transform:translateY(0);}
     #sidebar.collapsed{
       width:100%; height:var(--mobile-sheet-full); top:auto; bottom:0;
       border-radius:16px 16px 0 0; box-shadow:0 -6px 24px rgba(0,0,0,.35);

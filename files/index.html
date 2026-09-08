@@ -109,6 +109,15 @@
   <button type="button" class="mobile-mode-option mobile-mode-toggle" id="mobileDrawToggle">繪圖工具</button>
 </div>
 
+<!-- 手機版「新手導覽／使用指南」浮動入口：純轉發點擊到側邊欄裡原本的
+     #tourStartBtn／#guideOpenBtn（已被 style.css 隱藏，不是從 DOM 移除），
+     不重新實作導覽/指南邏輯，見 src/ui/onboarding.js。>768px 一律隱藏。 -->
+<button type="button" id="mobileHelpBtn" class="mobile-help-btn" title="新手導覽／使用指南" aria-label="新手導覽／使用指南" aria-expanded="false">❔</button>
+<div id="mobileHelpPopover" class="mobile-mode-popover">
+  <button type="button" class="mobile-mode-option" data-help-action="tour">🧭 新手導覽</button>
+  <button type="button" class="mobile-mode-option" data-help-action="guide">❔ 使用指南</button>
+</div>
+
 <div class="compare-float-item" id="compareWrapA">
   <span class="side-dot a"></span>
   <div class="layer-picker">
@@ -225,7 +234,7 @@
 
 <div id="sidebar">
   <!-- 手機版 Bottom Sheet 拖曳把手：只在 <=768px 顯示，桌面版無作用。
-       點擊在收合／半開／展開三態間循環，也可垂直拖曳（見
+       點擊在收合／展開二態間切換，也可垂直拖曳（見
        src/ui/mobileLayout.js）。 -->
   <div class="sheet-handle" id="sheetHandle" aria-hidden="true"><span class="sheet-handle-bar"></span></div>
   <div class="sidebar-header">

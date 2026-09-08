@@ -15,15 +15,17 @@
       放在地址搜尋列裡），讓使用者視覺上只看到一個輸入框，實際上兩邊
       仍是各自獨立的真實 DOM 節點，互不接管對方的搜尋邏輯與狀態，切換
       模式不會清除任何一邊已經搜尋出來的結果。
-   2. 讓 #sidebar 在手機版變成可拖曳／點擊循環三態的 Bottom Sheet
-      （收合 peek／半開 45vh／展開 75vh），沿用既有的
-      collapseSidebar()／expandSidebar()（ui/sidebarToggle.js）做
-      「收合／半開」二態切換，額外疊加 .sheet-expanded class 做第三態，
+   2. 讓 #sidebar 在手機版變成可拖曳／點擊循環二態的 Bottom Sheet
+      （收合 peek／展開 75vh），沿用既有的 collapseSidebar()／
+      expandSidebar()（ui/sidebarToggle.js）做「收合／展開」二態切換，
       幾何全部交給 style.css 的 Mobile Responsive Layout 區塊。
    3. 手機版「地圖工具」快速選單（#mobileModeBtn／#mobileModePopover）
       只是轉呼叫 #modeSwitch 裡對應按鈕的 .click()，核心模式切換邏輯
-      仍在 core/modeManager.js；「目前圖層」浮動列點擊展開/收合透明度
-      拉桿；搜尋結果出現時自動把 Bottom Sheet 打開到半開，方便直接看到。
+      仍在 core/modeManager.js；「新手導覽／使用指南」浮動入口
+      （#mobileHelpBtn／#mobileHelpPopover）同理只轉呼叫側邊欄裡原本的
+      #tourStartBtn／#guideOpenBtn，取代被隱藏的 .tour-btn-row；
+      「目前圖層」浮動列點擊展開/收合透明度拉桿；搜尋結果出現時自動
+      把 Bottom Sheet 打開到展開態，方便直接看到。
    4. 即時量測 window.visualViewport.height 寫成 --vvh 供 style.css 算
       Sheet 高度（手機瀏覽器工具列會動態顯示/收起，純 vh 對不上實際
       可視高度），並同步 body class（mobile-sheet-open／
@@ -59,8 +61,8 @@ let desktopLayerPlaceholder = null;
    （左右比對／時間軸的浮動列因此「跑出來」蓋住畫面，即回報中的
    「展開下欄會跑上去遮擋畫面」）。這裡改用
    `window.visualViewport.height`（沒有就退回 innerHeight）即時量測，
-   寫成 CSS 變數 --vvh 讓 style.css 的 --mobile-sheet-full／
-   --mobile-sheet-half 用 px 精確計算，取代原本純 vh 的算法。
+   寫成 CSS 變數 --vvh 讓 style.css 的 --mobile-sheet-full
+   用 px 精確計算，取代原本純 vh 的算法。
 --------------------------------------------------------- */
 function updateViewportMetrics(){
   const h = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
@@ -250,10 +252,9 @@ function initSearchBarAutoCollapse(){
 
 /* ---------------------------------------------------------
    2. Bottom Sheet：拖曳把手 #sheetHandle。
-   三態對應：
-     collapsed 態      → #sidebar.collapsed（peek，沿用桌面既有 class）
-     半開態（預設展開） → 無 .collapsed、無 .sheet-expanded
-     展開態（75vh）    → 無 .collapsed、有 .sheet-expanded
+   二態對應：
+     collapsed 態 → #sidebar.collapsed（peek，沿用桌面既有 class）
+     展開態（75vh） → 無 .collapsed
 --------------------------------------------------------- */
 function initSheetHandle(){
   const handle = document.getElementById('sheetHandle');
@@ -261,30 +262,24 @@ function initSheetHandle(){
   if(!handle || !sidebar) return;
 
   const PEEK_PX = 60; // 需與 style.css 的 --mobile-sheet-peek 一致
-  // 跟 style.css 的 --mobile-sheet-full／--mobile-sheet-half 用同一份
-  // 「實際可視高度」（見 updateViewportMetrics()），不要各自用不同基準
-  // 算，否則拖曳中的即時位置會跟放開後 CSS 對不齊、放開瞬間跳一下。
+  // 跟 style.css 的 --mobile-sheet-full 用同一份「實際可視高度」
+  // （見 updateViewportMetrics()），不要各自用不同基準算，否則拖曳中
+  // 的即時位置會跟放開後 CSS 對不齊、放開瞬間跳一下。
   const viewportH = () => (window.visualViewport && window.visualViewport.height) || window.innerHeight;
   const fullPx = () => viewportH() * 0.75;
-  const halfPx = () => viewportH() * 0.45;
 
   function currentTranslate(){
     if(sidebar.classList.contains('collapsed')) return fullPx() - PEEK_PX;
-    if(sidebar.classList.contains('sheet-expanded')) return 0;
-    return fullPx() - halfPx();
+    return 0;
   }
 
   function snapTo(target){
     sidebar.classList.remove('dragging');
     sidebar.style.transform = '';
     if(target === 'collapsed'){
-      collapseSidebar(); // 一併移除 .sheet-expanded，見 sidebarToggle.js
-    } else if(target === 'expanded'){
+      collapseSidebar();
+    } else { // expanded
       expandSidebar();
-      sidebar.classList.add('sheet-expanded');
-    } else { // half
-      expandSidebar();
-      sidebar.classList.remove('sheet-expanded');
     }
   }
 
@@ -309,11 +304,8 @@ function initSheetHandle(){
     if(!dragging) return;
     dragging = false;
     if(!moved){
-      // 純點擊（沒有明顯拖曳位移）：三態依序循環，讓使用者不用拖曳
-      // 也能到達「展開 75vh」這個既有 collapseSidebar()/expandSidebar()
-      // 二元切換到不了的第三態。
-      if(sidebar.classList.contains('collapsed')) snapTo('half');
-      else if(!sidebar.classList.contains('sheet-expanded')) snapTo('expanded');
+      // 純點擊（沒有明顯拖曳位移）：兩態互相切換。
+      if(sidebar.classList.contains('collapsed')) snapTo('expanded');
       else snapTo('collapsed');
       return;
     }
@@ -321,7 +313,6 @@ function initSheetHandle(){
     const finalTranslate = Math.max(0, Math.min(fullPx() - PEEK_PX, startTranslate + dy));
     const candidates = [
       { state:'expanded', pos:0 },
-      { state:'half', pos: fullPx() - halfPx() },
       { state:'collapsed', pos: fullPx() - PEEK_PX },
     ];
     candidates.sort((a,b)=> Math.abs(finalTranslate - a.pos) - Math.abs(finalTranslate - b.pos));
@@ -423,6 +414,47 @@ function initModePopover(){
 }
 
 /* ---------------------------------------------------------
+   3a-3. 「新手導覽／使用指南」浮動入口：跟 initModePopover() 同一種
+   開合邏輯，但只是純轉發點擊到側邊欄裡原本的 #tourStartBtn／
+   #guideOpenBtn（見 index.html 的 .tour-btn-row，手機版被 style.css
+   隱藏但仍在 DOM 裡），完全不碰 src/ui/onboarding.js 內部邏輯。
+   固定位置不可拖曳，不需要 positionPopover() 那套跟隨按鈕位置的計算。
+--------------------------------------------------------- */
+function initHelpPopover(){
+  const btn = document.getElementById('mobileHelpBtn');
+  const popover = document.getElementById('mobileHelpPopover');
+  if(!btn || !popover) return;
+
+  function closePopover(){
+    popover.classList.remove('open');
+    btn.classList.remove('active');
+    btn.setAttribute('aria-expanded', 'false');
+  }
+  function openPopover(){
+    popover.classList.add('open');
+    btn.classList.add('active');
+    btn.setAttribute('aria-expanded', 'true');
+  }
+
+  btn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    if(popover.classList.contains('open')) closePopover();
+    else openPopover();
+  });
+  document.addEventListener('click', (e)=>{
+    if(popover.classList.contains('open') && !popover.contains(e.target) && e.target !== btn) closePopover();
+  });
+  popover.querySelectorAll('.mobile-mode-option[data-help-action]').forEach(optBtn=>{
+    optBtn.addEventListener('click', ()=>{
+      const action = optBtn.dataset.helpAction;
+      if(action === 'tour') document.getElementById('tourStartBtn')?.click();
+      else if(action === 'guide') document.getElementById('guideOpenBtn')?.click();
+      closePopover();
+    });
+  });
+}
+
+/* ---------------------------------------------------------
    3a-2. 讓「地圖工具」浮動按鈕可以拖到螢幕任何地方，並記住位置
    （localStorage），下次載入沿用；用 pointerdown/move/up 判斷位移量，
    超過門檻才算拖曳（否則視為單純點擊，交給 initModePopover() 的
@@ -518,7 +550,7 @@ function initFloatingOpacityExpand(){
 }
 
 /* ---------------------------------------------------------
-   3c. 地址搜尋結果出現時，自動把 Bottom Sheet 從收合(peek)打開到半開，
+   3c. 地址搜尋結果出現時，自動把 Bottom Sheet 從收合(peek)打開到展開，
    讓使用者不用自己再手動拉開；只在「是這次自動打開的」情況下，清除
    搜尋時才自動收回去，避免蓋掉使用者自己手動展開到的狀態。只監看
    #locationResult 的 style（ui/search.js 既有的顯示/隱藏開關），不碰
@@ -535,7 +567,6 @@ function initSearchResultAutoExpand(){
     const visible = locationResultEl.style.display !== 'none';
     if(visible && sidebar.classList.contains('collapsed')){
       expandSidebar();
-      sidebar.classList.remove('sheet-expanded');
       autoOpened = true;
     } else if(!visible && autoOpened){
       collapseSidebar();
@@ -547,7 +578,7 @@ function initSearchResultAutoExpand(){
 
 /* ---------------------------------------------------------
    3c-2. 跟上面對稱：圖資搜尋出現結果時也自動把 Bottom Sheet 打開到
-   半開，因為合併輸入框搬到頂部後 #layerSearchPanel 仍留在 Bottom Sheet
+   展開態，因為合併輸入框搬到頂部後 #layerSearchPanel 仍留在 Bottom Sheet
    裡（見 relocateLayerSearchRow()），收合(peek)狀態下使用者看不到搜尋
    結果。只監看 #layerSearchPanel 的 hidden 屬性（ui/layerSearch.js 既有
    的顯示/隱藏開關），不碰任何搜尋比對邏輯本身。
@@ -563,7 +594,6 @@ function initLayerSearchResultAutoExpand(){
     const visible = !layerPanelEl.hidden;
     if(visible && sidebar.classList.contains('collapsed')){
       expandSidebar();
-      sidebar.classList.remove('sheet-expanded');
       autoOpened = true;
     } else if(!visible && autoOpened){
       collapseSidebar();
@@ -578,7 +608,7 @@ let everEnteredMobile = false;
 /* ---------------------------------------------------------
    #mobileModeBtn／#mobileModePopover／.floating-opacity 的 z-index
    刻意比 #sidebar 高，只有 Sheet 收合成 peek 時才需要靠它們補位——
-   Sheet 只要一打開（半開或展開皆然），面板裡本來就看得到「地圖模式」
+   Sheet 只要一打開（展開態），面板裡本來就看得到「地圖模式」
    「目前圖層」，這幾顆浮動捷徑反而會蓋住剛打開的面板內容（實機回報
    「浮動功能會影響拉起選單」）。這裡監看 #sidebar 的 class 變化，同步
    一個 body class，只要不是收合狀態就統一藏起來，不算移除功能。
@@ -659,6 +689,7 @@ export function initMobileLayout(){
   initMobileSearchModeToggle();
   initSheetHandle();
   initModePopover();
+  initHelpPopover();
   initDraggableModeButton();
   initFloatingOpacityExpand();
   initSearchResultAutoExpand();
