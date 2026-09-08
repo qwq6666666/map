@@ -61,17 +61,28 @@ function sourcesForMacro(twSources, macro){
   return twSources.filter(src => macroRegionForSource(src) === macro);
 }
 
-// 依筆數（該地區底下所有來源的圖層總數）由多到少，統計某個大區域裡
-// 「實際有資料的地區」。
+// 北部／中部／南部固定顯示順序；東部／離島／全國維持依筆數由多到少排序。
+const FIXED_AREA_ORDER = {
+  '北部': ['臺北', '新北', '基隆', '桃園', '新竹', '桃竹苗', '淡水'],
+  '中部': ['臺中', '彰化', '鹿港', '埔里'],
+  '南部': ['嘉義', '臺南', '高雄', '屏東', '六堆']
+};
+
+// 統計某個大區域裡「實際有資料的地區」（筆數＝該地區底下所有來源的圖層總數）。
 function computeAreasForMacro(twSources, macro){
   const counts = new Map();
   sourcesForMacro(twSources, macro).forEach(src => {
     const label = regionLabelForSource(src);
     counts.set(label, (counts.get(label) || 0) + layerCountForSource(src));
   });
-  return Array.from(counts.entries())
-    .sort((a, b) => b[1] - a[1])
-    .map(([label, count]) => ({ label, count }));
+  const areas = Array.from(counts.entries()).map(([label, count]) => ({ label, count }));
+  const fixedOrder = FIXED_AREA_ORDER[macro];
+  if(fixedOrder){
+    areas.sort((a, b) => fixedOrder.indexOf(a.label) - fixedOrder.indexOf(b.label));
+  } else {
+    areas.sort((a, b) => b.count - a.count);
+  }
+  return areas;
 }
 
 function sourcesForArea(twSources, macro, area){
