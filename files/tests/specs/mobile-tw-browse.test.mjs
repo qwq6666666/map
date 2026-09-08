@@ -37,8 +37,8 @@ test('macroRegionForSource：taipei -> 北部', () => {
 test('macroRegionForSource：thm -> 北部', () => {
   assertEqual(macroRegionForSource(findSource('thm')), '北部', 'thm 應該對應到北部');
 });
-test('macroRegionForSource：yilan -> 北部', () => {
-  assertEqual(macroRegionForSource(findSource('yilan')), '北部', 'yilan 應該對應到北部');
+test('macroRegionForSource：yilan -> 東部', () => {
+  assertEqual(macroRegionForSource(findSource('yilan')), '東部', 'yilan 應該對應到東部');
 });
 test('macroRegionForSource：taichung -> 中部', () => {
   assertEqual(macroRegionForSource(findSource('taichung')), '中部', 'taichung 應該對應到中部');
@@ -82,8 +82,8 @@ test('regionLabelForSource：udd 與 taipei 應合併成同一個地區標籤', 
   const taipeiLabel = regionLabelForSource(findSource('taipei'));
   assertEqual(uddLabel, taipeiLabel, 'udd 與 taipei 應該回傳完全相同的地區標籤字串');
 });
-test('regionLabelForSource：newtaipei -> 新北市（去尾規則）', () => {
-  assertEqual(regionLabelForSource(findSource('newtaipei')), '新北市', 'newtaipei 應該對應到新北市');
+test('regionLabelForSource：newtaipei -> 新北（去尾規則）', () => {
+  assertEqual(regionLabelForSource(findSource('newtaipei')), '新北', 'newtaipei 應該對應到新北');
 });
 test('regionLabelForSource：keelung -> 基隆（去尾規則）', () => {
   assertEqual(regionLabelForSource(findSource('keelung')), '基隆', 'keelung 應該對應到基隆');
@@ -113,10 +113,10 @@ test('全站台灣來源大區域分組：24 個 tw 來源依 macroRegionForSour
   assertEqual(twSources.length, 24, `目前台灣來源（country==='tw'）總數應為 24 個，實際 ${twSources.length} 個`);
 
   assertEqual(counts['全國'], 2, `全國組來源數應為 2，實際 ${counts['全國']}`);
-  assertEqual(counts['北部'], 9, `北部組來源數應為 9，實際 ${counts['北部']}`);
+  assertEqual(counts['北部'], 8, `北部組來源數應為 8，實際 ${counts['北部']}`);
   assertEqual(counts['中部'], 4, `中部組來源數應為 4，實際 ${counts['中部']}`);
   assertEqual(counts['南部'], 5, `南部組來源數應為 5，實際 ${counts['南部']}`);
-  assertEqual(counts['東部'], 2, `東部組來源數應為 2，實際 ${counts['東部']}`);
+  assertEqual(counts['東部'], 3, `東部組來源數應為 3，實際 ${counts['東部']}`);
   assertEqual(counts['離島'], 2, `離島組來源數應為 2，實際 ${counts['離島']}`);
 
   const total = MACRO_REGION_ORDER.reduce((sum, macro) => sum + counts[macro], 0);

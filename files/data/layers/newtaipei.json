@@ -1,6 +1,6 @@
 {
   "id": "newtaipei",
-  "name": "新北市百年歷史地圖",
+  "name": "新北百年歷史地圖",
   "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（新北市百年歷史地圖）",
   "provider": {
     "tileTemplate": "https://gis.sinica.edu.tw/newtaipei/file-exists.php?img={id}-{format}-{z}-{x}-{y}"

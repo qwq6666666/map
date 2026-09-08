@@ -33,15 +33,15 @@ export function regionLabelForSource(src){
 
 export const MACRO_REGION_ORDER = ['全國', '北部', '中部', '南部', '東部', '離島'];
 
-// 已跟使用者確認過的分組（北部 9、中部 4、南部 5、東部 2、離島 2、
+// 已跟使用者確認過的分組（北部 8、中部 4、南部 5、東部 3、離島 2、
 // 全國 2，加總 24，跟目前 tw 來源總數一致）。
 const MACRO_REGION_MAP = {
   sinica: '全國', nlsc: '全國',
   taipei: '北部', udd: '北部', newtaipei: '北部', tamsui: '北部',
-  keelung: '北部', taoyuan: '北部', hsinchu: '北部', thm: '北部', yilan: '北部',
+  keelung: '北部', taoyuan: '北部', hsinchu: '北部', thm: '北部',
   taichung: '中部', changhua: '中部', lukang: '中部', puli: '中部',
   chiayi: '南部', tainan: '南部', kaohsiung: '南部', pingtung: '南部', hakkaliudui: '南部',
-  hualien: '東部', taitung: '東部',
+  hualien: '東部', taitung: '東部', yilan: '東部',
   kinmen: '離島', penghu: '離島'
 };
 
