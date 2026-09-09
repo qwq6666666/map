@@ -1946,12 +1946,18 @@
     .source-group.mobile-tw-accordion-hidden{display:none;}
 
     /* 大區域／地區 chip 列：視覺比照既有 .avail-year-sort-btn／.segmented
-       語彙，橫向可滑動、不換行。 */
+       語彙，橫向可滑動、不換行。justify-content:space-between 讓「一整排
+       按鈕的自然寬度小於容器寬度」時最後一顆按鈕的右邊界貼齊容器右邊界
+       （跟上方 .segmented／#baseSwitch 等滿版元素的右邊線對齊）；一旦按鈕
+       總寬度超出容器（例如地區多達 7、8 個），space-between 沒有多餘空間
+       可分配，會自動退回原本由左至右排列＋水平捲動，不影響既有設計。 */
     .mobile-tw-macro-row, .mobile-tw-area-row{
-      display:flex; flex-wrap:nowrap; gap:6px; overflow-x:auto;
-      -webkit-overflow-scrolling:touch; padding:2px 2px 4px;
+      display:flex; flex-wrap:nowrap; justify-content:space-between; gap:7px;
+      overflow-x:auto; -webkit-overflow-scrolling:touch; padding:2px 2px 6px;
     }
-    .mobile-tw-macro-btn, .mobile-tw-area-btn{flex-shrink:0; min-height:32px;}
+    .mobile-tw-macro-btn, .mobile-tw-area-btn{
+      flex-shrink:0; min-height:36px; padding:6px 12px; font-size:13px;
+    }
     .mobile-tw-hint{font-size:12px; color:var(--rule); padding:4px 2px; line-height:1.6;}
 
     /* 第三段：buildSourceGroup() 建出來的 .source-group／.source-head／

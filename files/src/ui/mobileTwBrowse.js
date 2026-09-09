@@ -7,11 +7,16 @@
    sidebarUI.js 的 renderSourceAccordion()／buildSourceGroup()），只是依
    目前選中的大區域／地區篩出對應來源，各自重新生成一份獨立的手風琴 DOM。
 
-   純函式（macroRegionForSource／regionLabelForSource）刻意不碰 DOM，方便
-   獨立單元測試；buildMobileTwBrowseUI() 才是實際組 DOM 的部分，回傳的
-   容器由呼叫端自行決定何時 append／顯示（見 sidebarUI.js 的
-   syncMobileTwView()，用 hidden attribute 控制）。
+   這支檔案只留「台灣專屬設定資料」（REGION_LABEL_OVERRIDES／
+   MACRO_REGION_MAP／FIXED_AREA_ORDER）與對應的純函式
+   （macroRegionForSource／regionLabelForSource，刻意不碰 DOM，方便
+   獨立單元測試）；實際共用的 DOM 建構邏輯與
+   guessRegionFromLastLocation() 已抽到 src/ui/mobileRegionBrowse.js，
+   跟 mobileCnBrowse.js 共用。buildMobileTwBrowseUI() 回傳的容器由呼叫端
+   自行決定何時 append／顯示（見 sidebarUI.js 的 syncMobileBrowseView()，
+   用 hidden attribute 控制）。
 --------------------------------------------------------- */
+import { buildMobileRegionBrowseUI } from './mobileRegionBrowse.js';
 
 // 少數來源不適用「去掉 name 尾端字樣」規則，直接寫死對照表；
 // udd（臺北市歷史圖資展示系統）刻意跟 taipei（臺北百年歷史地圖）合併成
@@ -49,62 +54,12 @@ export function macroRegionForSource(src){
   return MACRO_REGION_MAP[src.id] || '其他'; // fallback 防禦性，目前 24 個 tw 來源不會走到
 }
 
-// 跟 sidebarUI.js 的 buildSourceGroup() 內算來源總筆數同一套算法，
-// 這裡只是用來排序地區 chip，刻意不 import sidebarUI.js（避免循環依賴，
-// 這支檔案本來就是被 sidebarUI.js import）。
-function layerCountForSource(src){
-  return src.categories.reduce((s, c) =>
-    s + (c.groups ? c.groups.reduce((gs, g) => gs + g.layers.length, 0) : c.layers.length), 0);
-}
-
-function sourcesForMacro(twSources, macro){
-  return twSources.filter(src => macroRegionForSource(src) === macro);
-}
-
 // 北部／中部／南部固定顯示順序；東部／離島／全國維持依筆數由多到少排序。
-const FIXED_AREA_ORDER = {
+export const FIXED_AREA_ORDER = {
   '北部': ['臺北', '新北', '基隆', '桃園', '新竹', '桃竹苗', '淡水'],
   '中部': ['臺中', '彰化', '鹿港', '埔里'],
   '南部': ['嘉義', '臺南', '高雄', '屏東', '六堆']
 };
-
-// 統計某個大區域裡「實際有資料的地區」（筆數＝該地區底下所有來源的圖層總數）。
-function computeAreasForMacro(twSources, macro){
-  const counts = new Map();
-  sourcesForMacro(twSources, macro).forEach(src => {
-    const label = regionLabelForSource(src);
-    counts.set(label, (counts.get(label) || 0) + layerCountForSource(src));
-  });
-  const areas = Array.from(counts.entries()).map(([label, count]) => ({ label, count }));
-  const fixedOrder = FIXED_AREA_ORDER[macro];
-  if(fixedOrder){
-    areas.sort((a, b) => fixedOrder.indexOf(a.label) - fixedOrder.indexOf(b.label));
-  } else {
-    areas.sort((a, b) => b.count - a.count);
-  }
-  return areas;
-}
-
-function sourcesForArea(twSources, macro, area){
-  const sources = sourcesForMacro(twSources, macro);
-  if(!area) return sources;
-  return sources.filter(src => regionLabelForSource(src) === area);
-}
-
-/* ---------------------------------------------------------
-   best-effort 猜測：讀「最近一次地址搜尋」在畫面上留下的結果文字，
-   猜出使用者可能想找哪個地區。唯讀 DOM，不 import 任何 search 模組、
-   不新增 store 欄位，猜不到就回傳 null（呼叫端維持「全部地區」）。
---------------------------------------------------------- */
-function guessRegionFromLastLocation(candidateLabels){
-  const resultEl = document.getElementById('locationResult');
-  const nameEl = document.getElementById('locationName');
-  if(!resultEl || !nameEl) return null;
-  if(resultEl.style.display === 'none' || !resultEl.style.display) return null; // 目前沒有顯示中的搜尋結果
-  const text = nameEl.textContent || '';
-  if(!text) return null;
-  return candidateLabels.find(label => text.includes(label)) || null;
-}
 
 /**
  * 建立手機版「台灣」分頁的大區域→地區→來源手風琴 UI，回傳可直接
@@ -116,88 +71,13 @@ function guessRegionFromLastLocation(candidateLabels){
  *   桌機那份手風琴共用節點，也不需要手動同步兩者的展開狀態）。
  */
 export function buildMobileTwBrowseUI(twSources, buildSourceGroup){
-  const root = document.createElement('div');
-  root.id = 'mobileTwBrowse';
-  root.className = 'mobile-tw-browse';
-
-  const macroRow = document.createElement('div');
-  macroRow.className = 'mobile-tw-macro-row';
-
-  const areaRow = document.createElement('div');
-  areaRow.className = 'mobile-tw-area-row';
-  areaRow.hidden = true;
-
-  const hint = document.createElement('div');
-  hint.className = 'mobile-tw-hint';
-  hint.textContent = '請先選擇地區';
-
-  const sourcesWrap = document.createElement('div');
-  sourcesWrap.className = 'mobile-tw-sources';
-
-  let selectedMacro = null;
-  let selectedArea = null; // null = 全部地區
-
-  const macroButtons = new Map();
-  MACRO_REGION_ORDER.forEach(macro => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'avail-year-sort-btn mobile-tw-macro-btn';
-    btn.textContent = macro;
-    btn.addEventListener('click', () => selectMacro(macro));
-    macroButtons.set(macro, btn);
-    macroRow.appendChild(btn);
-  });
-
-  function renderAreaRow(areas){
-    areaRow.innerHTML = '';
-    if(!selectedMacro){
-      areaRow.hidden = true;
-      return;
-    }
-    areaRow.hidden = false;
-    areas.forEach(({ label, count }) => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'avail-year-sort-btn mobile-tw-area-btn';
-      btn.textContent = `${label} ${count}`;
-      btn.classList.toggle('active', selectedArea === label);
-      btn.addEventListener('click', () => {
-        selectedArea = (selectedArea === label) ? null : label;
-        Array.from(areaRow.children).forEach(b => b.classList.remove('active'));
-        if(selectedArea === label) btn.classList.add('active');
-        renderSources();
-      });
-      areaRow.appendChild(btn);
-    });
-  }
-
-  function renderSources(){
-    sourcesWrap.innerHTML = '';
-    if(!selectedMacro){
-      hint.hidden = false;
-      return;
-    }
-    hint.hidden = true;
-    sourcesForArea(twSources, selectedMacro, selectedArea).forEach(src => {
-      sourcesWrap.appendChild(buildSourceGroup(src));
-    });
-  }
-
-  function selectMacro(macro){
-    selectedMacro = macro;
-    macroButtons.forEach((btn, key) => btn.classList.toggle('active', key === macro));
-
-    const areas = computeAreasForMacro(twSources, macro);
-    selectedArea = guessRegionFromLastLocation(areas.map(a => a.label));
-
-    renderAreaRow(areas);
-    renderSources();
-  }
-
-  root.appendChild(macroRow);
-  root.appendChild(areaRow);
-  root.appendChild(hint);
-  root.appendChild(sourcesWrap);
-
-  return root;
+  return buildMobileRegionBrowseUI({
+    rootId: 'mobileTwBrowse',
+    rootClassName: 'mobile-tw-browse',
+    countryCode: 'tw',
+    macroOrder: MACRO_REGION_ORDER,
+    macroRegionForSource,
+    regionLabelForSource,
+    fixedAreaOrder: FIXED_AREA_ORDER
+  }, twSources, buildSourceGroup);
 }

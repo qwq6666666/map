@@ -110,6 +110,10 @@ export async function showLocationAndFindLayers(lon, lat, label, addr){
 
   locationResultEl.style.display = 'block';
   locationNameEl.textContent = label;
+  // 存下 Nominatim 回傳的國別碼（小寫），給手機版分頁的
+  // guessRegionFromLastLocation() 比對用，避免地址搜尋固定只查台灣
+  // （見 src/geocode.js 的 countrycodes=tw）卻被拿去誤判成其他國家的地區。
+  locationResultEl.dataset.countryCode = (addr && addr.country_code) ? String(addr.country_code).toLowerCase() : '';
   // 每次重新搜尋都要先移除舊的座標資訊區塊，避免重複搜尋時在卡片內堆疊。
   locationResultEl.querySelector('.coord-info')?.remove();
   locationResultEl.appendChild(buildCoordInfoElement(lat, lon));

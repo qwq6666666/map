@@ -1,7 +1,8 @@
 import '../env-stub.mjs';
 import { test, run, assertEqual, assertTrue } from '../assert.mjs';
 import { loadAppData, DATA } from '../../src/data.js';
-import { MACRO_REGION_ORDER, macroRegionForSource, regionLabelForSource } from '../../src/ui/mobileCnBrowse.js';
+import { MACRO_REGION_ORDER, macroRegionForSource, regionLabelForSource, FIXED_AREA_ORDER } from '../../src/ui/mobileCnBrowse.js';
+import { guessRegionFromLastLocation } from '../../src/ui/mobileRegionBrowse.js';
 
 await loadAppData();
 
@@ -103,6 +104,32 @@ test('全站中國來源大區域分組：11 個 cn 來源依 macroRegionForSour
   assertEqual(total, 11, `六組加總應等於 cn 來源總數 11，實際 ${total}（新增/移除中國來源時要同步更新這幾個數字）`);
 
   assertEqual(otherCount, 0, `不應該有任何 cn 來源被分類成「其他」，實際有 ${otherCount} 個未涵蓋：${otherIds.join(', ')}（代表 MACRO_REGION_MAP 未涵蓋目前全部 11 個 cn 來源，需同步更新）`);
+});
+
+/* ---------------------------------------------------------
+   5：FIXED_AREA_ORDER 與實際資料同步的回歸測試
+--------------------------------------------------------- */
+test('FIXED_AREA_ORDER：華北/華東/華南列出的地區標籤都要能在實際 cn 來源資料中找到（防止 name 改名後排序表沒同步更新）', () => {
+  const cnSources = DATA.LAYER_SOURCES.filter(s => s.country === 'cn');
+  const actualLabels = new Set(cnSources.map(regionLabelForSource));
+  Object.entries(FIXED_AREA_ORDER).forEach(([macro, labels]) => {
+    labels.forEach(label => {
+      assertTrue(actualLabels.has(label), `FIXED_AREA_ORDER['${macro}'] 裡的 '${label}' 應該要能在實際 cn 來源的 regionLabelForSource() 結果中找到，否則代表某個來源改名後這裡沒同步更新`);
+    });
+  });
+});
+
+/* ---------------------------------------------------------
+   6：guessRegionFromLastLocation 跨國別誤判回歸測試（CN 情境）
+--------------------------------------------------------- */
+test('guessRegionFromLastLocation：地址搜尋結果是台灣（countryCode=tw），中國分頁候選標籤含「南京」時仍應回傳 null（不能把「南京東路」誤判成中國「南京」）', () => {
+  const resultEl = document.getElementById('locationResult');
+  const nameEl = document.getElementById('locationName');
+  resultEl.style.display = 'block';
+  resultEl.dataset.countryCode = 'tw';
+  nameEl.textContent = '臺北市中山區南京東路一段';
+  const guessed = guessRegionFromLastLocation(['南京', '上海', '北京'], 'cn');
+  assertEqual(guessed, null, 'countryCode 是 tw 時，中國分頁傳入 cn 應該比對不上、回傳 null');
 });
 
 await run();

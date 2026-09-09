@@ -275,6 +275,14 @@ function renderSourceAccordion(categoriesEl, sourceWraps){
   });
 }
 
+// 手機版「台灣」「中國」分頁三段式瀏覽的設定清單：以後要加第三個國家
+// 分頁，只需要在這裡加一筆 { country, build }，initSidebar() 內的建立／
+// 顯示切換邏輯都是依這份清單跑迴圈，不用再另外寫一份平行分支。
+const MOBILE_BROWSE_CONFIGS = [
+  { country: 'tw', build: buildMobileTwBrowseUI },
+  { country: 'cn', build: buildMobileCnBrowseUI }
+];
+
 export function initSidebar(){
   const categoriesEl = document.getElementById('categories');
 
@@ -284,20 +292,19 @@ export function initSidebar(){
   const sourceWraps = []; // [{ src, wrap }]，篩選列用來知道要顯示／隱藏哪些來源
 
   // syncMobileBrowseView() 要在 createCountryFilterBar() 的 onChange 裡呼叫，
-  // 但 mobileTwBrowseEl／mobileCnBrowseEl 要等 renderSourceAccordion() 之後
-  // 才會建立，用可以延後綁定的變數承接，避免兩者互相依賴的宣告順序問題。
-  let mobileTwBrowseEl = null;
-  let mobileCnBrowseEl = null;
+  // 但 mobileBrowseEntries 要等 renderSourceAccordion() 之後、MOBILE_BROWSE_CONFIGS
+  // 逐一建立完才會填入內容，用可以延後填入的陣列承接，避免跟
+  // createCountryFilterBar() 互相依賴的宣告順序問題。
+  const mobileBrowseEntries = []; // [{ country, el }]
   function syncMobileBrowseView(){
-    if(!mobileTwBrowseEl && !mobileCnBrowseEl) return;
+    if(mobileBrowseEntries.length === 0) return;
     const current = getCurrentCountry();
-    const showMobileTw = mq.matches && current === 'tw';
-    const showMobileCn = mq.matches && current === 'cn';
-    if(mobileTwBrowseEl) mobileTwBrowseEl.hidden = !showMobileTw;
-    if(mobileCnBrowseEl) mobileCnBrowseEl.hidden = !showMobileCn;
-    sourceWraps.forEach(({ src, wrap }) => {
-      if(src.country === 'tw') wrap.classList.toggle('mobile-tw-accordion-hidden', showMobileTw);
-      if(src.country === 'cn') wrap.classList.toggle('mobile-tw-accordion-hidden', showMobileCn);
+    mobileBrowseEntries.forEach(({ country, el }) => {
+      const show = mq.matches && current === country;
+      el.hidden = !show;
+      sourceWraps.forEach(({ src, wrap }) => {
+        if(src.country === country) wrap.classList.toggle('mobile-tw-accordion-hidden', show);
+      });
     });
   }
 
@@ -307,13 +314,12 @@ export function initSidebar(){
 
   renderSourceAccordion(categoriesEl, sourceWraps);
 
-  const twSources = DATA.LAYER_SOURCES.filter(s => s.country === 'tw');
-  mobileTwBrowseEl = buildMobileTwBrowseUI(twSources, buildSourceGroup);
-  categoriesEl.appendChild(mobileTwBrowseEl);
-
-  const cnSources = DATA.LAYER_SOURCES.filter(s => s.country === 'cn');
-  mobileCnBrowseEl = buildMobileCnBrowseUI(cnSources, buildSourceGroup);
-  categoriesEl.appendChild(mobileCnBrowseEl);
+  MOBILE_BROWSE_CONFIGS.forEach(({ country, build }) => {
+    const sources = DATA.LAYER_SOURCES.filter(s => s.country === country);
+    const el = build(sources, buildSourceGroup);
+    categoriesEl.appendChild(el);
+    mobileBrowseEntries.push({ country, el });
+  });
 
   refreshCountryFilter();
   updateStickyOffset();

@@ -1,7 +1,8 @@
 import '../env-stub.mjs';
 import { test, run, assertEqual, assertTrue } from '../assert.mjs';
 import { loadAppData, DATA } from '../../src/data.js';
-import { MACRO_REGION_ORDER, macroRegionForSource, regionLabelForSource } from '../../src/ui/mobileTwBrowse.js';
+import { MACRO_REGION_ORDER, macroRegionForSource, regionLabelForSource, FIXED_AREA_ORDER } from '../../src/ui/mobileTwBrowse.js';
+import { guessRegionFromLastLocation } from '../../src/ui/mobileRegionBrowse.js';
 
 await loadAppData();
 
@@ -123,6 +124,49 @@ test('全站台灣來源大區域分組：24 個 tw 來源依 macroRegionForSour
   assertEqual(total, 24, `六組加總應等於 tw 來源總數 24，實際 ${total}（新增/移除台灣來源時要同步更新這幾個數字）`);
 
   assertEqual(otherCount, 0, `不應該有任何 tw 來源被分類成「其他」，實際有 ${otherCount} 個未涵蓋：${otherIds.join(', ')}（代表 MACRO_REGION_MAP 未涵蓋目前全部 24 個 tw 來源，需同步更新）`);
+});
+
+/* ---------------------------------------------------------
+   5：FIXED_AREA_ORDER 與實際資料同步的回歸測試
+--------------------------------------------------------- */
+test('FIXED_AREA_ORDER：北部/中部/南部列出的地區標籤都要能在實際 tw 來源資料中找到（防止 name 改名後排序表沒同步更新）', () => {
+  const twSources = DATA.LAYER_SOURCES.filter(s => s.country === 'tw');
+  const actualLabels = new Set(twSources.map(regionLabelForSource));
+  Object.entries(FIXED_AREA_ORDER).forEach(([macro, labels]) => {
+    labels.forEach(label => {
+      assertTrue(actualLabels.has(label), `FIXED_AREA_ORDER['${macro}'] 裡的 '${label}' 應該要能在實際 tw 來源的 regionLabelForSource() 結果中找到，否則代表某個來源改名後這裡沒同步更新`);
+    });
+  });
+});
+
+/* ---------------------------------------------------------
+   6：guessRegionFromLastLocation 國別碼比對回歸測試
+--------------------------------------------------------- */
+function setLocationResult({ display, countryCode, text }){
+  const resultEl = document.getElementById('locationResult');
+  const nameEl = document.getElementById('locationName');
+  resultEl.style.display = display;
+  resultEl.dataset.countryCode = countryCode;
+  nameEl.textContent = text;
+  return { resultEl, nameEl };
+}
+
+test('guessRegionFromLastLocation：countryCode 相符時，應該從候選標籤中猜出對上的地區', () => {
+  setLocationResult({ display: 'block', countryCode: 'tw', text: '臺北市中山區南京東路一段' });
+  const guessed = guessRegionFromLastLocation(['臺北', '新北', '基隆'], 'tw');
+  assertEqual(guessed, '臺北', 'countryCode 相符時應該猜出候選標籤裡出現在文字中的那一個');
+});
+
+test('guessRegionFromLastLocation：跨國別誤判回歸測試——地址搜尋結果 countryCode 是 tw，中國分頁用 cn 去比對應該回傳 null（不能把「南京東路」誤判成中國「南京」）', () => {
+  setLocationResult({ display: 'block', countryCode: 'tw', text: '臺北市中山區南京東路一段' });
+  const guessed = guessRegionFromLastLocation(['南京', '上海', '北京'], 'cn');
+  assertEqual(guessed, null, '台灣地址搜尋結果的 countryCode 是 tw，中國分頁傳入 cn 應該比對不上、回傳 null，不能誤判成南京');
+});
+
+test('guessRegionFromLastLocation：沒有顯示中的搜尋結果（style.display 為 none）時，不論 countryCode 為何都應回傳 null', () => {
+  setLocationResult({ display: 'none', countryCode: 'tw', text: '臺北市中山區南京東路一段' });
+  assertEqual(guessRegionFromLastLocation(['臺北', '新北'], 'tw'), null, 'display 為 none 時應回傳 null');
+  assertEqual(guessRegionFromLastLocation(['臺北', '新北'], 'cn'), null, 'display 為 none 時不論 countryCode 為何都應回傳 null');
 });
 
 await run();

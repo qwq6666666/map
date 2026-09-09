@@ -20,6 +20,7 @@ model: sonnet
 - 手機版 (<=768px) 版面協調：`src/ui/mobileLayout.js`（Bottom Sheet 三態拖曳／頂部搜尋列 DOM 搬移／「地圖工具」快速模式選單／「目前圖層」浮動列展開；只轉發既有事件與搬移既有 DOM 節點，不重新實作搜尋／模式切換／圖層邏輯本身）
 - 手機版「瀏覽全部圖資」台灣分頁三段式瀏覽（大區域→地區→來源手風琴）：`src/ui/mobileTwBrowse.js`（純函式大區域分組／地區標籤推導 + 手機版三段式 UI 建構，只在 `src/sidebarUI.js` 依 `mq.matches` 分流時被呼叫，`>768px` 不受影響）
 - 手機版「瀏覽全部圖資」中國分頁三段式瀏覽（大區域→地區→來源手風琴，跟台灣分頁同一套結構）：`src/ui/mobileCnBrowse.js`
+- 手機版「瀏覽全部圖資」台灣／中國分頁共用的三段式瀏覽底層邏輯（`layerCountForSource`／`sourcesForMacro`／`sourcesForArea`／`guessRegionFromLastLocation`／`buildMobileRegionBrowseUI` DOM 建構）：`src/ui/mobileRegionBrowse.js`（只被 `mobileTwBrowse.js`／`mobileCnBrowse.js` import，各自的大區域對照表／地區標籤規則仍留在各自檔案）
 
 # 核心工作準則
 1. **響應式佈局與樣式 (Layout & RWD)：**
