@@ -124,6 +124,7 @@ export class FakeNode {
     return results;
   }
   scrollIntoView(){}
+  select(){}
   getBoundingClientRect(){ return { height: 20, width: Number.parseFloat(this.attrs.width || 800), left: 0 }; }
   // 沒有真的排版引擎，clientWidth 跟 getBoundingClientRect().width 用同一份
   // 假設（attrs.width 可指定，否則預設 800），供 features/compareMode.js 的
@@ -231,6 +232,22 @@ else { globalThis.navigator = { geolocation: null }; }
 globalThis.alert = (msg) => {};
 globalThis.confirm = () => true;
 globalThis.prompt = () => '';
+
+// 假 location：features/shareLink.js 用 location.origin/pathname 組分享
+// 網址、用 location.search 還原狀態。用純物件（不是真的 URL/Location
+// API）故意讓測試檔案可以直接 `location.search = '...'` 賦值模擬「使用者
+// 打開帶參數的分享連結」，不需要另外提供 navigate/assign 之類的方法。
+globalThis.location = {
+  origin: 'https://example.local',
+  pathname: '/',
+  search: '',
+};
+
+// 假 document.execCommand：真的瀏覽器版本會操作使用者當下的文字選取
+// 範圍，這裡固定回傳 true 模擬「複製成功」，讓 features/shareLink.js／
+// features/location.js／features/search.js 的 navigator.clipboard 不可用
+// 時退回 document.execCommand('copy') 這條路徑在測試環境下也能被驗證。
+globalThis.document.execCommand = () => true;
 
 // Node 沒有全域 requestAnimationFrame；src/ 底下若用到（例如
 // ui/search.js 的 buildSelectionList() 用來觸發進場動畫 class），
@@ -356,6 +373,11 @@ class FakeMap {
   constructor(opts){
     this.opts = opts;
     this._center = opts.view?.opts ? opts.view.opts.center : [120.9, 23.7];
+    // 跟 _center 一樣從 View 建構參數帶入初始值、setZoom() 真的會改動它，
+    // 讓 features/shareLink.js 這類「讀目前縮放層級是否偏離預設值」的
+    // 邏輯在測試環境下可以被驗證（先前固定回傳 8、setZoom 是空方法，
+    // 沒辦法測出「有改動縮放」的分支）。
+    this._zoom = opts.view?.opts?.zoom !== undefined ? opts.view.opts.zoom : 8;
     this._moveendHandlers = [];
     this._interactions = [];
     this._layers = [];
@@ -364,7 +386,8 @@ class FakeMap {
   getView(){
     const self = this;
     return {
-      fit(){}, setCenter(c){ self._center = c; }, setZoom(){}, getZoom(){ return 8; },
+      fit(){}, setCenter(c){ self._center = c; },
+      setZoom(z){ self._zoom = z; }, getZoom(){ return self._zoom; },
       animate(){}, getCenter(){ return self._center; }
     };
   }

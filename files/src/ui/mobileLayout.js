@@ -415,6 +415,7 @@ function initModePopover(){
       const action = optBtn.dataset.helpAction;
       if(action === 'tour') document.getElementById('tourStartBtn')?.click();
       else if(action === 'guide') document.getElementById('guideOpenBtn')?.click();
+      else if(action === 'share') document.getElementById('shareLinkBtn')?.click();
       closePopover();
     });
   });

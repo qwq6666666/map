@@ -124,10 +124,12 @@
   <button type="button" class="mobile-mode-option mobile-mode-toggle" id="mobileDrawToggle">繪圖工具</button>
   <div class="mobile-mode-popover-divider"></div>
   <div class="mobile-mode-popover-title">說明</div>
-  <!-- 轉呼叫側邊欄裡原本的 #tourStartBtn／#guideOpenBtn（已被 style.css
-       隱藏，不是從 DOM 移除），不重新實作導覽/指南邏輯，見 src/ui/onboarding.js -->
+  <!-- 轉呼叫側邊欄裡原本的 #tourStartBtn／#guideOpenBtn／#shareLinkBtn（已被
+       style.css 隱藏，不是從 DOM 移除），不重新實作導覽/指南/分享連結邏輯，
+       見 src/ui/onboarding.js -->
   <button type="button" class="mobile-mode-option" data-help-action="tour">🧭 新手導覽</button>
   <button type="button" class="mobile-mode-option" data-help-action="guide">❔ 使用指南</button>
+  <button type="button" class="mobile-mode-option" data-help-action="share">🔗 分享連結</button>
 </div>
 
 <div class="compare-float-item" id="compareWrapA">
@@ -260,6 +262,7 @@
     <div class="tour-btn-row">
       <button type="button" id="tourStartBtn" class="tour-btn-row-btn">🧭 新手導覽</button>
       <button type="button" id="guideOpenBtn" class="tour-btn-row-btn">❔ 使用指南</button>
+      <button type="button" id="shareLinkBtn" class="tour-btn-row-btn">🔗 分享連結</button>
     </div>
   </div>
 

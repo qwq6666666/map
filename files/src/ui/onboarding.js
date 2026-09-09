@@ -4,6 +4,8 @@
 // 不呼叫地圖／模式切換／搜尋等模組的內部邏輯，只靠 localStorage 記錄已讀旗標。
 
 import { expandSidebar } from './sidebarToggle.js';
+import { copyShareLink } from '../features/shareLink.js';
+import { showLocateToast } from '../features/location.js';
 
 const STORAGE_KEY = 'has_seen_map_tour';
 
@@ -382,9 +384,16 @@ export function openGuideDrawer() {
 export function initOnboarding() {
   const tourStartBtn = document.getElementById('tourStartBtn');
   const guideOpenBtn = document.getElementById('guideOpenBtn');
+  const shareLinkBtn = document.getElementById('shareLinkBtn');
 
   if (tourStartBtn) tourStartBtn.addEventListener('click', () => startTour());
   if (guideOpenBtn) guideOpenBtn.addEventListener('click', () => openGuideDrawer());
+  if (shareLinkBtn) {
+    shareLinkBtn.addEventListener('click', async () => {
+      const ok = await copyShareLink();
+      showLocateToast(ok ? '連結已複製' : '複製失敗，請手動複製網址列');
+    });
+  }
 
   if (!hasSeenTour()) {
     openWelcomeModal();
