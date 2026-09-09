@@ -90,6 +90,8 @@ async function runImmediateSearch(){
       renderSuggestList(results);
     }
   }catch(e){
+    // 地理編碼請求失敗（網路錯誤、逾時等）在輸入過程中很常見，靜默隱藏建議
+    // 清單即可，不需要跳錯誤訊息打斷使用者輸入。
     if(!isSearchStale(myToken)) hideSuggest();
   }finally{
     if(!isSearchStale(myToken)) addressSearchBtn.classList.remove('loading');
@@ -116,19 +118,59 @@ export async function showLocationAndFindLayers(lon, lat, label, addr){
 async function selectGeocodeResult(result){
   hideSuggest();
   addressInput.value = result.display_name;
-  const lon = parseFloat(result.lon);
-  const lat = parseFloat(result.lat);
+  const lon = Number.parseFloat(result.lon);
+  const lat = Number.parseFloat(result.lat);
   await showLocationAndFindLayers(lon, lat, result.display_name, result.address || {});
 }
 
 function getCurrentPositionAsync(){
   return new Promise((resolve, reject)=>{
     if(!navigator.geolocation){
-      reject({ message: '您的瀏覽器不支援定位功能。' });
+      reject(new Error('您的瀏覽器不支援定位功能。'));
       return;
     }
     navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
   });
+}
+
+// 定位成功後：反向地理編碼取得地址標籤 → 更新輸入框 → 查詢可用圖層。
+// 從 locateSearchBtn 的 click handler 抽出，降低該 handler 的認知複雜度。
+async function handleLocateSuccess(pos, myToken){
+  const lon = pos.coords.longitude;
+  const lat = pos.coords.latitude;
+  let label = `目前位置（${lat.toFixed(5)}, ${lon.toFixed(5)}）`;
+  let addr = {};
+  try{
+    const rev = await reverseGeocode(lon, lat);
+    if(isSearchStale(myToken)) return;
+    if(rev?.display_name) label = rev.display_name;
+    addr = rev?.address || {};
+  }catch(e){
+    // 反向地理編碼失敗（例如離線）時，退回用座標當標籤；
+    // 圖層來源篩選會因為沒有縣市／鄉鎮資訊而保守地不排除，
+    // 交由 findAvailableLayersAt 內建的逐筆圖磚確認機制去判斷有沒有資料。
+  }
+  if(isSearchStale(myToken)) return;
+
+  addressInput.value = label;
+  await showLocationAndFindLayers(lon, lat, label, addr);
+}
+
+// 依 geolocation 錯誤的 code／message 組出對使用者友善的提示文字，
+// 從 locateSearchBtn 的 click handler 抽出，降低該 handler 的認知複雜度。
+// 注意：不能寫成 `err.code === err.PERMISSION_DENIED` 比對——這幾個常數只有
+// 瀏覽器原生 GeolocationPositionError 才會帶（該物件把 PERMISSION_DENIED／
+// POSITION_UNAVAILABLE／TIMEOUT 同時放在 instance 上），getCurrentPositionAsync()
+// 在瀏覽器不支援定位時是自己 reject(new Error(...))，err 上沒有這些常數，
+// 這種寫法會變成 `undefined === undefined` 恆真，永遠誤判成「已拒絕位置權限」。
+// 改用 Geolocation API 規格定義的固定數字代碼（1/2/3）直接比對，兩種來源
+// 的 err 都能正確判斷。
+function describeLocateError(err){
+  if(err?.code === 1) return '已拒絕位置權限，請至瀏覽器或系統設定允許此網站存取位置後再試一次。'; // PERMISSION_DENIED
+  if(err?.code === 2) return '目前無法判斷您的位置。'; // POSITION_UNAVAILABLE
+  if(err?.code === 3) return '定位逾時，請再試一次。'; // TIMEOUT
+  if(err?.message) return err.message;
+  return '無法取得目前位置，請稍後再試。';
 }
 
 // 呼叫 features/search.js 的搜尋邏輯，並把過程中的進度／結果畫進
@@ -164,6 +206,26 @@ async function findAndRenderAvailableLayers(lon, lat, addr){
   if(result.status === 'stale') return;
 
   renderAvailableLayers(result.available, result.totalChecked);
+}
+
+// 篩選單一 group 底下「目前可用」的圖層；從 renderAllView() 的巢狀
+// map/filter 中抽出，降低巢狀層數。
+function filterGroupLayers(g, availableIdSet){
+  return { ...g, layers: g.layers.filter(ly => availableIdSet.has(ly.id)) };
+}
+
+// 篩選單一分類（含次分類 groups）底下「目前可用」的圖層，回傳篩後的
+// 分類物件，若該分類篩完沒有任何圖層則回傳 null。同樣是從 renderAllView()
+// 抽出的獨立函式，供 renderAllView() 的 .map(cat=>...) 呼叫。
+function filterCategoryForAvailable(cat, availableIdSet){
+  if(cat.groups){
+    const groups = cat.groups
+      .map(g => filterGroupLayers(g, availableIdSet))
+      .filter(g => g.layers.length > 0);
+    return groups.length ? { ...cat, groups } : null;
+  }
+  const layers = cat.layers.filter(ly => availableIdSet.has(ly.id));
+  return layers.length ? { ...cat, layers } : null;
 }
 
 function renderAvailableLayers(available, totalChecked){
@@ -281,16 +343,9 @@ function renderAvailableLayers(available, totalChecked){
     order.forEach(srcId=>{
       const src = seenSrc[srcId];
 
-      const filteredCategories = src.categories.map(cat=>{
-        if(cat.groups){
-          const groups = cat.groups
-            .map(g => ({ ...g, layers: g.layers.filter(ly => availableIdSet.has(ly.id)) }))
-            .filter(g => g.layers.length > 0);
-          return groups.length ? { ...cat, groups } : null;
-        }
-        const layers = cat.layers.filter(ly => availableIdSet.has(ly.id));
-        return layers.length ? { ...cat, layers } : null;
-      }).filter(Boolean);
+      const filteredCategories = src.categories
+        .map(cat => filterCategoryForAvailable(cat, availableIdSet))
+        .filter(Boolean);
 
       if(filteredCategories.length === 0) return;
 
@@ -547,6 +602,8 @@ export function initSearchUI(){
         if(isSearchStale(myToken)) return;
         renderSuggestList(results);
       }catch(e){
+        // 同上（see selectGeocodeResult 附近的說明）：地理編碼請求失敗時
+        // 靜默隱藏建議清單即可，使用者輸入過程中不需要跳錯誤訊息。
         if(!isSearchStale(myToken)) hideSuggest();
       }
     }, 550);
@@ -570,32 +627,9 @@ export function initSearchUI(){
     try{
       const pos = await getCurrentPositionAsync();
       if(isSearchStale(myToken)) return; // 使用者在等待定位權限期間已經開始別的搜尋
-
-      const lon = pos.coords.longitude;
-      const lat = pos.coords.latitude;
-      let label = `目前位置（${lat.toFixed(5)}, ${lon.toFixed(5)}）`;
-      let addr = {};
-      try{
-        const rev = await reverseGeocode(lon, lat);
-        if(isSearchStale(myToken)) return;
-        if(rev && rev.display_name) label = rev.display_name;
-        addr = (rev && rev.address) || {};
-      }catch(e){
-        // 反向地理編碼失敗（例如離線）時，退回用座標當標籤；
-        // 圖層來源篩選會因為沒有縣市／鄉鎮資訊而保守地不排除，
-        // 交由 findAvailableLayersAt 內建的逐筆圖磚確認機制去判斷有沒有資料。
-      }
-      if(isSearchStale(myToken)) return;
-
-      addressInput.value = label;
-      await showLocationAndFindLayers(lon, lat, label, addr);
+      await handleLocateSuccess(pos, myToken);
     }catch(err){
-      let msg = '無法取得目前位置，請稍後再試。';
-      if(err && err.code === err.PERMISSION_DENIED) msg = '已拒絕位置權限，請至瀏覽器或系統設定允許此網站存取位置後再試一次。';
-      else if(err && err.code === err.POSITION_UNAVAILABLE) msg = '目前無法判斷您的位置。';
-      else if(err && err.code === err.TIMEOUT) msg = '定位逾時，請再試一次。';
-      else if(err && err.message) msg = err.message;
-      showLocateToast(msg);
+      showLocateToast(describeLocateError(err));
     }finally{
       locateSearchBtn.classList.remove('loading');
     }

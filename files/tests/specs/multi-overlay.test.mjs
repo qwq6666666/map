@@ -1,6 +1,6 @@
 import '../env-stub.mjs';
 import { test, run, assertEqual, assertTrue, sleep } from '../assert.mjs';
-import { loadAppData, LAYER_SOURCES } from '../../src/data.js';
+import { loadAppData, DATA } from '../../src/data.js';
 import { initMapCore } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
 import { initSearchUI } from '../../src/searchUI.js';
@@ -16,7 +16,7 @@ initMapCore();
 initSidebar();
 initSearchUI();
 
-const sinica = LAYER_SOURCES.find(s => s.id === 'sinica');
+const sinica = DATA.LAYER_SOURCES.find(s => s.id === 'sinica');
 const layerA = sinica.categories[0].layers[0];
 const layerB = sinica.categories[0].layers[1];
 const keyA = `hist:sinica:${layerA.id}:${layerA.fmt}`;

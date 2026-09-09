@@ -11,10 +11,10 @@
    分開執行才乾淨）。任何一份測試檔案有失敗，這支腳本最後會用非 0
    狀態碼結束，方便串進其他自動化流程判斷成功或失敗。
 --------------------------------------------------------- */
-import { execFileSync } from 'child_process';
-import { readdirSync } from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { execFileSync } from 'node:child_process';
+import { readdirSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const specsDir = path.join(__dirname, 'specs');
@@ -29,11 +29,16 @@ let anyFailed = false;
 for(const file of files){
   console.log(`\n=== ${file} ===`);
   try{
-    const output = execFileSync('node', [path.join(specsDir, file)], {
+    // 用 process.execPath（目前執行中 node 執行檔的絕對路徑）取代裸字串 'node'，
+    // 避免透過 PATH 搜尋解析執行檔（PATH injection 風險）。
+    const output = execFileSync(process.execPath, [path.join(specsDir, file)], {
       cwd: path.join(__dirname, '..'),
       encoding: 'utf-8',
     });
     console.log(output.trimEnd());
+    // SonarQube javascript:S8786 複查：兩個 \d+ 中間隔著固定的非數字字元
+    // 「 通過, 」「 失敗」，數字與分隔字元互斥、不會重疊回溯，不構成
+    // 超線性回溯風險，判定為誤報，維持原寫法。
     const m = output.match(/(\d+) 通過, (\d+) 失敗/);
     if(m){
       totalPassed += Number(m[1]);

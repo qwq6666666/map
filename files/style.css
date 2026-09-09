@@ -1773,7 +1773,6 @@
 
     /* ---------- 其餘地圖下方浮動列：一律讓到底部工作表 peek 區之上 ---------- */
     .compare-float-item{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px);}
-    #mapTimelineBar{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px); width:calc(100% - 24px); max-height:34vh;}
     #multiOverlayBar{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px); width:calc(100% - 24px); max-height:32vh;}
     .search-batch-bar{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px); max-width:calc(100% - 24px);}
     #custom-timeline-dock{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px); width:calc(100% - 24px);}
@@ -1900,8 +1899,13 @@
     }
 
     /* 時間軸浮動列在手機上內容偏多（比例尺切換＋年份刻度＋播放列），
-       進一步壓縮高度與留白，讓地圖保留更多可視範圍。 */
+       進一步壓縮高度與留白，讓地圖保留更多可視範圍。
+       SonarQube css:S4666 複查：#mapTimelineBar 原本在上面「地圖下方浮動
+       列」批次規則跟這裡各宣告一次（重複選擇器），已合併成同一個規則，
+       這裡順便帶上原本在批次規則裡的 bottom／width。 */
     #mapTimelineBar{
+      bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px);
+      width:calc(100% - 24px);
       max-height:min(160px, 26vh);
       padding:6px 10px 8px;
     }

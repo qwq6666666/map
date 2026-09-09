@@ -17,8 +17,8 @@
    這支腳本，data.js 實際讀取的是 bundle 檔案，不會自動反映
    來源檔案的最新內容。
 --------------------------------------------------------- */
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const LAYERS_DIR = path.join(__dirname, '..', 'data', 'layers');
 const OUTPUT_PATH = path.join(__dirname, '..', 'data', 'layers.bundle.json');

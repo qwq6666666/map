@@ -12,12 +12,31 @@
 
    用法：每個測試檔案最開頭 import 這個檔案一次即可
   （`import '../env-stub.mjs';`），之後再 import 要測試的 src/ 模組。
+
+   SonarQube 複查說明：這支檔案是刻意模擬瀏覽器／OpenLayers API 簽名的
+   假物件，下面這幾類規則在這裡的寫法都是刻意、合理的 stub 手法，不是
+   真的程式碼異味，維持原寫法（不透過改動邏輯消除警告）：
+     - javascript:S1186（空方法，例如 scrollIntoView／changed／on／
+       addOverlay／render／renderSync／setPosition）：真的瀏覽器／
+       OpenLayers 版本這些方法有副作用，這裡的假版本只需要「存在、
+       可以被呼叫」，方法體本來就該是空的。
+     - javascript:S7740（`const self = this;`）：模擬 OpenLayers 物件
+       在非箭頭函式的方法裡，用來讓內層 closure 能拿到外層的 `this`，
+       是這類程式碼常見的既有寫法。
+     - javascript:S1121（`(this._listeners[ev] = this._listeners[ev] || []).push(fn)`
+       這種在表達式內賦值）：懶初始化監聽器陣列的慣用寫法，拆成兩行
+       不會更清楚。
+     - javascript:S7727（`arr.forEach(fn)` 直接傳函式參照）：FakeCollection
+       的 forEach() 就是單純轉發到底層陣列的 forEach，行為要跟真的
+       ol.Collection#forEach 一致，這裡不需要額外包一層。
+     - javascript:S7744（空物件字面值）：作為「找不到資料時的預設空
+       結構」使用，語意上就是刻意給空物件。
 --------------------------------------------------------- */
-import { createRequire } from 'module';
-import path from 'path';
+import { createRequire } from 'node:module';
+import path from 'node:path';
 
 const require = createRequire(import.meta.url);
-const fs = require('fs');
+const fs = require('node:fs');
 
 /* ---------- 假 DOM ---------- */
 
@@ -65,7 +84,7 @@ export class FakeNode {
   appendChild(c){ this.children.push(c); c.parentElement = this; return c; }
   insertBefore(c, ref){
     const i = this.children.indexOf(ref);
-    this.children.splice(i < 0 ? 0 : i, 0, c);
+    this.children.splice(Math.max(0, i), 0, c);
     c.parentElement = this;
     return c;
   }
@@ -98,7 +117,6 @@ export class FakeNode {
   }
   querySelectorAll(sel){
     const results = [];
-    const self = this;
     (function walk(node){
       if(matchesSelector(node, sel)) results.push(node);
       (node.children || []).forEach(walk);
@@ -106,12 +124,12 @@ export class FakeNode {
     return results;
   }
   scrollIntoView(){}
-  getBoundingClientRect(){ return { height: 20, width: parseFloat(this.attrs.width || 800), left: 0 }; }
+  getBoundingClientRect(){ return { height: 20, width: Number.parseFloat(this.attrs.width || 800), left: 0 }; }
   // 沒有真的排版引擎，clientWidth 跟 getBoundingClientRect().width 用同一份
   // 假設（attrs.width 可指定，否則預設 800），供 features/compareMode.js 的
   // positionDivider() 這類「讀容器寬度算像素位置」的邏輯在測試環境下有值
   // 可用，不會因為 undefined 算出 NaN。
-  get clientWidth(){ return parseFloat(this.attrs.width || 800); }
+  get clientWidth(){ return Number.parseFloat(this.attrs.width || 800); }
   set innerHTML(v){ this.children = []; this._innerHTML = v; }
   get innerHTML(){ return this._innerHTML || ''; }
 }
@@ -132,12 +150,12 @@ function matchesSelector(node, sel){
   const attrMatch = rest.match(/^\[data-([a-zA-Z-]+)="([^"]*)"\]$/);
   if(attrMatch){
     const key = attrMatch[1].replace(/-([a-z])/g, (_, c) => c.toUpperCase());
-    return node.dataset && node.dataset[key] === attrMatch[2];
+    return node.dataset?.[key] === attrMatch[2];
   }
   const attrExistsMatch = rest.match(/^\[data-([a-zA-Z-]+)\]$/);
   if(attrExistsMatch){
     const key = attrExistsMatch[1].replace(/-([a-z])/g, (_, c) => c.toUpperCase());
-    return node.dataset && node.dataset[key] !== undefined;
+    return node.dataset?.[key] !== undefined;
   }
   return false;
 }
@@ -225,7 +243,7 @@ if(!globalThis.requestAnimationFrame){
 // 讀寫測試使用；只需要 getItem/setItem 兩個方法。
 globalThis.localStorage = {
   _data: {},
-  getItem(key){ return Object.prototype.hasOwnProperty.call(this._data, key) ? this._data[key] : null; },
+  getItem(key){ return Object.hasOwn(this._data, key) ? this._data[key] : null; },
   setItem(key, value){ this._data[key] = String(value); },
   removeItem(key){ delete this._data[key]; },
   clear(){ this._data = {}; }
@@ -253,7 +271,7 @@ globalThis.fetch = async (url) => {
 /* ---------- 假 OpenLayers ---------- */
 
 class FakeTileSource {
-  constructor(opts){ this.opts = opts; this._attributions = (opts && opts.attributions) || null; }
+  constructor(opts){ this.opts = opts; this._attributions = opts?.attributions || null; }
   getAttributions(){ return this._attributions; }
   setAttributions(attr){ this._attributions = attr; }
 }
@@ -266,7 +284,7 @@ class FakeTileSource {
 // 相容的 EPSG:3857 TileMatrixSet」兩種情況。
 class FakeWMTSSource extends FakeTileSource {
   static optionsFromCapabilities(capabilities, config){
-    const table = capabilities && capabilities._fakeOptionsByLayer;
+    const table = capabilities?._fakeOptionsByLayer;
     if(!table) return null;
     const options = table[config.layer];
     return options || null;
@@ -302,7 +320,7 @@ class FakeFeature {
   changed(){}
 }
 class FakeTileLayer {
-  constructor(opts){ this.opts = opts; this._opacity = (opts && opts.opacity !== undefined) ? opts.opacity : 1; this._visible = !opts || opts.visible !== false; this._zIndex = undefined; }
+  constructor(opts){ this.opts = opts; this._opacity = opts?.opacity !== undefined ? opts.opacity : 1; this._visible = !opts || opts.visible !== false; this._zIndex = undefined; }
   setVisible(v){ this._visible = v; }
   getVisible(){ return this._visible; }
   setOpacity(v){ this._opacity = v; }
@@ -318,7 +336,7 @@ class FakeDrawInteraction {
   constructor(opts){ this.opts = opts; this._listeners = {}; }
   on(ev, fn){ (this._listeners[ev] = this._listeners[ev] || []).push(fn); }
   simulateDrawEnd(feature){
-    if(this.opts && this.opts.source) this.opts.source.addFeature(feature);
+    if(this.opts?.source) this.opts.source.addFeature(feature);
     (this._listeners['drawend'] || []).forEach(fn => fn({ feature }));
   }
 }
@@ -337,7 +355,7 @@ class FakeSelectInteraction {
 class FakeMap {
   constructor(opts){
     this.opts = opts;
-    this._center = (opts.view && opts.view.opts) ? opts.view.opts.center : [120.9, 23.7];
+    this._center = opts.view?.opts ? opts.view.opts.center : [120.9, 23.7];
     this._moveendHandlers = [];
     this._interactions = [];
     this._layers = [];
@@ -381,8 +399,8 @@ globalThis.ol = {
     Text: class { constructor(opts){ this.opts = opts; } },
   },
   sphere: {
-    getLength: (geom) => (geom && geom._length !== undefined) ? geom._length : 0,
-    getArea: (geom) => (geom && geom._area !== undefined) ? geom._area : 0,
+    getLength: (geom) => geom?._length !== undefined ? geom._length : 0,
+    getArea: (geom) => geom?._area !== undefined ? geom._area : 0,
   },
   format: {
     GeoJSON: class {
@@ -399,7 +417,7 @@ globalThis.ol = {
       readFeatures(input, opts){
         const obj = typeof input === 'string' ? JSON.parse(input) : input;
         return (obj.features || []).map(f => {
-          const geometry = { getType: () => f.geometry && f.geometry.type };
+          const geometry = { getType: () => f.geometry?.type };
           return new FakeFeature({ ...(f.properties || {}) }, geometry);
         });
       }

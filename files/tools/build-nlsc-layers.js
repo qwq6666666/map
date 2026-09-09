@@ -34,8 +34,8 @@
    data/layers/nlsc.json；若對方新增了不屬於下面任何分類規則的圖層 id，
    會自動落入「其他圖資」分類，不會讓腳本中斷或漏掉圖層。
 --------------------------------------------------------- */
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const CAPABILITIES_URL = 'https://wmts.nlsc.gov.tw/wmts/WMTSCapabilities.xml';
 const OUTPUT_PATH = path.join(__dirname, '..', 'data', 'layers', 'nlsc.json');
@@ -77,14 +77,14 @@ function parseLayers(xml){
     const block = blockMatch[1];
 
     // 第一個 <ows:Identifier> 是 Layer 自己的 id（Style 底下那個 "default" 排在後面）
-    const idMatch = block.match(/<ows:Identifier>([^<]+)<\/ows:Identifier>/);
+    const idMatch = /<ows:Identifier>([^<]+)<\/ows:Identifier>/.exec(block);
     if(!idMatch) continue;
     const id = idMatch[1].trim();
 
-    const titleMatch = block.match(/<ows:Title>([^<]*)<\/ows:Title>/);
+    const titleMatch = /<ows:Title>([^<]*)<\/ows:Title>/.exec(block);
     const title = titleMatch ? titleMatch[1].trim() : id;
 
-    const formatMatch = block.match(/<Format>([^<]+)<\/Format>/);
+    const formatMatch = /<Format>([^<]+)<\/Format>/.exec(block);
     const mimeFormat = formatMatch ? formatMatch[1].trim() : null;
 
     rows.push({ id, title, mimeFormat });
@@ -103,10 +103,10 @@ function formatFromMime(mimeFormat){
 // 順序沒有交集疑慮，前面比對不到才會往下試，最後都比對不到歸 'other'。
 // ---------------------------------------------------------
 const CATEGORY_RULES = [
-  { key: 'emap', test: id => /^EMAP/.test(id) },
-  { key: 'photo', test: id => /^PHOTO/.test(id) },
+  { key: 'emap', test: id => id.startsWith('EMAP') },
+  { key: 'photo', test: id => id.startsWith('PHOTO') },
   { key: 'topo', test: id => /^(?:B100000|B25000|B50000|B5000|TOPO25K_|TOPO50K_|TOPO10M_|TOPO10KPHOTO$|TOPO05KPHOTO_)/.test(id) },
-  { key: 'luimap', test: id => /^LUIMAP/.test(id) },
+  { key: 'luimap', test: id => id.startsWith('LUIMAP') },
   { key: 'terrain-analysis', test: id => [
     'MOI_ASPECT', 'MOI_CONTOUR', 'MOI_CONTOUR_2', 'MOI_HILLSHADE', 'MOI_SHADERMAP',
     'MOI_SLOPEP_GT30', 'MOI_SLOPEP_LV7', 'MOI_SLOPEP_GT30_2', 'MOI_SLOPEP_LV7_2',
@@ -121,7 +121,7 @@ const CATEGORY_RULES = [
   ].includes(id) },
   { key: 'poi', test: id => ['SCHOOL', 'AED', 'ConvenienceStore', 'fireplug'].includes(id) },
   { key: 'road', test: id => id === 'ROAD' },
-  { key: 'asrs', test: id => /^Asrs_/.test(id) },
+  { key: 'asrs', test: id => id.startsWith('Asrs_') },
 ];
 
 function classify(id){
@@ -152,63 +152,81 @@ const CATEGORY_ORDER = [
 
 // ---------------------------------------------------------
 // 年份／群組判定：依分類各自邏輯換算西元年（民國年 + 1911）
+//
+// SonarQube javascript:S8786（ReDoS／超線性回溯）複查結論：下面幾個
+// 含兩個 \d+ 的正規表示式（例如 /(\d+)-(\d+)年/、/(\d+)年(\d+)月/）
+// 兩個 \d+ 之間一定隔著固定的非數字字元（年/月/-），數字字元類與
+// 分隔字元互斥、不會有重疊可回溯的字元組合，不構成超線性回溯風險，
+// 判定為誤報，維持原寫法。
 // ---------------------------------------------------------
+function yearInfoForPhoto(id, title){
+  const m = id.match(/^PHOTO(\d{4})$/);
+  if(m) return { year: Number.parseInt(m[1], 10), dateLabel: m[1] };
+  const ty = title.match(/(\d+)年/);
+  if(ty){
+    const west = Number.parseInt(ty[1], 10) + 1911;
+    return { year: west, dateLabel: String(west) };
+  }
+  return { year: null, dateLabel: '現代' };
+}
+
+function yearInfoForTopo(id){
+  const m = id.match(/^(?:TOPO25K_|TOPO50K_|TOPO10M_|TOPO05KPHOTO_)(\d+)$/);
+  if(m){
+    const west = Number.parseInt(m[1], 10) + 1911;
+    return { year: west, dateLabel: String(west) };
+  }
+  return { year: null, dateLabel: '現代' }; // B100000/B25000/B50000/B5000/TOPO10KPHOTO
+}
+
+function yearInfoForLuimap(id, title){
+  const m = id.match(/^LUIMAP(\d+)$/);
+  if(!m) return { year: null, dateLabel: '現代' }; // 裸 LUIMAP（綜合成果圖，無單一年份）
+  const num = Number.parseInt(m[1], 10);
+  if(num <= 9) return { year: null, dateLabel: '現代' }; // LUIMAP01~09：土地利用類別，非年份
+  const rangeM = title.match(/(\d+)-(\d+)年/);
+  if(rangeM){
+    const w1 = Number.parseInt(rangeM[1], 10) + 1911;
+    const w2 = Number.parseInt(rangeM[2], 10) + 1911;
+    return { year: w1, dateLabel: `${w1}-${w2}` };
+  }
+  const west = num + 1911;
+  return { year: west, dateLabel: String(west) };
+}
+
+function yearInfoForTerrainAnalysis(title){
+  const rangeM = title.match(/\((\d{4})-(\d{4})\)/); // 已是西元年區間，不用換算
+  if(rangeM) return { year: Number.parseInt(rangeM[1], 10), dateLabel: `${rangeM[1]}-${rangeM[2]}` };
+  return { year: null, dateLabel: '現代' };
+}
+
+function yearInfoForAdmin(title){
+  const m = title.match(/(\d+)年(\d+)月/); // 例：村里界(108年10月)
+  if(m){
+    const west = Number.parseInt(m[1], 10) + 1911;
+    return { year: west, dateLabel: String(west) };
+  }
+  return { year: null, dateLabel: '現代' };
+}
+
+function yearInfoForAsrs(id){
+  if(id === 'Asrs_2025_ortho') return { year: 2025, dateLabel: '2025' };
+  const m = id.match(/^Asrs_(\d{4})(\d{2})(\d{2})_\d+$/);
+  if(m){
+    const [, y, mo, d] = m;
+    return { year: Number.parseInt(y, 10), dateLabel: `${y}/${mo}/${d}` };
+  }
+  return { year: null, dateLabel: '現代' };
+}
+
 function computeYearInfo(category, id, title){
   switch(category){
-    case 'photo': {
-      const m = id.match(/^PHOTO(\d{4})$/);
-      if(m) return { year: parseInt(m[1], 10), dateLabel: m[1] };
-      const ty = title.match(/(\d+)年/);
-      if(ty){
-        const west = parseInt(ty[1], 10) + 1911;
-        return { year: west, dateLabel: String(west) };
-      }
-      return { year: null, dateLabel: '現代' };
-    }
-    case 'topo': {
-      const m = id.match(/^(?:TOPO25K_|TOPO50K_|TOPO10M_|TOPO05KPHOTO_)(\d+)$/);
-      if(m){
-        const west = parseInt(m[1], 10) + 1911;
-        return { year: west, dateLabel: String(west) };
-      }
-      return { year: null, dateLabel: '現代' }; // B100000/B25000/B50000/B5000/TOPO10KPHOTO
-    }
-    case 'luimap': {
-      const m = id.match(/^LUIMAP(\d+)$/);
-      if(!m) return { year: null, dateLabel: '現代' }; // 裸 LUIMAP（綜合成果圖，無單一年份）
-      const num = parseInt(m[1], 10);
-      if(num <= 9) return { year: null, dateLabel: '現代' }; // LUIMAP01~09：土地利用類別，非年份
-      const rangeM = title.match(/(\d+)-(\d+)年/);
-      if(rangeM){
-        const w1 = parseInt(rangeM[1], 10) + 1911;
-        const w2 = parseInt(rangeM[2], 10) + 1911;
-        return { year: w1, dateLabel: `${w1}-${w2}` };
-      }
-      const west = num + 1911;
-      return { year: west, dateLabel: String(west) };
-    }
-    case 'terrain-analysis': {
-      const rangeM = title.match(/\((\d{4})-(\d{4})\)/); // 已是西元年區間，不用換算
-      if(rangeM) return { year: parseInt(rangeM[1], 10), dateLabel: `${rangeM[1]}-${rangeM[2]}` };
-      return { year: null, dateLabel: '現代' };
-    }
-    case 'admin': {
-      const m = title.match(/(\d+)年(\d+)月/); // 例：村里界(108年10月)
-      if(m){
-        const west = parseInt(m[1], 10) + 1911;
-        return { year: west, dateLabel: String(west) };
-      }
-      return { year: null, dateLabel: '現代' };
-    }
-    case 'asrs': {
-      if(id === 'Asrs_2025_ortho') return { year: 2025, dateLabel: '2025' };
-      const m = id.match(/^Asrs_(\d{4})(\d{2})(\d{2})_\d+$/);
-      if(m){
-        const [, y, mo, d] = m;
-        return { year: parseInt(y, 10), dateLabel: `${y}/${mo}/${d}` };
-      }
-      return { year: null, dateLabel: '現代' };
-    }
+    case 'photo': return yearInfoForPhoto(id, title);
+    case 'topo': return yearInfoForTopo(id);
+    case 'luimap': return yearInfoForLuimap(id, title);
+    case 'terrain-analysis': return yearInfoForTerrainAnalysis(title);
+    case 'admin': return yearInfoForAdmin(title);
+    case 'asrs': return yearInfoForAsrs(id);
     default:
       return { year: null, dateLabel: '現代' };
   }
@@ -224,25 +242,35 @@ function computeScale(category, id){
   return null;
 }
 
+function groupNameForPhoto(id){
+  return /^PHOTO\d{4}$/.test(id) ? '各年正射影像' : '综合影像';
+}
+
+function groupNameForTopo(id){
+  if(/^(?:B25000|TOPO25K_)/.test(id)) return '1/25000地形圖';
+  if(/^(?:B50000|TOPO50K_)/.test(id)) return '1/50000地形圖';
+  if(/^(?:B100000|TOPO10M_)/.test(id)) return '1/10萬地形圖';
+  if(/^(?:B5000|TOPO05KPHOTO_)/.test(id)) return '1/5000像片基本圖';
+  return '其他比例尺圖幅'; // TOPO10KPHOTO
+}
+
+function groupNameForLuimap(id){
+  const m = id.match(/^LUIMAP(\d+)$/);
+  if(m && Number.parseInt(m[1], 10) <= 9) return '土地利用類別';
+  return '歷年更新區';
+}
+
+function groupNameForAsrs(id){
+  return id === 'Asrs_2025_ortho' ? '災前正射影像' : null; // 其餘用 dateLabel 當群組名，下面組裝時處理
+}
+
 // 群組判定：只有 grouped === true 的分類需要
 function computeGroupName(category, id){
   switch(category){
-    case 'photo':
-      return /^PHOTO\d{4}$/.test(id) ? '各年正射影像' : '综合影像';
-    case 'topo': {
-      if(/^(?:B25000|TOPO25K_)/.test(id)) return '1/25000地形圖';
-      if(/^(?:B50000|TOPO50K_)/.test(id)) return '1/50000地形圖';
-      if(/^(?:B100000|TOPO10M_)/.test(id)) return '1/10萬地形圖';
-      if(/^(?:B5000|TOPO05KPHOTO_)/.test(id)) return '1/5000像片基本圖';
-      return '其他比例尺圖幅'; // TOPO10KPHOTO
-    }
-    case 'luimap': {
-      const m = id.match(/^LUIMAP(\d+)$/);
-      if(m && parseInt(m[1], 10) <= 9) return '土地利用類別';
-      return '歷年更新區';
-    }
-    case 'asrs':
-      return id === 'Asrs_2025_ortho' ? '災前正射影像' : null; // 其餘用 dateLabel 當群組名，下面組裝時處理
+    case 'photo': return groupNameForPhoto(id);
+    case 'topo': return groupNameForTopo(id);
+    case 'luimap': return groupNameForLuimap(id);
+    case 'asrs': return groupNameForAsrs(id);
     default:
       return null;
   }
@@ -345,15 +373,16 @@ async function main(){
       layers: sortLayersByYear(buckets.get(name)).sort((a, b) => {
         // 同一天多張航照（asrs）依 id 尾碼數字排序；其餘分類保留 sortLayersByYear 結果
         if(category !== 'asrs') return 0;
-        const an = parseInt((a.id.match(/_(\d+)$/) || [])[1] || '0', 10);
-        const bn = parseInt((b.id.match(/_(\d+)$/) || [])[1] || '0', 10);
+        const an = Number.parseInt((a.id.match(/_(\d+)$/) || [])[1] || '0', 10);
+        const bn = Number.parseInt((b.id.match(/_(\d+)$/) || [])[1] || '0', 10);
         return an - bn;
       }),
     }));
 
     const total = groups.reduce((sum, g) => sum + g.layers.length, 0);
     categories.push({ id: null, name: meta.name, groups });
-    summary.push(`${meta.name}：${total} 筆（${groups.map(g => `${g.name} ${g.layers.length}`).join('、')}）`);
+    const groupSummary = groups.map(g => `${g.name} ${g.layers.length}`).join('、');
+    summary.push(`${meta.name}：${total} 筆（${groupSummary}）`);
   });
 
   const output = {

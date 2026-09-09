@@ -61,7 +61,7 @@ function formatArea(sqMeters){
 function hexToRgba(hex, alpha){
   const h = String(hex || DEFAULT_COLOR).replace('#', '');
   const full = h.length === 3 ? h.split('').map(c => c + c).join('') : h;
-  const num = parseInt(full, 16) || 0;
+  const num = Number.parseInt(full, 16) || 0;
   const r = (num >> 16) & 255;
   const g = (num >> 8) & 255;
   const b = num & 255;
@@ -181,7 +181,9 @@ function setTool(tool){
     return;
   }
 
-  const geometryType = currentTool === 'point' ? 'Point' : currentTool === 'line' ? 'LineString' : 'Polygon';
+  let geometryType = 'Polygon';
+  if(currentTool === 'point') geometryType = 'Point';
+  else if(currentTool === 'line') geometryType = 'LineString';
   activeDrawInteraction = new ol.interaction.Draw({ source: vectorSource, type: geometryType });
   activeDrawInteraction.on('drawend', (e) => {
     const feature = e.feature;
@@ -308,8 +310,11 @@ export function importGeoJSON(input){
   }
   features.forEach(feature => {
     if(!feature.get('kind')){
-      const geomType = feature.getGeometry && feature.getGeometry() && feature.getGeometry().getType ? feature.getGeometry().getType() : null;
-      feature.set('kind', geomType === 'Point' ? 'point' : geomType === 'LineString' ? 'line' : 'polygon');
+      const geomType = feature.getGeometry?.()?.getType?.() ?? null;
+      let featureKind = 'polygon';
+      if(geomType === 'Point') featureKind = 'point';
+      else if(geomType === 'LineString') featureKind = 'line';
+      feature.set('kind', featureKind);
     }
     const kind = feature.get('kind');
     const hasStyle = kind === 'point' ? !!feature.get('marker-color') : !!feature.get('stroke');
@@ -363,8 +368,8 @@ function doCapture(){
   const canvases = map.getViewport().querySelectorAll('.ol-layer canvas, canvas.ol-layer');
   canvases.forEach((canvas) => {
     if(!canvas.width) return;
-    const opacity = canvas.parentNode && canvas.parentNode.style.opacity;
-    mapContext.globalAlpha = (opacity === '' || opacity === undefined) ? 1 : Number(opacity);
+    const opacity = canvas.parentNode?.style.opacity;
+    mapContext.globalAlpha = (opacity === '' || opacity == null) ? 1 : Number(opacity);
     // 不管來源 canvas 原本的實際像素尺寸是多少，直接等比例縮放畫滿到
     // 目前這張放大過的目標 canvas，畫面靜止（沒有正在拖曳／縮放動畫）
     // 時這樣最穩妥，不用另外解析 CSS transform 矩陣。
@@ -452,7 +457,9 @@ function initFeatureEditPopup(){
     editingFeature.set('name', name);
     const kind = editingFeature.get('kind');
     const measure = editingFeature.get('measure');
-    editingFeature.set('label', (kind !== 'point' && measure) ? (name ? `${name}（${measure}）` : measure) : name);
+    let label = name;
+    if(kind !== 'point' && measure) label = name ? `${name}（${measure}）` : measure;
+    editingFeature.set('label', label);
   });
 
   const applyEditColor = (color) => {
@@ -495,7 +502,10 @@ function initFeatureEditPopup(){
     if(!feature){ closeFeatureEditPopup(); return; }
     editingFeature = feature;
     const kind = feature.get('kind');
-    editPopupTitle.textContent = kind === 'point' ? '點' : kind === 'line' ? '線' : '面';
+    let kindLabel = '面';
+    if(kind === 'point') kindLabel = '點';
+    else if(kind === 'line') kindLabel = '線';
+    editPopupTitle.textContent = kindLabel;
     editPopupNameInput.value = feature.get('name') || '';
     const color = kind === 'point' ? (feature.get('marker-color') || DEFAULT_COLOR) : (feature.get('stroke') || DEFAULT_COLOR);
     updateColorPaletteActiveState(editPopupPalette, color);
@@ -541,12 +551,11 @@ export function initDrawTool(){
     e.stopPropagation();
     document.getElementById('drawImportFileInput').click();
   });
-  document.getElementById('drawImportFileInput').addEventListener('change', (e) => {
+  document.getElementById('drawImportFileInput').addEventListener('change', async (e) => {
     const file = e.target.files && e.target.files[0];
     if(!file) return;
-    const reader = new FileReader();
-    reader.onload = () => importGeoJSON(reader.result);
-    reader.readAsText(file);
+    const text = await file.text();
+    importGeoJSON(text);
     e.target.value = '';
   });
 

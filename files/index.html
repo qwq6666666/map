@@ -83,7 +83,7 @@
   <button type="button" id="floatingLayerFavBtn" class="current-layer-fav-btn floating-layer-fav-btn" title="收藏此圖層" hidden>☆</button>
   <button type="button" id="floatingClearBtn" class="current-layer-fav-btn floating-clear-btn" title="清除疊圖">✕</button>
   <span class="field-label">透明度</span>
-  <input type="range" id="floatingOpacitySlider" min="0" max="100" value="100">
+  <input type="range" id="floatingOpacitySlider" min="0" max="100" value="100" aria-label="透明度">
   <span class="opacity-val" id="floatingOpacityVal">100%</span>
 </div>
 
@@ -162,7 +162,7 @@
     <button type="button" class="draw-color-swatch" data-color="#D35400" style="background-color:#D35400" title="赭黃"></button>
     <button type="button" class="draw-color-swatch" data-color="#8E44AD" style="background-color:#8E44AD" title="紫藤"></button>
     <button type="button" class="draw-color-swatch" data-color="#2C3E50" style="background-color:#2C3E50" title="墨黑"></button>
-    <input type="color" id="drawColorCustom" class="draw-color-custom" value="#C0392B" title="自訂顏色">
+    <input type="color" id="drawColorCustom" class="draw-color-custom" value="#C0392B" title="自訂顏色" aria-label="自訂顏色">
   </div>
   <div class="draw-toolbar-row">
     <button type="button" id="drawDeleteBtn" class="draw-tool-btn" title="刪除目前選取的圖形">刪除</button>
@@ -172,7 +172,7 @@
   <div class="draw-toolbar-row">
     <button type="button" id="drawExportImageBtn" class="draw-tool-btn draw-tool-btn-wrap" title="把目前地圖畫面（含底圖與繪製內容）匯出成 PNG 圖片並下載">地圖<br>截圖</button>
     <button type="button" id="drawImportGeoJSONBtn" class="draw-tool-btn draw-tool-btn-wrap" title="匯入 GeoJSON 檔案（會保留原有顏色樣式）">匯入<br>GeoJSON</button>
-    <input type="file" id="drawImportFileInput" accept=".geojson,application/geo+json,application/json" hidden>
+    <input type="file" id="drawImportFileInput" accept=".geojson,application/geo+json,application/json" hidden aria-label="匯入 GeoJSON 檔案">
   </div>
 </div>
 <div id="drawStorageToast" class="locate-toast draw-storage-toast"></div>
@@ -182,7 +182,7 @@
     <span class="draw-feature-popup-title" id="drawFeaturePopupTitle">點</span>
     <button type="button" class="identify-popup-close" id="drawFeaturePopupClose" title="關閉">✕</button>
   </div>
-  <input type="text" id="drawFeaturePopupName" class="draw-feature-popup-name" placeholder="名稱（可留空）">
+  <input type="text" id="drawFeaturePopupName" class="draw-feature-popup-name" placeholder="名稱（可留空）" aria-label="圖形名稱">
   <div class="draw-toolbar-row draw-color-palette" id="drawFeaturePopupPalette">
     <button type="button" class="draw-color-swatch" data-color="#C0392B" style="background-color:#C0392B" title="朱紅"></button>
     <button type="button" class="draw-color-swatch" data-color="#2980B9" style="background-color:#2980B9" title="靛藍"></button>
@@ -190,7 +190,7 @@
     <button type="button" class="draw-color-swatch" data-color="#D35400" style="background-color:#D35400" title="赭黃"></button>
     <button type="button" class="draw-color-swatch" data-color="#8E44AD" style="background-color:#8E44AD" title="紫藤"></button>
     <button type="button" class="draw-color-swatch" data-color="#2C3E50" style="background-color:#2C3E50" title="墨黑"></button>
-    <input type="color" id="drawFeaturePopupCustomColor" class="draw-color-custom" title="自訂顏色">
+    <input type="color" id="drawFeaturePopupCustomColor" class="draw-color-custom" title="自訂顏色" aria-label="自訂顏色">
   </div>
   <button type="button" id="drawFeaturePopupDelete" class="draw-feature-popup-delete">🗑️ 刪除此物件</button>
 </div>
@@ -268,7 +268,7 @@
     <div class="search-block">
       <div class="field-label">🔎 地址／位置搜尋</div>
       <div class="search-row address-search-row">
-        <input type="text" id="addressInput" class="address-input" placeholder="請輸入地址或地點…" autocomplete="off">
+        <input type="text" id="addressInput" class="address-input" placeholder="請輸入地址或地點…" autocomplete="off" aria-label="地址或地點">
         <!-- 手機版專屬：地址／圖資搜尋合併切換鈕。桌面版一律隱藏（見
              style.css 的 .mobile-search-mode-btn{display:none}），只有
              <=768px 才會顯示；行為見 src/ui/mobileLayout.js 的
@@ -302,7 +302,7 @@
     <div class="search-block layer-search-block">
       <div class="field-label">🗺 圖資搜尋</div>
       <div class="search-row layer-search-row">
-        <input type="text" id="layerSearchInput" class="address-input" placeholder="搜尋圖層名稱、年份、來源或分類…" autocomplete="off">
+        <input type="text" id="layerSearchInput" class="address-input" placeholder="搜尋圖層名稱、年份、來源或分類…" autocomplete="off" aria-label="搜尋圖層名稱、年份、來源或分類">
         <button type="button" id="layerSearchClearBtn" class="address-search-btn" title="清除圖資搜尋" hidden>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
@@ -365,10 +365,10 @@
         <div id="customSourceManualPanel">
           <p class="custom-source-hint">貼上圖磚服務網址（需包含 {z}/{x}/{y} 佔位符），一次只能加一張。適合單張圖層、或不是標準 WMTS 服務的圖磚來源。</p>
           <div class="custom-source-form">
-            <input type="text" id="customSourceName" class="custom-source-input" placeholder="名稱（例如：日本 GSI 地形圖）" autocomplete="off">
-            <input type="text" id="customSourceUrl" class="custom-source-input" placeholder="網址樣板，例如 https://example.com/{z}/{x}/{y}.png" autocomplete="off">
-            <input type="text" id="customSourceFormat" class="custom-source-input custom-source-input-small" placeholder="格式（選填，例如 png）" autocomplete="off">
-            <input type="text" id="customSourceAttribution" class="custom-source-input" placeholder="版權標示（選填）" autocomplete="off">
+            <input type="text" id="customSourceName" class="custom-source-input" placeholder="名稱（例如：日本 GSI 地形圖）" autocomplete="off" aria-label="圖層名稱">
+            <input type="text" id="customSourceUrl" class="custom-source-input" placeholder="網址樣板，例如 https://example.com/{z}/{x}/{y}.png" autocomplete="off" aria-label="圖磚網址樣板">
+            <input type="text" id="customSourceFormat" class="custom-source-input custom-source-input-small" placeholder="格式（選填，例如 png）" autocomplete="off" aria-label="圖層格式（選填）">
+            <input type="text" id="customSourceAttribution" class="custom-source-input" placeholder="版權標示（選填）" autocomplete="off" aria-label="版權標示（選填）">
             <button type="button" id="customSourceAddBtn" class="custom-source-add-btn">加入</button>
           </div>
         </div>
@@ -376,7 +376,7 @@
         <div id="customSourceWmtsPanel" style="display:none;">
           <p class="custom-source-hint">貼上該服務的 WMTS GetCapabilities 網址，讀取後會列出這個服務底下所有圖層，可以一次勾選多張加入。這一步需要該服務開放跨網域讀取（CORS）才能成功；如果讀取失敗，圖磚本身通常還是能顯示，改用「手動貼網址」分頁直接加入即可（如果站台有設定代理伺服器，這裡會自動改用代理再試一次）。只會加入座標系統跟這個地圖相容（EPSG:3857）的圖層。</p>
           <div class="custom-source-form">
-            <input type="text" id="wmtsCapabilitiesUrl" class="custom-source-input" placeholder="GetCapabilities 網址，例如 https://example.com/wmts?SERVICE=WMTS&REQUEST=GetCapabilities" autocomplete="off">
+            <input type="text" id="wmtsCapabilitiesUrl" class="custom-source-input" placeholder="GetCapabilities 網址，例如 https://example.com/wmts?SERVICE=WMTS&REQUEST=GetCapabilities" autocomplete="off" aria-label="WMTS GetCapabilities 網址">
             <button type="button" id="wmtsFetchBtn" class="custom-source-add-btn">讀取圖層清單</button>
           </div>
           <div id="wmtsImportStatus" class="custom-source-hint"></div>

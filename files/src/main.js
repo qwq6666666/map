@@ -17,14 +17,19 @@ import { showLocationAndFindLayers } from './ui/search.js';
 import { initOnboarding } from './ui/onboarding.js';
 import { initMobileLayout } from './ui/mobileLayout.js';
 
-async function main(){
-  try{
-    await loadAppData();
-  }catch(err){
-    console.error('資料載入失敗', err);
-    alert('圖層資料載入失敗，請重新整理頁面再試一次。');
-    return;
-  }
+// 用頂層 await 取代原本包一層 async function main(){...} 再呼叫的寫法
+// （SonarQube javascript:S7785）；index.html 是 `<script type="module">`，
+// 瀏覽器原生支援 ESM 頂層 await，不需要額外包裝。
+let dataLoaded = true;
+try{
+  await loadAppData();
+}catch(err){
+  console.error('資料載入失敗', err);
+  alert('圖層資料載入失敗，請重新整理頁面再試一次。');
+  dataLoaded = false;
+}
+
+if(dataLoaded){
   initMapCore();   // 地圖、底圖切換、疊圖／比對模式、透明度、定位藍點
   initSidebar();   // 左側 WMTS 來源／分類手風琴（需要 LAYER_SOURCES 已載入）
   initSearchUI();  // 地址搜尋、定位搜尋、自動完成、逐筆圖磚驗證
@@ -34,8 +39,6 @@ async function main(){
   initOnboarding(); // 新手導覽／使用指南（獨立疊加層，不依賴地圖或側欄初始化狀態）
   initMobileLayout(); // 手機版 (<=768px) Bottom Sheet／頂部搜尋列協調，>768px 為 no-op
 }
-
-main();
 
 // 只在正式建置（vite build）且瀏覽器支援時註冊 Service Worker，
 // 開發模式（vite dev）故意不註冊，避免快取干擾即時開發。

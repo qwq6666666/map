@@ -23,8 +23,8 @@
        node tools/tag-layer-types.js
        node tools/build-layers-bundle.js
 --------------------------------------------------------- */
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 // 這些來源的 Capabilities 端點與 provider.tileTemplate 都是固定樣式
 // https://gis.sinica.edu.tw/<id>/wmts/1.0.0/WMTSCapabilities.xml，
@@ -79,22 +79,22 @@ function parseLayerBBoxMap(xml){
     const block = blockMatch[1];
 
     // 第一個 <ows:Identifier> 是 Layer 自己的 id（Style 底下那個 "default" 排在後面）
-    const idMatch = block.match(/<ows:Identifier>([^<]+)<\/ows:Identifier>/);
+    const idMatch = /<ows:Identifier>([^<]+)<\/ows:Identifier>/.exec(block);
     if(!idMatch) continue;
     const id = idMatch[1].trim();
 
-    const bboxBlockMatch = block.match(/<ows:WGS84BoundingBox[^>]*>([\s\S]*?)<\/ows:WGS84BoundingBox>/);
+    const bboxBlockMatch = /<ows:WGS84BoundingBox[^>]*>([\s\S]*?)<\/ows:WGS84BoundingBox>/.exec(block);
     if(!bboxBlockMatch) continue;
     const bboxBlock = bboxBlockMatch[1];
 
-    const lowerMatch = bboxBlock.match(/<ows:LowerCorner>\s*([-\d.]+)\s+([-\d.]+)\s*<\/ows:LowerCorner>/);
-    const upperMatch = bboxBlock.match(/<ows:UpperCorner>\s*([-\d.]+)\s+([-\d.]+)\s*<\/ows:UpperCorner>/);
+    const lowerMatch = /<ows:LowerCorner>\s*([-\d.]+)\s+([-\d.]+)\s*<\/ows:LowerCorner>/.exec(bboxBlock);
+    const upperMatch = /<ows:UpperCorner>\s*([-\d.]+)\s+([-\d.]+)\s*<\/ows:UpperCorner>/.exec(bboxBlock);
     if(!lowerMatch || !upperMatch) continue;
 
-    const minLon = parseFloat(lowerMatch[1]);
-    const minLat = parseFloat(lowerMatch[2]);
-    const maxLon = parseFloat(upperMatch[1]);
-    const maxLat = parseFloat(upperMatch[2]);
+    const minLon = Number.parseFloat(lowerMatch[1]);
+    const minLat = Number.parseFloat(lowerMatch[2]);
+    const maxLon = Number.parseFloat(upperMatch[1]);
+    const maxLat = Number.parseFloat(upperMatch[2]);
 
     map[id] = [minLon, minLat, maxLon, maxLat];
   }
@@ -115,7 +115,7 @@ function forEachLayer(src, fn){
 
 async function processSource(source){
   const { name, capabilitiesUrl, jsonPath } = source;
-  const jsonFileName = path.relative(path.join(__dirname, '..'), jsonPath).replace(/\\/g, '/');
+  const jsonFileName = path.relative(path.join(__dirname, '..'), jsonPath).replaceAll('\\', '/');
 
   console.log(`\n=== 來源：${name} ===`);
 

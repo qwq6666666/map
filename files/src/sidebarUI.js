@@ -2,7 +2,7 @@
    sidebarUI.js — 側邊欄：WMTS 圖資來源 → 分類(→ 堡等次分類) → 圖層
    手風琴建置
 --------------------------------------------------------- */
-import { LAYER_SOURCES, layerKey, titleForKey, resolveOverlayKey } from './data.js';
+import { DATA, layerKey, titleForKey, resolveOverlayKey } from './data.js';
 import { buildCategoryList } from './uiTree.js';
 import {
   selectOverlayLayer, state as store, subscribe,
@@ -268,7 +268,7 @@ function buildSourceGroup(src){
 // 手風琴，只有手機版「台灣」「中國」分頁改顯示三段式瀏覽（見
 // syncMobileBrowseView()），內容邏輯本身不變。
 function renderSourceAccordion(categoriesEl, sourceWraps){
-  LAYER_SOURCES.forEach((src) => {
+  DATA.LAYER_SOURCES.forEach((src) => {
     const srcWrap = buildSourceGroup(src);
     categoriesEl.appendChild(srcWrap);
     sourceWraps.push({ src, wrap: srcWrap });
@@ -307,11 +307,11 @@ export function initSidebar(){
 
   renderSourceAccordion(categoriesEl, sourceWraps);
 
-  const twSources = LAYER_SOURCES.filter(s => s.country === 'tw');
+  const twSources = DATA.LAYER_SOURCES.filter(s => s.country === 'tw');
   mobileTwBrowseEl = buildMobileTwBrowseUI(twSources, buildSourceGroup);
   categoriesEl.appendChild(mobileTwBrowseEl);
 
-  const cnSources = LAYER_SOURCES.filter(s => s.country === 'cn');
+  const cnSources = DATA.LAYER_SOURCES.filter(s => s.country === 'cn');
   mobileCnBrowseEl = buildMobileCnBrowseUI(cnSources, buildSourceGroup);
   categoriesEl.appendChild(mobileCnBrowseEl);
 
@@ -321,6 +321,7 @@ export function initSidebar(){
 
   // 跨越 768px 門檻時（即使沒有切換國家分頁）也要重新同步顯示狀態，
   // 比照 src/ui/mobileLayout.js 監聽 matchMedia 變化的既有寫法。
+  // mq.addListener 是刻意保留給不支援 addEventListener 的舊版 Safari 的 fallback，SonarQube 的棄用警告可以忽略
   if(mq.addEventListener) mq.addEventListener('change', syncMobileBrowseView);
   else mq.addListener(syncMobileBrowseView);
 

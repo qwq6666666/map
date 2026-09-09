@@ -11,9 +11,9 @@
    路徑完全不用改。
 --------------------------------------------------------- */
 import { defineConfig } from 'vite';
-import { existsSync, statSync, createReadStream, cpSync } from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { existsSync, statSync, createReadStream, cpSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(__dirname, 'data');
@@ -32,7 +32,7 @@ function serveDataDir(){
     name: 'serve-data-dir',
     configureServer(server){
       server.middlewares.use((req, res, next) => {
-        if(!req.url || !req.url.startsWith('/data/')) return next();
+        if(!req.url?.startsWith('/data/')) return next();
         const relPath = decodeURIComponent(req.url.split('?')[0]).replace(/^\/data\//, '');
         const filePath = path.join(dataDir, relPath);
         if(!filePath.startsWith(dataDir) || !existsSync(filePath) || !statSync(filePath).isFile()){

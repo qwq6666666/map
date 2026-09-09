@@ -36,11 +36,17 @@
    不需要更動任何既有來源的檔案，也不需要更動任何 .js 檔案。
 --------------------------------------------------------- */
 
-export let LAYER_SOURCES = [];
-export let REGION_EXTENTS = {};
-export let SOURCE_MAP_RULES = null;
-export let HISTORICAL_NAMES = null;
-export let PLACE_NAME_SUFFIXES = [];
+// 用單一 const 物件裝載這 5 個「載入完成後才有值」的模組狀態，取代原本
+// 個別 export let 逐一重新賦值的寫法（SonarQube javascript:S6861：不要
+// export 可變的 let binding）。loadAppData() 內仍會整批重新賦值這些屬性，
+// 但外部模組拿到的是同一個物件參照，改成讀 DATA.LAYER_SOURCES 等屬性。
+export const DATA = {
+  LAYER_SOURCES: [],
+  REGION_EXTENTS: {},
+  SOURCE_MAP_RULES: null,
+  HISTORICAL_NAMES: null,
+  PLACE_NAME_SUFFIXES: [],
+};
 
 // 使用者自訂 WMTS／XYZ 圖層（`custom:<id>` key 命名空間）不屬於
 // LAYER_SOURCES——那批是 data/layers/*.json 產生的內建 curated 資料。
@@ -94,8 +100,8 @@ function resolveTileUrl(provider, layer){
 --------------------------------------------------------- */
 function yearSortValue(y){
   const s = String(y);
-  const m = s.match(/\d{3,4}/); // 抓出字串中第一組 3~4 位數字（例：1930s → 1930）
-  if(m) return parseInt(m[0], 10);
+  const m = /\d{3,4}/.exec(s); // 抓出字串中第一組 3~4 位數字（例：1930s → 1930）
+  if(m) return Number.parseInt(m[0], 10);
   if(s === '清') return 1850;    // 清代，無精確年份者排在最前
   if(s === '日治') return 1910;  // 日治時期通用標籤，概略排在日治中期
   if(s === '戰後') return 1950;  // 戰後通用標籤，概略排在戰後初期
@@ -103,7 +109,7 @@ function yearSortValue(y){
 }
 
 function sortAllLayers(){
-  LAYER_SOURCES.forEach(src=>{
+  DATA.LAYER_SOURCES.forEach(src=>{
     src.categories.forEach(cat=>{
       if(cat.groups){
         cat.groups.forEach(g=> g.layers.sort((a,b)=> yearSortValue(a.year) - yearSortValue(b.year)));
@@ -149,7 +155,8 @@ function validateLayersBundle(layersData){
         ? cat.groups.map(g => g.layers)
         : [cat.layers];
       layerLists.forEach((layers, gi) => {
-        assertShape(Array.isArray(layers), `${ctag}${cat.groups ? ` groups[${gi}]` : ''} 缺少 layers 陣列`);
+        const groupSuffix = cat.groups ? ` groups[${gi}]` : '';
+        assertShape(Array.isArray(layers), `${ctag}${groupSuffix} 缺少 layers 陣列`);
         layers.forEach((l, li) => {
           const ltag = `${ctag} layers[${li}]`;
           assertShape(typeof l.id === 'string' && l.id, `${ltag} 缺少 id`);
@@ -203,20 +210,20 @@ export async function loadAppData(){
 
   const sourceFiles = layersData.sources;
 
-  SOURCE_MAP_RULES = sourceMapData;
-  HISTORICAL_NAMES = namesData;
-  PLACE_NAME_SUFFIXES = namesData.suffixes;
+  DATA.SOURCE_MAP_RULES = sourceMapData;
+  DATA.HISTORICAL_NAMES = namesData;
+  DATA.PLACE_NAME_SUFFIXES = namesData.suffixes;
 
   // 每個來源檔案自帶 provider（tile URL 樣板／literalUrl 旗標）與
   // region（bbox），不用再另外查表比對 id，直接就地取用。
-  REGION_EXTENTS = {};
-  sourceFiles.forEach(src => { REGION_EXTENTS[src.id] = src.region.bbox; });
+  DATA.REGION_EXTENTS = {};
+  sourceFiles.forEach(src => { DATA.REGION_EXTENTS[src.id] = src.region.bbox; });
 
   // src.json -> LAYER_SOURCES
   // （沿用原本 { id, name, tileUrl, attribution, categories:[{category, layers|groups}] } 形狀，
   //   layer.fmt / layer.year 對應回來源檔案的 layer.format / layer.dateLabel，
   //   讓其他模組沒有變動過的渲染、搜尋、比對程式碼可以直接使用。）
-  LAYER_SOURCES = sourceFiles.map(src => {
+  DATA.LAYER_SOURCES = sourceFiles.map(src => {
     const provider = src.provider;
     const mapLayer = (l) => ({
       id: l.id,
@@ -338,7 +345,7 @@ export function makeSourceForKey(key){
     return new ol.source.XYZ({ url: entry.urlTemplate, attributions: entry.attribution || '' });
   }
   const parts = key.split(':'); // ["hist", sourceId, id, fmt]
-  const src = LAYER_SOURCES.find(s => s.id === parts[1]);
+  const src = DATA.LAYER_SOURCES.find(s => s.id === parts[1]);
   if(!src) return new ol.source.XYZ({ url: '', crossOrigin: 'anonymous' });
   const layer = findLayerById(src, parts[2]);
   if(!layer) return new ol.source.XYZ({ url: '', crossOrigin: 'anonymous' });
@@ -354,7 +361,7 @@ export function titleForKey(key){
     return entry ? entry.name : key;
   }
   const parts = key.split(':');
-  const src = LAYER_SOURCES.find(s => s.id === parts[1]);
+  const src = DATA.LAYER_SOURCES.find(s => s.id === parts[1]);
   if(!src) return key;
   for(const cat of src.categories){
     const layersArr = cat.groups ? cat.groups.flatMap(g=>g.layers) : cat.layers;
@@ -376,7 +383,7 @@ export function layerKey(src, layer){
 export function resolveOverlayKey(key){
   if(!key || key === 'base:osm' || key === 'base:sat') return null;
   const parts = key.split(':'); // ["hist", sourceId, id, fmt]
-  const src = LAYER_SOURCES.find(s => s.id === parts[1]);
+  const src = DATA.LAYER_SOURCES.find(s => s.id === parts[1]);
   if(!src) return null;
   const layer = findLayerById(src, parts[2]);
   if(!layer) return null;
@@ -409,24 +416,24 @@ const ADDRESS_MATCH_FIELDS = [
 export function matchSourceIdsForAddress(addr){
   addr = addr || {};
   const haystack = ADDRESS_MATCH_FIELDS.map(k => addr[k] || '').join('');
-  const ids = new Set(SOURCE_MAP_RULES.alwaysInclude); // 全臺涵蓋來源，一律列入候選
+  const ids = new Set(DATA.SOURCE_MAP_RULES.alwaysInclude); // 全臺涵蓋來源，一律列入候選
 
   // alwaysIncludeUnless：跟 alwaysInclude 一樣預設列入候選，但只要地址命中
   // excludeIfIncludes 裡任何一個關鍵字（例如台灣的縣市名稱），就不加入。
   // 用來處理「涵蓋全中國、非台灣地址才觸發」這種來源（見 source-map.json 裡的說明）。
-  (SOURCE_MAP_RULES.alwaysIncludeUnless || []).forEach(rule => {
+  (DATA.SOURCE_MAP_RULES.alwaysIncludeUnless || []).forEach(rule => {
     const excluded = rule.excludeIfIncludes.some(k => haystack.includes(k));
     if(!excluded) rule.sources.forEach(id => ids.add(id));
   });
 
-  SOURCE_MAP_RULES.rules.forEach(rule => {
+  DATA.SOURCE_MAP_RULES.rules.forEach(rule => {
     const hit = rule.includes.some(k => haystack.includes(k));
     if(!hit) return;
     rule.sources.forEach(id => ids.add(id));
 
     if(rule.districtRule){
       const dr = rule.districtRule;
-      const districtList = dr.includes || SOURCE_MAP_RULES.districtSets[dr.includesFromSet] || [];
+      const districtList = dr.includes || DATA.SOURCE_MAP_RULES.districtSets[dr.includesFromSet] || [];
       if(districtList.some(d => haystack.includes(d))){
         dr.sources.forEach(id => ids.add(id));
       }
@@ -457,7 +464,7 @@ function stripPlaceNameSuffix(name){
   let s = (name || '').trim();
   // 只在還剩至少 2 個字的情況下才繼續去尾，避免把兩個字的地名（例如「五股」）
   // 誤砍到只剩 1 個字，變成比對什麼都會命中的無意義關鍵字。
-  while(s.length > 2 && PLACE_NAME_SUFFIXES.includes(s[s.length - 1])){
+  while(s.length > 2 && DATA.PLACE_NAME_SUFFIXES.includes(s[s.length - 1])){
     s = s.slice(0, -1);
   }
   return s;
@@ -500,7 +507,7 @@ export function extractPlaceKeywords(addr){
   addr = addr || {};
   const rawFields = PLACE_ADDR_FIELDS.map(key => addr[key]);
   const keywords = new Set();
-  const aliases = (HISTORICAL_NAMES && HISTORICAL_NAMES.aliases) || {};
+  const aliases = DATA.HISTORICAL_NAMES?.aliases || {};
   rawFields.forEach(name=>{
     const trimmed = (name || '').trim();
     if(!trimmed) return;

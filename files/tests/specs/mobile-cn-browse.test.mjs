@@ -1,13 +1,13 @@
 import '../env-stub.mjs';
 import { test, run, assertEqual, assertTrue } from '../assert.mjs';
-import { loadAppData, LAYER_SOURCES } from '../../src/data.js';
+import { loadAppData, DATA } from '../../src/data.js';
 import { MACRO_REGION_ORDER, macroRegionForSource, regionLabelForSource } from '../../src/ui/mobileCnBrowse.js';
 
 await loadAppData();
 
 function findSource(id){
-  const src = LAYER_SOURCES.find(s => s.id === id);
-  assertTrue(!!src, `應該要能在 LAYER_SOURCES 找到來源 ${id}`);
+  const src = DATA.LAYER_SOURCES.find(s => s.id === id);
+  assertTrue(!!src, `應該要能在 DATA.LAYER_SOURCES 找到來源 ${id}`);
   return src;
 }
 
@@ -73,7 +73,7 @@ test('regionLabelForSource：wuhan -> 武漢（去尾規則）', () => {
    4：全站中國來源大區域分組回歸測試
 --------------------------------------------------------- */
 test('全站中國來源大區域分組：11 個 cn 來源依 macroRegionForSource 分組後，各組來源數與總數應符合預期（新增/移除中國來源時要同步更新這幾個數字）', () => {
-  const cnSources = LAYER_SOURCES.filter(s => s.country === 'cn');
+  const cnSources = DATA.LAYER_SOURCES.filter(s => s.country === 'cn');
 
   const counts = {};
   MACRO_REGION_ORDER.forEach(macro => { counts[macro] = 0; });

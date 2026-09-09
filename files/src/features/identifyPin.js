@@ -89,8 +89,8 @@ function renderAddress(el, lon, lat, { forceFetch }){
   reverseGeocode(lon, lat)
     .then(data => {
       if(id !== addressRequestId) return; // 已過期（清除或重新釘點了）
-      const text = (data && data.display_name) ? formatTaiwanAddress(data.display_name) : '查無地址資訊';
-      addressState = { status: 'ok', text, addr: (data && data.address) || null };
+      const text = data?.display_name ? formatTaiwanAddress(data.display_name) : '查無地址資訊';
+      addressState = { status: 'ok', text, addr: data?.address || null };
       if(currentAddressEl){ currentAddressEl.textContent = text; currentAddressEl.classList.remove('loading'); }
     })
     .catch(() => {

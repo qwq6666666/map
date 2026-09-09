@@ -33,8 +33,8 @@
        node tools/tag-layer-types.js
        node tools/build-layers-bundle.js
 --------------------------------------------------------- */
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 // tc 參數值 -> 對應要寫回的 data/layers/*.json 檔名
 // twhgis 是總站入口，例外對應到 sinica.json；其餘皆為
@@ -108,7 +108,7 @@ function parseLegendUrls(xml){
     }
     if(cells.length < 2) continue;
     const secondCell = cells[1];
-    const openMatch = secondCell.match(/window\.open\('([^']+)'\s*,\s*'Legend'/);
+    const openMatch = /window\.open\('([^']+)'\s*,\s*'Legend'/.exec(secondCell);
     if(!openMatch) continue;
     urls.push(openMatch[1]);
   }
@@ -120,7 +120,7 @@ function buildLegendMap(urls){
   const map = {};
   const legendUrlRe = /^https?:\/\/gis\.sinica\.edu\.tw\/legend\/([^/?#]+)\/?/i;
   urls.forEach(url => {
-    const m = url.match(legendUrlRe);
+    const m = legendUrlRe.exec(url);
     if(!m) return;
     const id = m[1];
     if(!id) return;

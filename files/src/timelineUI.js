@@ -222,11 +222,11 @@ export function buildTimeline(candidates, container, onSelect){
       sliderEl.setAttribute('aria-label', '年代進度');
       sliderEl.addEventListener('input', () => {
         stopPlaying(); // 使用者自己動手拖，代表想自己控制，先停掉自動播放
-        selectIndex(parseInt(sliderEl.value, 10) || 0, false);
+        selectIndex(Number.parseInt(sliderEl.value, 10) || 0, false);
       });
       sliderEl.addEventListener('change', () => {
         if(pendingTimer){ clearTimeout(pendingTimer); pendingTimer = null; }
-        selectIndex(parseInt(sliderEl.value, 10) || 0, true); // 放開時不等 debounce，立刻套用
+        selectIndex(Number.parseInt(sliderEl.value, 10) || 0, true); // 放開時不等 debounce，立刻套用
       });
 
       // 加速播放：1x/2x/4x 循環切換，只改變自動播放的步進間隔，

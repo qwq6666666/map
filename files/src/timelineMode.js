@@ -24,7 +24,7 @@
    容易在這種邊界情形誤判成「找不到」。
 --------------------------------------------------------- */
 import { state as store, selectOverlayLayer } from './store.js';
-import { LAYER_SOURCES, layerKey } from './data.js';
+import { DATA, layerKey } from './data.js';
 import { TileChecker, globalTileRequestPool } from './tileChecker.js';
 import { buildTimeline } from './timelineUI.js';
 import { lonLatToTileXY, neighborTiles } from './core/tileGeo.js';
@@ -90,7 +90,7 @@ function refreshNow(){
   lastProbedTileKey = `${tile.z}/${tile.x}/${tile.y}`;
   if(refreshBtn) refreshBtn.classList.remove('stale'); // 重新整理過了，取消「地圖已移動」提示
 
-  const sinica = LAYER_SOURCES.find(s => s.id === 'sinica');
+  const sinica = DATA.LAYER_SOURCES.find(s => s.id === 'sinica');
   if(!sinica){
     containerEl.innerHTML = '<p class="avail-empty">找不到「台灣百年歷史地圖」這個來源。</p>';
     return;

@@ -1,6 +1,6 @@
 import '../env-stub.mjs';
 import { test, run, assertEqual, assertTrue, sleep } from '../assert.mjs';
-import { loadAppData, LAYER_SOURCES } from '../../src/data.js';
+import { loadAppData } from '../../src/data.js';
 import { initMapCore } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
 import { initSearchUI } from '../../src/searchUI.js';

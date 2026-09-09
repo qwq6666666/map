@@ -154,7 +154,7 @@ export function setState(patch){
 export function selectOverlayLayer(key){
   const nextKey = state.activeOverlayKey === key ? null : key;
   const patch = { activeOverlayKey: nextKey };
-  if(nextKey && nextKey.startsWith('hist:')){
+  if(nextKey?.startsWith('hist:')){
     const withoutKey = state.recentLayers.filter(k => k !== nextKey);
     patch.recentLayers = [nextKey, ...withoutKey].slice(0, RECENT_LAYERS_MAX);
   }
@@ -241,6 +241,8 @@ export function clearMultiOverlayLayers(){
 --------------------------------------------------------- */
 
 // 產生一個不需要後端、在瀏覽器裡就能保證同一批清單內不重複的 id。
+// 非安全性用途（不是 token／密碼／加密金鑰，僅本機 localStorage 清單去重），
+// 不需要 crypto.getRandomValues()。
 function generateCustomSourceId(){
   return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }

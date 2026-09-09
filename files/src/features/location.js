@@ -31,12 +31,16 @@ export function showLocateToast(msg){
 // 複製座標文字到剪貼簿，並讓按鈕短暫顯示 .copied 視覺回饋（1.5 秒後移除）。
 // navigator.clipboard 在非安全上下文（例如 http）可能不存在，退回舊式
 // execCommand('copy') 做基本容錯，失敗就靜默略過，不影響定位功能本身。
+// SonarQube javascript:S1874 複查：document.execCommand 雖已棄用，但目前
+// 沒有涵蓋範圍相同的替代 API（Clipboard API 需要安全上下文），這裡刻意
+// 只在 navigator.clipboard 不可用時才走這條 fallback 路徑，判定為可接受
+// 的刻意選擇，維持原寫法。
 function copyCoordText(text, btn){
   const flash = () => {
     btn.classList.add('copied');
     setTimeout(()=> btn.classList.remove('copied'), 1500);
   };
-  if(navigator.clipboard && navigator.clipboard.writeText){
+  if(navigator.clipboard?.writeText){
     navigator.clipboard.writeText(text).then(flash).catch(()=>{});
     return;
   }
@@ -48,7 +52,7 @@ function copyCoordText(text, btn){
     document.body.appendChild(ta);
     ta.select();
     document.execCommand('copy');
-    document.body.removeChild(ta);
+    ta.remove();
     flash();
   }catch(e){ /* 略過 */ }
 }

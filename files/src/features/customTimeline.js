@@ -24,8 +24,8 @@ const YEAR_REGEX = /(1[89]\d{2}|20\d{2})/;
 export function extractYearNum(layer){
   if(typeof layer.yearNum === 'number') return layer.yearNum;
   const text = `${layer.year || ''} ${layer.title || ''}`;
-  const m = text.match(YEAR_REGEX);
-  return m ? parseInt(m[1], 10) : null;
+  const m = YEAR_REGEX.exec(text);
+  return m ? Number.parseInt(m[1], 10) : null;
 }
 
 /**

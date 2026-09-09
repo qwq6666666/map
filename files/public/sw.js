@@ -145,7 +145,7 @@ async function networkFirstData(request){
   const cache = await caches.open(DATA_CACHE);
   try{
     const res = await fetch(request);
-    if(res && res.ok){
+    if(res?.ok){
       await cache.put(request, res.clone());
       return res;
     }
@@ -162,7 +162,7 @@ async function networkFirstShellHTML(request){
   const cache = await caches.open(APP_CACHE);
   try{
     const res = await fetch(request);
-    if(res && res.ok){
+    if(res?.ok){
       await cache.put(request, res.clone());
       return res;
     }
@@ -180,7 +180,7 @@ async function cacheFirstAsset(request){
   const cached = await cache.match(request);
   if(cached) return cached;
   const res = await fetch(request);
-  if(res && res.ok) await cache.put(request, res.clone());
+  if(res?.ok) await cache.put(request, res.clone());
   return res;
 }
 

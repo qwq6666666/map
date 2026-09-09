@@ -14,7 +14,7 @@
    activateFromSearch()）／toggleMultiOverlayLayer 這兩個既有的
    「套用圖層」動作。
 --------------------------------------------------------- */
-import { LAYER_SOURCES, layerKey } from '../data.js';
+import { DATA, layerKey } from '../data.js';
 import { state as store, toggleMultiOverlayLayer } from '../store.js';
 import { activateFromSearch } from './search.js';
 
@@ -23,7 +23,7 @@ import { activateFromSearch } from './search.js';
 // 快取；每次呼叫 searchLayers() 都重新走訪一次即可。
 function buildIndex(){
   const index = [];
-  LAYER_SOURCES.forEach(src => {
+  DATA.LAYER_SOURCES.forEach(src => {
     src.categories.forEach(cat => {
       if(cat.groups){
         cat.groups.forEach(g => {
@@ -58,7 +58,7 @@ function matchRank(entry, query){
 
   const yearNumStr = entry.layer.yearNum != null ? String(entry.layer.yearNum) : '';
   const yearLabel = (entry.layer.year || '').toLowerCase();
-  if((yearNumStr && yearNumStr.includes(query)) || (yearLabel && yearLabel.includes(query))) return 3;
+  if(yearNumStr?.includes(query) || yearLabel?.includes(query)) return 3;
 
   const srcName = (entry.src.name || '').toLowerCase();
   if(srcName.includes(query)) return 4;

@@ -56,7 +56,7 @@ async function fetchTextViaProxy(targetUrl){
     let message = `代理伺服器回應錯誤（HTTP ${res.status}）`;
     try{
       const errBody = await res.json();
-      if(errBody && errBody.error) message = errBody.error;
+      if(errBody?.error) message = errBody.error;
     }catch(err){ /* 代理沒有回傳 JSON 錯誤內容時，就用上面的預設訊息 */ }
     throw new Error(message);
   }
@@ -97,6 +97,9 @@ export async function fetchCapabilities(url){
   try{
     capabilities = parser.read(text);
   }catch(err){
+    // 解析失敗（XML 格式不對、不是 WMTS Capabilities 等）在這裡不特別處理，
+    // 直接讓 capabilities 維持 null，交給緊接在下面的 if 檢查統一轉成
+    // 使用者看得懂的錯誤訊息（「讀不到任何圖層…」），不需要重複的錯誤處理。
     capabilities = null;
   }
   if(!capabilities || !capabilities.Contents || !Array.isArray(capabilities.Contents.Layer) || capabilities.Contents.Layer.length === 0){
@@ -134,7 +137,7 @@ export function buildWmtsEntryConfig(capabilities, identifier){
     layer: options.layer,
     matrixSet: options.matrixSet,
     format: options.format,
-    projection: (options.projection && typeof options.projection.getCode === 'function')
+    projection: (typeof options.projection?.getCode === 'function')
       ? options.projection.getCode() : 'EPSG:3857',
     requestEncoding: options.requestEncoding,
     style: options.style,

@@ -16,7 +16,7 @@ import { state as store, clearOverlayLayer } from '../store.js';
 import { runtime } from '../runtime.js';
 import { resolveOverlayKey } from '../data.js';
 import { map } from './map.js';
-import { getOrCreateLayer, hasCachedLayer, clearCache, getCacheStats } from './layerCache.js';
+import { getOrCreateLayer, hasCachedLayer, clearCache } from './layerCache.js';
 import { getProtectedKeys } from './protectedKeys.js';
 
 /* ---------------------------------------------------------
@@ -96,7 +96,7 @@ export function clearLayerPool(){
 // layerCache 共用的快取物件，直接從地圖移除會讓 layerCache 內部的
 // Map 紀錄跟地圖上實際的圖層狀態對不起來。
 export function suspendActiveOverlayVisual(){
-  if(runtime.historyLayer) runtime.historyLayer.setOpacity(0);
+  runtime.historyLayer?.setOpacity(0);
 }
 
 export function applyActiveOverlayKey(){
@@ -110,7 +110,7 @@ export function applyActiveOverlayKey(){
     document.getElementById('stamp').classList.remove('show');
   } else {
     const { layer } = resolved;
-    const targetOpacity = parseInt(document.getElementById('opacitySlider').value,10)/100;
+    const targetOpacity = Number.parseInt(document.getElementById('opacitySlider').value,10)/100;
     const key = store.activeOverlayKey;
 
     const previousLayer = runtime.historyLayer;
@@ -204,10 +204,10 @@ export function initOpacityControls(){
     opacityVal.textContent = v + '%';
     floatingOpacitySlider.value = v;
     floatingOpacityVal.textContent = v + '%';
-    if(runtime.historyLayer) runtime.historyLayer.setOpacity(v/100);
+    runtime.historyLayer?.setOpacity(v/100);
   }
-  opacitySlider.addEventListener('input', ()=> setOverlayOpacity(parseInt(opacitySlider.value,10)));
-  floatingOpacitySlider.addEventListener('input', ()=> setOverlayOpacity(parseInt(floatingOpacitySlider.value,10)));
+  opacitySlider.addEventListener('input', ()=> setOverlayOpacity(Number.parseInt(opacitySlider.value,10)));
+  floatingOpacitySlider.addEventListener('input', ()=> setOverlayOpacity(Number.parseInt(floatingOpacitySlider.value,10)));
 
   document.getElementById('clearBtn').addEventListener('click', clearOverlayLayer);
   document.getElementById('floatingClearBtn')?.addEventListener('click', clearOverlayLayer);
@@ -215,4 +215,4 @@ export function initOpacityControls(){
 
 // 方便未來在畫面上（或 console）顯示 Cache 現況用；目前沒有 UI 掛這個，
 // 純粹把 layerCache 的 stats 轉手匯出，供除錯或未來擴充。
-export { getCacheStats };
+export { getCacheStats } from './layerCache.js';

@@ -22,16 +22,19 @@
      features/location.js、features/compareMode.js、
      features/multiOverlay.js、ui/sidebarToggle.js
 --------------------------------------------------------- */
-import { map, flyToSourceExtent, flyToCategoryExtent, initBaseSwitch } from './core/map.js';
-import { showLocateToast, initLocateButton } from './features/location.js';
-import { preloadOverlayKeys, syncActiveLayerItemClasses, initOpacityControls } from './core/layerManager.js';
+import { map, initBaseSwitch } from './core/map.js';
+import { initLocateButton } from './features/location.js';
+import { preloadOverlayKeys, initOpacityControls } from './core/layerManager.js';
 import { initCompareMode } from './features/compareMode.js';
 import { initMultiOverlayUI } from './features/multiOverlay.js';
 import { initSidebarToggle } from './ui/sidebarToggle.js';
 import { initModeManager } from './core/modeManager.js';
 import { initTimelineMode } from './timelineMode.js';
 
-export { map, flyToSourceExtent, flyToCategoryExtent, showLocateToast, syncActiveLayerItemClasses };
+export { map };
+export { flyToSourceExtent, flyToCategoryExtent } from './core/map.js';
+export { showLocateToast } from './features/location.js';
+export { syncActiveLayerItemClasses } from './core/layerManager.js';
 
 export function initMapCore(){
   initLocateButton();

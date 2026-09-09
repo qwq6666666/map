@@ -1,6 +1,6 @@
 import '../env-stub.mjs';
 import { test, run, assertEqual, assertTrue, sleep } from '../assert.mjs';
-import { loadAppData, LAYER_SOURCES } from '../../src/data.js';
+import { loadAppData, DATA } from '../../src/data.js';
 import { initMapCore } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
 import { initSearchUI } from '../../src/searchUI.js';
@@ -27,7 +27,7 @@ test('三種模式可以互相切換，不會拋出例外', async () => {
 });
 
 test('選擇歷史圖層後，activeOverlayKey 正確更新', () => {
-  const sinica = LAYER_SOURCES.find(s => s.id === 'sinica');
+  const sinica = DATA.LAYER_SOURCES.find(s => s.id === 'sinica');
   const layer = sinica.categories[0].layers[0];
   const key = `hist:sinica:${layer.id}:${layer.fmt}`;
   selectOverlayLayer(key);
@@ -35,7 +35,7 @@ test('選擇歷史圖層後，activeOverlayKey 正確更新', () => {
 });
 
 test('再次選擇同一個圖層會 toggle 關閉', () => {
-  const sinica = LAYER_SOURCES.find(s => s.id === 'sinica');
+  const sinica = DATA.LAYER_SOURCES.find(s => s.id === 'sinica');
   const layer = sinica.categories[0].layers[0];
   const key = `hist:sinica:${layer.id}:${layer.fmt}`;
   selectOverlayLayer(null); // 先確保是關閉狀態，不依賴前面測試殘留的狀態
@@ -45,7 +45,7 @@ test('再次選擇同一個圖層會 toggle 關閉', () => {
 });
 
 test('activeOverlayKey 在切換模式之間會保留，不會被清掉', async () => {
-  const sinica = LAYER_SOURCES.find(s => s.id === 'sinica');
+  const sinica = DATA.LAYER_SOURCES.find(s => s.id === 'sinica');
   const layer = sinica.categories[0].layers[0];
   const key = `hist:sinica:${layer.id}:${layer.fmt}`;
   setMode('overlay');
@@ -59,7 +59,7 @@ test('activeOverlayKey 在切換模式之間會保留，不會被清掉', async 
 });
 
 test('進入比對模式時，compareA 會自動帶入目前的 activeOverlayKey', async () => {
-  const sinica = LAYER_SOURCES.find(s => s.id === 'sinica');
+  const sinica = DATA.LAYER_SOURCES.find(s => s.id === 'sinica');
   const layer = sinica.categories[0].layers[0];
   const key = `hist:sinica:${layer.id}:${layer.fmt}`;
   setMode('overlay');

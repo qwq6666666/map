@@ -39,14 +39,14 @@ function currentInterval(){
 }
 
 function yearLabelOf(layer){
-  if(layer && layer.year) return String(layer.year);
-  if(layer && typeof layer.yearNum === 'number') return String(layer.yearNum);
+  if(layer?.year) return String(layer.year);
+  if(typeof layer?.yearNum === 'number') return String(layer.yearNum);
   return '年代不明';
 }
 
 function shortYearLabelOf(layer){
-  if(layer && typeof layer.yearNum === 'number') return String(layer.yearNum);
-  if(layer && layer.year) return String(layer.year);
+  if(typeof layer?.yearNum === 'number') return String(layer.yearNum);
+  if(layer?.year) return String(layer.year);
   return '?';
 }
 
@@ -69,7 +69,7 @@ function selectIndex(idx, candidates){
   currentIndex = idx;
   paint(idx, candidates);
   if(sliderEl) sliderEl.value = String(idx);
-  currentCallbacks && currentCallbacks.onSelectIndex && currentCallbacks.onSelectIndex(idx, candidates[idx]);
+  currentCallbacks?.onSelectIndex?.(idx, candidates[idx]);
 }
 
 // 停止自動播放：清掉 timer、還原播放鈕文字與樣式。重複呼叫或本來就
@@ -217,7 +217,7 @@ export function openCustomTimelineDock(candidates, callbacks){
     sliderEl.setAttribute('aria-label', '年代進度');
     sliderEl.addEventListener('input', () => {
       stopPlaying();
-      selectIndex(parseInt(sliderEl.value, 10) || 0, candidates);
+      selectIndex(Number.parseInt(sliderEl.value, 10) || 0, candidates);
     });
     sliderRow.appendChild(playBtn);
     sliderRow.appendChild(sliderEl);
@@ -242,9 +242,9 @@ export function openCustomTimelineDock(candidates, callbacks){
   opacityValue.className = 'custom-timeline-opacity-value';
   opacityValue.textContent = '100%';
   opacitySlider.addEventListener('input', () => {
-    const percent = parseInt(opacitySlider.value, 10) || 0;
+    const percent = Number.parseInt(opacitySlider.value, 10) || 0;
     opacityValue.textContent = `${percent}%`;
-    currentCallbacks && currentCallbacks.onOpacityChange && currentCallbacks.onOpacityChange(percent);
+    currentCallbacks?.onOpacityChange?.(percent);
   });
   opacityRow.appendChild(opacityLabel);
   opacityRow.appendChild(opacitySlider);
@@ -274,8 +274,7 @@ function teardown(){
   playBtn = null;
   speedBtn = null;
   speedIndex = 0;
-  if(dockEl && dockEl.parentElement) dockEl.parentElement.removeChild(dockEl);
-  else if(dockEl && dockEl.remove) dockEl.remove();
+  dockEl?.remove();
   dockEl = null;
   currentCallbacks = null;
   currentIndex = 0;
@@ -292,5 +291,5 @@ export function closeCustomTimelineDock(){
   if(!dockEl){ return; } // 本來就沒開啟，安全地什麼都不做
   const cb = currentCallbacks;
   teardown();
-  cb && cb.onClose && cb.onClose();
+  cb?.onClose?.();
 }

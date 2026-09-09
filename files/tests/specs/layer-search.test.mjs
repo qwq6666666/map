@@ -1,6 +1,6 @@
 import '../env-stub.mjs';
 import { test, run, assertEqual, assertTrue } from '../assert.mjs';
-import { loadAppData, LAYER_SOURCES, layerKey } from '../../src/data.js';
+import { loadAppData, DATA, layerKey } from '../../src/data.js';
 import { searchLayers, activateLayerSearchResult } from '../../src/features/layerSearch.js';
 import {
   state as store, setMode, selectOverlayLayer, clearOverlayLayer,
@@ -73,7 +73,7 @@ test('searchLayers("1945")：年份符合的圖層會被找到，且標題含年
 });
 
 test('searchLayers("嘉義百年歷史地圖")：依來源名稱搜尋，能命中該來源底下的圖層', () => {
-  const chiayi = LAYER_SOURCES.find(s => s.id === 'chiayi');
+  const chiayi = DATA.LAYER_SOURCES.find(s => s.id === 'chiayi');
   assertEqual(chiayi.name, '嘉義百年歷史地圖', '確認 fixture 假設：chiayi 來源名稱');
   const result = searchLayers('嘉義百年歷史地圖');
   assertTrue(result.length > 0, '應該至少找到一筆');
@@ -87,7 +87,7 @@ test('searchLayers("嘉義百年歷史地圖")：依來源名稱搜尋，能命�
 test('activateLayerSearchResult：multi 模式下，會呼叫 toggleMultiOverlayLayer 加入疊圖組合', () => {
   reset();
   setMode('multi');
-  const sinica = LAYER_SOURCES.find(s => s.id === 'sinica');
+  const sinica = DATA.LAYER_SOURCES.find(s => s.id === 'sinica');
   const layer = sinica.categories[0].layers[0];
   const key = layerKey(sinica, layer);
 
@@ -105,7 +105,7 @@ test('activateLayerSearchResult：multi 模式下，會呼叫 toggleMultiOverlay
 test('activateLayerSearchResult：非 multi 模式下，會走 activateFromSearch（切回 overlay 模式並設定 activeOverlayKey）', () => {
   reset();
   setMode('compare');
-  const sinica = LAYER_SOURCES.find(s => s.id === 'sinica');
+  const sinica = DATA.LAYER_SOURCES.find(s => s.id === 'sinica');
   const layer = sinica.categories[0].layers[0];
   const key = layerKey(sinica, layer);
 
@@ -178,7 +178,7 @@ test('selectOverlayLayer：超過 8 筆時，最舊的會被砍掉', () => {
   // 找 9 個真實存在、fmt/id 皆不同的歷史圖層 key，逐一選取（每次先取消再選新的，
   // 避免因為兩次選同一個 key 誤觸發 toggle 關閉）。
   const flatLayers = [];
-  LAYER_SOURCES.forEach(src => {
+  DATA.LAYER_SOURCES.forEach(src => {
     src.categories.forEach(cat => {
       const layers = cat.groups ? cat.groups.flatMap(g => g.layers) : cat.layers;
       layers.forEach(layer => flatLayers.push(layerKey(src, layer)));

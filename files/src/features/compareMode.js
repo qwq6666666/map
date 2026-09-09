@@ -19,7 +19,7 @@
 --------------------------------------------------------- */
 import { state as store, setCompareSide, setSwipePercent } from '../store.js';
 import { runtime } from '../runtime.js';
-import { LAYER_SOURCES, makeSourceForKey, titleForKey } from '../data.js';
+import { DATA, makeSourceForKey, titleForKey } from '../data.js';
 import { buildCategoryList } from '../uiTree.js';
 import { map } from '../core/map.js';
 import { collapseSidebar } from '../ui/sidebarToggle.js';
@@ -171,12 +171,15 @@ export function positionDivider(){
 // 這麼多 px 都算命中，不用精準點在 34px 的 #swipeHandle 圓形上（手機上很難點準）。
 const DIVIDER_HIT_MARGIN = 22;
 
-function initSwipeDivider(){
-  function startDrag(e){
-    runtime.dragging = true;
-    e.preventDefault();
-  }
+// 分隔線拖曳起始：不依賴 initSwipeDivider() 內的任何區域變數（只用到模組
+// 頂層已匯入的 runtime），搬到模組頂層可避免每次呼叫 initSwipeDivider() 都
+// 重新建立一份相同的函式。
+function startDrag(e){
+  runtime.dragging = true;
+  e.preventDefault();
+}
 
+function initSwipeDivider(){
   document.getElementById('swipeHandle').addEventListener('pointerdown', startDrag);
 
   // #swipeDivider／#swipeLine 都設了 pointer-events:none（分隔線視覺本身不擋
@@ -240,7 +243,7 @@ function buildPickerPanel(panelEl, onSelect){
   const { bar: filterBar, refresh: refreshCountryFilter } = createCountryFilterBar(() => sourceWraps);
   panelEl.appendChild(filterBar);
 
-  LAYER_SOURCES.forEach(src=>{
+  DATA.LAYER_SOURCES.forEach(src=>{
     const srcWrap = document.createElement('div');
     srcWrap.className = 'source-group';
     const srcHead = document.createElement('button');

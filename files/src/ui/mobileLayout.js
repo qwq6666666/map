@@ -65,7 +65,7 @@ let desktopLayerPlaceholder = null;
    用 px 精確計算，取代原本純 vh 的算法。
 --------------------------------------------------------- */
 function updateViewportMetrics(){
-  const h = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+  const h = window.visualViewport?.height || window.innerHeight;
   document.documentElement.style.setProperty('--vvh', `${h}px`);
 }
 
@@ -76,6 +76,21 @@ function updateViewportMetrics(){
    只是輸入框獨立浮在地圖最上方，符合「搜尋比桌面更好找、但結果
    不塞進窄欄」的手機版需求，同時完全不用複製任何一段搜尋邏輯。
 --------------------------------------------------------- */
+function moveSearchRowToMobile(searchRow, suggestEl, mobileBar, addressInput){
+  if(searchRow.parentElement !== mobileBar) mobileBar.appendChild(searchRow);
+  if(suggestEl.parentElement !== mobileBar) mobileBar.appendChild(suggestEl);
+  if(addressInput){
+    if(desktopPlaceholder === null) desktopPlaceholder = addressInput.placeholder;
+    addressInput.placeholder = MOBILE_PLACEHOLDER;
+  }
+}
+
+function moveSearchRowToDesktop(searchRow, suggestEl, searchBlock, locationResultEl, addressInput){
+  if(searchRow.parentElement !== searchBlock) locationResultEl.before(searchRow);
+  if(suggestEl.parentElement !== searchBlock) locationResultEl.before(suggestEl);
+  if(addressInput && desktopPlaceholder !== null) addressInput.placeholder = desktopPlaceholder;
+}
+
 function relocateSearchBar(isMobile){
   const searchBlock = document.querySelector('.search-block');
   const searchRow = searchBlock?.querySelector('.search-row');
@@ -86,16 +101,9 @@ function relocateSearchBar(isMobile){
   if(!searchBlock || !searchRow || !suggestEl || !locationResultEl || !mobileBar) return;
 
   if(isMobile){
-    if(searchRow.parentElement !== mobileBar) mobileBar.appendChild(searchRow);
-    if(suggestEl.parentElement !== mobileBar) mobileBar.appendChild(suggestEl);
-    if(addressInput){
-      if(desktopPlaceholder === null) desktopPlaceholder = addressInput.placeholder;
-      addressInput.placeholder = MOBILE_PLACEHOLDER;
-    }
+    moveSearchRowToMobile(searchRow, suggestEl, mobileBar, addressInput);
   } else {
-    if(searchRow.parentElement !== searchBlock) searchBlock.insertBefore(searchRow, locationResultEl);
-    if(suggestEl.parentElement !== searchBlock) searchBlock.insertBefore(suggestEl, locationResultEl);
-    if(addressInput && desktopPlaceholder !== null) addressInput.placeholder = desktopPlaceholder;
+    moveSearchRowToDesktop(searchRow, suggestEl, searchBlock, locationResultEl, addressInput);
   }
 }
 
@@ -122,7 +130,7 @@ function relocateLayerSearchRow(isMobile){
       layerInput.placeholder = MOBILE_LAYER_PLACEHOLDER;
     }
   } else {
-    if(layerRow.parentElement !== layerBlock) layerBlock.insertBefore(layerRow, layerPanelEl);
+    if(layerRow.parentElement !== layerBlock) layerPanelEl.before(layerRow);
     if(layerInput && desktopLayerPlaceholder !== null) layerInput.placeholder = desktopLayerPlaceholder;
   }
 }
@@ -265,7 +273,7 @@ function initSheetHandle(){
   // 跟 style.css 的 --mobile-sheet-full 用同一份「實際可視高度」
   // （見 updateViewportMetrics()），不要各自用不同基準算，否則拖曳中
   // 的即時位置會跟放開後 CSS 對不齊、放開瞬間跳一下。
-  const viewportH = () => (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+  const viewportH = () => window.visualViewport?.height || window.innerHeight;
   const fullPx = () => viewportH() * 0.75;
 
   function currentTranslate(){

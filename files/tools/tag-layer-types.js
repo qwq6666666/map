@@ -21,8 +21,8 @@
    執行後記得重新打包：
        node tools/build-layers-bundle.js
 --------------------------------------------------------- */
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const LAYERS_DIR = path.join(__dirname, '..', 'data', 'layers');
 

@@ -72,11 +72,11 @@ function jsonError(message, status){
 function isBlockedHost(hostname){
   const h = hostname.toLowerCase();
   if(h === 'localhost' || h === '0.0.0.0' || h === '::1') return true;
-  if(/^127\./.test(h)) return true;
-  if(/^10\./.test(h)) return true;
-  if(/^192\.168\./.test(h)) return true;
+  if(h.startsWith('127.')) return true;
+  if(h.startsWith('10.')) return true;
+  if(h.startsWith('192.168.')) return true;
   if(/^172\.(1[6-9]|2\d|3[0-1])\./.test(h)) return true;
-  if(/^169\.254\./.test(h)) return true;
+  if(h.startsWith('169.254.')) return true;
   return false;
 }
 
