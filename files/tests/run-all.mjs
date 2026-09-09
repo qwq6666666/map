@@ -36,10 +36,10 @@ for(const file of files){
       encoding: 'utf-8',
     });
     console.log(output.trimEnd());
-    // SonarQube javascript:S8786 複查：兩個 \d+ 中間隔著固定的非數字字元
-    // 「 通過, 」「 失敗」，數字與分隔字元互斥、不會重疊回溯，不構成
-    // 超線性回溯風險，判定為誤報，維持原寫法。
-    const m = output.match(/(\d+) 通過, (\d+) 失敗/);
+    // SonarQube javascript:S8786（ReDoS／超線性回溯）修正：\d+ 改成有
+    // 上限的 \d{1,6}（單一測試檔案不可能有百萬筆案例），量詞最壞情況
+    // 回溯步數有明確上界，消除超線性風險。
+    const m = output.match(/(\d{1,6}) 通過, (\d{1,6}) 失敗/);
     if(m){
       totalPassed += Number(m[1]);
       totalFailed += Number(m[2]);

@@ -173,8 +173,8 @@ export class TileChecker {
   // 不會繞過併發上限。
   _probeWithRetry(url){
     return this._probe(url).then(result => {
-      if(result.ok) return Promise.resolve(true);
-      if(!result.timedOut) return Promise.resolve(false);
+      if(result.ok) return true;
+      if(!result.timedOut) return false;
       return this._probe(url).then(retryResult => retryResult.ok);
     });
   }

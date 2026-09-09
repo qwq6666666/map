@@ -552,7 +552,7 @@ export function initDrawTool(){
     document.getElementById('drawImportFileInput').click();
   });
   document.getElementById('drawImportFileInput').addEventListener('change', async (e) => {
-    const file = e.target.files && e.target.files[0];
+    const file = e.target.files?.[0];
     if(!file) return;
     const text = await file.text();
     importGeoJSON(text);

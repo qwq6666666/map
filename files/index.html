@@ -10,9 +10,24 @@
      因為歷史圖資來源會持續新增（見 data/layers/*.json），核心的
      「禁止任意 URL 請求」把關已在應用層（src/data.js 的 key 白名單機制）
      完成，這裡是多一層防禦深度，不是唯一防線。
-     style-src 保留 'unsafe-inline' 是因為 OpenLayers 與部分 UI 程式碼
-     會用行內 style 屬性（element.style.xxx）；script-src 沒有加
-     'unsafe-inline'，因為全站沒有任何 inline <script>。 -->
+
+     SonarQube Web:S7039 複查（style-src 'unsafe-inline'）：已評估 nonce／
+     hash 白名單，判定不可行，維持 'unsafe-inline'——
+       1. CSP 的 nonce-*／hash 來源表達式只能套用在 <style> 區塊或
+          <link rel="stylesheet"> 這種「靜態內容」上；element.style.xxx
+          這種直接寫入 DOM 的行內 style 屬性，其值在執行當下才動態產生
+          （例如拖曳位置、動畫進度、依視窗尺寸計算的座標），沒有固定
+          字串可以預先算 hash，也沒有 nonce 屬性可掛，CSP 規格本身就
+          不支援對這種用法做白名單。
+       2. OpenLayers（ol.css 之外，函式庫本身也會對圖層/控制項節點寫入
+          行內 transform／position）與 src/ui/、src/drawTool.js 多處
+          UI 程式碼都仰賴這種即時行內樣式，全面改寫成動態 <style> 規則
+          + class 切換的成本過高、且會跟第三方函式庫（OpenLayers）內部
+          實作方式衝突（它自己也在寫 style 屬性）。
+       3. script-src 沒有加 'unsafe-inline'，因為全站沒有任何 inline
+          <script>，風險面已限縮在「行內樣式」而非「行內腳本」，兩者
+          可造成的攻擊面（XSS 執行任意 JS vs. 樣式層級的視覺干擾/資料
+          外洩風險極低）不對等，保留前者的殘留風險相對可控。 -->
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
   script-src 'self' https://cdn.jsdelivr.net;

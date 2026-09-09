@@ -153,16 +153,15 @@ const CATEGORY_ORDER = [
 // ---------------------------------------------------------
 // 年份／群組判定：依分類各自邏輯換算西元年（民國年 + 1911）
 //
-// SonarQube javascript:S8786（ReDoS／超線性回溯）複查結論：下面幾個
-// 含兩個 \d+ 的正規表示式（例如 /(\d+)-(\d+)年/、/(\d+)年(\d+)月/）
-// 兩個 \d+ 之間一定隔著固定的非數字字元（年/月/-），數字字元類與
-// 分隔字元互斥、不會有重疊可回溯的字元組合，不構成超線性回溯風險，
-// 判定為誤報，維持原寫法。
+// SonarQube javascript:S8786（ReDoS／超線性回溯）修正：原本用不限長度的
+// \d+ 擷取年份數字，改成有上限的 \d{1,4}（民國年、西元年、月份皆遠低於
+// 4 位數），讓量詞的最壞情況回溯步數有明確上界，消除超線性風險，行為
+// 對所有實際資料（見 tests/specs/build-nlsc-layers.test.mjs）不變。
 // ---------------------------------------------------------
 function yearInfoForPhoto(id, title){
   const m = id.match(/^PHOTO(\d{4})$/);
   if(m) return { year: Number.parseInt(m[1], 10), dateLabel: m[1] };
-  const ty = title.match(/(\d+)年/);
+  const ty = title.match(/(\d{1,4})年/);
   if(ty){
     const west = Number.parseInt(ty[1], 10) + 1911;
     return { year: west, dateLabel: String(west) };
@@ -184,7 +183,7 @@ function yearInfoForLuimap(id, title){
   if(!m) return { year: null, dateLabel: '現代' }; // 裸 LUIMAP（綜合成果圖，無單一年份）
   const num = Number.parseInt(m[1], 10);
   if(num <= 9) return { year: null, dateLabel: '現代' }; // LUIMAP01~09：土地利用類別，非年份
-  const rangeM = title.match(/(\d+)-(\d+)年/);
+  const rangeM = title.match(/(\d{1,4})-(\d{1,4})年/);
   if(rangeM){
     const w1 = Number.parseInt(rangeM[1], 10) + 1911;
     const w2 = Number.parseInt(rangeM[2], 10) + 1911;
@@ -201,7 +200,7 @@ function yearInfoForTerrainAnalysis(title){
 }
 
 function yearInfoForAdmin(title){
-  const m = title.match(/(\d+)年(\d+)月/); // 例：村里界(108年10月)
+  const m = title.match(/(\d{1,4})年(\d{1,2})月/); // 例：村里界(108年10月)
   if(m){
     const west = Number.parseInt(m[1], 10) + 1911;
     return { year: west, dateLabel: String(west) };
@@ -411,7 +410,21 @@ async function main(){
   console.log(`\n已寫入 ${path.relative(process.cwd(), OUTPUT_PATH)}，共 ${categories.length} 個分類、${totalLayers} 筆圖層`);
 }
 
-main().catch(err => {
-  console.error(err.message);
-  process.exit(1);
-});
+// 只有直接執行這支腳本（node tools/build-nlsc-layers.js）才跑 main()；
+// 被測試檔案用 require() 匯入時只需要下面 module.exports 的純函式，
+// 不應該觸發整段抓取 GetCapabilities、寫檔的流程。
+if(require.main === module){
+  main().catch(err => {
+    console.error(err.message);
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  yearInfoForPhoto,
+  yearInfoForTopo,
+  yearInfoForLuimap,
+  yearInfoForTerrainAnalysis,
+  yearInfoForAdmin,
+  yearInfoForAsrs,
+};

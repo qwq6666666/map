@@ -143,14 +143,14 @@ export function applyActiveOverlayKey(){
 // 之前就知道這次動作的來源是哪個面板。
 let lastLayerItemClickScope = null;
 function resolveLayerItemScope(el){
-  if(!el || !el.closest) return null;
+  if(!el?.closest) return null;
   if(el.closest('#layerAvailPanel')) return 'search';
   if(el.closest('#categories')) return 'main';
   return null; // 比對模式等其他圖層選擇器不透過這裡同步展開狀態，忽略
 }
 if(typeof document !== 'undefined' && document.addEventListener){
   document.addEventListener('click', (e)=>{
-    const itemEl = e.target && e.target.closest ? e.target.closest('.layer-item') : null;
+    const itemEl = e.target?.closest?.('.layer-item') ?? null;
     if(!itemEl) return; // 不是點在 .layer-item 上（例如點分類手風琴標題），不更新來源面板記錄
     const scope = resolveLayerItemScope(itemEl);
     if(scope) lastLayerItemClickScope = scope;

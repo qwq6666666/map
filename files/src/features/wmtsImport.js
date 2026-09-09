@@ -76,6 +76,11 @@ export async function fetchCapabilities(url){
     if(!res.ok) throw new Error(`伺服器回應錯誤（HTTP ${res.status}），請確認網址是否正確`);
     text = await res.text();
   }catch(directErr){
+    // 保留原始錯誤到 console 方便除錯（例如實際是 CORS 還是網路中斷），
+    // 但不直接把 directErr.message 丟給使用者——瀏覽器對 CORS 擋下的
+    // fetch 錯誤訊息通常很技術性、對一般使用者沒有意義，下面統一改成
+    // 講人話的錯誤訊息。
+    console.warn('直接讀取 WMTS Capabilities 失敗：', directErr);
     if(!CAPABILITIES_PROXY_URL){
       // 沒有設定代理：最常見原因是該服務沒有開放 CORS，瀏覽器直接
       // 擋下，看不到真正的 HTTP 狀態碼。純前端沒有後端可以代為轉發，
@@ -102,7 +107,7 @@ export async function fetchCapabilities(url){
     // 使用者看得懂的錯誤訊息（「讀不到任何圖層…」），不需要重複的錯誤處理。
     capabilities = null;
   }
-  if(!capabilities || !capabilities.Contents || !Array.isArray(capabilities.Contents.Layer) || capabilities.Contents.Layer.length === 0){
+  if(!capabilities?.Contents || !Array.isArray(capabilities.Contents.Layer) || capabilities.Contents.Layer.length === 0){
     throw new Error('讀不到任何圖層，請確認這是正確的 WMTS GetCapabilities XML 網址');
   }
 
@@ -129,7 +134,7 @@ export function buildWmtsEntryConfig(capabilities, identifier){
   }catch(err){
     return null;
   }
-  if(!options || !options.tileGrid) return null;
+  if(!options?.tileGrid) return null;
 
   const tileGrid = options.tileGrid;
   return {

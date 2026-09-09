@@ -91,7 +91,8 @@ async function runImmediateSearch(){
     }
   }catch(e){
     // 地理編碼請求失敗（網路錯誤、逾時等）在輸入過程中很常見，靜默隱藏建議
-    // 清單即可，不需要跳錯誤訊息打斷使用者輸入。
+    // 清單即可，不需要跳錯誤訊息打斷使用者輸入；仍記錄到 console 方便除錯。
+    console.warn('地址搜尋（Enter／按鈕觸發）地理編碼失敗：', e);
     if(!isSearchStale(myToken)) hideSuggest();
   }finally{
     if(!isSearchStale(myToken)) addressSearchBtn.classList.remove('loading');
@@ -603,7 +604,9 @@ export function initSearchUI(){
         renderSuggestList(results);
       }catch(e){
         // 同上（see selectGeocodeResult 附近的說明）：地理編碼請求失敗時
-        // 靜默隱藏建議清單即可，使用者輸入過程中不需要跳錯誤訊息。
+        // 靜默隱藏建議清單即可，使用者輸入過程中不需要跳錯誤訊息；
+        // 仍記錄到 console 方便除錯。
+        console.warn('地址輸入自動建議的地理編碼失敗：', e);
         if(!isSearchStale(myToken)) hideSuggest();
       }
     }, 550);
