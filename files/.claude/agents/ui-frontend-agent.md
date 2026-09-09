@@ -17,7 +17,7 @@ model: sonnet
 - 圖層樹狀目錄與篩選：`src/uiTree.js`、`src/ui/countryFilter.js`
 - 自訂時間軸專屬介面：`src/features/customTimelineUI.js`（獨立的自訂時間軸浮動 dock：刻度點／滑桿／透明度拉桿／關閉鈕，跟全站時間軸模式 `src/timelineUI.js`／`src/timelineMode.js` 完全獨立，不共用容器也不共用狀態）
 - 新手導覽／使用指南：`src/ui/onboarding.js`（側邊欄「🧭 新手導覽」「❔ 使用指南」按鈕、首訪 Welcome Modal、5 步聚光燈導覽、使用指南手風琴抽屜；純 DOM 疊加層與 `localStorage` 已讀旗標，不呼叫地圖／模式切換的內部邏輯，只讀取既有元素的 `getBoundingClientRect()` 做定位）
-- 手機版 (<=768px) 版面協調：`src/ui/mobileLayout.js`（Bottom Sheet 三態拖曳／頂部搜尋列 DOM 搬移／「地圖工具」快速模式選單／「目前圖層」浮動列展開；只轉發既有事件與搬移既有 DOM 節點，不重新實作搜尋／模式切換／圖層邏輯本身）
+- 手機版 (<=768px) 版面協調：`src/ui/mobileLayout.js`（Bottom Sheet 二態拖曳／頂部搜尋列 DOM 搬移／「地圖工具」快速模式選單／「目前圖層」浮動列展開；只轉發既有事件與搬移既有 DOM 節點，不重新實作搜尋／模式切換／圖層邏輯本身）
 - 手機版「瀏覽全部圖資」台灣分頁三段式瀏覽（大區域→地區→來源手風琴）：`src/ui/mobileTwBrowse.js`（純函式大區域分組／地區標籤推導 + 手機版三段式 UI 建構，只在 `src/sidebarUI.js` 依 `mq.matches` 分流時被呼叫，`>768px` 不受影響）
 - 手機版「瀏覽全部圖資」中國分頁三段式瀏覽（大區域→地區→來源手風琴，跟台灣分頁同一套結構）：`src/ui/mobileCnBrowse.js`
 - 手機版「瀏覽全部圖資」台灣／中國分頁共用的三段式瀏覽底層邏輯（`layerCountForSource`／`sourcesForMacro`／`sourcesForArea`／`guessRegionFromLastLocation`／`buildMobileRegionBrowseUI` DOM 建構）：`src/ui/mobileRegionBrowse.js`（只被 `mobileTwBrowse.js`／`mobileCnBrowse.js` import，各自的大區域對照表／地區標籤規則仍留在各自檔案）
