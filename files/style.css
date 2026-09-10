@@ -1617,6 +1617,17 @@
       left:calc(100% - 44px - 10px - env(safe-area-inset-right));
       transform:translateX(0);
       width:44px; max-width:44px;
+      /* 保底裁切：萬一內部子元素（例如輸入框內容較長時）沒有完全收到
+         0 寬，外層容器本身也強制裁掉溢出部分，避免殘留一條長條，只留
+         乾淨的 44px 圓鈕。 */
+      overflow:hidden;
+    }
+    /* 收合時輸入框已無法互動，先前展開的地址建議清單／圖資搜尋結果面板
+       一併視覺隱藏，避免圓鈕旁邊留一塊浮動面板看起來像沒收乾淨的長條
+       （內容與 .show/開啟狀態不清除，展開時原樣恢復）。 */
+    #mobileSearchBar.mobile-search-collapsed .address-suggest,
+    #mobileSearchBar.mobile-search-collapsed .layer-search-panel{
+      display:none;
     }
     #mobileSearchBar .search-row{
       background:var(--paper); border:1px solid var(--rule); border-radius:22px;
@@ -1902,6 +1913,15 @@
 
     /* ---------- 其餘地圖下方浮動列：一律讓到底部工作表 peek 區之上 ---------- */
     .compare-float-item{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px);}
+    /* A 側選圖面板（#pickerPanelA）展開時比按鈕本身高出很多（可達 300+px），
+       原本 left:0 貼齊按鈕左緣，會整片蓋到左下角固定位置的「地圖工具」
+       按鈕（#mobileModeBtn，預設 x:10~58，見上方 #mobileModeBtn 區塊）
+       身上（實機 375x812 量測交集約 x:36~58，已回報為 bug）。這裡只把
+       A 側面板本身往右位移，不動按鈕位置，維持 A/B 視覺對稱；B 側
+       （#pickerPanelB，right:0 貼右下角）不受影響，右下角沒有這顆按鈕。
+       只處理使用者從未拖曳過 #mobileModeBtn 的預設位置，使用者若手動把
+       按鈕拖到別處，這裡不會再重新避讓。 */
+    #pickerPanelA{left:32px;}
     #multiOverlayBar{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px); width:calc(100% - 24px); max-height:32vh;}
     .search-batch-bar{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px); max-width:calc(100% - 24px);}
     #custom-timeline-dock{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px); width:calc(100% - 24px);}

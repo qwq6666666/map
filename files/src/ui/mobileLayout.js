@@ -222,6 +222,16 @@ function scheduleSearchBarCollapse(){
   clearSearchBarCollapseTimer();
   if(!mq.matches) return; // 桌面版沒有這條浮動列，不排程也不用清 class
   searchBarCollapseTimer = setTimeout(()=>{
+    // 收合前先讓目前聚焦中的輸入框失焦：文字內容較長時，部分手機瀏覽器
+    // 對「仍有 focus 的 <input>」有内部最小渲染寬度／捲動到游標位置的
+    // 保底邏輯，即使 CSS 已經把它 width 收到 0，畫面上仍可能殘留一條
+    // 撐開的長條（實機回報）。主動 blur() 讓輸入框先失去焦點（同時收起
+    // 虛擬鍵盤，體驗上也更合理——使用者已經 15 秒沒操作了），再讓 CSS
+    // 收合，兩者都做才能保證乾淨地收成小圓鈕。
+    const active = document.activeElement;
+    if(active === document.getElementById('addressInput') || active === document.getElementById('layerSearchInput')){
+      active.blur();
+    }
     document.getElementById('mobileSearchBar')?.classList.add(SEARCH_BAR_COLLAPSED_CLASS);
   }, SEARCH_BAR_IDLE_MS);
 }
