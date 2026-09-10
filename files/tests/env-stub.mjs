@@ -136,6 +136,13 @@ export class FakeNode {
   }
   scrollIntoView(){}
   select(){}
+  // 真的瀏覽器版本會真的搬移鍵盤焦點；這裡只需要「存在、可以被呼叫」，
+  // 讓 features/multiOverlay.js／ui/layerSearch.js／ui/mobileLayout.js／
+  // ui/search.js 這幾處呼叫 input.focus()／.blur() 的程式碼在測試環境下
+  // 不會因為方法不存在而噴例外。比照上面 scrollIntoView()／select() 的
+  // 既有寫法（空方法即可，不需要真的模擬焦點狀態）。
+  focus(){}
+  blur(){}
   getBoundingClientRect(){ return { height: 20, width: Number.parseFloat(this.attrs.width || 800), left: 0 }; }
   // 沒有真的排版引擎，clientWidth 跟 getBoundingClientRect().width 用同一份
   // 假設（attrs.width 可指定，否則預設 800），供 features/compareMode.js 的

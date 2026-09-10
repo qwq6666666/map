@@ -1535,6 +1535,13 @@
   /* 地址／圖資搜尋合併切換鈕：只在手機版有意義（見下方 @media），桌面版
      兩個 .search-block 各自獨立顯示、不需要切換，一律隱藏。 */
   .mobile-search-mode-btn{display:none;}
+  /* 地址輸入框快速清除鈕：只在手機版有意義（桌面版已有 #clearLocationBtn
+     清除已完成的搜尋結果，輸入框本身不需要另一顆清除鈕），桌面版一律
+     隱藏。手機版顯示規則見下方 @media，刻意用 class 選擇器
+     `.address-input-clear-btn:not([hidden])` 而不是 ID 選擇器，避免蓋過
+     `[hidden]{display:none}` 造成 hidden 屬性怎麼設都藏不住（CLAUDE.md
+     已記錄過同類陷阱）。 */
+  .address-input-clear-btn{display:none;}
 
   /* 手機版「台灣」分頁三段式瀏覽（src/ui/mobileTwBrowse.js）：桌機／
      平板一律隱藏，只在下方 @media (max-width:768px) 且 sidebarUI.js 的
@@ -1605,6 +1612,10 @@
       width:40px; height:40px; border-radius:50%; flex-shrink:0;
       transition:transform .32s cubic-bezier(.4,0,.2,1);
     }
+    /* 地址輸入框快速清除鈕：手機版有內容（未設 hidden）時才顯示，跟
+       #layerSearchClearBtn 視覺／尺寸一致（沿用上面 .address-search-btn
+       的圓鈕樣式）。 */
+    .address-input-clear-btn:not([hidden]){display:flex; align-items:center; justify-content:center;}
     #mobileSearchBar #locateSearchBtn{
       /* 定位鈕跟輸入框一起淡出/收合，只留放大鏡圓鈕代表整條搜尋列 */
       transition:flex-basis .32s cubic-bezier(.4,0,.2,1), width .32s cubic-bezier(.4,0,.2,1),
@@ -1617,7 +1628,8 @@
     #mobileSearchBar.mobile-search-collapsed .address-input,
     #mobileSearchBar.mobile-search-collapsed #locateSearchBtn,
     #mobileSearchBar.mobile-search-collapsed #mobileSearchModeBtn,
-    #mobileSearchBar.mobile-search-collapsed #layerSearchClearBtn{
+    #mobileSearchBar.mobile-search-collapsed #layerSearchClearBtn,
+    #mobileSearchBar.mobile-search-collapsed #addressInputClearBtn{
       flex:0 0 0; width:0; min-width:0; opacity:0; margin:0; padding:0;
       border:none; pointer-events:none; overflow:hidden;
     }
@@ -1640,6 +1652,19 @@
       position:absolute; top:calc(100% + 6px); left:0; right:0;
       border-radius:12px; max-height:min(360px, 55vh);
     }
+    /* 圖資搜尋結果面板（#layerSearchPanel）比照地址建議清單，改成浮在
+       輸入框正下方、自己捲動的懸浮卡片，不再塞進下方 Bottom Sheet
+       （見 src/ui/mobileLayout.js 的 relocateLayerSearchRow()：手機版會
+       把 #layerSearchPanel 一起搬進 #mobileSearchBar）。桌面版的
+       position/z-index 等本來就是絕對定位疊在輸入框下方，這裡只需要
+       覆寫錨定基準（原本相對 .layer-search-block，搬進 #mobileSearchBar
+       後改成相對它）跟圓角／收斂高度，視覺對齊 .address-suggest。 */
+    #mobileSearchBar .layer-search-panel{
+      top:calc(100% + 6px); left:0; right:0;
+      border-radius:12px; max-height:min(360px, 55vh); overflow-y:auto;
+      -webkit-overflow-scrolling:touch;
+    }
+    #mobileSearchBar .layer-search-panel .layer-search-list{max-height:none;}
 
     /* ---------- 地址／圖資搜尋合併成一個輸入框 ----------
        兩個 .search-row（.address-search-row／.layer-search-row）都會被
@@ -1664,10 +1689,19 @@
        蓋掉，不呼叫 hideSuggest()，內容與 .show class 都原封不動保留，
        切回地點模式馬上恢復顯示。 */
     body.mobile-search-mode-layer #mobileSearchBar .address-suggest{display:none;}
+    /* 切到地址模式時，圖資搜尋結果面板（若剛好還開著）一併強制隱藏，
+       同樣只是視覺蓋掉、不清除任何狀態。#layerSearchPanel 已經被
+       relocateLayerSearchRow() 搬進 #mobileSearchBar，不再是
+       .layer-search-block 的子節點，下面「非啟用中的搜尋整塊隱藏」那條
+       規則管不到它，要另外補這條。刻意用 class 選擇器 .layer-search-panel
+       （不用 #layerSearchPanel ID），比照專案一貫用 class 操作顯示/隱藏
+       的慣例。 */
+    body.mobile-search-mode-address #mobileSearchBar .layer-search-panel{display:none;}
 
-    /* 非啟用中的搜尋整塊（含各自結果面板 #locationResult／
-       #layerSearchPanel）在手機版隱藏，只用 CSS class 隱藏、不清除任何
-       搜尋狀態，切回來時先前的搜尋結果原封不動還在，不用重新搜。 */
+    /* 非啟用中的搜尋整塊（含地址結果面板 #locationResult，圖資搜尋列與
+       其結果面板 #layerSearchPanel 已搬進 #mobileSearchBar、由上面兩條
+       規則各自處理）在手機版隱藏，只用 CSS class 隱藏、不清除任何搜尋
+       狀態，切回來時先前的搜尋結果原封不動還在，不用重新搜。 */
     body.mobile-search-mode-layer .search-block:not(.layer-search-block){display:none;}
     body.mobile-search-mode-address .layer-search-block{display:none;}
 

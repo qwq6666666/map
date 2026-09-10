@@ -27,8 +27,10 @@ import { findPlaceNameCandidates, setActivePlaceNameMatch, clearActivePlaceNameM
 
 // 搜尋結果背景預載的圖層筆數上限，見 findAndRenderAvailableLayers() 內說明。
 const SEARCH_PRELOAD_CAP = 20;
+// 地址輸入框自動建議清單的最短觸發字數（含地名今昔對照精確比對與一般地理編碼）。
+const ADDRESS_SUGGEST_MIN_QUERY_LENGTH = 2;
 
-let addressInput, addressSearchBtn, addressSuggestEl, locationResultEl, locationNameEl,
+let addressInput, addressSearchBtn, addressSuggestEl, addressInputClearBtn, locationResultEl, locationNameEl,
     layerAvailPanelEl, clearLocationBtn, addressMarkerEl, addressMarkerOverlay, locateSearchBtn,
     searchBatchBarEl, searchBatchCountEl, searchBatchConfirmBtn,
     placeNameCardEl, placeNameCardToggleBtn, placeNameCardBodyEl;
@@ -57,6 +59,12 @@ function hideAddressMarker(){
 function hideSuggest(){
   addressSuggestEl.classList.remove('show');
   addressSuggestEl.innerHTML = '';
+}
+
+// 程式化設定 addressInput.value（選定建議清單項目／定位成功／清空）不會
+// 觸發 input 事件，`#addressInputClearBtn` 的顯示狀態要在這些地方手動同步。
+function syncAddressInputClearBtn(){
+  if(addressInputClearBtn) addressInputClearBtn.hidden = (addressInput.value.trim().length === 0);
 }
 
 // #addressSuggest 的桌面版 CSS 是 `position:absolute; top:100%` 相對於
@@ -173,6 +181,7 @@ export async function showLocationAndFindLayers(lon, lat, label, addr){
 async function selectGeocodeResult(result){
   hideSuggest();
   addressInput.value = result.display_name;
+  syncAddressInputClearBtn();
   const lon = Number.parseFloat(result.lon);
   const lat = Number.parseFloat(result.lat);
   await showLocationAndFindLayers(lon, lat, result.display_name, result.address || {});
@@ -185,6 +194,7 @@ async function selectGeocodeResult(result){
 async function selectPlaceNameCandidate(place){
   hideSuggest();
   addressInput.value = place.name;
+  syncAddressInputClearBtn();
   await showLocationAndFindLayers(place.longitude, place.latitude, place.name, { county: place.county, town: place.town });
   setActivePlaceNameMatch(place);
   renderPlaceNameCard(place);
@@ -409,6 +419,7 @@ async function handleLocateSuccess(pos, myToken){
   if(isSearchStale(myToken)) return;
 
   addressInput.value = label;
+  syncAddressInputClearBtn();
   await showLocationAndFindLayers(lon, lat, label, addr);
 }
 
@@ -833,6 +844,7 @@ export function initSearchUI(){
   addressInput = document.getElementById('addressInput');
   addressSearchBtn = document.getElementById('addressSearchBtn');
   addressSuggestEl = document.getElementById('addressSuggest');
+  addressInputClearBtn = document.getElementById('addressInputClearBtn');
   locationResultEl = document.getElementById('locationResult');
   locationNameEl = document.getElementById('locationName');
   layerAvailPanelEl = document.getElementById('layerAvailPanel');
@@ -866,8 +878,9 @@ export function initSearchUI(){
   addressInput.addEventListener('input', ()=>{
     exitSelectionModeFn?.();
     const q = addressInput.value.trim();
+    if(addressInputClearBtn) addressInputClearBtn.hidden = (q.length === 0);
     if(runtime.addressDebounceTimer) clearTimeout(runtime.addressDebounceTimer);
-    if(q.length < 3){ hideSuggest(); return; }
+    if(q.length < ADDRESS_SUGGEST_MIN_QUERY_LENGTH){ hideSuggest(); return; }
     runtime.addressDebounceTimer = setTimeout(async ()=>{
       const myToken = bumpSearchToken();
       try{
@@ -889,6 +902,15 @@ export function initSearchUI(){
         if(!isSearchStale(myToken)) hideSuggest();
       }
     }, 550);
+  });
+
+  addressInputClearBtn?.addEventListener('click', ()=>{
+    // 只清「正在輸入的文字」，不連帶清除已完成的搜尋結果（locationResult／
+    // layerAvailPanel／placeNameCard），那些是 clearLocationBtn 的職責。
+    addressInput.value = '';
+    addressInputClearBtn.hidden = true;
+    hideSuggest();
+    addressInput.focus();
   });
 
   addressSearchBtn.addEventListener('click', runImmediateSearch);
@@ -933,6 +955,7 @@ export function initSearchUI(){
     layerAvailPanelEl.classList.remove('selection-mode');
     searchBatchBarEl?.classList.remove('show');
     addressInput.value = '';
+    syncAddressInputClearBtn();
     hideSuggest();
   });
 }

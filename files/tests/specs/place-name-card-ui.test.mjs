@@ -52,6 +52,17 @@ const placeNameCardEl = document.getElementById('placeNameCard');
 const placeNameCardBodyEl = document.getElementById('placeNameCardBody');
 const placeNameCardToggleBtn = document.getElementById('placeNameCardToggle');
 const addressSuggestEl = document.getElementById('addressSuggest');
+const addressInput = document.getElementById('addressInput');
+const addressInputClearBtn = document.getElementById('addressInputClearBtn');
+const clearLocationBtn = document.getElementById('clearLocationBtn');
+
+// 觸發 #addressInput 的 input debounce handler：env-stub.mjs 的 FakeNode
+// 沒有實作通用 dispatchEvent()，比照 tests/specs/draw-color.test.mjs 等
+// 既有測試直接呼叫 `_listeners['input'][0]()`（handler 不吃事件物件）。
+function typeAddress(value){
+  addressInput.value = value;
+  addressInput._listeners.input[0]();
+}
 
 function cardText(){
   // env-stub.mjs 的 FakeNode.textContent 是單純屬性，不會像真的瀏覽器
@@ -186,6 +197,77 @@ test('renderMergedSuggestList()：地名候選與地址建議皆為空陣列時�
   assertTrue(addressSuggestEl.classList.contains('show'), '空狀態也應該加上 show class（顯示提示文字）');
   const empty = addressSuggestEl.children.find(c => c.classList.contains('address-suggest-empty'));
   assertTrue(!!empty, '應該渲染出空狀態提示元素');
+});
+
+/* ---------------------------------------------------------
+   #addressInput debounce 觸發門檻（ADDRESS_SUGGEST_MIN_QUERY_LENGTH=2）
+   ---------------------------------------------------------
+   直接測「會不會排入 debounce timer」，不等真的 550ms 觸發、也不讓
+   debounce callback 真的執行（避免打到 findPlaceNameCandidates()／
+   geocodeAddress() 這兩個涉及 fetch 的非同步流程，跟這裡要驗證的門檻
+   邏輯無關）：暫時替換 globalThis.setTimeout 成純粹計數用的假版本，
+   測完立刻還原，不影響其他測試。
+--------------------------------------------------------- */
+function withFakeDebounceTimer(fn){
+  const original = globalThis.setTimeout;
+  const calls = [];
+  globalThis.setTimeout = (cb, ms) => { calls.push(ms); return 0; };
+  try{
+    fn(calls);
+  } finally {
+    globalThis.setTimeout = original;
+  }
+}
+
+test('#addressInput debounce：輸入未達門檻（1 字）不會建立 debounce timer', () => {
+  withFakeDebounceTimer((calls) => {
+    typeAddress('中');
+    assertEqual(calls.length, 0, '長度 1（< ADDRESS_SUGGEST_MIN_QUERY_LENGTH=2）不應該排入 debounce timer');
+  });
+});
+
+test('#addressInput debounce：輸入達到門檻（2 字）會建立一個 550ms 的 debounce timer', () => {
+  withFakeDebounceTimer((calls) => {
+    typeAddress('中正');
+    assertEqual(calls.length, 1, '長度 2 應該排入 1 個 debounce timer');
+    assertEqual(calls[0], 550, 'debounce 延遲應該是 550ms');
+  });
+});
+
+/* ---------------------------------------------------------
+   #addressInputClearBtn（手機版輸入框快速清除鈕）
+--------------------------------------------------------- */
+
+test('#addressInputClearBtn：輸入框有文字時顯示，清空文字後隱藏', () => {
+  withFakeDebounceTimer(() => {
+    typeAddress('中正');
+    assertEqual(addressInputClearBtn.hidden, false, '有輸入內容時清除鈕應該顯示');
+
+    typeAddress('');
+    assertEqual(addressInputClearBtn.hidden, true, '清空輸入內容後清除鈕應該隱藏');
+  });
+});
+
+test('點擊 #addressInputClearBtn：清空輸入框文字並隱藏自己', () => {
+  withFakeDebounceTimer(() => {
+    typeAddress('台北車站');
+    assertEqual(addressInputClearBtn.hidden, false, '前置條件：清除鈕應該顯示');
+
+    addressInputClearBtn.click();
+
+    assertEqual(addressInput.value, '', '點擊後輸入框應該清空');
+    assertEqual(addressInputClearBtn.hidden, true, '點擊後清除鈕應該隱藏');
+  });
+});
+
+test('點擊 #clearLocationBtn：同步隱藏 #addressInputClearBtn（清除搜尋結果時輸入框清除鈕也要跟著收起）', () => {
+  addressInput.value = '台北車站';
+  addressInputClearBtn.hidden = false; // 模擬使用者先前已輸入過文字、清除鈕正顯示中
+
+  clearLocationBtn.click();
+
+  assertEqual(addressInput.value, '', '點擊後輸入框應該清空');
+  assertEqual(addressInputClearBtn.hidden, true, '點擊後應該同步隱藏清除鈕');
 });
 
 await run();

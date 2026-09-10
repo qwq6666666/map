@@ -287,6 +287,12 @@
       <div class="field-label">🔎 地址／位置搜尋</div>
       <div class="search-row address-search-row">
         <input type="text" id="addressInput" class="address-input" placeholder="請輸入地址或地點…" autocomplete="off" aria-label="地址或地點">
+        <!-- 手機版專屬：快速清除輸入框文字（不連帶清除已完成的搜尋結果，
+             那是 #clearLocationBtn 的職責）。桌面版一律隱藏，見 style.css
+             的 .address-input-clear-btn{display:none}。 -->
+        <button type="button" id="addressInputClearBtn" class="address-search-btn address-input-clear-btn" title="清除輸入" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
         <!-- 手機版專屬：地址／圖資搜尋合併切換鈕。桌面版一律隱藏（見
              style.css 的 .mobile-search-mode-btn{display:none}），只有
              <=768px 才會顯示；行為見 src/ui/mobileLayout.js 的
