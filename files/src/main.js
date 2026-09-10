@@ -13,7 +13,8 @@ import { initSearchUI } from './searchUI.js';
 import { initLayerSearchUI } from './ui/layerSearch.js';
 import { initDrawTool } from './drawTool.js';
 import { initIdentifyPin } from './features/identifyPin.js';
-import { showLocationAndFindLayers } from './ui/search.js';
+import { showLocationAndFindLayers, focusPlaceNameCard } from './ui/search.js';
+import { getActivePlaceNameMatchAt } from './features/placeNames.js';
 import { initOnboarding } from './ui/onboarding.js';
 import { initMobileLayout } from './ui/mobileLayout.js';
 import { applyShareStateFromURL } from './features/shareLink.js';
@@ -36,7 +37,11 @@ if(dataLoaded){
   initSearchUI();  // 地址搜尋、定位搜尋、自動完成、逐筆圖磚驗證
   initLayerSearchUI(); // 圖資搜尋（metadata 比對，跟地址搜尋完全獨立）
   initDrawTool();  // 點／線／面繪製標註、量測、匯出 GeoJSON／截圖
-  initIdentifyPin({ onSearchLayers: showLocationAndFindLayers }); // 免開關地圖自由落點探針
+  initIdentifyPin({
+    onSearchLayers: showLocationAndFindLayers,
+    getPlaceNameMatch: getActivePlaceNameMatchAt,
+    onViewPlaceNameCard: focusPlaceNameCard
+  }); // 免開關地圖自由落點探針，含地名今昔對照卡的「查看地名沿革」連動
   initOnboarding(); // 新手導覽／使用指南（獨立疊加層，不依賴地圖或側欄初始化狀態）
   initMobileLayout(); // 手機版 (<=768px) Bottom Sheet／頂部搜尋列協調，>768px 為 no-op
 

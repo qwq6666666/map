@@ -18,6 +18,7 @@ model: sonnet
 - 圖例索引建置：`tools/fetch-legend-map.js`（解析 twhgis 入口網站的圖層清單 API，把有圖例連結的圖層 id 對應到 `layer.legend` URL，寫回對應來源檔案）
 - 跨網域代理服務：`tools/cors-proxy-worker/`
 - 預設歷史主題圖資目錄：`data/presets/`（供使用者按需 `fetch()` 載入的主題 GeoJSON，如車站、河道等；不得在 JS 模組頂層靜態 import）
+- 地名今昔對照資料：`tools/build-place-names.js`（從工作區外的兩份地名資料 CSV 產生精簡 JSON 的建置工具）、`data/place-names.json`（產出的精簡地名資料檔，供 `src/features/placeNames.js` `fetch()` 載入）
 
 # 核心工作準則
 1. **圖層 Schema 一致性 (JSON Schema Integrity)：**

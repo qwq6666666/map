@@ -15,6 +15,7 @@ model: sonnet
 - 繪圖工具與位置功能：`src/drawTool.js`、`src/features/location.js`
 - 外部圖資匯入與搜尋：`src/features/wmtsImport.js`、`src/features/search.js`、`src/features/layerSearch.js`（圖資搜尋的 metadata 索引/排序/模式感知啟用邏輯，純函式、不碰 DOM，跟 `search.js` 的地址搜尋邏輯完全獨立——兩者不共用輸入值、不互相觸發，只在啟用圖層時共用 `activateFromSearch()`）
 - 地圖點位互動：`src/features/identifyPin.js`（免開關落點探針 Identify Pin，含三態點擊防禦狀態機）
+- 地名今昔對照比對邏輯：`src/features/placeNames.js`（`data/place-names.json` 的延遲載入、現名／別名精確比對、目前作用中比對結果的小型狀態，供 `src/ui/search.js` 顯示對照卡、供 `identifyPin.js` 顯示「歷史地名」提示列）
 - 分享連結：`src/features/shareLink.js`（把目前 store 狀態＋地圖中心/縮放編碼進 URL query string、頁面載入時解析還原；只讀 `src/core/map.js` 匯出的 `map` 取中心/縮放，不修改該檔案）
 - 使用者繪圖／匯入資料本地持久化：`src/features/storage.js`（localStorage 快取，鍵值 `taiwan_map_user_features`）
 - 自訂時間軸資料邏輯：`src/features/customTimeline.js`（年份解析、依年代排序、獨立於 store 的單張圖層預覽/卸載機制，串接 `src/features/customTimelineUI.js`——這是 ui-frontend-agent 的檔案，只能 import 它匯出的函式，不能修改它）。**`src/timelineMode.js`／`src/timelineUI.js` 屬於全站共用時間軸模式，自訂時間軸功能嚴禁修改這兩個檔案**，避免污染全域時間軸狀態。

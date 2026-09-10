@@ -1,0 +1,163 @@
+import '../env-stub.mjs';
+import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { loadAppData } from '../../src/data.js';
+import { initMapCore } from '../../src/mapCore.js';
+import { initSidebar } from '../../src/sidebarUI.js';
+import { initSearchUI, renderPlaceNameCard, renderPlaceNameCandidateList, hidePlaceNameCard } from '../../src/ui/search.js';
+
+/* ---------------------------------------------------------
+   tests/specs/place-name-card-ui.test.mjs
+   ---------------------------------------------------------
+   針對 #placeNameCard 的渲染／收合／清除邏輯寫測試，做法比照
+   tests/specs/full-integration.test.mjs：loadAppData() + initMapCore()
+   + initSidebar() + initSearchUI() 把整個初始化流程跑一次，讓
+   ui/search.js 內部的模組層級 DOM 變數（placeNameCardEl 等）被指到
+   env-stub.mjs 的假 DOM 節點。
+
+   這裡刻意直接呼叫 renderPlaceNameCard()／renderPlaceNameCandidateList()／
+   hidePlaceNameCard()（本次任務新增的 export，見 CLAUDE.md 交接說明），
+   不透過完整的 showLocationAndFindLayers() 非同步流程——後者還會牽動
+   真正的 findAvailableLayersAt()（地理編碼＋逐筆圖磚驗證），跟這裡要
+   驗證的「卡片內容渲染對不對」是兩件事，直接測渲染函式本身更精準也
+   更快。
+--------------------------------------------------------- */
+const place = {
+  name: '德化社',
+  aliases: ['卜吉', '化番社'],
+  county: '南投縣',
+  town: '魚池鄉',
+  description: '日月潭邊的邵族聚落，日治時期曾稱化番社。',
+  sourceType: 'settlement',
+  longitude: 120.9123,
+  latitude: 23.8567
+};
+
+const placeNoAlias = {
+  name: '社寮',
+  aliases: [],
+  county: '南投縣',
+  town: '竹山鎮',
+  description: '',
+  sourceType: 'admin',
+  longitude: 120.6789,
+  latitude: 23.7654
+};
+
+await loadAppData();
+initMapCore();
+initSidebar();
+initSearchUI();
+
+const placeNameCardEl = document.getElementById('placeNameCard');
+const placeNameCardBodyEl = document.getElementById('placeNameCardBody');
+const placeNameCardToggleBtn = document.getElementById('placeNameCardToggle');
+const addressSuggestEl = document.getElementById('addressSuggest');
+
+function cardText(){
+  // env-stub.mjs 的 FakeNode.textContent 是單純屬性，不會像真的瀏覽器
+  // DOM 一樣自動彙總子孫節點文字，這裡走訪整棵子樹自行拼接，方便用
+  // 「文字內容是否包含某段字串」的方式驗證渲染結果。
+  const parts = [];
+  (function walk(node){
+    if(node.textContent) parts.push(node.textContent);
+    (node.children || []).forEach(walk);
+  })(placeNameCardBodyEl);
+  return parts.join('\n');
+}
+
+test('renderPlaceNameCard()：呼叫後 #placeNameCard.hidden 變成 false，內容包含現名文字', () => {
+  renderPlaceNameCard(place);
+  assertEqual(placeNameCardEl.hidden, false, '渲染後卡片應該顯示');
+  assertTrue(cardText().includes('德化社'), '應該包含現名「德化社」');
+});
+
+test('renderPlaceNameCard()：aliases 非空時會顯示別名／舊稱標籤與內容', () => {
+  renderPlaceNameCard(place);
+  const text = cardText();
+  assertTrue(text.includes('別名／舊稱'), '應該顯示「別名／舊稱」標籤');
+  assertTrue(text.includes('卜吉') && text.includes('化番社'), '應該顯示別名內容');
+});
+
+test('renderPlaceNameCard()：現代位置一定顯示（縣市＋鄉鎮）', () => {
+  renderPlaceNameCard(place);
+  assertTrue(cardText().includes('南投縣魚池鄉'), '應該顯示現代位置');
+});
+
+test('renderPlaceNameCard()：資料來源固定格式，且正確帶入 sourceTypeLabel', () => {
+  renderPlaceNameCard(place);
+  assertTrue(cardText().includes('臺灣地區地名資料（聚落類）'), '資料來源文字格式應該正確（settlement -> 聚落）');
+});
+
+test('renderPlaceNameCard()：aliases 為空陣列時，卡片內容不出現「別名／舊稱」標籤', () => {
+  renderPlaceNameCard(placeNoAlias);
+  const text = cardText();
+  assertTrue(!text.includes('別名／舊稱'), 'aliases 為空時不應該出現別名／舊稱標籤');
+  assertTrue(text.includes('社寮'), '仍然應該顯示現名');
+  assertTrue(text.includes('臺灣地區地名資料（行政區域類）'), 'admin 類型的資料來源文字應該正確');
+});
+
+test('renderPlaceNameCard()：description 為空字串時，不顯示「地名說明」標籤', () => {
+  renderPlaceNameCard(placeNoAlias);
+  assertTrue(!cardText().includes('地名說明'), 'description 為空時不應該有地名說明區塊');
+});
+
+test('renderPlaceNameCard()：description 過長時會截斷並顯示「展開全文」按鈕', () => {
+  const longDesc = '甲'.repeat(150);
+  renderPlaceNameCard({ ...place, description: longDesc });
+  const text = cardText();
+  assertTrue(text.includes('展開全文'), '超過 100 字應該顯示「展開全文」按鈕');
+  assertTrue(!text.includes(longDesc), '截斷狀態不應該顯示完整全文');
+});
+
+test('點擊「展開全文」按鈕後顯示完整全文，按鈕文字變成「收合」', () => {
+  const longDesc = '乙'.repeat(150);
+  renderPlaceNameCard({ ...place, description: longDesc });
+  // 走訪找出「展開全文」按鈕本身並點擊。
+  let toggleBtn = null;
+  (function walk(node){
+    if(node.tag === 'button' && node.textContent === '展開全文') toggleBtn = node;
+    (node.children || []).forEach(walk);
+  })(placeNameCardBodyEl);
+  assertTrue(!!toggleBtn, '前置條件：應該找得到「展開全文」按鈕');
+
+  toggleBtn.click();
+
+  assertTrue(cardText().includes(longDesc), '點擊後應該顯示完整全文');
+  assertEqual(toggleBtn.textContent, '收合', '按鈕文字應該變成「收合」');
+});
+
+test('收合按鈕（#placeNameCardToggle）點擊後，#placeNameCard 加上 collapsed class', () => {
+  renderPlaceNameCard(place); // 確保目前是展開狀態
+  assertTrue(!placeNameCardEl.classList.contains('collapsed'), '前置條件：卡片預設應該是展開狀態');
+
+  placeNameCardToggleBtn.click();
+
+  assertTrue(placeNameCardEl.classList.contains('collapsed'), '點擊收合按鈕後應該加上 collapsed class');
+});
+
+test('再次點擊收合按鈕會移除 collapsed class（切換回展開）', () => {
+  assertTrue(placeNameCardEl.classList.contains('collapsed'), '前置條件：目前應該是收合狀態');
+
+  placeNameCardToggleBtn.click();
+
+  assertTrue(!placeNameCardEl.classList.contains('collapsed'), '再次點擊應該移除 collapsed class');
+});
+
+test('hidePlaceNameCard()：呼叫後 #placeNameCard.hidden 變成 true', () => {
+  renderPlaceNameCard(place);
+  assertEqual(placeNameCardEl.hidden, false, '前置條件：卡片應該是顯示中');
+
+  hidePlaceNameCard();
+
+  assertEqual(placeNameCardEl.hidden, true, '呼叫後卡片應該隱藏');
+});
+
+test('renderPlaceNameCandidateList()：多筆候選會各自渲染成 .place-name-suggest-item', () => {
+  const candidates = [place, placeNoAlias];
+  renderPlaceNameCandidateList(candidates);
+  const items = addressSuggestEl.children.filter(c => c.classList.contains('place-name-suggest-item'));
+  assertEqual(items.length, 2, '應該渲染出跟候選筆數相同的項目');
+  assertTrue(addressSuggestEl.classList.contains('show'), '候選清單容器應該加上 show class');
+});
+
+await run();

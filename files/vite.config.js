@@ -57,6 +57,9 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
-    emptyOutDir: true
+    emptyOutDir: true,
+    // src/main.js 用頂層 await（見該檔案註解），預設 esbuild target 不含
+    // 支援頂層 await 的 ES2022，明確指定才能建置成功。
+    target: 'es2022'
   }
 });

@@ -124,6 +124,35 @@ function buildSearchButton(lon, lat, addressEl, onSearchLayers){
 }
 
 let onSearchLayersCb = null;
+let getPlaceNameMatchCb = null;
+let onViewPlaceNameCardCb = null;
+
+// 「歷史地名」小卡：若有注入 getPlaceNameMatchCb 且該點座標命中目前作用中
+// 的地名今昔對照比對結果（見 features/placeNames.js 的 getActivePlaceNameMatchAt），
+// 顯示別名清單（沒有別名則退回顯示現名本身，避免空行）與一顆「查看地名沿革」
+// 按鈕，點擊轉發給 onViewPlaceNameCardCb（實際展開/捲動卡片的邏輯屬於 UI 層）。
+function buildPlaceNameBlock(lon, lat){
+  if(!getPlaceNameMatchCb) return null;
+  const place = getPlaceNameMatchCb(lon, lat);
+  if(!place) return null;
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'identify-history-name';
+
+  const names = (Array.isArray(place.aliases) && place.aliases.length > 0) ? place.aliases : [place.name];
+  const p = document.createElement('p');
+  p.textContent = `歷史地名：${names.join('、')}`;
+  wrapper.appendChild(p);
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'identify-history-view-btn';
+  btn.textContent = '查看地名沿革';
+  btn.addEventListener('click', () => { onViewPlaceNameCardCb?.(); });
+  wrapper.appendChild(btn);
+
+  return wrapper;
+}
 
 // 重繪彈窗內容：forceFetch=true 代表全新落點（一定要重打地址反查），
 // forceFetch=false 代表重開已存在的 Pin（沿用快取，見 renderAddress）。
@@ -135,6 +164,9 @@ function renderPopupContent({ forceFetch }){
 
   const addressEl = buildAddressBlock(lon, lat, forceFetch);
   identifyPopupBody.appendChild(addressEl);
+
+  const placeNameBlock = buildPlaceNameBlock(lon, lat);
+  if(placeNameBlock) identifyPopupBody.appendChild(placeNameBlock);
 
   const searchBtn = buildSearchButton(lon, lat, addressEl, onSearchLayersCb);
   if(searchBtn) identifyPopupBody.appendChild(searchBtn);
@@ -161,18 +193,29 @@ function reopenPopup(){
 }
 
 /** main.js 啟動流程呼叫一次即可。
- * @param {{ onSearchLayers?: (lon:number, lat:number, label:string, addr:object) => void }} opts
+ * @param {{
+ *   onSearchLayers?: (lon:number, lat:number, label:string, addr:object) => void,
+ *   getPlaceNameMatch?: (lon:number, lat:number) => object|null,
+ *   onViewPlaceNameCard?: () => void
+ * }} opts
  *   onSearchLayers：點擊「搜尋涵蓋此點之歷史圖層」按鈕時呼叫，實際的搜尋渲染
  *   邏輯屬於 ui 層，由 main.js 組裝時注入，這裡不 import 任何 src/ui/*。
  *   addr 務必傳 Nominatim addressdetails=1 回傳的結構化地址元件物件
  *   （例如 {county, city, town, village, ...}），不能傳格式化過的顯示字串，
  *   否則 matchSourceIdsForAddress／extractPlaceKeywords 的文字比對會全部失效。
+ *   getPlaceNameMatch：main.js 接到 features/placeNames.js 的
+ *   getActivePlaceNameMatchAt，用來判斷這個落點是否命中目前作用中的地名
+ *   今昔對照比對結果，命中則顯示「歷史地名」小卡。
+ *   onViewPlaceNameCard：點擊小卡的「查看地名沿革」按鈕時呼叫，main.js
+ *   接到 ui/search.js 匯出的「捲動並展開地名今昔對照卡」函式。
  */
-export function initIdentifyPin({ onSearchLayers } = {}){
+export function initIdentifyPin({ onSearchLayers, getPlaceNameMatch, onViewPlaceNameCard } = {}){
   identifyPinEl = document.getElementById('identifyPin');
   if(!identifyPinEl) return; // DOM 尚未加入，靜默跳過
 
   onSearchLayersCb = onSearchLayers || null;
+  getPlaceNameMatchCb = getPlaceNameMatch || null;
+  onViewPlaceNameCardCb = onViewPlaceNameCard || null;
   identifyPopupEl = document.getElementById('identifyPopup');
   identifyPopupBody = document.getElementById('identifyPopupBody');
   identifyPopupCloseBtn = document.getElementById('identifyPopupClose');

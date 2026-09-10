@@ -142,6 +142,14 @@ main.js                      進入點，依序 initXxx()
 
 目前只做了 `thm` 的 11 個堡（桃竹苗地區，48 個現代行政區對照）。格式是「現代地名 → [舊堡名（含廳名前綴以避免不同廳同名堡互相干擾，例如 `新竹廳竹北二堡` vs `桃仔園廳竹北二堡`）]」。`extractPlaceKeywords()` 會查這個表，把對照到的舊堡名也加進關鍵字。其他來源目前沒有類似的對照表（多數來源已經不需要，因為第 3 點的規則已經排除了它們套用文字篩選）。
 
+**注意跟下面這個功能名稱相近但完全獨立**：上面這份 `historical-names.json` 只是「地址搜尋時，用舊堡名輔助篩選 `thm` 候選圖層」的內部小型對照表；`data/place-names.json`（`tools/build-place-names.js` 從內政部「臺灣地區地名資料」CSV 產生，約 10MB、3-4 萬筆）是完全獨立的「地名今昔對照卡」功能資料來源，供使用者搜尋地名時展示現名／別名／地名沿革小卡（`src/features/placeNames.js` 純比對邏輯 + `src/ui/search.js` 的 `#placeNameCard` 渲染 + `src/features/identifyPin.js` 落點彈窗的「歷史地名」區塊），兩者互不匯入、互不共用資料。
+
+## 地名今昔對照卡（`data/place-names.json` + `src/features/placeNames.js`）
+
+`tools/build-place-names.js`（CommonJS，`tools/package.json` 是 `{"type":"commonjs"}`）讀兩份工作區外的地名 CSV（聚落類＋行政區域類），輸出精簡的 `data/place-names.json`；核心的 `parseCsv`／`splitAliases`／`rowToPlace` 是不做檔案 I/O 的純函式，`require.main === module` 判斷式外的部分可以直接 `require()` 測試，不依賴真的外部 CSV 存在。`src/features/placeNames.js` 延遲載入這份 JSON（第一次呼叫 `findPlaceNameCandidates()` 才 fetch、只 fetch 一次），比對規則是「現名精確相符 OR 別名精確相符，只保留有經緯度的候選」；`matchPlaceNames(places, query)` 是不碰 fetch 的純函式版本，單元測試優先呼叫這支。地址搜尋（`src/ui/search.js` 的 `runImmediateSearch()`）比對到 0 筆才會退回原本的 `geocodeAddress` 地址搜尋流程，1 筆直接定位＋顯示卡片，多筆列出候選清單重用既有的 `#addressSuggest` 容器。
+
+測試分散在三份檔案：`tests/specs/place-names-data.test.mjs`（`tools/build-place-names.js` 三個純函式）、`tests/specs/place-names-matching.test.mjs`（`matchPlaceNames`／`getActivePlaceNameMatchAt`／`sourceTypeLabel`，同樣不碰 fetch）、`tests/specs/place-name-card-ui.test.mjs`（`#placeNameCard` 的渲染／收合／候選清單，走 `loadAppData()+initMapCore()+initSidebar()+initSearchUI()` 完整初始化流程，比照 `full-integration.test.mjs` 的寫法）；另外 `tests/specs/identify-pin.test.mjs` 也補了落點彈窗「歷史地名」小區塊的案例。`renderPlaceNameCard`／`renderPlaceNameCandidateList`／`hidePlaceNameCard` 這三個 `src/ui/search.js` 內部函式是為了讓 UI 測試能直接呼叫才加上 `export`，不是功能邏輯異動。
+
 ## 時間軸功能（`timelineUI.js` + `timelineMode.js`）
 
 `timelineUI.js` 的 `buildTimeline(candidates, container, onSelect)` 是共用元件，兩個地方用：搜尋結果的時間軸檢視、`timelineMode.js` 的「時間軸模式」。畫成箭頭鏈（chevron polygon），不是圓點；等間距排列（不按實際年份比例），因為真實年代分布常常前後跳很多年，照比例畫容易一段擠成一團一段留一大片空白；同一年份多筆時水平排開、共用一個年份標籤，固定單列高度（不會因為某年份筆數多就往上長高）。播放進度用箭頭本身的顏色狀態（`passed`/`active` class）表示，沒有額外的指示線或浮動搖桿。

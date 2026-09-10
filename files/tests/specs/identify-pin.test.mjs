@@ -48,9 +48,28 @@ function clickPointTool(){
 }
 
 const searchCalls = [];
+// 「歷史地名」小卡測試用：placeNameMatchToReturn 預設 null（等同沒有命中
+// 任何地名今昔對照結果），大部分既有測試都在這個狀態下執行，維持原本
+// 「沒有歷史地名區塊」的行為；只有新增的地名小卡測試會在觸發前暫時
+// 指定成一個 place 物件，驗證完立刻還原成 null，不影響後面的測試。
+let placeNameMatchToReturn = null;
+let onViewPlaceNameCardCalls = 0;
 initIdentifyPin({
-  onSearchLayers: (lon, lat, label, addr) => searchCalls.push({ lon, lat, label, addr })
+  onSearchLayers: (lon, lat, label, addr) => searchCalls.push({ lon, lat, label, addr }),
+  getPlaceNameMatch: () => placeNameMatchToReturn,
+  onViewPlaceNameCard: () => { onViewPlaceNameCardCalls++; }
 });
+
+// 走訪 DOM 樹找出第一個帶有指定 class 的節點：identifyPopupBody 內的
+// .identify-history-name／.identify-history-view-btn 不屬於 DEVELOPMENT.md
+// 列出的既有選擇器支援範圍以外的組合寫法，這裡沿用假 querySelector 就能
+// 支援的純 class 選擇器，不需要另外實作走訪邏輯。
+function findHistoryNameBlock(){
+  return identifyPopupBody.querySelector('.identify-history-name');
+}
+function findHistoryViewBtn(){
+  return identifyPopupBody.querySelector('.identify-history-view-btn');
+}
 
 const identifyPinEl = document.getElementById('identifyPin');
 const identifyPopupBody = document.getElementById('identifyPopupBody');
@@ -208,6 +227,60 @@ test('狀態三 -> 狀態一：清除後點地圖應該要能重新建立 Pin', 
 
   assertTrue(identifyPinEl.classList.contains('show'), '清除後再點地圖應該要能重新建立 Pin');
   assertEqual(identifyPopupEl.hidden, false, '重新建立的 Pin 應該會自動開啟彈窗');
+});
+
+test('getPlaceNameMatch 回傳 falsy 時，彈窗裡不會出現 .identify-history-name（維持原本行為）', () => {
+  assertEqual(placeNameMatchToReturn, null, '前置條件：目前應該還沒有命中任何地名今昔對照結果');
+  assertTrue(!findHistoryNameBlock(), 'getPlaceNameMatch 回傳 null 時不應該有歷史地名區塊');
+});
+
+test('getPlaceNameMatch 回傳 place 物件時，重開彈窗後會多出 .identify-history-name 與 .identify-history-view-btn', () => {
+  placeNameMatchToReturn = {
+    name: '德化社', aliases: ['卜吉', '化番社'], county: '南投縣', town: '魚池鄉',
+    sourceType: 'settlement', longitude: COORD[0], latitude: COORD[1]
+  };
+  identifyPinMarkerBtn.click(); // 重開彈窗，強制用目前的 placeNameMatchToReturn 重新渲染內容
+
+  const historyBlock = findHistoryNameBlock();
+  assertTrue(!!historyBlock, '應該出現歷史地名區塊');
+  // env-stub.mjs 的 FakeNode.textContent 只是單純屬性，不會像真的瀏覽器
+  // DOM 那樣自動彙總子節點文字，這裡改成直接讀該區塊內第一個 <p> 子節點
+  // （identifyPin.js 的 buildPlaceNameBlock() 把文字放在 wrapper 底下的
+  // <p> 子節點）的 textContent 來驗證內容。
+  const nameText = historyBlock.children[0].textContent;
+  assertTrue(nameText.includes('歷史地名'), '文字內容應該包含「歷史地名」');
+  assertTrue(nameText.includes('卜吉') && nameText.includes('化番社'), '應該顯示 aliases 內容（卜吉、化番社）');
+
+  const viewBtn = findHistoryViewBtn();
+  assertTrue(!!viewBtn, '應該出現「查看地名沿革」按鈕');
+});
+
+test('aliases 為空陣列時，歷史地名文字退回顯示現名本身', () => {
+  placeNameMatchToReturn = {
+    name: '社寮', aliases: [], county: '南投縣', town: '竹山鎮',
+    sourceType: 'settlement', longitude: COORD[0], latitude: COORD[1]
+  };
+  identifyPinMarkerBtn.click();
+
+  const historyBlock = findHistoryNameBlock();
+  assertTrue(!!historyBlock, '應該出現歷史地名區塊');
+  assertTrue(historyBlock.children[0].textContent.includes('社寮'), 'aliases 為空時應該退回顯示現名');
+});
+
+test('點擊 .identify-history-view-btn 會呼叫 onViewPlaceNameCard', () => {
+  const before = onViewPlaceNameCardCalls;
+  const viewBtn = findHistoryViewBtn();
+  assertTrue(!!viewBtn, '前置條件：應該要有「查看地名沿革」按鈕');
+
+  viewBtn.click();
+
+  assertEqual(onViewPlaceNameCardCalls, before + 1, '點擊按鈕應該呼叫一次 onViewPlaceNameCard');
+
+  // 還原成預設狀態，避免影響後面的測試（後面的測試都是在
+  // 「沒有地名今昔對照命中」的前提下驗證彈窗其他部分的行為）。
+  placeNameMatchToReturn = null;
+  identifyPinMarkerBtn.click();
+  assertTrue(!findHistoryNameBlock(), '還原後不應該再出現歷史地名區塊');
 });
 
 test('點擊「搜尋涵蓋此點之歷史圖層」按鈕會呼叫 onSearchLayers，並帶入正確的經緯度', () => {
