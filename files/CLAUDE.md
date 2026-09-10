@@ -19,6 +19,7 @@
 - 圖層類型自動打標：`node tools/tag-layer-types.js`（以 title/keywords/階層繼承自動判定 type，新增圖層後、打包 bundle 前執行）
 - WMTS bbox 空間索引重新產生：`node tools/fetch-wmts-bbox.js`（解析中研院各 WMTS Capabilities，將各圖層 `ows:WGS84BoundingBox` 寫入對應 `data/layers/<id>.json` 的 `layer.region.bbox`；只在建置階段執行，前端不重新下載解析 Capabilities）
 - 完整資料建置流程（bbox 索引＋打標＋打包一次跑完）：`npm run build:data`
+- 地名今昔對照資料重新產生：`npm run build:place-names`（讀工作區外的兩份內政部地名 CSV，輸出 `data/place-names.json`；預設路徑寫死在 `tools/build-place-names.js`，也可傳自訂 CSV 路徑當參數；**不含**在 `build:data` 裡，因為那兩份 CSV 不在 repo 內、無法假設每台機器都有）
 
 ## 圖層空間索引 (WMTS bbox 空間篩選)
 搜尋流程已從「大量 WMTS file-exists probe 猜測圖層是否存在」改為「先用 bbox 本地篩選、只對少量候選圖層 probe」：
@@ -39,15 +40,26 @@
 - **CSS specificity 陷阱**：`.floating-opacity.show.has-layer` 這類多 class 規則，要蓋過去的新規則 class 數量必須相等或更多，只靠「後宣告」贏不了 class 數較少的規則（style.css 對應規則已加註解，新增類似隱藏規則前先確認蓋得過去）。同類陷阱還有一種：用原生 `hidden` attribute（`el.hidden = true/false`）控制顯示與否時，瀏覽器內建 `[hidden]{display:none}` 是屬性選擇器、specificity 很低，如果同時用 **ID 選擇器**寫 `#foo{display:flex}` 想讓它「平常顯示」，ID 的 specificity 會贏過 `[hidden]`，導致 `hidden` 屬性怎麼設都藏不住——這種情境要改用 class 選擇器（`.foo{display:none;} .foo:not([hidden]){display:flex;}`），不要用 ID 選擇器直接宣告 `display`。
 - **手機版「台灣」「中國」分頁三段式瀏覽**（`src/ui/mobileTwBrowse.js`／`src/ui/mobileCnBrowse.js`，兩者架構、匯出介面、CSS class 完全對稱，`mobileCnBrowse.js` 刻意沿用 `mobile-tw-*` 這組 class 不另外新增一套）：國家篩選列（`src/ui/countryFilter.js`）選到「台灣」或「中國」且 `mq.matches`（<=768px）時，各自取代原本「來源(機構)→分類→次分類→圖層」手風琴；「其他」分頁與桌機一律維持原本手風琴不變，`sidebarUI.js` 的 `syncMobileBrowseView()` 同時管兩邊的顯示切換。三段式是「大區域→地區→圖層」：台灣是「全國/北部/中部/南部/東部/離島」（地區會合併同縣市的多個來源，例如 udd+taipei 都算「臺北」），中國是「全國/華北/華東/華中/華南/西南」（目前 11 個 cn 來源沒有東北／西北，比照台灣「只放實際有資料的大區域」原則不列空分類）。第三段**不是**自己刻的扁平清單，而是重用 `sidebarUI.js` 抽出的 `buildSourceGroup(src)`（跟桌機手風琴共用同一份「建立單一來源的分類/次分類/圖層區塊」邏輯，只是依目前選中的地區篩出對應來源、各自重新 `document.createElement` 建一份獨立 DOM，不會跟桌機那份手風琴搶節點）。來源→大區域的對照表（`MACRO_REGION_MAP`）跟來源→地區標籤的字尾規則（`regionLabelForSource()`）都寫在各自檔案裡，新增/搬動 tw 或 cn 來源時記得同步這兩份表，`tests/specs/mobile-tw-browse.test.mjs`／`tests/specs/mobile-cn-browse.test.mjs` 分別有全站 24 個 tw 來源／11 個 cn 來源的分組總數回歸測試會抓到漏改。
 
+## 地名今昔對照卡 (`data/place-names.json` + `src/features/placeNames.js`)
+整合在既有「地址／位置搜尋」流程裡的附加功能，**不是**獨立頁面或入口，跟 `data/historical-names.json`（`thm` 舊堡名輔助篩選用的小型對照表）完全獨立、互不匯入，兩者名稱相近但用途不同，改動前先確認改的是哪一份。
+- **資料來源與重新產生**：`tools/build-place-names.js`（CommonJS，`tools/package.json` 是 `{"type":"commonjs"}`）解析內政部「臺灣地區地名資料」CSV（聚落類＋行政區域類，原始檔在工作區外，**不進 repo**），輸出精簡的 `data/place-names.json`（約 4.6 萬筆、10MB，minify）。核心的 `parseCsv`／`splitAliases`／`rowToPlace` 是不做檔案 I/O 的純函式，方便不依賴外部 CSV 就能單元測試。
+- **延遲載入**：`src/features/placeNames.js` 只在使用者第一次觸發搜尋（`findPlaceNameCandidates()`）時才 `fetch()` 這份 10MB 檔案、之後全部吃記憶體快取，不放進 app 啟動流程（比照 `data/presets/` 的既有慣例）。
+- **比對規則**：現名或別名**精確相符**（不是模糊/子字串比對），且只保留有經緯度的候選（約 3.5 萬筆有座標）；`matchPlaceNames(places, query)` 是不碰 fetch 的純函式版本，單元測試優先呼叫這支。
+- **搜尋流程**（`src/ui/search.js` 的 `runImmediateSearch()`）：比對到 0 筆才退回原本的 `geocodeAddress` 流程（既有地址搜尋完全不受影響）；1 筆直接定位＋顯示卡片；多筆重用既有的 `#addressSuggest` 容器列出候選清單（**不要**另外新增獨立容器，否則手機版 `mobileLayout.js` 的 `relocateSearchBar()` 不會把它搬到頂部搜尋列，會出現「候選清單跑到看不到的地方」的 bug）。
+- **已踩過的坑**：`#addressSuggest` 的桌面版 CSS 是 `position:absolute; top:100%` 相對 `.search-block` 定位，這個定位祖先同時包住 `#locationResult`——只要已經有一次搜尋結果展開（含這張新卡片），`.search-block` 總高度被撐高，建議清單／候選清單會被推到目前結果面板下方、捲動範圍外看不到。已在 `renderSuggestList()`／`renderPlaceNameCandidateList()` 開頭呼叫 `repositionSuggestBelowInputRow()` 動態改寫 `top`（只在桌面版生效，判斷依據是 `#addressSuggest` 目前是否還在 `.search-block` 底下、不是被搬進 `#mobileSearchBar`），之後如果又在 `.search-block` 裡新增別的固定在輸入框下方的浮動元素，記得比照辦理。
+- **點位資訊視窗整合**：`initIdentifyPin({ getPlaceNameMatch, onViewPlaceNameCard })` 兩個可選參數（`main.js` 接到 `placeNames.js` 的 `getActivePlaceNameMatchAt` 與 `search.js` 的 `focusPlaceNameCard`）。誤差容許 `1e-4` 度（約 11 公尺）才視為同一點，刻意保守——只有使用者剛透過搜尋選定過某個地名、且點擊座標精準落在那個點附近時才顯示「歷史地名」提示列，不對任意地圖點擊做地名反查／距離推測。
+- **已知限制**：別名只取自 CSV 的 `AnotherName` 欄位，不等於正式舊名（有些真正舊稱只寫在 `PlaceMean` 沿革說明文字裡，程式不會反推）；代表點是資料庫座標點，不是歷史行政界線；約 1.1 萬筆行政區域類資料沒有座標，目前不會出現在搜尋結果裡。
+- 測試分散在 `tests/specs/place-names-data.test.mjs`（CSV 解析純函式）、`place-names-matching.test.mjs`（比對邏輯）、`place-name-card-ui.test.mjs`（卡片渲染／收合／候選清單）、`identify-pin.test.mjs`（新增的「歷史地名」小區塊案例）。
+
 ## 子代理分工與路由 (Subagents Routing)
 遇到具體模組需求時，主代理請即刻將任務派發給對應的 Subagent，勿在主階段載入過多非權責程式碼：
 
 | 任務領域 | 調度代理 | 權責檔案邊界 |
 | :--- | :--- | :--- |
 | 地圖底層、圖磚容錯、座標換算 | `map-core-agent` | `src/mapCore.js`, `src/core/`, `src/tileChecker.js`, `src/geocode.js` |
-| 介面樣式、RWD、側邊欄、時間軸滑桿 | `ui-frontend-agent` | `index.html`, `style.css`, `src/ui/`, `src/timelineUI.js`, `src/sidebarUI.js`, `src/features/customTimelineUI.js`（例外：自訂時間軸的浮動 dock UI，雖然放在 `src/features/` 底下，但純屬介面渲染，歸這個 agent） |
-| 模式切換、雙圖比對、繪圖工具、Store、地圖落點探針 | `feature-state-agent` | `src/features/`（含 `identifyPin.js`、`customTimeline.js`；**不含** `customTimelineUI.js`，見上一列）, `src/store.js`, `src/runtime.js`, `src/drawTool.js` |
-| 圖層 JSON、地名映射、圖資打包 | `data-processing-agent` | `data/layers/`, `data/historical-names.json`, `tools/` |
+| 介面樣式、RWD、側邊欄、時間軸滑桿、地址搜尋介面（含地名今昔對照卡渲染） | `ui-frontend-agent` | `index.html`, `style.css`, `src/ui/`（含 `src/ui/search.js`，地址搜尋 UI／候選清單／地名今昔對照卡渲染都在這裡）, `src/timelineUI.js`, `src/sidebarUI.js`, `src/features/customTimelineUI.js`（例外：自訂時間軸的浮動 dock UI，雖然放在 `src/features/` 底下，但純屬介面渲染，歸這個 agent） |
+| 模式切換、雙圖比對、繪圖工具、Store、地圖落點探針、地名比對邏輯 | `feature-state-agent` | `src/features/`（含 `identifyPin.js`、`customTimeline.js`、`placeNames.js`；**不含** `customTimelineUI.js`，見上一列）, `src/store.js`, `src/runtime.js`, `src/drawTool.js` |
+| 圖層 JSON、地名映射、圖資打包、地名今昔對照資料 | `data-processing-agent` | `data/layers/`, `data/historical-names.json`, `data/place-names.json`, `tools/`（含 `tools/build-place-names.js`） |
 | 整合回歸測試、品質把關 | `qa-testing-agent` | `tests/` |
 
 ## 開發守則與防護 (Guardrails)

@@ -3,7 +3,7 @@ import { test, run, assertEqual, assertTrue } from '../assert.mjs';
 import { loadAppData } from '../../src/data.js';
 import { initMapCore } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
-import { initSearchUI, renderPlaceNameCard, renderPlaceNameCandidateList, hidePlaceNameCard } from '../../src/ui/search.js';
+import { initSearchUI, renderPlaceNameCard, renderPlaceNameCandidateList, renderMergedSuggestList, hidePlaceNameCard } from '../../src/ui/search.js';
 
 /* ---------------------------------------------------------
    tests/specs/place-name-card-ui.test.mjs
@@ -71,6 +71,13 @@ test('renderPlaceNameCard()：呼叫後 #placeNameCard.hidden 變成 false，內
   assertTrue(cardText().includes('德化社'), '應該包含現名「德化社」');
 });
 
+test('renderPlaceNameCard()：呼叫後預設是收合狀態（collapsed class／aria-expanded=false／▸）', () => {
+  renderPlaceNameCard(place);
+  assertTrue(placeNameCardEl.classList.contains('collapsed'), '渲染後應該預設收合');
+  assertEqual(placeNameCardToggleBtn.getAttribute('aria-expanded'), 'false', 'aria-expanded 應該是 false');
+  assertEqual(placeNameCardToggleBtn.textContent, '▸', '收合按鈕文字應該是 ▸');
+});
+
 test('renderPlaceNameCard()：aliases 非空時會顯示別名／舊稱標籤與內容', () => {
   renderPlaceNameCard(place);
   const text = cardText();
@@ -126,21 +133,25 @@ test('點擊「展開全文」按鈕後顯示完整全文，按鈕文字變成�
   assertEqual(toggleBtn.textContent, '收合', '按鈕文字應該變成「收合」');
 });
 
-test('收合按鈕（#placeNameCardToggle）點擊後，#placeNameCard 加上 collapsed class', () => {
-  renderPlaceNameCard(place); // 確保目前是展開狀態
-  assertTrue(!placeNameCardEl.classList.contains('collapsed'), '前置條件：卡片預設應該是展開狀態');
+test('收合按鈕（#placeNameCardToggle）點擊後，#placeNameCard 移除 collapsed class（展開）', () => {
+  renderPlaceNameCard(place); // 渲染後預設是收合狀態
+  assertTrue(placeNameCardEl.classList.contains('collapsed'), '前置條件：卡片預設應該是收合狀態');
 
   placeNameCardToggleBtn.click();
 
-  assertTrue(placeNameCardEl.classList.contains('collapsed'), '點擊收合按鈕後應該加上 collapsed class');
+  assertTrue(!placeNameCardEl.classList.contains('collapsed'), '點擊收合按鈕後應該移除 collapsed class（展開）');
+  assertEqual(placeNameCardToggleBtn.getAttribute('aria-expanded'), 'true', '展開後 aria-expanded 應該是 true');
+  assertEqual(placeNameCardToggleBtn.textContent, '▾', '展開後按鈕文字應該是 ▾');
 });
 
-test('再次點擊收合按鈕會移除 collapsed class（切換回展開）', () => {
-  assertTrue(placeNameCardEl.classList.contains('collapsed'), '前置條件：目前應該是收合狀態');
+test('再次點擊收合按鈕會加回 collapsed class（切換回收合）', () => {
+  assertTrue(!placeNameCardEl.classList.contains('collapsed'), '前置條件：目前應該是展開狀態');
 
   placeNameCardToggleBtn.click();
 
-  assertTrue(!placeNameCardEl.classList.contains('collapsed'), '再次點擊應該移除 collapsed class');
+  assertTrue(placeNameCardEl.classList.contains('collapsed'), '再次點擊應該加回 collapsed class');
+  assertEqual(placeNameCardToggleBtn.getAttribute('aria-expanded'), 'false', '收合後 aria-expanded 應該是 false');
+  assertEqual(placeNameCardToggleBtn.textContent, '▸', '收合後按鈕文字應該是 ▸');
 });
 
 test('hidePlaceNameCard()：呼叫後 #placeNameCard.hidden 變成 true', () => {
@@ -158,6 +169,23 @@ test('renderPlaceNameCandidateList()：多筆候選會各自渲染成 .place-nam
   const items = addressSuggestEl.children.filter(c => c.classList.contains('place-name-suggest-item'));
   assertEqual(items.length, 2, '應該渲染出跟候選筆數相同的項目');
   assertTrue(addressSuggestEl.classList.contains('show'), '候選清單容器應該加上 show class');
+});
+
+test('renderMergedSuggestList()：地名候選在上、地址建議在下，且各自套用對應 class', () => {
+  const geocodeResults = [{ display_name: '南投縣魚池鄉德化社', lon: '120.9123', lat: '23.8567' }];
+  renderMergedSuggestList([place], geocodeResults);
+  assertTrue(addressSuggestEl.classList.contains('show'), '建議清單容器應該加上 show class');
+  const children = addressSuggestEl.children;
+  assertEqual(children.length, 2, '應該渲染出地名候選＋地址建議共 2 筆');
+  assertTrue(children[0].classList.contains('place-name-suggest-item'), '第一筆應該是地名候選項目');
+  assertTrue(children[1].classList.contains('address-suggest-item') && !children[1].classList.contains('place-name-suggest-item'), '第二筆應該是一般地址建議項目');
+});
+
+test('renderMergedSuggestList()：地名候選與地址建議皆為空陣列時，顯示空狀態訊息', () => {
+  renderMergedSuggestList([], []);
+  assertTrue(addressSuggestEl.classList.contains('show'), '空狀態也應該加上 show class（顯示提示文字）');
+  const empty = addressSuggestEl.children.find(c => c.classList.contains('address-suggest-empty'));
+  assertTrue(!!empty, '應該渲染出空狀態提示元素');
 });
 
 await run();

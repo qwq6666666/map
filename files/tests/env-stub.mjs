@@ -44,9 +44,20 @@ class FakeClassList {
   constructor(node){ this._node = node; }
   add(c){ this._node._classes.add(c); }
   remove(c){ this._node._classes.delete(c); }
+  // 比照真實瀏覽器 DOMTokenList.toggle()：回傳 boolean（toggle 後該
+  // class 是否存在），不能只做操作不回傳值——search.js 的地名今昔對照卡
+  // 收合按鈕 handler（`const collapsed = classList.toggle('collapsed')`）
+  // 直接依賴這個回傳值判斷目前是展開還是收合，回傳 undefined 會讓每次
+  // 點擊都被判定成同一個（falsy）分支，測試測不出真正的 toggle 行為。
   toggle(c, force){
-    if(force === undefined){ this._node._classes.has(c) ? this._node._classes.delete(c) : this._node._classes.add(c); }
-    else { force ? this._node._classes.add(c) : this._node._classes.delete(c); }
+    if(force === undefined){
+      if(this._node._classes.has(c)){ this._node._classes.delete(c); return false; }
+      this._node._classes.add(c);
+      return true;
+    }
+    if(force){ this._node._classes.add(c); return true; }
+    this._node._classes.delete(c);
+    return false;
   }
   contains(c){ return this._node._classes.has(c); }
 }
