@@ -45,44 +45,88 @@ import {
 import { DATA, layerKey, titleForKey, setCustomSourcesProvider } from '../data.js';
 import { buildCategoryList } from '../uiTree.js';
 import { createCountryFilterBar } from '../ui/countryFilter.js';
+import { buildMobileTwBrowseUI } from '../ui/mobileTwBrowse.js';
+import { buildMobileCnBrowseUI } from '../ui/mobileCnBrowse.js';
+import { initMobileCountryBrowse } from '../ui/mobileRegionBrowse.js';
 import { setLayerOpacity } from '../core/layerCache.js';
 import { map } from '../core/map.js';
 import { fetchCapabilities, listLayers, buildWmtsEntryConfig } from './wmtsImport.js';
 
 let multiCategoriesEl, multiOverlayBarInnerEl;
-const sourceWraps = []; // [{ src, wrap }]，供 syncMultiLayerCheckedClasses() 用來限定查詢範圍
+const sourceWraps = []; // [{ src, wrap }]，供國別篩選列（createCountryFilterBar）跟
+                         // initMobileCountryBrowse() 用來限定/篩選查詢範圍；
+                         // syncMultiLayerCheckedClasses() 已改用 data-source-id
+                         // 屬性查詢，不再依賴這份陣列（見下方說明）。
+
+// 手機版（<=768px）比照 sidebarUI.js／src/ui/mobileRegionBrowse.js 的既有寫法，
+// 「台灣」「中國」分頁改用大區域→地區→來源三段式瀏覽。typeof 防呆同理：
+// tests/env-stub.mjs 的假 window 沒有 matchMedia，沒防呆會讓既有測試直接噴例外。
+const mq = (typeof window.matchMedia === 'function')
+  ? window.matchMedia('(max-width:768px)')
+  : { matches: false, addEventListener(){}, addListener(){} };
+
+// 單一來源的 checkbox 多選手風琴區塊：同時給扁平清單跟三段式瀏覽共用
+// （見 initMultiOverlayUI() 內兩處呼叫），比照 sidebarUI.js 的 buildSourceGroup()。
+// dataset.sourceId 供 syncMultiLayerCheckedClasses() 用 CSS selector 反查，
+// 不管是哪一份 DOM（扁平手風琴或三段式瀏覽動態重建的節點）都能正確同步勾選樣式。
+function buildMultiSourceGroup(src){
+  const srcWrap = document.createElement('div');
+  srcWrap.className = 'source-group';
+  srcWrap.dataset.sourceId = src.id;
+
+  const srcHead = document.createElement('button');
+  srcHead.type = 'button';
+  srcHead.className = 'source-head';
+  const total = src.categories.reduce((s,c)=> s + (c.groups ? c.groups.reduce((gs,g)=>gs+g.layers.length,0) : c.layers.length), 0);
+  srcHead.innerHTML = `<span><span class="chevron">▸</span>${src.name}</span><span class="count">${total}</span>`;
+  srcHead.addEventListener('click', ()=> srcWrap.classList.toggle('open'));
+
+  const srcBody = document.createElement('div');
+  srcBody.className = 'source-body';
+  // singleOpen = false：checkbox 多選圖層樹要讓使用者能同時展開
+  // 多個分類／次分類跨著勾選，不套用手風琴收合行為（見 uiTree.js 註解）。
+  buildCategoryList(src.categories, srcBody, (layer) => toggleMultiOverlayLayer(layerKey(src, layer)), false, false);
+
+  srcWrap.appendChild(srcHead);
+  srcWrap.appendChild(srcBody);
+  return srcWrap;
+}
 
 export function initMultiOverlayUI(){
   multiCategoriesEl = document.getElementById('multiCategories');
   multiOverlayBarInnerEl = document.getElementById('multiOverlayBarInner');
 
-  const { bar: filterBar, refresh: refreshCountryFilter } = createCountryFilterBar(() => sourceWraps);
+  let mobileBrowse; // initMobileCountryBrowse() 回傳值，下面 onChange 只在使用者「切換」
+                     // 分頁時才會被呼叫，屆時一定已經指派完成（見下方賦值）
+  const { bar: filterBar, refresh: refreshCountryFilter, getCurrent: getCurrentCountry } =
+    createCountryFilterBar(() => sourceWraps, () => mobileBrowse.sync());
   multiCategoriesEl.appendChild(filterBar);
 
   DATA.LAYER_SOURCES.forEach((src) => {
-    const srcWrap = document.createElement('div');
-    srcWrap.className = 'source-group';
-
-    const srcHead = document.createElement('button');
-    srcHead.type = 'button';
-    srcHead.className = 'source-head';
-    const total = src.categories.reduce((s,c)=> s + (c.groups ? c.groups.reduce((gs,g)=>gs+g.layers.length,0) : c.layers.length), 0);
-    srcHead.innerHTML = `<span><span class="chevron">▸</span>${src.name}</span><span class="count">${total}</span>`;
-    srcHead.addEventListener('click', ()=> srcWrap.classList.toggle('open'));
-
-    const srcBody = document.createElement('div');
-    srcBody.className = 'source-body';
-    // singleOpen = false：checkbox 多選圖層樹要讓使用者能同時展開
-    // 多個分類／次分類跨著勾選，不套用手風琴收合行為（見 uiTree.js 註解）。
-    buildCategoryList(src.categories, srcBody, (layer) => toggleMultiOverlayLayer(layerKey(src, layer)), false, false);
-
-    srcWrap.appendChild(srcHead);
-    srcWrap.appendChild(srcBody);
+    const srcWrap = buildMultiSourceGroup(src);
     multiCategoriesEl.appendChild(srcWrap);
     sourceWraps.push({ src, wrap: srcWrap });
   });
 
   refreshCountryFilter();
+
+  mobileBrowse = initMobileCountryBrowse({
+    containerEl: multiCategoriesEl,
+    sources: DATA.LAYER_SOURCES,
+    buildSourceGroup: buildMultiSourceGroup,
+    sourceWraps,
+    configs: [
+      { country: 'tw', build: buildMobileTwBrowseUI },
+      { country: 'cn', build: buildMobileCnBrowseUI }
+    ],
+    mq,
+    getCurrentCountry
+  });
+  mobileBrowse.sync();
+  // 跨越 768px 門檻時（即使沒有切換國家分頁）也要重新同步顯示狀態，
+  // 比照 sidebarUI.js 監聽 matchMedia 變化的既有寫法。
+  if(mq.addEventListener) mq.addEventListener('change', () => mobileBrowse.sync());
+  else mq.addListener(() => mobileBrowse.sync());
 
   document.getElementById('multiOverlayClearBtn').addEventListener('click', clearMultiOverlayLayers);
 
@@ -346,19 +390,23 @@ export function renderCustomSourcesPanel(){
 
 // 側邊欄 checkbox 樹的勾選樣式：沿用既有的 .layer-item.active（跟疊圖
 // 模式單選時代表的意義不同，但視覺上都是「目前生效」高亮，可以共用
-// 同一顆 class，不需要另外定義一組樣式）。用 data-layer-id 反查，
-// 範圍限定在各自來源的 srcWrap 底下，避免不同來源剛好用了相同 id
-// 互相誤觸發（layer.id 只保證同一個來源內唯一）。
+// 同一顆 class，不需要另外定義一組樣式）。
+// 改用 data-source-id（見 buildMultiSourceGroup()）＋ data-layer-id 組成
+// CSS selector 在 multiCategoriesEl 整個範圍內查詢，不再依賴 sourceWraps
+// 反查——sourceWraps 只記錄「扁平手風琴」那份固定 DOM，三段式瀏覽
+// （手機版台灣／中國分頁）的 .source-group 是使用者切換大區域/地區時
+// 動態重建、丟棄的節點，不會出現在 sourceWraps 裡；若沿用舊寫法，使用者
+// 在三段式瀏覽裡勾選圖層時，高亮只會套用到扁平手風琴那份（使用者可能
+// 根本沒展開），看起來像「勾了但沒反應」。data-source-id 查詢不限定
+// 節點來源，扁平手風琴／三段式瀏覽（即使其中一份目前是 hidden）都能
+// 正確同步。
 export function syncMultiLayerCheckedClasses(){
   if(!multiCategoriesEl) return;
-  sourceWraps.forEach(({ wrap }) => {
-    wrap.querySelectorAll('.layer-item.active').forEach(el => el.classList.remove('active'));
-  });
+  multiCategoriesEl.querySelectorAll('.layer-item.active').forEach(el => el.classList.remove('active'));
   store.multiOverlayLayers.forEach(entry => {
     const parts = entry.key.split(':'); // ["hist", sourceId, id, fmt]
-    const wrapInfo = sourceWraps.find(w => w.src.id === parts[1]);
-    if(!wrapInfo) return;
-    wrapInfo.wrap.querySelectorAll(`.layer-item[data-layer-id="${parts[2]}"]`).forEach(el => el.classList.add('active'));
+    multiCategoriesEl.querySelectorAll(`.source-group[data-source-id="${parts[1]}"] .layer-item[data-layer-id="${parts[2]}"]`)
+      .forEach(el => el.classList.add('active'));
   });
 }
 

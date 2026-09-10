@@ -72,7 +72,6 @@ export const FIXED_AREA_ORDER = {
  */
 export function buildMobileTwBrowseUI(twSources, buildSourceGroup){
   return buildMobileRegionBrowseUI({
-    rootId: 'mobileTwBrowse',
     rootClassName: 'mobile-tw-browse',
     countryCode: 'tw',
     macroOrder: MACRO_REGION_ORDER,

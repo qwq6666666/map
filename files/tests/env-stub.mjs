@@ -153,8 +153,11 @@ export class FakeNode {
   get innerHTML(){ return this._innerHTML || ''; }
 }
 
-function matchesSelector(node, sel){
-  let rest = sel.trim();
+// 比對「單一 compound selector」（例如 `.foo`、`div`、`.foo[data-x="y"]`），
+// 不含空白／子孫選擇器。原本 matchesSelector() 的完整實作，改名讓下面的
+// matchesSelector() 可以疊加子孫選擇器（空白分隔）的比對邏輯。
+function matchesCompound(node, compoundSel){
+  let rest = compoundSel.trim();
   if(rest.startsWith('.')){
     const m = rest.match(/^\.([a-zA-Z0-9_-]+)/);
     if(!m || !node._classes || !node._classes.has(m[1])) return false;
@@ -177,6 +180,27 @@ function matchesSelector(node, sel){
     return node.dataset?.[key] !== undefined;
   }
   return false;
+}
+
+// 支援簡單的「子孫選擇器」：用空白分隔多個 compound selector（例如
+// features/multiOverlay.js 的
+// `.source-group[data-source-id="X"] .layer-item[data-layer-id="Y"]`）。
+// 語意跟真的 CSS 子孫選擇器一致——最後一段要比對到節點自己，前面每一段
+// 依序往上層祖先找（不要求緊鄰的父層）。刻意不支援 ">"（直接子代）或
+// `:scope` 等虛擬選擇器／逗號並列選擇器列表，這幾種目前沒有測試依賴
+// 到比對結果，維持原本「一律不比對、回傳 false」的行為，不擴充。
+function matchesSelector(node, sel){
+  const parts = sel.trim().split(/\s+/).filter(Boolean);
+  if(parts.length <= 1) return matchesCompound(node, sel.trim());
+  if(!matchesCompound(node, parts[parts.length - 1])) return false;
+  let ancestor = node.parentElement;
+  let partIdx = parts.length - 2;
+  while(partIdx >= 0){
+    if(!ancestor) return false;
+    if(matchesCompound(ancestor, parts[partIdx])) partIdx--;
+    ancestor = ancestor.parentElement;
+  }
+  return true;
 }
 
 const elementCache = {};

@@ -2051,6 +2051,18 @@
     /* 第三段：buildSourceGroup() 建出來的 .source-group／.source-head／
        .source-body 沿用桌機既有樣式，這裡只是包一層容器，不需要額外規則。 */
     .mobile-tw-sources{display:flex; flex-direction:column; gap:0;}
+
+    /* 防禦性規則：左右比對／多重疊圖的 .layer-picker-panel（約 300px／
+       82vw，比側邊欄窄很多）如果也塞進三段式瀏覽（見
+       src/ui/mobileRegionBrowse.js 的 initMobileCountryBrowse()），地區
+       chip 列改成可換行，不要只靠 .mobile-tw-macro-row/.mobile-tw-area-row
+       原本的 overflow-x:auto 水平捲動——面板本身已經是 overflow-y:auto
+       垂直捲動容器，疊上水平捲動的巢狀捲動體驗較差，且窄面板放不下一整排
+       chip 時用捲動也容易讓使用者以為按鈕被裁切。 */
+    .layer-picker-panel .mobile-tw-macro-row,
+    .layer-picker-panel .mobile-tw-area-row{
+      flex-wrap:wrap; justify-content:flex-start; overflow-x:visible;
+    }
   }
 
   @media (max-width:480px){

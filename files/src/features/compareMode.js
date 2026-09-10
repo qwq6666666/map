@@ -26,6 +26,9 @@ import { collapseSidebar } from '../ui/sidebarToggle.js';
 import { getOrCreateSource } from '../core/layerCache.js';
 import { getProtectedKeys } from '../core/protectedKeys.js';
 import { createCountryFilterBar } from '../ui/countryFilter.js';
+import { buildMobileTwBrowseUI } from '../ui/mobileTwBrowse.js';
+import { buildMobileCnBrowseUI } from '../ui/mobileCnBrowse.js';
+import { initMobileCountryBrowse } from '../ui/mobileRegionBrowse.js';
 
 let swipeDividerEl, compareWrapA, compareWrapB;
 
@@ -214,6 +217,29 @@ function initSwipeDivider(){
 /* ---------------------------------------------------------
    比對模式：圖層選擇器（按鈕 + 手風琴浮動面板，取代長串下拉選單）
 --------------------------------------------------------- */
+// 單一來源的點選式手風琴區塊：選好圖層就直接 onSelect() 觸發、面板關閉，
+// 不需要維護勾選高亮狀態（跟 multiOverlay.js 的 checkbox 多選版本不同，
+// 這裡不用加 data-source-id）。onSelect 是 buildPickerPanel() 外層傳進來
+// 的閉包，這裡當參數接住做 partial application，讓這個函式能符合
+// initMobileCountryBrowse() 期待的 (src) => HTMLElement 簽名。
+function buildCompareSourceGroup(src, onSelect){
+  const srcWrap = document.createElement('div');
+  srcWrap.className = 'source-group';
+  const srcHead = document.createElement('button');
+  srcHead.type = 'button';
+  srcHead.className = 'source-head';
+  const total = src.categories.reduce((s,c)=> s + (c.groups ? c.groups.reduce((gs,g)=>gs+g.layers.length,0) : c.layers.length), 0);
+  srcHead.innerHTML = `<span><span class="chevron">▸</span>${src.name}</span><span class="count">${total}</span>`;
+  srcHead.addEventListener('click', ()=> srcWrap.classList.toggle('open'));
+  const srcBody = document.createElement('div');
+  srcBody.className = 'source-body';
+  buildCategoryList(src.categories, srcBody, (layer)=>
+    onSelect(`hist:${src.id}:${layer.id}:${layer.fmt}`), false);
+  srcWrap.appendChild(srcHead);
+  srcWrap.appendChild(srcBody);
+  return srcWrap;
+}
+
 function buildPickerPanel(panelEl, onSelect){
   panelEl.innerHTML = '';
 
@@ -239,30 +265,46 @@ function buildPickerPanel(panelEl, onSelect){
   panelEl.appendChild(baseWrap);
 
   // WMTS 圖資來源 → 分類 → 圖層
-  const sourceWraps = []; // [{ src, wrap }]，供下面篩選列使用
-  const { bar: filterBar, refresh: refreshCountryFilter } = createCountryFilterBar(() => sourceWraps);
+  const sourceWraps = []; // [{ src, wrap }]，供下面篩選列／三段式瀏覽使用
+  const buildSourceGroup = (src) => buildCompareSourceGroup(src, onSelect);
+
+  // 手機版（<=768px）「台灣」「中國」分頁改用大區域→地區→來源三段式瀏覽，
+  // 比照 multiOverlay.js／sidebarUI.js 的既有寫法。buildPickerPanel() 每次
+  // 呼叫都會重建整個面板（A、B 兩側各自獨立呼叫一次），mq 在函式內部建立
+  // 即可，不是熱路徑，不用擔心重複建立的成本；typeof 防呆同理：
+  // tests/env-stub.mjs 的假 window 沒有 matchMedia。
+  const mq = (typeof window.matchMedia === 'function')
+    ? window.matchMedia('(max-width:768px)')
+    : { matches: false, addEventListener(){}, addListener(){} };
+
+  let mobileBrowse; // 見下方賦值；onChange 只在使用者「切換」分頁時才會被呼叫，屆時已指派完成
+  const { bar: filterBar, refresh: refreshCountryFilter, getCurrent: getCurrentCountry } =
+    createCountryFilterBar(() => sourceWraps, () => mobileBrowse.sync());
   panelEl.appendChild(filterBar);
 
   DATA.LAYER_SOURCES.forEach(src=>{
-    const srcWrap = document.createElement('div');
-    srcWrap.className = 'source-group';
-    const srcHead = document.createElement('button');
-    srcHead.type = 'button';
-    srcHead.className = 'source-head';
-    const total = src.categories.reduce((s,c)=> s + (c.groups ? c.groups.reduce((gs,g)=>gs+g.layers.length,0) : c.layers.length), 0);
-    srcHead.innerHTML = `<span><span class="chevron">▸</span>${src.name}</span><span class="count">${total}</span>`;
-    srcHead.addEventListener('click', ()=> srcWrap.classList.toggle('open'));
-    const srcBody = document.createElement('div');
-    srcBody.className = 'source-body';
-    buildCategoryList(src.categories, srcBody, (layer)=>
-      onSelect(`hist:${src.id}:${layer.id}:${layer.fmt}`), false);
-    srcWrap.appendChild(srcHead);
-    srcWrap.appendChild(srcBody);
+    const srcWrap = buildSourceGroup(src);
     panelEl.appendChild(srcWrap);
     sourceWraps.push({ src, wrap: srcWrap });
   });
 
   refreshCountryFilter();
+
+  mobileBrowse = initMobileCountryBrowse({
+    containerEl: panelEl,
+    sources: DATA.LAYER_SOURCES,
+    buildSourceGroup,
+    sourceWraps,
+    configs: [
+      { country: 'tw', build: buildMobileTwBrowseUI },
+      { country: 'cn', build: buildMobileCnBrowseUI }
+    ],
+    mq,
+    getCurrentCountry
+  });
+  mobileBrowse.sync();
+  if(mq.addEventListener) mq.addEventListener('change', () => mobileBrowse.sync());
+  else mq.addListener(() => mobileBrowse.sync());
 }
 
 function setupPicker(side, btnEl, labelEl, panelEl){

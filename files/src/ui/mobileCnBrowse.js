@@ -13,8 +13,11 @@
    mobile-tw-sources），不新增一套 mobile-cn-* 樣式——這些 class 雖然
    歷史命名帶了 tw，但 style.css 對應規則本身是純結構性的（chip 列、
    手風琴容器排版），沒有任何台灣專屬的視覺邏輯，兩個分頁共用完全
-   沒問題，可以省下一份重複的 CSS。只有根節點 id 改成 mobileCnBrowse，
-   避免跟 #mobileTwBrowse 撞 id。
+   沒問題，可以省下一份重複的 CSS。根節點刻意不掛 id（也不需要跟
+   #mobileTwBrowse 之類的名稱區分）——呼叫端（sidebarUI.js 的
+   initMobileCountryBrowse()）用建立當下拿到的 DOM 參考直接操作，
+   不透過 id/class 查詢，多個分頁、甚至同一分頁在多重疊圖／比對模式
+   下建立的多份實例都不會互相撞名。
 
    這支檔案只留「中國專屬設定資料」（REGION_LABEL_OVERRIDES／
    MACRO_REGION_MAP／FIXED_AREA_ORDER）與對應的純函式
@@ -81,7 +84,6 @@ export const FIXED_AREA_ORDER = {
  */
 export function buildMobileCnBrowseUI(cnSources, buildSourceGroup){
   return buildMobileRegionBrowseUI({
-    rootId: 'mobileCnBrowse',
     rootClassName: 'mobile-tw-browse',
     countryCode: 'cn',
     macroOrder: MACRO_REGION_ORDER,

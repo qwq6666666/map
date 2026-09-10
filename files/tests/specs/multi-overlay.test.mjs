@@ -111,6 +111,29 @@ test('複合疊圖模式跟疊圖模式的單選狀態互不干擾', () => {
   clearMultiOverlayLayers();
 });
 
+test('syncMultiLayerCheckedClasses：不同來源剛好有相同 layer.id 時，高亮只套用到勾選的那個來源（data-source-id 隔離）', () => {
+  // sinica／chiayi／tainan 三個來源剛好都有一張 id 為 JM20K_1904、fmt 為
+  // jpg 的圖層（真實資料裡的巧合），拿來驗證 syncMultiLayerCheckedClasses()
+  // 用 `.source-group[data-source-id] .layer-item[data-layer-id]` 這組
+  // CSS selector 查詢時，不會因為 layer.id 相同就誤觸發到別的來源。
+  const sameId = 'JM20K_1904';
+  const keyChiayi = `hist:chiayi:${sameId}:jpg`;
+  clearMultiOverlayLayers();
+  setMode('multi');
+  toggleMultiOverlayLayer(keyChiayi);
+
+  const multiCategoriesEl = document.getElementById('multiCategories');
+  const chiayiItem = multiCategoriesEl.querySelector(`.source-group[data-source-id="chiayi"] .layer-item[data-layer-id="${sameId}"]`);
+  const tainanItem = multiCategoriesEl.querySelector(`.source-group[data-source-id="tainan"] .layer-item[data-layer-id="${sameId}"]`);
+  assertTrue(!!chiayiItem, '應該找得到 chiayi 對應的圖層節點');
+  assertTrue(!!tainanItem, '應該找得到 tainan 對應的圖層節點（用來確認沒被誤觸發）');
+  assertTrue(chiayiItem.classList.contains('active'), '勾選的 chiayi 圖層應該高亮');
+  assertTrue(!tainanItem.classList.contains('active'), 'tainan 剛好有相同 layer.id，不應該被誤觸發高亮');
+
+  setMode('overlay');
+  clearMultiOverlayLayers();
+});
+
 test('四種模式可以互相切換，不會拋出例外', async () => {
   setMode('overlay');
   assertEqual(store.mode, 'overlay', '切到 overlay');

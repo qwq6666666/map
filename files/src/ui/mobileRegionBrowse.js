@@ -67,7 +67,6 @@ export function guessRegionFromLastLocation(candidateLabels, expectedCountryCode
  * 建立手機版分頁的大區域→地區→來源手風琴 UI，回傳可直接 append 進
  * #categories 的容器（不會自行 append，由呼叫端決定時機）。
  * @param {object} opts
- * @param {string} opts.rootId 容器 id（例如 'mobileTwBrowse'）
  * @param {string} opts.rootClassName 容器 className（沿用既有 CSS class）
  * @param {string} opts.countryCode 傳給 guessRegionFromLastLocation 的國別碼
  * @param {string[]} opts.macroOrder 大區域按鈕順序
@@ -81,11 +80,10 @@ export function guessRegionFromLastLocation(candidateLabels, expectedCountryCode
  *   桌機那份手風琴共用節點，也不需要手動同步兩者的展開狀態）。
  */
 export function buildMobileRegionBrowseUI(opts, sources, buildSourceGroup){
-  const { rootId, rootClassName, countryCode, macroOrder, macroRegionForSource, regionLabelForSource, fixedAreaOrder } = opts;
+  const { rootClassName, countryCode, macroOrder, macroRegionForSource, regionLabelForSource, fixedAreaOrder } = opts;
   const helpers = { macroRegionForSource, regionLabelForSource, fixedAreaOrder };
 
   const root = document.createElement('div');
-  root.id = rootId;
   root.className = rootClassName;
 
   const macroRow = document.createElement('div');
@@ -168,4 +166,50 @@ export function buildMobileRegionBrowseUI(opts, sources, buildSourceGroup){
   root.appendChild(sourcesWrap);
 
   return root;
+}
+
+/**
+ * 建立「手機版依國別切換：三段式瀏覽 vs 原本扁平手風琴」的顯示同步邏輯。
+ * 從 src/sidebarUI.js 的 MOBILE_BROWSE_CONFIGS／syncMobileBrowseView()
+ * 抽出的通用版本，行為完全比照該處既有寫法（不是重新發明）：對每個
+ * { country, build } 設定，用 sources 篩出該國別子集丟給 build() 建立
+ * 三段式 UI 並 append 進 containerEl；回傳的 sync() 依 mq.matches ＋
+ * getCurrentCountry() 決定要顯示三段式還是原本扁平手風琴，同時把
+ * sourceWraps 裡對應國別的來源加上/移除 mobile-tw-accordion-hidden。
+ *
+ * 不會自動呼叫一次 sync()，呼叫端要記得初始化時（以及跨越 768px
+ * 門檻的 matchMedia change）自己呼叫，比照 sidebarUI.js 現有寫法。
+ *
+ * @param {object} params
+ * @param {HTMLElement} params.containerEl 三段式 UI 容器要 append 進去的父節點（例如 #categories）
+ * @param {Array} params.sources 全部來源（未篩國別），例如 DATA.LAYER_SOURCES
+ * @param {(src:object) => HTMLElement} params.buildSourceGroup 單一來源手風琴建置函式
+ * @param {Array<{src:object, wrap:HTMLElement}>} params.sourceWraps 扁平手風琴各來源的 { src, wrap }
+ * @param {Array<{country:string, build:Function}>} params.configs 各國別的 buildMobileTwBrowseUI/buildMobileCnBrowseUI 等建置函式
+ * @param {MediaQueryList} params.mq 手機版寬度判斷用的 matchMedia 物件
+ * @param {() => string} params.getCurrentCountry 取得目前選中國別分頁的函式
+ * @returns {{ sync: () => void }}
+ */
+export function initMobileCountryBrowse({ containerEl, sources, buildSourceGroup, sourceWraps, configs, mq, getCurrentCountry }){
+  const entries = []; // [{ country, el }]
+
+  configs.forEach(({ country, build }) => {
+    const filtered = sources.filter(s => s.country === country);
+    const el = build(filtered, buildSourceGroup);
+    containerEl.appendChild(el);
+    entries.push({ country, el });
+  });
+
+  function sync(){
+    const current = getCurrentCountry();
+    entries.forEach(({ country, el }) => {
+      const show = mq.matches && current === country;
+      el.hidden = !show;
+      sourceWraps.forEach(({ src, wrap }) => {
+        if(src.country === country) wrap.classList.toggle('mobile-tw-accordion-hidden', show);
+      });
+    });
+  }
+
+  return { sync };
 }
