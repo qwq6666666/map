@@ -31,6 +31,7 @@
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
   script-src 'self' https://cdn.jsdelivr.net;
+  worker-src 'self' blob:;
   style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com;
   font-src https://fonts.gstatic.com;
   img-src 'self' data: blob: https:;
@@ -53,6 +54,14 @@
 <body>
 
 <div id="map"></div>
+
+<!-- 地圖瓦片載入完成前的置中提示層：src/core/map.js 會在地圖第一次完整
+     渲染完成時對 body 加上 .map-ready，屆時這層會淡出並停用互動事件，
+     這裡本身不掛任何 JS 監聽。 -->
+<div id="mapLoading" class="map-loading" aria-hidden="true">
+  <div class="map-loading-spinner"></div>
+  <span>地圖載入中…</span>
+</div>
 
 <!-- 手機版頂部搜尋列（<=768px）：src/ui/mobileLayout.js 會把桌面版
      .search-block 裡的 .search-row／#addressSuggest 實際搬進這個容器

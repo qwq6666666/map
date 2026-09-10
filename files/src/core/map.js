@@ -48,6 +48,12 @@ export const map = new ol.Map({
   })
 });
 
+// 地圖首次完整渲染完成時通知 UI 層，讓 loading 提示可以淡出
+// （只做這一件事，不涉及 loading UI 本身的 HTML/CSS）。
+map.once('rendercomplete', () => {
+  document.body.classList.add('map-ready');
+});
+
 /* ---------------------------------------------------------
    點擊展開圖資來源（最大階層，例如「宜蘭百年歷史地圖」）時，
    自動將地圖移動、縮放到該來源大致涵蓋的地理範圍。這是一次性的

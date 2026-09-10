@@ -17,7 +17,35 @@
      所有用 .hidden 屬性控制顯示的元素都適用，不用每個 class 各自補一次。 */
   [hidden]{display:none !important;}
   html,body{margin:0;padding:0;height:100%;font-family:var(--sans);background:var(--ink);}
-  #map{position:absolute;inset:0;background:#0e1512;}
+  #map{position:absolute;inset:0;background:var(--paper-dim);}
+
+  /* ---------- Map Loading Overlay ---------- */
+  /* 地圖瓦片載入完成前的置中提示，避免 #map 純色背景在弱網/手機情境下
+     被誤認為當機。body.map-ready 由 src/core/map.js 在地圖第一次完整
+     渲染完成時加上，這裡只靠 CSS 淡出，不額外掛 JS。 */
+  .map-loading{
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:14px;
+    z-index:5;
+    opacity:1;
+    transition:opacity .4s ease;
+  }
+  .map-loading-spinner{
+    width:32px; height:32px;
+    border:3px solid var(--paper);
+    border-top-color:var(--brass);
+    border-radius:50%;
+    animation:map-loading-spin .8s linear infinite;
+  }
+  @keyframes map-loading-spin{
+    to{transform:rotate(360deg);}
+  }
+  body.map-ready .map-loading{opacity:0; pointer-events:none;}
 
   /* ---------- Sidebar ---------- */
   #sidebar{
@@ -1722,6 +1750,19 @@
     }
     .draw-tool-btn{padding:9px 4px; min-height:44px;}
     .draw-color-swatch, .draw-color-custom{width:26px; height:26px;}
+
+    /* Bottom Sheet 展開(75vh)時，繪圖工具面板下半部按鈕（刪除／清空／
+       匯出GeoJSON／地圖截圖／匯入GeoJSON）會被 Sheet 頭部區域疊住或裁切
+       （實機回報）。Sheet 展開高度固定在 --mobile-sheet-full（75% *
+       --vvh），其頂邊界距離畫面頂端 = 25% * --vvh；面板本身 top 偏移是
+       topbar 高度＋安全區＋10px，兩者相減、再扣一點緩衝，才是面板在
+       Sheet 展開時真正不會被蓋住的可用高度。body.mobile-sheet-open 由
+       src/ui/mobileLayout.js 的 initSheetOpenStateSync() 同步。selector
+       用 2 個 class 蓋過上面 .draw-toolbar（1 個 class）的 max-height。 */
+    body.mobile-sheet-open .draw-toolbar{
+      max-height:calc(var(--vvh, 100svh) * 0.25 - env(safe-area-inset-top) - var(--mobile-topbar-h) - 20px);
+      overflow-y:auto; -webkit-overflow-scrolling:touch;
+    }
 
     .locate-toast{top:calc(env(safe-area-inset-top) + var(--mobile-topbar-h) + 10px); right:10px;}
 
