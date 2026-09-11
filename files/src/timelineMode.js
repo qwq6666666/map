@@ -2,11 +2,12 @@
    timelineMode.js — 時間軸模式：依「目前地圖畫面」瀏覽台灣百年歷史地圖
    ---------------------------------------------------------
    跟 searchUI.js 的「搜尋結果」時間軸不同，這裡不需要先搜尋地址，
-   而是直接拿地圖目前的中心點座標，只在 sinica（台灣百年歷史地圖）
-   這一個來源裡逐筆探測有沒有資料，畫成時間軸。之所以只限定 sinica，
-   是因為它是全站唯一「同一種地形圖、橫跨 1895~2017 上百年、年份分布
-   平均」的來源，適合做時間軸；其他來源不是內容類型混雜（水利圖／
-   都市計畫圖／航照混在一起比較沒有意義），就是像 thm 那樣全部集中在
+   而是直接拿地圖目前的中心點座標，在使用者選定的來源（見
+   TIMELINE_SOURCES：sinica 台灣百年歷史地圖、udd 臺北市歷史圖資）
+   裡逐筆探測有沒有資料，畫成時間軸。之所以只限定這兩個來源，是因為
+   它們各自都有「同一種地形圖／航照、橫跨數十年、年份分布平均」的
+   乾淨系列，適合做時間軸；其他來源不是內容類型混雜（水利圖／都市
+   計畫圖／航照混在一起比較沒有意義），就是像 thm 那樣全部集中在
    同一年，時間軸對它們沒有幫助。
 
    使用共用的 TileChecker（節流＋快取）。這裡刻意不做「移動地圖就自動
@@ -49,16 +50,31 @@ const PLAN_B_LAYER_IDS = new Set([
   'TM50K_1954', 'TM50K_1956', 'TM50K_1990', 'TM50K_1996', 'TM50K_2003'
 ]);
 
-// 三種瀏覽模式：只看 1:25,000、只看 1:50,000、或兩者合併（一樣照時間順序
-// 排列，只是候選清單從其中一份變成兩份的聯集）。合併預設不開啟，因為
-// 兩種精細程度的地圖混在同一條時間軸上比較，畫面差異有一部分其實是
-// 「換了比例尺」造成的、不是「時間演變」造成的，容易誤導；但保留當
-// 使用者自己想看年份覆蓋更密的選項。
-const SCALE_MODES = {
-  '25k': { ids: PLAN_A_LAYER_IDS, label: '1:25,000 系列歷史地形圖' },
-  '50k': { ids: PLAN_B_LAYER_IDS, label: '1:50,000 系列歷史地形圖' },
-  'mix': { ids: new Set([...PLAN_A_LAYER_IDS, ...PLAN_B_LAYER_IDS]), label: '1:25,000／1:50,000 混合系列歷史地形圖' }
+// 時間軸來源設定：每個來源底下有數個「瀏覽模式」，每個模式用 match()
+// 判斷某筆圖層是否要納入候選（sinica 沿用既有的手動 id 清單；udd 兩個
+// 分類名稱跟其他主題圖資完全不重疊，直接比對分類名稱字串即可，不需要
+// 像 sinica 一樣手動列 id）。btnLabel 是切換按鈕上的短文字，label 是
+// 用於狀態訊息（「正在確認…是否有資料」）的完整句子。
+export const TIMELINE_SOURCES = {
+  sinica: {
+    sourceId: 'sinica',
+    label: '台灣百年地形圖',
+    modes: {
+      '25k': { match: (layer) => PLAN_A_LAYER_IDS.has(layer.id), label: '1:25,000 系列歷史地形圖', btnLabel: '1:25,000' },
+      '50k': { match: (layer) => PLAN_B_LAYER_IDS.has(layer.id), label: '1:50,000 系列歷史地形圖', btnLabel: '1:50,000' },
+      'mix': { match: (layer) => PLAN_A_LAYER_IDS.has(layer.id) || PLAN_B_LAYER_IDS.has(layer.id), label: '1:25,000／1:50,000 混合系列歷史地形圖', btnLabel: '混合' }
+    }
+  },
+  udd: {
+    sourceId: 'udd',
+    label: '臺北市歷史圖資',
+    modes: {
+      topo: { match: (layer, catName) => catName === '數值地形圖（歷年版）', label: '歷年地形圖', btnLabel: '歷年地形圖' },
+      aerial: { match: (layer, catName) => catName === '航空測量影像（歷年版）', label: '歷年航空影像', btnLabel: '歷年航空影像' }
+    }
+  }
 };
+let currentSourceKey = 'sinica';
 let currentScaleMode = '25k';
 
 // pool 明確指定共用 globalTileRequestPool，理由同 features/search.js：
@@ -69,6 +85,7 @@ let mapRef = null;
 let containerEl = null;
 let refreshBtn = null;
 let scaleSwitchEl = null;
+let sourceSwitchEl = null;
 let refreshToken = 0;
 let lastProbedTileKey = null; // 上一次真的送出探測時，地圖中心點所在的圖磚（z/x/y）
 let preloadOverlayKeysFn = null; // mapCore.js 的 preloadOverlayKeys()，由 initTimelineMode() 傳入
@@ -90,18 +107,19 @@ function refreshNow(){
   lastProbedTileKey = `${tile.z}/${tile.x}/${tile.y}`;
   if(refreshBtn) refreshBtn.classList.remove('stale'); // 重新整理過了，取消「地圖已移動」提示
 
-  const sinica = DATA.LAYER_SOURCES.find(s => s.id === 'sinica');
+  const sourceConfig = TIMELINE_SOURCES[currentSourceKey];
+  const sinica = DATA.LAYER_SOURCES.find(s => s.id === sourceConfig.sourceId);
   if(!sinica){
-    containerEl.innerHTML = '<p class="avail-empty">找不到「台灣百年歷史地圖」這個來源。</p>';
+    containerEl.innerHTML = `<p class="avail-empty">找不到「${sourceConfig.label}」這個來源。</p>`;
     return;
   }
 
-  const activeMode = SCALE_MODES[currentScaleMode];
+  const activeMode = sourceConfig.modes[currentScaleMode];
   const candidates = [];
   sinica.categories.forEach(cat => {
     const layersArr = cat.groups ? cat.groups.flatMap(g => g.layers) : cat.layers;
     layersArr.forEach(layer => {
-      if(activeMode.ids.has(layer.id)) candidates.push({ src: sinica, layer });
+      if(activeMode.match(layer, cat.category)) candidates.push({ src: sinica, layer });
     });
   });
 
@@ -173,6 +191,7 @@ export function initTimelineMode(map, preloadOverlayKeysFnParam){
   containerEl = document.getElementById('mapTimelineBarInner');
   refreshBtn = document.getElementById('mapTimelineRefreshBtn');
   scaleSwitchEl = document.getElementById('mapTimelineScaleSwitch');
+  sourceSwitchEl = document.getElementById('mapTimelineSourceSwitch');
   preloadOverlayKeysFn = preloadOverlayKeysFnParam;
 
   refreshBtn.addEventListener('click', refreshNow);
@@ -184,6 +203,24 @@ export function initTimelineMode(map, preloadOverlayKeysFnParam){
     currentScaleMode = btn.dataset.scale;
     refreshNow();
   });
+
+  if(sourceSwitchEl){
+    sourceSwitchEl.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button[data-source]');
+      if(!btn || btn.classList.contains('active')) return;
+      sourceSwitchEl.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+      currentSourceKey = btn.dataset.source;
+
+      // 換來源後，切換模式底下的比例尺／類型清單完全不同，重建按鈕。
+      const modes = TIMELINE_SOURCES[currentSourceKey].modes;
+      const modeKeys = Object.keys(modes);
+      scaleSwitchEl.innerHTML = modeKeys.map((key, i) =>
+        `<button type="button" data-scale="${key}"${i === 0 ? ' class="active"' : ''}>${modes[key].btnLabel}</button>`
+      ).join('');
+      currentScaleMode = modeKeys[0];
+      refreshNow();
+    });
+  }
 
   map.on('moveend', () => {
     if(store.mode !== 'timeline') return;

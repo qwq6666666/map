@@ -888,16 +888,25 @@
   #mapTimelineBar.show{display:block;}
   .map-timeline-bar-inner .avail-empty{margin:4px 2px; color:rgba(255,255,255,.75);}
   .map-timeline-bar-head{
-    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:6px 8px;
     padding-bottom:6px; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,.18);
   }
-  .map-timeline-scale-switch{display:flex; gap:4px;}
-  .map-timeline-scale-switch button{
+  /* 來源切換排在最前面、獨占整列，避免跟比例尺切換／重新整理按鈕
+     擠在同一行造成截斷；比例尺切換與重新整理按鈕維持原本第二列。
+     #mapTimelineScaleSwitch 之後會被 JS 依來源動態重建 innerHTML
+     （sinica／udd 的比例尺選項不同），所以按鈕樣式一律用 class／子元素
+     選擇器，不綁死特定 data-scale 值。 */
+  .map-timeline-source-switch{flex:0 0 100%; display:flex; gap:4px; flex-wrap:wrap;}
+  .map-timeline-scale-switch{display:flex; gap:4px; flex-wrap:wrap;}
+  .map-timeline-scale-switch button,
+  .map-timeline-source-switch button{
     font-size:10.5px; padding:3px 8px; background:transparent; color:var(--paper);
     border:1px solid rgba(255,255,255,.4); border-radius:10px; cursor:pointer; white-space:nowrap;
   }
-  .map-timeline-scale-switch button:hover{background:rgba(255,255,255,.15); border-color:var(--paper);}
-  .map-timeline-scale-switch button.active{background:var(--brass); color:var(--ink); border-color:var(--brass);}
+  .map-timeline-scale-switch button:hover,
+  .map-timeline-source-switch button:hover{background:rgba(255,255,255,.15); border-color:var(--paper);}
+  .map-timeline-scale-switch button.active,
+  .map-timeline-source-switch button.active{background:var(--brass); color:var(--ink); border-color:var(--brass);}
   /* .map-timeline-refresh-btn 這個 class 同時也被 #multiOverlayBar／
      自訂圖層清單等其他淺色面板的按鈕共用（見該 class 原本定義處），
      這裡只用 ID 選擇器疊加深色配色，不動共用 class 本身。 */
@@ -2058,8 +2067,9 @@
       max-height:min(160px, 26vh);
       padding:6px 10px 8px;
     }
-    .map-timeline-bar-head{padding-bottom:3px; margin-bottom:4px;}
-    #mapTimelineBar .map-timeline-scale-switch button{padding:2px 6px; font-size:10px;}
+    .map-timeline-bar-head{padding-bottom:3px; margin-bottom:4px; gap:4px 6px;}
+    #mapTimelineBar .map-timeline-scale-switch button,
+    #mapTimelineBar .map-timeline-source-switch button{padding:2px 6px; font-size:10px;}
     #mapTimelineBar .map-timeline-refresh-btn{padding:2px 7px; font-size:10px;}
     #mapTimelineBar .timeline-dots{padding:2px 2px 2px; gap:4px;}
     #mapTimelineBar .timeline-dot-wrap{min-width:22px;}
