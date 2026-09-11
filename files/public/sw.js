@@ -58,7 +58,7 @@ const TILE_CACHE = `tile-cache-${TILE_CACHE_VERSION}`;
 // App Shell／Data 改版而被清掉。
 const MANAGED_CACHE_PREFIXES = ['app-shell-', 'data-', 'shell-cache-', 'meta-cache-'];
 
-const TILE_LRU_LIMIT = 1200;
+const TILE_LRU_LIMIT = 5000;
 const TILE_LRU_KEY = new Request('https://tile-lru.local/__index__');
 
 self.addEventListener('install', () => {
