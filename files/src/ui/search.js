@@ -23,7 +23,7 @@ import { syncActiveLayerItemClasses, preloadOverlayKeys } from '../core/layerMan
 import { findAvailableLayersAt, activateFromSearch, bumpSearchToken, isSearchStale, SEARCH_ZOOM, sortAvailableByYear, groupAvailableByType, splitAvailableByYearKnown, buildCoordInfoElement } from '../features/search.js';
 import { layerKey } from '../data.js';
 import { createCustomTimelineFromSelection, previewLayerOnMap, clearPreviewLayer } from '../features/customTimeline.js';
-import { findPlaceNameCandidates, setActivePlaceNameMatch, clearActivePlaceNameMatch, sourceTypeLabel } from '../features/placeNames.js';
+import { findPlaceNameCandidates, findNearbyPlaceNamesAsync, setActivePlaceNameMatch, clearActivePlaceNameMatch, sourceTypeLabel } from '../features/placeNames.js';
 
 // 搜尋結果背景預載的圖層筆數上限，見 findAndRenderAvailableLayers() 內說明。
 const SEARCH_PRELOAD_CAP = 20;
@@ -160,6 +160,10 @@ export async function showLocationAndFindLayers(lon, lat, label, addr){
   // 結果；只有 selectPlaceNameCandidate() 會在這之後重新設定並顯示。
   clearActivePlaceNameMatch();
   hidePlaceNameCard();
+  // 「附近歷史地名」清單只在 selectGeocodeResult() 那條路徑重新渲染
+  // （見該函式），但清空動作放在這裡統一處理，確保 identify pin／定位
+  // 搜尋／地名精確比對三條路徑都不會殘留上一輪的附近地名清單。
+  locationResultEl.querySelector('.nearby-place-names')?.remove();
 
   const coord = ol.proj.fromLonLat([lon, lat]);
   const view = map.getView();
@@ -185,6 +189,13 @@ async function selectGeocodeResult(result){
   const lon = Number.parseFloat(result.lon);
   const lat = Number.parseFloat(result.lat);
   await showLocationAndFindLayers(lon, lat, result.display_name, result.address || {});
+  // 只有「一般地址」這條路徑才順帶列出附近歷史地名候選；地名今昔對照
+  // 精確比對（selectPlaceNameCandidate）命中時已經直接顯示完整對照卡，
+  // 不需要再疊加這份清單造成畫面雜訊。
+  const myToken = bumpSearchToken();
+  const nearby = await findNearbyPlaceNamesAsync(lon, lat);
+  if(isSearchStale(myToken)) return;
+  renderNearbyPlaceNames(nearby);
 }
 
 // 地名今昔對照：使用者從候選清單（或唯一命中）選定 place 後，走跟一般
@@ -387,6 +398,53 @@ export function focusPlaceNameCard(){
   placeNameCardToggleBtn?.setAttribute('aria-expanded', 'true');
   if(placeNameCardToggleBtn) placeNameCardToggleBtn.textContent = '▾';
   placeNameCardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// 建立單一「附近歷史地名」項目 DOM（不負責 append），比照
+// buildPlaceNameSuggestItem() 的寫法；點擊時不是選定搜尋座標，而是就地
+// 展開該筆完整的今昔對照卡（重用既有 renderPlaceNameCard／
+// focusPlaceNameCard，不重刻一份卡片渲染邏輯）。
+function buildNearbyPlaceNameItem({ place, distanceMeters }){
+  const item = document.createElement('div');
+  item.className = 'nearby-place-name-item';
+
+  const nameEl = document.createElement('span');
+  nameEl.className = 'nearby-place-name-name';
+  nameEl.textContent = place.name;
+
+  const metaEl = document.createElement('span');
+  metaEl.className = 'nearby-place-name-meta';
+  metaEl.textContent = `${place.county}${place.town || ''}，距離約 ${distanceMeters} 公尺`;
+
+  item.appendChild(nameEl);
+  item.appendChild(metaEl);
+  item.addEventListener('click', ()=>{
+    renderPlaceNameCard(place);
+    focusPlaceNameCard();
+  });
+  return item;
+}
+
+// 「附近歷史地名」清單：一般地址搜尋（selectGeocodeResult，非精確比對
+// 古地名那條路徑）命中後，在搜尋結果卡片底下（座標資訊之後、可用圖層
+// 清單之前）順帶列出附近的地名今昔對照候選。results 為空陣列時安靜
+// 不顯示任何東西（不跳「查無附近地名」之類的訊息，避免畫面雜訊）。
+// 每次呼叫都是全新一輪，呼叫前先確保上一輪已經被
+// showLocationAndFindLayers() 開頭的清空動作移除。
+function renderNearbyPlaceNames(results){
+  if(!results || results.length === 0) return;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'nearby-place-names';
+
+  const title = document.createElement('div');
+  title.className = 'nearby-place-names-title';
+  title.textContent = '📍 附近歷史地名';
+  wrap.appendChild(title);
+
+  results.forEach(r => wrap.appendChild(buildNearbyPlaceNameItem(r)));
+
+  locationResultEl.insertBefore(wrap, layerAvailPanelEl);
 }
 
 function getCurrentPositionAsync(){

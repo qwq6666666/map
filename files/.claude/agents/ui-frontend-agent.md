@@ -21,6 +21,7 @@ model: sonnet
 - 手機版「瀏覽全部圖資」台灣分頁三段式瀏覽（大區域→地區→來源手風琴）：`src/ui/mobileTwBrowse.js`（純函式大區域分組／地區標籤推導 + 手機版三段式 UI 建構，只在 `src/sidebarUI.js` 依 `mq.matches` 分流時被呼叫，`>768px` 不受影響）
 - 手機版「瀏覽全部圖資」中國分頁三段式瀏覽（大區域→地區→來源手風琴，跟台灣分頁同一套結構）：`src/ui/mobileCnBrowse.js`
 - 手機版「瀏覽全部圖資」台灣／中國分頁共用的三段式瀏覽底層邏輯（`layerCountForSource`／`sourcesForMacro`／`sourcesForArea`／`guessRegionFromLastLocation`／`buildMobileRegionBrowseUI` DOM 建構）：`src/ui/mobileRegionBrowse.js`（只被 `mobileTwBrowse.js`／`mobileCnBrowse.js` import，各自的大區域對照表／地區標籤規則仍留在各自檔案）
+- 手機版「瀏覽全部圖資」「其他」分頁二段式瀏覽（來源→分類／圖層，跟 tw/cn 不同：這 4 個來源本身就是不同國家/主題、彼此無法合併成「地區」，所以省略大區域層，第一層直接是來源選擇畫面）：`src/ui/mobileOtherBrowse.js`（新檔案，待建立）
 
 # 核心工作準則
 1. **響應式佈局與樣式 (Layout & RWD)：**

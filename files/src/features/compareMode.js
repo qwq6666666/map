@@ -28,6 +28,7 @@ import { getProtectedKeys } from '../core/protectedKeys.js';
 import { createCountryFilterBar } from '../ui/countryFilter.js';
 import { buildMobileTwBrowseUI } from '../ui/mobileTwBrowse.js';
 import { buildMobileCnBrowseUI } from '../ui/mobileCnBrowse.js';
+import { buildMobileOtherBrowseUI } from '../ui/mobileOtherBrowse.js';
 import { initMobileCountryBrowse } from '../ui/mobileRegionBrowse.js';
 
 let swipeDividerEl, compareWrapA, compareWrapB;
@@ -297,7 +298,8 @@ function buildPickerPanel(panelEl, onSelect){
     sourceWraps,
     configs: [
       { country: 'tw', build: buildMobileTwBrowseUI },
-      { country: 'cn', build: buildMobileCnBrowseUI }
+      { country: 'cn', build: buildMobileCnBrowseUI },
+      { country: 'other', build: buildMobileOtherBrowseUI }
     ],
     mq,
     getCurrentCountry

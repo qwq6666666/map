@@ -24,9 +24,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const DEFAULT_SETTLEMENT_CSV =
-  'C:\\Users\\USER\\Desktop\\台灣百年歷史地圖設計\\53677臺灣地區地名資料_聚落類_20250528.csv';
+  'C:\\Users\\USER\\Desktop\\台灣百年歷史地圖設計\\臺灣地區地名資料_聚落類.csv';
 const DEFAULT_ADMIN_CSV =
-  'C:\\Users\\USER\\Desktop\\台灣百年歷史地圖設計\\40281臺灣地區地名資料_行政區域類_20250528.csv';
+  'C:\\Users\\USER\\Desktop\\台灣百年歷史地圖設計\\臺灣地區地名資料_行政區域類.csv';
 
 const OUTPUT_PATH = path.join(__dirname, '..', 'data', 'place-names.json');
 
@@ -116,6 +116,90 @@ function splitAliases(raw, name) {
   return Array.from(new Set(parts));
 }
 
+// 沿革說明（PlaceMean）裡常見的舊地名前導語句，掃描這些字樣後面緊接的短字串
+// 當作候選別名。刻意保守，只收錄語意明確表示「以前叫什麼名字」的說法，
+// 避免像「地名由來」「位於」這類語意模糊、容易誤判的詞。
+const DESC_ALIAS_LEAD_PATTERNS = ['舊稱', '原名', '又名', '俗稱', '古稱', '曾稱', '改稱'];
+// 候選別名最長字數：地名通常很短，避免整句話被誤判成一個地名
+const DESC_ALIAS_MAX_LEN = 8;
+// 候選別名片段遇到這些標點或空白就視為終止（不納入候選內容）
+const DESC_ALIAS_STOP_CHARS_SOURCE = '，。、；：！？「」『』（）()〈〉《》,.;:!?\\s';
+// 前導語句後面常緊接連接詞「為」「稱」（例如「改稱為」「原名稱」），
+// 這兩個字不是地名的一部分，擷取候選內容前要先各自跳過最多一次
+// （不處理「為為」「稱稱」這種疊字，實務上沒有這種寫法）。
+const DESC_ALIAS_CANDIDATE_RE_SOURCE = `(?:${DESC_ALIAS_LEAD_PATTERNS.join('|')})(?:為|稱)?([^${DESC_ALIAS_STOP_CHARS_SOURCE}]{1,${DESC_ALIAS_MAX_LEN}})`;
+// 候選片段即使通過標點截斷，仍可能是「舊名沿用到現在」這種語意殘留、
+// 或「此地為」「應為」這種指示詞/揣測詞開頭，不是真正的地名，一律捨棄。
+// 「為」「稱」也可能單獨殘留：當前導語句後緊接引號（例如「原名為『XXX』」），
+// 引號屬於停止字元，連接詞跳過群組會在比對失敗時回溯成不跳過、改由候選群組
+// 直接吃下「為」／「稱」這個字自己當作候選，必須一併視為殘留捨棄。
+const DESC_ALIAS_RESIDUAL_EXACT = new Set(['沿用至今', '為', '稱']);
+const DESC_ALIAS_RESIDUAL_PREFIX_RE = /^(此|應為|該)/;
+// 候選片段若以行政/機構單位名稱結尾，代表抓到的是「改制／改隸屬機構名稱」
+// 而非舊地名（例如「改稱為第二區公所」「改稱旗津區公所」），一律捨棄。
+// 「支署」「支廳」是日治時期地方行政機關（辦務署／支廳）的慣用稱呼，同屬此類。
+// 刻意用完整詞尾比對（非單字「署」「廳」），避免誤殺「關帝廳」這類本身就是
+// 地名/廟名沿革的合法候選。
+const DESC_ALIAS_INSTITUTION_SUFFIXES = [
+  '公所',
+  '辦事處',
+  '派出所',
+  '管理處',
+  '事務所',
+  '委員會',
+  '支署',
+  '支廳',
+];
+
+/**
+ * 從地名沿革說明文字（PlaceMean）中，用一組保守的前導語句 pattern
+ * （「舊稱」「原名」「又名」「俗稱」「古稱」「曾稱」「改稱」）掃描，抓出緊接在
+ * 前導語句後面的候選舊地名片段。
+ *
+ * 這是 regex-based 的粗略表面比對，**不是**真正的 NLP／斷詞，無法理解語意，
+ * 只能抓到「前導語句 + 短字串」這種表面形式；已用真實 CSV 跑過診斷並修正過
+ * 「前導語句後緊接連接詞「為」「稱」沒跳過」這個系統性 bug（例如「改稱為富興」
+ * 原本誤抓成「為富興」），若日後再發現抓錯的案例（例如前導語句後面接的其實是
+ * 人名、機構名或整句敘述而非地名），應回來調整 DESC_ALIAS_LEAD_PATTERNS／
+ * DESC_ALIAS_MAX_LEN 或補停用詞規則。
+ *
+ * 保守設計：
+ *   - 候選片段最長 DESC_ALIAS_MAX_LEN 個字（一般地名很短）
+ *   - 遇到常見中英文標點或空白就在該處截斷，避免整句被誤判成地名
+ *   - 前導語句後緊接的連接詞「為」「稱」（各自最多一次）先跳過再擷取候選內容
+ *   - 候選跟主名稱 name 相同、候選為空字串、或候選是「沿用至今」這類語意殘留／
+ *     以「此」「應為」「該」開頭的指示詞殘留，都不納入結果
+ *   - 純函式，不做檔案 I/O，找不到則回傳空陣列
+ *
+ * @param {string} description PlaceMean 原始沿革說明文字（已去頭尾空白）
+ * @param {string} name 該列主名稱（PlaceName，已去頭尾空白），用來排除跟主名稱相同的候選
+ * @returns {string[]} 去重複後的候選別名陣列，找不到則回傳空陣列
+ */
+function extractAliasesFromDescription(description, name) {
+  if (!description) return [];
+  const re = new RegExp(DESC_ALIAS_CANDIDATE_RE_SOURCE, 'g');
+  const text = String(description);
+  const found = [];
+  let match;
+  while ((match = re.exec(text)) !== null) {
+    const candidate = match[1].trim();
+    if (
+      candidate &&
+      candidate !== name &&
+      !DESC_ALIAS_RESIDUAL_EXACT.has(candidate) &&
+      !DESC_ALIAS_RESIDUAL_PREFIX_RE.test(candidate) &&
+      !DESC_ALIAS_INSTITUTION_SUFFIXES.some((suffix) => candidate.endsWith(suffix))
+    ) {
+      found.push(candidate);
+    }
+    // 防禦性寫法：避免零寬度比對造成無窮迴圈（此 pattern 理論上不會發生）
+    if (match.index === re.lastIndex) {
+      re.lastIndex++;
+    }
+  }
+  return Array.from(new Set(found));
+}
+
 /**
  * 把一列資料（表頭陣列 + 該列欄位值陣列）轉成輸出用的單筆 place 物件。
  * @param {string[]} header CSV 表頭欄名陣列（parseCsv 回傳的第一列）
@@ -135,7 +219,12 @@ function rowToPlace(header, rowFields, sourceType) {
   const county = (record.County || '').trim();
   const town = (record.Town || '').trim();
   const description = (record.PlaceMean || '').trim();
-  const aliases = splitAliases(record.AnotherName || '', name);
+  const aliases = Array.from(
+    new Set([
+      ...splitAliases(record.AnotherName || '', name),
+      ...extractAliasesFromDescription(description, name),
+    ])
+  );
 
   const place = {
     name,
@@ -158,7 +247,7 @@ function rowToPlace(header, rowFields, sourceType) {
   return place;
 }
 
-module.exports = { parseCsv, splitAliases, rowToPlace };
+module.exports = { parseCsv, splitAliases, extractAliasesFromDescription, rowToPlace };
 
 if (require.main === module) {
   const settlementPath = process.argv[2] || DEFAULT_SETTLEMENT_CSV;
