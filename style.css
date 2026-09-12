@@ -574,6 +574,28 @@
     background:var(--brass-dark); color:var(--paper); font-size:10.5px; line-height:1.6;
   }
 
+  /* ---------- 附近歷史地名：一般地址搜尋（非精確比對古地名）命中時，
+     在搜尋結果卡片（座標資訊之後、可用圖層清單之前）順帶列出附近的
+     地名今昔對照候選，視覺語彙比照上面的 .place-name-suggest-item／
+     .place-name-card，維持同一套卡片風格；點擊任一筆才展開完整今昔對照
+     卡（重用 #placeNameCard，不另刻一份卡片）。 ---------- */
+  .nearby-place-names{
+    margin-top:8px; padding-top:8px; border-top:1px dashed var(--rule);
+  }
+  .nearby-place-names-title{
+    font-family:var(--serif); font-size:11.5px; font-weight:600; color:var(--brass-dark);
+    margin-bottom:4px;
+  }
+  .nearby-place-name-item{
+    display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+    padding:5px 6px; border:1px solid var(--rule); border-radius:3px;
+    margin-bottom:4px; cursor:pointer; background:var(--paper);
+  }
+  .nearby-place-name-item:last-child{margin-bottom:0;}
+  .nearby-place-name-item:hover{border-color:var(--brass-dark); background:var(--paper-dim);}
+  .nearby-place-name-name{font-weight:600; color:var(--ink); font-size:12px;}
+  .nearby-place-name-meta{font-size:11px; color:var(--rule);}
+
   /* ---------- 座標資訊區塊：用於地圖 Pin 點 Popup／搜尋結果詳細卡片，
      顯示 WGS84／TWD97 兩種座標系統並提供一鍵複製。風格比照上方
      .location-result（分隔線 + 留白），維持搜尋結果面板視覺一致 ---------- */
@@ -1580,9 +1602,11 @@
      已記錄過同類陷阱）。 */
   .address-input-clear-btn{display:none;}
 
-  /* 手機版「台灣」分頁三段式瀏覽（src/ui/mobileTwBrowse.js）：桌機／
-     平板一律隱藏，只在下方 @media (max-width:768px) 且 sidebarUI.js 的
-     syncMobileTwView() 判定該顯示時才會現身。
+  /* 手機版「台灣」「中國」分頁三段式瀏覽（src/ui/mobileTwBrowse.js／
+     mobileCnBrowse.js）與「其他」分頁二段式瀏覽（src/ui/mobileOtherBrowse.js，
+     沿用同一組 class）：桌機／平板一律隱藏，只在下方
+     @media (max-width:768px) 且 sidebarUI.js 的 syncMobileBrowseView()
+     判定該顯示時才會現身。
      注意：這裡刻意用 class 選擇器而不是 #mobileTwBrowse 這種 ID 選擇器
      ——sidebarUI.js 用原生 hidden attribute（[hidden]{display:none} 是
      瀏覽器內建規則，specificity 很低）控制顯示與否，如果這裡用 ID
@@ -2087,21 +2111,22 @@
     }
     .legend-modal-img{max-height:calc(100vh - 80px);}
 
-    /* ---------- 手機版「台灣」分頁：大區域→地區→來源手風琴
-       （src/ui/mobileTwBrowse.js）取代整批來源手風琴一次全列出 ----------
-       顯示與否由 sidebarUI.js 的 syncMobileTwView() 用 hidden attribute
+    /* ---------- 手機版「台灣」「中國」分頁：大區域→地區→來源手風琴
+       （src/ui/mobileTwBrowse.js／mobileCnBrowse.js）、「其他」分頁：
+       來源→分類/圖層二段式（src/ui/mobileOtherBrowse.js，沿用同一組
+       class）取代整批來源手風琴一次全列出 ----------
+       顯示與否由 sidebarUI.js 的 syncMobileBrowseView() 用 hidden attribute
        控制（[hidden] 是瀏覽器內建規則，這裡用 class 選擇器 :not([hidden])
        維持 specificity 不蓋過它，見上方 .mobile-tw-browse{display:none} 的
-       說明）。手機版「中國」「其他」分頁、以及桌機／平板任何情況都不會
-       套用這裡的規則。 */
+       說明）。桌機／平板任何情況都不會套用這裡的規則。 */
     .mobile-tw-browse:not([hidden]){
       display:flex; flex-direction:column; gap:8px; margin-bottom:10px;
     }
-    /* 手機版「台灣」分頁顯示三段式瀏覽時，隱藏對應的來源手風琴
-       （中國／其他分頁的手風琴、以及桌機任何情況都不受影響——見
-       sidebarUI.js 的 syncMobileTwView() 只對 src.country==='tw' 的
-       .source-group 加這個 class）。class 選擇器對 class 選擇器，
-       specificity 跟 .source-group 本身相當，靠後宣告蓋過去即可。 */
+    /* 手機版「台灣」「中國」「其他」分頁顯示替代瀏覽方式時，隱藏對應的
+       來源手風琴（其他分頁／桌機任何情況都不受影響——見 sidebarUI.js 的
+       syncMobileBrowseView() 只對目前分頁 country 相符的 .source-group
+       加這個 class）。class 選擇器對 class 選擇器，specificity 跟
+       .source-group 本身相當，靠後宣告蓋過去即可。 */
     .source-group.mobile-tw-accordion-hidden{display:none;}
 
     /* 大區域／地區 chip 列：視覺比照既有 .avail-year-sort-btn／.segmented

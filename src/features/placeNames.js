@@ -148,6 +148,57 @@ export async function findPlaceNameCandidates(query){
   return results;
 }
 
+// 地球半徑（公尺），僅用於「附近提示」等級的距離估算，不追求橢球體精度。
+const EARTH_RADIUS_METERS = 6371000;
+
+// haversine 公式：兩組經緯度（十進位度）之間的球面距離（公尺）。
+function haversineDistanceMeters(lon1, lat1, lon2, lat2){
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return EARTH_RADIUS_METERS * c;
+}
+
+// 純函式版本：給定已經備好的 place 陣列與查詢座標，回傳半徑範圍內、依距離
+// 由近到遠排序的地名候選，不依賴模組內部的載入快取，方便單元測試直接餵
+// 資料、不用真的 fetch()。比照 matchPlaceNames() 只保留有 longitude／
+// latitude（可定位到地圖上）的候選；結果不 mutate 原本的 place 物件，
+// 用 { place, distanceMeters } wrapper 包起來。
+export function findNearbyPlaceNames(places, lon, lat, { radiusMeters = 800, limit = 5 } = {}){
+  if(!Array.isArray(places) || places.length === 0) return [];
+  if(typeof lon !== 'number' || typeof lat !== 'number') return [];
+
+  const results = [];
+  for(const place of places){
+    if(typeof place.longitude !== 'number' || typeof place.latitude !== 'number') continue;
+    const distanceMeters = haversineDistanceMeters(lon, lat, place.longitude, place.latitude);
+    if(distanceMeters <= radiusMeters){
+      results.push({ place, distanceMeters: Math.round(distanceMeters) });
+    }
+  }
+
+  results.sort((a, b) => a.distanceMeters - b.distanceMeters);
+  return results.slice(0, limit);
+}
+
+/**
+ * 空間鄰近搜尋：給定經緯度座標，找出附近的歷史地名點位（確保資料已載入、
+ * 走模組內部快取），供使用者搜尋一般現代地址後順便提示附近的歷史地名，
+ * 不需要使用者剛好打對舊地名字串。
+ * @param {number} lon 經度
+ * @param {number} lat 緯度
+ * @param {{radiusMeters?: number, limit?: number}} [opts]
+ * @returns {Promise<Array<{place: object, distanceMeters: number}>>} 依距離由近到遠排序的候選（可能為空陣列）
+ */
+export async function findNearbyPlaceNamesAsync(lon, lat, opts){
+  await ensurePlaceNamesLoaded();
+  if(!loadedPlaces) return [];
+  return findNearbyPlaceNames(loadedPlaces, lon, lat, opts);
+}
+
 // 「目前作用中的比對結果」：記錄使用者剛剛從候選清單選定、顯示在地圖上
 // 的 place，供 identifyPin.js 在同一個點落點時顯示「歷史地名」小卡，
 // 不需要 identifyPin.js 自己重新做一次地名比對。
