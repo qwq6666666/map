@@ -26,6 +26,24 @@ let totalPassed = 0;
 let totalFailed = 0;
 let anyFailed = false;
 
+// 從單一測試檔案的 stdout 裡擷取「X 通過, Y 失敗」小計，累加進全域計數器。
+// 抽成獨立函式讓 try（該檔案全數通過、exit code 0）與 catch（該檔案有
+// 斷言失敗、assert.mjs 的 run() 設了非 0 process.exitCode、execFileSync
+// 因此 throw）兩條路徑都會呼叫到，避免其中一條路徑漏加計數
+//（曾經發生：catch 分支只印出 err.stdout、從未呼叫這段解析邏輯，導致
+// 有失敗案例的檔案完全沒被計入總計，總計行看起來比逐檔加總還要少）。
+// SonarQube javascript:S8786（ReDoS／超線性回溯）修正：\d+ 改成有
+// 上限的 \d{1,6}（單一測試檔案不可能有百萬筆案例），量詞最壞情況
+// 回溯步數有明確上界，消除超線性風險。
+function accumulateCounts(output){
+  const m = output.match(/(\d{1,6}) 通過, (\d{1,6}) 失敗/);
+  if(m){
+    totalPassed += Number(m[1]);
+    totalFailed += Number(m[2]);
+    if(Number(m[2]) > 0) anyFailed = true;
+  }
+}
+
 for(const file of files){
   console.log(`\n=== ${file} ===`);
   try{
@@ -36,19 +54,13 @@ for(const file of files){
       encoding: 'utf-8',
     });
     console.log(output.trimEnd());
-    // SonarQube javascript:S8786（ReDoS／超線性回溯）修正：\d+ 改成有
-    // 上限的 \d{1,6}（單一測試檔案不可能有百萬筆案例），量詞最壞情況
-    // 回溯步數有明確上界，消除超線性風險。
-    const m = output.match(/(\d{1,6}) 通過, (\d{1,6}) 失敗/);
-    if(m){
-      totalPassed += Number(m[1]);
-      totalFailed += Number(m[2]);
-      if(Number(m[2]) > 0) anyFailed = true;
-    }
+    accumulateCounts(output);
   }catch(err){
     anyFailed = true;
-    console.log(err.stdout ? err.stdout.trimEnd() : '（測試檔案執行時發生未預期的錯誤）');
+    const output = err.stdout ? err.stdout.trimEnd() : '';
+    console.log(output || '（測試檔案執行時發生未預期的錯誤）');
     if(err.stderr) console.log(err.stderr.trimEnd());
+    if(output) accumulateCounts(output);
   }
 }
 
