@@ -17,10 +17,14 @@ const FLY_TO_CATEGORY_SOURCE_IDS = new Set(['japan', 'korea', 'southeast_asia'])
 import { createCountryFilterBar } from './ui/countryFilter.js';
 import { buildMobileTwBrowseUI } from './ui/mobileTwBrowse.js';
 import { buildMobileCnBrowseUI } from './ui/mobileCnBrowse.js';
+import { buildMobileOtherBrowseUI } from './ui/mobileOtherBrowse.js';
 
 // 手機版（<=768px）「台灣」「中國」分頁改用大區域→地區→來源手風琴
 // 瀏覽（分別是 src/ui/mobileTwBrowse.js／src/ui/mobileCnBrowse.js），
-// 取代原本的來源手風琴；桌機／其他分頁不受影響，一律靠這個
+// 「其他」分頁改用來源→分類/圖層二段式瀏覽（src/ui/mobileOtherBrowse.js，
+// 目前只有 japan／korea／ls／southeast_asia 四個彼此獨立的來源，不像
+// 台灣、中國內部有「同一國家多來源合併成地區」的關係，故不套三段式）；
+// 取代原本的來源手風琴；桌機不受影響，一律靠這個
 // matchMedia 判斷式決定要不要顯示，比照 src/ui/mobileLayout.js 的既有寫法。
 // 保留 typeof 防呆：tests/env-stub.mjs 的假 window 沒有 matchMedia
 // （mobileLayout.js 目前沒有任何測試會 import 到，沒踩過這個問題；
@@ -264,9 +268,11 @@ function buildSourceGroup(src){
 }
 
 // 原本 initSidebar() 內建立「來源(機構)→分類→次分類→圖層」手風琴的邏輯，
-// 抽成獨立函式：桌機所有分頁、以及手機版「其他」分頁都還是要顯示這份
-// 手風琴，只有手機版「台灣」「中國」分頁改顯示三段式瀏覽（見
-// syncMobileBrowseView()），內容邏輯本身不變。
+// 抽成獨立函式：桌機所有分頁都還是要顯示這份手風琴（手機版「台灣」
+// 「中國」「其他」分頁改顯示 MOBILE_BROWSE_CONFIGS 對應的替代瀏覽方式，
+// 見 syncMobileBrowseView()），內容邏輯本身不變；這份手風琴的 DOM 節點
+// 也是替代瀏覽方式第二層 buildSourceGroup() 呼叫的同一支函式（各自重新
+// 建立獨立實例，不共用節點）。
 function renderSourceAccordion(categoriesEl, sourceWraps){
   DATA.LAYER_SOURCES.forEach((src) => {
     const srcWrap = buildSourceGroup(src);
@@ -275,12 +281,13 @@ function renderSourceAccordion(categoriesEl, sourceWraps){
   });
 }
 
-// 手機版「台灣」「中國」分頁三段式瀏覽的設定清單：以後要加第三個國家
-// 分頁，只需要在這裡加一筆 { country, build }，initSidebar() 內的建立／
+// 手機版「台灣」「中國」「其他」分頁替代瀏覽方式的設定清單：以後要加
+// 新分頁，只需要在這裡加一筆 { country, build }，initSidebar() 內的建立／
 // 顯示切換邏輯都是依這份清單跑迴圈，不用再另外寫一份平行分支。
 const MOBILE_BROWSE_CONFIGS = [
   { country: 'tw', build: buildMobileTwBrowseUI },
-  { country: 'cn', build: buildMobileCnBrowseUI }
+  { country: 'cn', build: buildMobileCnBrowseUI },
+  { country: 'other', build: buildMobileOtherBrowseUI }
 ];
 
 export function initSidebar(){

@@ -51,32 +51,34 @@ initSearchUI();
 const panelA = document.getElementById('pickerPanelA');
 const panelB = document.getElementById('pickerPanelB');
 
-// 回傳 [twEntry, cnEntry]：對應 compareMode.js 傳給 initMobileCountryBrowse()
-// 的 configs 順序（tw 先、cn 後），兩者的 rootClassName 都是共用的
-// 'mobile-tw-browse'（見 CLAUDE.md），所以用 querySelectorAll 取得的
-// 陣列順序來區分，不是用 className。
+// 回傳 [twEntry, cnEntry, otherEntry]：對應 compareMode.js 傳給
+// initMobileCountryBrowse() 的 configs 順序（tw、cn、other 依序），三者的
+// rootClassName 都是共用的 'mobile-tw-browse'（見 CLAUDE.md，
+// mobileOtherBrowse.js 的「其他」分頁二段式瀏覽也沿用同一組 class），所以
+// 用 querySelectorAll 取得的陣列順序來區分，不是用 className。
 function mobileBrowseEntries(panelEl){
   return panelEl.querySelectorAll('.mobile-tw-browse');
 }
 
-test('手機寬度下，A、B 兩側 picker 面板各自都有三段式瀏覽 UI（tw／cn 各一個大區域按鈕列＋國家篩選列）', () => {
+test('手機寬度下，A、B 兩側 picker 面板各自都有三段式瀏覽 UI（tw／cn／other 各一個大區域／來源按鈕列＋國家篩選列）', () => {
   [[panelA, 'A'], [panelB, 'B']].forEach(([panelEl, label]) => {
     const entries = mobileBrowseEntries(panelEl);
-    assertEqual(entries.length, 2, `${label} 側面板應該有 tw／cn 兩個三段式瀏覽容器`);
+    assertEqual(entries.length, 3, `${label} 側面板應該有 tw／cn／other 三個三段式（或二段式）瀏覽容器`);
     entries.forEach(entry => {
       const macroRow = entry.children[0];
-      assertTrue(!!macroRow && macroRow.classList.contains('mobile-tw-macro-row'), `${label} 側每個三段式瀏覽容器都應該有大區域按鈕列`);
-      assertTrue(macroRow.children.length > 0, `${label} 側大區域按鈕列不應該是空的`);
+      assertTrue(!!macroRow && macroRow.classList.contains('mobile-tw-macro-row'), `${label} 側每個瀏覽容器都應該有大區域／來源按鈕列`);
+      assertTrue(macroRow.children.length > 0, `${label} 側大區域／來源按鈕列不應該是空的`);
     });
     assertTrue(!!panelEl.querySelector('.country-filter'), `${label} 側面板應該有國家篩選列`);
   });
 });
 
 test('A、B 兩側 mobileBrowse 實例互相獨立：兩側的三段式瀏覽容器不是同一個 DOM 節點', () => {
-  const [twEntryA, cnEntryA] = mobileBrowseEntries(panelA);
-  const [twEntryB, cnEntryB] = mobileBrowseEntries(panelB);
+  const [twEntryA, cnEntryA, otherEntryA] = mobileBrowseEntries(panelA);
+  const [twEntryB, cnEntryB, otherEntryB] = mobileBrowseEntries(panelB);
   assertTrue(twEntryA !== twEntryB, 'A、B 兩側的 tw 三段式瀏覽容器應該是各自獨立建立的 DOM 節點');
   assertTrue(cnEntryA !== cnEntryB, 'A、B 兩側的 cn 三段式瀏覽容器應該是各自獨立建立的 DOM 節點');
+  assertTrue(otherEntryA !== otherEntryB, 'A、B 兩側的 other（其他）瀏覽容器應該是各自獨立建立的 DOM 節點');
 });
 
 test('切換 A 側國家篩選列到「中國」，只影響 A 側面板的三段式瀏覽顯示，不影響 B 側', () => {
@@ -92,6 +94,32 @@ test('切換 A 側國家篩選列到「中國」，只影響 A 側面板的三�
   const [twEntryB, cnEntryB] = mobileBrowseEntries(panelB);
   assertEqual(twEntryB.hidden, false, 'B 側不受 A 側篩選列切換影響，應該仍顯示 tw 三段式瀏覽');
   assertEqual(cnEntryB.hidden, true, 'B 側不受 A 側篩選列切換影響，cn 三段式瀏覽應該仍隱藏');
+
+  // 還原：切回台灣分頁，避免影響後續測試對 A 側的假設
+  const twBtnA = Array.from(filterBarA.children).find(b => b.textContent === '台灣');
+  twBtnA.click();
+});
+
+test('切換 A 側國家篩選列到「其他」，只影響 A 側面板的 other 二段式瀏覽顯示，不影響 B 側', () => {
+  const filterBarA = panelA.querySelector('.country-filter');
+  const otherBtnA = Array.from(filterBarA.children).find(b => b.textContent === '其他');
+  assertTrue(!!otherBtnA, 'A 側篩選列應該有「其他」按鈕');
+  otherBtnA.click();
+
+  const [twEntryA, cnEntryA, otherEntryA] = mobileBrowseEntries(panelA);
+  assertEqual(twEntryA.hidden, true, 'A 側切到其他後，tw 瀏覽應該隱藏');
+  assertEqual(cnEntryA.hidden, true, 'A 側切到其他後，cn 瀏覽應該隱藏');
+  assertEqual(otherEntryA.hidden, false, 'A 側切到其他後，other 瀏覽應該顯示');
+
+  const [twEntryB, , otherEntryB] = mobileBrowseEntries(panelB);
+  assertEqual(twEntryB.hidden, false, 'B 側不受 A 側篩選列切換影響，應該仍顯示 tw 瀏覽');
+  assertEqual(otherEntryB.hidden, true, 'B 側不受 A 側篩選列切換影響，other 瀏覽應該仍隱藏');
+
+  // other 分頁是「來源 chip → buildSourceGroup」二段式，結構跟 tw/cn 不同
+  // （沒有地區列），這裡只驗證第一層來源 chip 列存在且數量等於 country==='other' 的來源數。
+  const otherSourceRow = otherEntryA.children[0];
+  const expectedOtherCount = DATA.LAYER_SOURCES.filter(s => s.country === 'other').length;
+  assertEqual(otherSourceRow.children.length, expectedOtherCount, 'A 側 other 來源 chip 數量應等於 country==="other" 的來源總數');
 
   // 還原：切回台灣分頁，避免影響後續測試對 A 側的假設
   const twBtnA = Array.from(filterBarA.children).find(b => b.textContent === '台灣');
