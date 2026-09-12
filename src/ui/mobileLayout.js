@@ -363,6 +363,10 @@ function initSheetHandle(){
 --------------------------------------------------------- */
 const MODE_BTN_POS_KEY = 'mobile_mode_btn_pos';
 let dragJustHappened = false;
+// 拖曳 #mobileModeBtn 過程中，若 #mobileModePopover 剛好開著，讓它即時
+// 跟著按鈕移動（而不是拖完放開才跳一次位置）；由 initModePopover() 覆寫
+// 成真正的重新定位邏輯，initDraggableModeButton() 只管呼叫、不管實作。
+let repositionOpenPopover = () => {};
 
 function initModePopover(){
   const btn = document.getElementById('mobileModeBtn');
@@ -402,6 +406,7 @@ function initModePopover(){
     btn.classList.add('active');
     btn.setAttribute('aria-expanded', 'true');
   }
+  repositionOpenPopover = () => { if(popover.classList.contains('open')) positionPopover(); };
   function syncActiveOption(){
     popover.querySelectorAll('.mobile-mode-option[data-mode]').forEach(optBtn=>{
       const realBtn = document.querySelector(`#modeSwitch button[data-mode="${optBtn.dataset.mode}"]`);
@@ -510,6 +515,7 @@ function initDraggableModeButton(){
     if(!moved && Math.hypot(dx, dy) < 6) return; // 位移太小先當作還沒開始拖曳
     moved = true;
     applyPos(clampPos({ left: startLeft + dx, top: startTop + dy }));
+    repositionOpenPopover();
   });
   function onPointerUp(){
     if(!dragging) return;
@@ -528,6 +534,7 @@ function initDraggableModeButton(){
     const rect = btn.getBoundingClientRect();
     const clamped = clampPos({ left: rect.left, top: rect.top });
     if(clamped.left !== rect.left || clamped.top !== rect.top) applyPos(clamped);
+    repositionOpenPopover();
   });
 }
 
