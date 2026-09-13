@@ -53,11 +53,15 @@ if(dataLoaded){
 
 // 只在正式建置（vite build）且瀏覽器支援時註冊 Service Worker，
 // 開發模式（vite dev）故意不註冊，避免快取干擾即時開發。
+// 這裡執行到的時間點已經在 await loadAppData() 之後，不需要再刻意等
+// window 的 load 事件才註冊——曾經包過 addEventListener('load', ...)，
+// 但 loadAppData() 抓 layers.bundle.json 這種大檔案偶爾會比其他資源慢，
+// 導致真正執行到這行時 load 事件早就已經觸發過，事後補掛的監聽器永遠
+// 等不到，Service Worker 因此完全沒有機會自動註冊（已踩過的坑，實測
+// 重現過兩次）。
 if(import.meta.env?.PROD && 'serviceWorker' in navigator){
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(err => {
-      console.error('Service Worker 註冊失敗', err);
-    });
+  navigator.serviceWorker.register('./sw.js').catch(err => {
+    console.error('Service Worker 註冊失敗', err);
   });
 }
 
