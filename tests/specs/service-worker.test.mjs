@@ -33,6 +33,7 @@ const swCode = readFileSync(SW_PATH, 'utf-8');
 const APP_CACHE = 'app-shell-v2';
 const DATA_CACHE = 'data-v2';
 const TILE_CACHE = 'tile-cache-v1';
+const OSM_TILE_CACHE = 'tile-cache-osm-v1';
 const OLD_APP_CACHE = 'app-shell-v1'; // 模擬「上一輪 SW 遺留」的舊版快取
 
 /* ---------------------------------------------------------
@@ -250,6 +251,66 @@ test('activate：App Shell 改版清除舊快取時，完全不影響 tile-cache
   assertTrue(!names.includes(OLD_APP_CACHE), '舊版 App Shell 快取應該被清掉');
   assertTrue(names.includes(TILE_CACHE), 'tile-cache-v1 不應該被 activate 誤刪整個 cache');
   assertEqual(env.getCacheSize(TILE_CACHE), 2, 'tile-cache-v1 裡原本的 2 筆圖磚應該完整保留，一筆都不能少');
+});
+
+/* ---------------------------------------------------------
+   4.5 OSM 底圖圖磚跟其他圖磚（歷史 WMTS／衛星）各自走獨立的快取空間，
+       互不干擾、activate 也都不會被誤刪。
+--------------------------------------------------------- */
+test('OSM 底圖圖磚（tile.openstreetmap.org）快取命中時走 OSM_TILE_CACHE，不進 TILE_CACHE', async () => {
+  const env = createSWEnv();
+  const url = 'https://a.tile.openstreetmap.org/15/1234/5678.png';
+  env.presetCache(OSM_TILE_CACHE, url, new FakeResponse('OSM圖磚'));
+  env.setFetchImpl(async () => { throw new Error('快取命中時不應該打到網路'); });
+
+  const request = new FakeRequest(url, { destination: 'image' });
+  const { promise } = env.triggerFetch(request);
+  const res = await promise;
+
+  assertEqual(await res.text(), 'OSM圖磚', 'OSM 底圖圖磚快取命中時應該直接回傳 OSM_TILE_CACHE 裡的內容');
+  assertEqual(env.getCacheSize(TILE_CACHE), 0, 'OSM 底圖圖磚不應該寫進 TILE_CACHE');
+});
+
+test('非 OSM 圖磚（中研院 WMTS）快取命中時走 TILE_CACHE，不進 OSM_TILE_CACHE', async () => {
+  const env = createSWEnv();
+  const url = 'https://gis.sinica.edu.tw/tile/1.png';
+  env.presetCache(TILE_CACHE, url, new FakeResponse('WMTS圖磚'));
+  env.setFetchImpl(async () => { throw new Error('快取命中時不應該打到網路'); });
+
+  const request = new FakeRequest(url, { destination: 'image' });
+  const { promise } = env.triggerFetch(request);
+  const res = await promise;
+
+  assertEqual(await res.text(), 'WMTS圖磚', '歷史 WMTS 圖磚快取命中時應該直接回傳 TILE_CACHE 裡的內容');
+  assertEqual(env.getCacheSize(OSM_TILE_CACHE), 0, '歷史 WMTS 圖磚不應該寫進 OSM_TILE_CACHE');
+});
+
+test('圖磚請求未命中快取時，OSM 與非 OSM 分別寫進各自的快取空間', async () => {
+  const env = createSWEnv();
+  const osmUrl = 'https://b.tile.openstreetmap.org/10/100/200.png';
+  const wmtsUrl = 'https://gis.sinica.edu.tw/tile/2.png';
+  env.setFetchImpl(async () => new FakeResponse('新圖磚', { status: 200 }));
+
+  await env.triggerFetch(new FakeRequest(osmUrl, { destination: 'image' })).promise;
+  await env.triggerFetch(new FakeRequest(wmtsUrl, { destination: 'image' })).promise;
+
+  assertTrue(!!env.getCacheEntry(OSM_TILE_CACHE, osmUrl), 'OSM 圖磚應該寫進 OSM_TILE_CACHE');
+  assertTrue(!env.getCacheEntry(TILE_CACHE, osmUrl), 'OSM 圖磚不應該同時出現在 TILE_CACHE');
+  assertTrue(!!env.getCacheEntry(TILE_CACHE, wmtsUrl), '歷史 WMTS 圖磚應該寫進 TILE_CACHE');
+  assertTrue(!env.getCacheEntry(OSM_TILE_CACHE, wmtsUrl), '歷史 WMTS 圖磚不應該同時出現在 OSM_TILE_CACHE');
+});
+
+test('activate：App Shell 改版清除舊快取時，完全不影響 OSM_TILE_CACHE 的內容', async () => {
+  const env = createSWEnv();
+  env.presetCache(OLD_APP_CACHE, 'https://example.local/old.html', new FakeResponse('舊版殘留'));
+  env.presetCache(OSM_TILE_CACHE, 'https://a.tile.openstreetmap.org/1/1/1.png', new FakeResponse('OSM圖磚1'));
+
+  await env.triggerActivate();
+
+  const names = env.getCacheNames();
+  assertTrue(!names.includes(OLD_APP_CACHE), '舊版 App Shell 快取應該被清掉');
+  assertTrue(names.includes(OSM_TILE_CACHE), 'tile-cache-osm-v1 不應該被 activate 誤刪整個 cache');
+  assertEqual(env.getCacheSize(OSM_TILE_CACHE), 1, 'tile-cache-osm-v1 裡原本的圖磚應該完整保留');
 });
 
 /* ---------------------------------------------------------

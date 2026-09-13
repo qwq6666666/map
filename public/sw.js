@@ -1,16 +1,21 @@
 /* ---------------------------------------------------------
-   public/sw.js — Service Worker（App Shell / Data / Tile 三種快取分開管理）
+   public/sw.js — Service Worker（App Shell / Data / Tile 快取分開管理）
    ---------------------------------------------------------
-   四個快取各自對應一種資源與更新策略，彼此的版本號、清除時機互不影響：
+   五個快取各自對應一種資源與更新策略，彼此的版本號、清除時機互不影響：
 
-     1. TILE_CACHE — WMTS / Tile 圖片，Cache-First，並用簡易 LRU
-        （上限 TILE_LRU_LIMIT 筆）避免無限長大。這層是磁碟持久快取
+     1. TILE_CACHE — 歷史 WMTS 圖磚／衛星底圖，Cache-First，並用簡易
+        LRU（上限 TILE_LRU_LIMIT 筆）避免無限長大。這層是磁碟持久快取
         （L2），跟 src/core/layerCache.js 的記憶體 Image 快取（L1）
         互補，SW 重啟、分頁關閉都不會清空。**刻意用獨立的
         TILE_CACHE_VERSION**：網站程式（App Shell／data）改版很頻繁，
         但歷史地圖圖磚本身沒變，不應該因為部署新版網站就要使用者
         重新下載大量圖磚——只有圖磚快取的資料結構本身要改（例如
         LRU 索引格式）才需要動這個版本號。
+
+     1.5 OSM_TILE_CACHE — 現代地圖底圖（OpenStreetMap）圖磚，快取策略
+        跟 TILE_CACHE 完全一樣，差別只在快取空間、LRU 名額各自獨立算，
+        原因見下方常數定義處的說明；跟 TILE_CACHE 共用
+        TILE_CACHE_VERSION（儲存格式一致，沒有分開版號的必要）。
 
      2. DATA_CACHE — data/*.json（layers.bundle.json、
         historical-names.json 等圖層與地名資料），Network-First：
@@ -42,7 +47,8 @@
 
    activate 清除舊快取時，只依前綴比對「本專案管理的 App/Data 快取」
    （含這次改版前的舊快取命名 shell-cache- / meta-cache-，做一次性
-   遷移清理），TILE_CACHE 的名稱不落在這些前綴內，不會被誤刪。
+   遷移清理），TILE_CACHE／OSM_TILE_CACHE 的名稱都不落在這些前綴內，
+   不會被誤刪。
 --------------------------------------------------------- */
 
 const CACHE_VERSION = 'v2';
@@ -51,15 +57,23 @@ const TILE_CACHE_VERSION = 'v1';
 const APP_CACHE = `app-shell-${CACHE_VERSION}`;
 const DATA_CACHE = `data-${CACHE_VERSION}`;
 const TILE_CACHE = `tile-cache-${TILE_CACHE_VERSION}`;
+// OSM 現代地圖底圖圖磚獨立一份快取空間＋獨立 LRU，不跟歷史 WMTS／衛星
+// 圖磚共用同一份 LRU 名單：地址搜尋一次會對上百筆候選歷史圖層送出探測
+// 用的圖磚請求（見 src/tileChecker.js），這些探測請求如果跟畫面上一直
+// 看得到、反覆重繪的 OSM 底圖擠在同一份 LRU 裡，搜尋密集時會把底圖圖磚
+// 排擠掉、需要重新下載，體感上就是「一直在看的底圖也跟著變慢」。分開
+// 後兩邊 LRU 名額互不影響，跟 TILE_CACHE 一樣用 TILE_CACHE_VERSION。
+const OSM_TILE_CACHE = `tile-cache-osm-${TILE_CACHE_VERSION}`;
 
 // activate 時只清除這些前綴開頭、且不是目前版本的快取；shell-cache- /
 // meta-cache- 是這次改版之前的舊命名，一併列入做一次性遷移清理。
-// tile-cache- 前綴刻意不在這份清單裡，確保 WMTS 圖磚快取不會因為
-// App Shell／Data 改版而被清掉。
+// tile-cache- 前綴刻意不在這份清單裡（TILE_CACHE、OSM_TILE_CACHE 兩者
+// 皆是），確保圖磚快取不會因為 App Shell／Data 改版而被清掉。
 const MANAGED_CACHE_PREFIXES = ['app-shell-', 'data-', 'shell-cache-', 'meta-cache-'];
 
 const TILE_LRU_LIMIT = 5000;
 const TILE_LRU_KEY = new Request('https://tile-lru.local/__index__');
+const OSM_TILE_LRU_KEY = new Request('https://tile-lru.local/__osm_index__');
 
 self.addEventListener('install', () => {
   self.skipWaiting();
@@ -67,7 +81,7 @@ self.addEventListener('install', () => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
-    const keep = new Set([APP_CACHE, DATA_CACHE, TILE_CACHE]);
+    const keep = new Set([APP_CACHE, DATA_CACHE, TILE_CACHE, OSM_TILE_CACHE]);
     const names = await caches.keys();
     await Promise.all(
       names
@@ -78,20 +92,20 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
-async function readTileLRU(cache){
-  const res = await cache.match(TILE_LRU_KEY);
+async function readTileLRU(cache, lruKey){
+  const res = await cache.match(lruKey);
   if(!res) return [];
   try{ return await res.json(); }catch{ return []; }
 }
 
-async function writeTileLRU(cache, list){
-  await cache.put(TILE_LRU_KEY, new Response(JSON.stringify(list), {
+async function writeTileLRU(cache, lruKey, list){
+  await cache.put(lruKey, new Response(JSON.stringify(list), {
     headers: { 'Content-Type': 'application/json' }
   }));
 }
 
-async function touchTileLRU(cache, url){
-  const list = await readTileLRU(cache);
+async function touchTileLRU(cache, lruKey, url){
+  const list = await readTileLRU(cache, lruKey);
   const idx = list.indexOf(url);
   if(idx !== -1) list.splice(idx, 1);
   list.push(url);
@@ -99,11 +113,17 @@ async function touchTileLRU(cache, url){
     const oldest = list.shift();
     await cache.delete(oldest);
   }
-  await writeTileLRU(cache, list);
+  await writeTileLRU(cache, lruKey, list);
 }
 
 function isTileRequest(request){
   return request.destination === 'image';
+}
+
+// OSM 底圖圖磚（ol.source.OSM 預設打 a/b/c.tile.openstreetmap.org）
+// 走獨立的 OSM_TILE_CACHE，跟其他圖磚請求（歷史 WMTS、衛星底圖）分開。
+function isOsmTileRequest(url){
+  return /(^|\.)tile\.openstreetmap\.org$/.test(url.hostname);
 }
 
 function isDataRequest(url){
@@ -126,17 +146,19 @@ function isOwnScriptRequest(url){
   return url.origin === self.location.origin && url.pathname.endsWith('/sw.js');
 }
 
-async function cacheFirstTile(request){
-  const cache = await caches.open(TILE_CACHE);
+async function cacheFirstTile(request, url){
+  const isOsm = isOsmTileRequest(url);
+  const cache = await caches.open(isOsm ? OSM_TILE_CACHE : TILE_CACHE);
+  const lruKey = isOsm ? OSM_TILE_LRU_KEY : TILE_LRU_KEY;
   const cached = await cache.match(request);
   if(cached){
-    await touchTileLRU(cache, request.url);
+    await touchTileLRU(cache, lruKey, request.url);
     return cached;
   }
   const res = await fetch(request);
   if(res && (res.ok || res.type === 'opaque')){
     await cache.put(request, res.clone());
-    await touchTileLRU(cache, request.url);
+    await touchTileLRU(cache, lruKey, request.url);
   }
   return res;
 }
@@ -194,7 +216,7 @@ self.addEventListener('fetch', (event) => {
   if(isOwnScriptRequest(url)) return;
 
   if(isTileRequest(request)){
-    event.respondWith(cacheFirstTile(request));
+    event.respondWith(cacheFirstTile(request, url));
     return;
   }
   if(isDataRequest(url)){
