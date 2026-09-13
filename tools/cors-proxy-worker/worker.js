@@ -1,5 +1,5 @@
 /**
- * cors-proxy-worker.js — 給「百年歷史地圖疊圖器」用的 WMTS GetCapabilities
+ * cors-proxy-worker.js — 給「百年歷史疊圖器」用的 WMTS GetCapabilities
  * CORS 代理，部署在 Cloudflare Workers。
  *
  * 只在使用者按「讀取圖層清單」（features/wmtsImport.js 的
