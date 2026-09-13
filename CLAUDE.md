@@ -7,7 +7,7 @@
 ## 常用指令 (Commands)
 - 安裝依賴：`npm install`
 - 開發模式（Vite，含 HMR）：`npm run dev`
-- 正式建置：`npm run build`（輸出到 `files/`，含 hash 檔名與 sourcemap；`files/` 就是 GitHub Pages 實際發布的資料夾，build 完直接 commit + push 即完成部署，不用再手動複製貼上到別的 repo）
+- 正式建置：`npm run build`（輸出到 `docs/`，含 hash 檔名與 sourcemap；GitHub Pages 設定為 `main` 分支 `/docs` 資料夾，`docs/` 就是實際發布內容，build 完直接 commit + push 即完成部署，不用再手動複製貼上到別的 repo。**注意**：GitHub Pages 的資料夾設定只能選 `/ (root)` 或 `/docs`，不能填任意資料夾名稱——這正是當初改用 `docs/` 而非沿用 `files/` 的原因：用 root 設定時，使用者實際造訪的根網址會落在 repo 根目錄未打包的 `index.html`/`src/` 原始碼上，Service Worker／圖磚快取完全不會生效）
 - 預覽建置結果：`npm run preview`
 - 免建置純靜態啟動（備用，不經過 Vite）：`.\start-website.bat` 或 `npx serve`
 - 全域測試：`node tests/run-all.mjs`（或 `npm test`）；單一測試：`node tests/run-all.mjs tests/specs/<test-file>.mjs`

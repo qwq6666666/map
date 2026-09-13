@@ -32,7 +32,7 @@ import { activateTimelineMode } from '../timelineMode.js';
 
 let overlayPanel, comparePanel, timelinePanel, multiPanel, opacityBlockEl, mapTimelineBarEl, multiOverlayBarEl;
 
-function applyModeTransition(){
+function applyModeTransition(prevState){
   document.getElementById('sidebar').classList.toggle('compact-mode', store.mode === 'compare');
   document.querySelectorAll('#modeSwitch button').forEach(b=>
     b.classList.toggle('active', b.dataset.mode === store.mode));
@@ -44,7 +44,10 @@ function applyModeTransition(){
   multiOverlayBarEl.classList.remove('show');
   // 離開時間軸模式時，把還沒用到的預先載入圖層清掉，避免留一堆背景
   // 圖層佔用記憶體／持續耗費瀏覽器資源；重新進入時間軸模式會再重新預載。
-  if(store.mode !== 'timeline') clearLayerPool();
+  // 這裡要看的是「切換前」是不是時間軸模式，不是「切換後」目的地是
+  // 不是時間軸模式——否則疊圖/比對/複合疊圖三種模式互切時，每切一次
+  // 都會誤觸發整包 layerCache 清空重建（已踩過的坑）。
+  if(prevState?.mode === 'timeline') clearLayerPool();
   // 離開複合疊圖模式時，只隱藏目前顯示中的圖層，store.multiOverlayLayers
   // 本身不清空——使用者組好的疊圖組合應該要記得住，下次切回來還在，
   // 這點刻意跟上面時間軸模式的 clearLayerPool() 不同（見
@@ -133,7 +136,7 @@ function initModeSwitch(){
 --------------------------------------------------------- */
 function render(state, prevState, changedKeys){
   if(changedKeys.includes('mode')){
-    applyModeTransition();
+    applyModeTransition(prevState);
     return;
   }
   if(changedKeys.includes('baseLayer')) applyBaseLayer();

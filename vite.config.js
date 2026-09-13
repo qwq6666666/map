@@ -45,7 +45,7 @@ function serveDataDir(){
     },
     closeBundle(){
       if(existsSync(dataDir)){
-        cpSync(dataDir, path.join(__dirname, 'files', 'data'), { recursive: true });
+        cpSync(dataDir, path.join(__dirname, 'docs', 'data'), { recursive: true });
       }
     }
   };
@@ -56,10 +56,14 @@ export default defineConfig({
   base: './',
   build: {
     // GitHub Pages（qwq6666666/map repo）用「Deploy from a branch：main /
-    // 根目錄」，實際發布的網址是 .../map/files/，所以建置輸出直接指到
-    // files/，本機建置完成、commit 這個資料夾就是完整部署流程，不用再
-    // 手動複製貼上到另一個 repo。
-    outDir: 'files',
+    // docs」，資料夾只能選 root 或 docs 兩者之一（沒有自訂資料夾名稱的
+    // 選項）；曾經誤用過 root + 輸出到 files/，結果根網址（使用者實際
+    // 造訪的網址）吃到的是 repo 根目錄未打包的 index.html/src 原始碼，
+    // Service Worker／圖磚快取完全沒生效，只有明確多打 /files 路徑才有
+    // 用到正式建置——已改成輸出到 docs/、Pages 資料夾設定改選 /docs，
+    // 讓根網址本身就是正式建置版本。本機建置完成、commit 這個資料夾
+    // 就是完整部署流程，不用再手動複製貼上到另一個 repo。
+    outDir: 'docs',
     sourcemap: true,
     emptyOutDir: true,
     // src/main.js 用頂層 await（見該檔案註解），預設 esbuild target 不含

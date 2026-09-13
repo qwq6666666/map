@@ -47,14 +47,14 @@ npx serve
 
 ## 怎麼放到網路上讓大家都看得到
 
-最簡單的方式是 **GitHub Pages**（免費）：
+最簡單的方式是 **GitHub Pages**（免費），這件事直接請 Claude 幫你做就好（跟 Claude 說「幫我建置並部署到 GitHub Pages」），原理是：
 
 1. 到 [github.com](https://github.com) 註冊帳號、建立一個新的 repository（設為 Public）
-2. 把 `index.html`、`style.css`、`src/` 資料夾、`data/` 資料夾整包上傳上去
-3. 到 repository 的 Settings → Pages，Branch 選 `main`，資料夾選 `/ (root)`，儲存
+2. 把整個專案資料夾上傳上去（**不是**只上傳 `index.html`／`src/`／`data/`——網站正式上線用的是打包過的 `docs/` 資料夾，內含優化過的程式碼跟離線快取機制，直接上傳原始碼會少掉這些優化）
+3. 到 repository 的 Settings → Pages，Branch 選 `main`，資料夾選 **`/docs`**（GitHub Pages 只能選 `/ (root)` 或 `/docs`，這裡一定要選 `/docs`，選成 `/ (root)` 的話網站會變成沒有離線快取、圖磚每次都要重新下載的陽春版本），儲存
 4. 等 1～2 分鐘，會出現一個網址，例如 `https://你的帳號.github.io/專案名稱/`
 
-之後要更新網站，只要把新的檔案上傳蓋過去就好，GitHub Pages 會自動更新（通常 1 分鐘內生效）。
+之後要更新網站，跟 Claude 說你想改的地方，改完請它執行「建置」（`npm run build`，會重新產生 `docs/` 資料夾）並上傳蓋過去，GitHub Pages 會自動更新（通常 1 分鐘內生效）。
 
 ## 以後想改東西，該怎麼跟 Claude 說
 
