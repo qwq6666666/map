@@ -62,8 +62,10 @@ map.once('rendercomplete', () => {
 });
 
 // 快速縮放／拉動／混合操作時，讓已經跟不上視角的歷史圖層圖磚請求
-// 提早放棄、釋放 OL 全域圖磚載入佇列的名額（見 tileLoadGuard.js 的
-// attachStaleTileAbort() 說明）。只需要建立一次，map 是整頁唯一實例。
+// 提早放棄、釋放 OL 全域圖磚載入佇列的名額；連續拖曳／縮放互動期間
+// 也會用節流過的頻率主動清理一次，不用等放開滑鼠的 moveend 才清
+// （見 tileLoadGuard.js 的 attachStaleTileAbort() 說明）。只需要建立
+// 一次，map 是整頁唯一實例。
 attachStaleTileAbort(map);
 
 /* ---------------------------------------------------------

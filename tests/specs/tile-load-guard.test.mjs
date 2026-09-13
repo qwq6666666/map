@@ -23,13 +23,17 @@
    calculateExtent/getProjection），不是完整的 ol.Map 模擬。
 --------------------------------------------------------- */
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, run, assertEqual, assertTrue, sleep } from '../assert.mjs';
 import {
   createGuardedTileLoadFunction,
   DEFAULT_TILE_LOAD_TIMEOUT_MS,
   DEFAULT_TILE_CACHE_SIZE,
   TILE_STATE,
   attachStaleTileAbort,
+  TILE_RENDER_MAX_CONCURRENCY,
+  tileRenderRequestPool,
+  throttle,
+  STALE_TILE_SWEEP_THROTTLE_MS,
 } from '../../src/core/tileLoadGuard.js';
 import { lonLatToTileXY, tileXYToBbox } from '../../src/core/tileGeo.js';
 
@@ -67,27 +71,46 @@ class FakeTile {
 // 只實作 attachStaleTileAbort() 實際用到的 map/view API 子集：
 // on('moveend', handler)（記住 handler，供測試用 _trigger() 手動觸發）、
 // getView()／getSize()，view 上的 getResolution/getCenter/getZoom/
-// calculateExtent/getProjection。calculateExtent() 不理會傳入的 size
-// 參數，直接回傳建構時指定的 extent（測試只關心「掃描比對用的目前
-// 可視範圍」，不需要真的模擬依視窗尺寸換算 extent 的邏輯）。
-// ol.proj.transformExtent 在 env-stub.mjs 裡是 identity（直接回傳傳入
-// 的 extent，不理會來源/目標投影參數），所以這裡回傳的 extent 可以
-// 直接當成呼叫端拿到的 WGS84 extent 使用，不需要另外做座標轉換。
+// calculateExtent/getProjection，以及節流版拖曳中清理用到的
+// view.on('change:center'/'change:resolution', handler)（同樣記在
+// viewHandlers，供測試用 _triggerView() 手動觸發）。calculateExtent()
+// 不理會傳入的 size 參數，直接回傳目前 extent（測試只關心「掃描比對用
+// 的目前可視範圍」，不需要真的模擬依視窗尺寸換算 extent 的邏輯）；
+// extent／zoom 允許事後用 _setViewState() 更新，模擬拖曳過程中視角
+// 持續改變。ol.proj.transformExtent 在 env-stub.mjs 裡是 identity
+// （直接回傳傳入的 extent，不理會來源/目標投影參數），所以這裡回傳的
+// extent 可以直接當成呼叫端拿到的 WGS84 extent 使用，不需要另外做
+// 座標轉換。
+// 注意：getView() 每次呼叫都要回傳同一個 view 物件（不是每次都 new 一個
+// 新的），attachStaleTileAbort() 只會在建立時呼叫一次 map.getView() 來
+// 掛 view.on()，如果每次呼叫都回傳不同物件，掛上去的 handler 會跟
+// _triggerView() 操作的物件對不上。
 function makeFakeMap({ zoom, extent, size = [800, 600], resolution = 100, center = [0, 0] }){
   const handlers = {};
+  const viewHandlers = {};
+  let currentZoom = zoom;
+  let currentExtent = extent;
+  const view = {
+    getResolution: () => resolution,
+    getCenter: () => center,
+    getZoom: () => currentZoom,
+    calculateExtent: () => currentExtent,
+    getRotation: () => 0,
+    getProjection: () => 'EPSG:3857',
+    on(ev, fn){ (viewHandlers[ev] = viewHandlers[ev] || []).push(fn); },
+  };
   return {
     on(ev, fn){ (handlers[ev] = handlers[ev] || []).push(fn); },
     _trigger(ev){ (handlers[ev] || []).forEach(fn => fn()); },
-    getView(){
-      return {
-        getResolution: () => resolution,
-        getCenter: () => center,
-        getZoom: () => zoom,
-        calculateExtent: () => extent,
-        getRotation: () => 0,
-        getProjection: () => 'EPSG:3857',
-      };
+    _triggerView(ev){ (viewHandlers[ev] || []).forEach(fn => fn()); },
+    // 供測試模擬「拖曳中視角已經改變，但還沒到 moveend」：更新
+    // getZoom()/calculateExtent() 之後回傳的值，不影響已經掛上的
+    // handler 參照。
+    _setViewState({ zoom: z, extent: e }){
+      if(z !== undefined) currentZoom = z;
+      if(e !== undefined) currentExtent = e;
     },
+    getView(){ return view; },
     getSize(){ return size; },
   };
 }
@@ -306,6 +329,113 @@ test('attachStaleTileAbort：邊界保護已經直接判 EMPTY 的圖磚，從�
 
   assertEqual(tile.state, TILE_STATE.EMPTY, '從未送出請求的 EMPTY 圖磚，moveend 掃描不應該改變它的狀態');
   assertEqual(urlAttempts[url] || 0, beforeAttempts, 'EMPTY 圖磚不應該因為 moveend 掃描而多發送任何請求');
+});
+
+/* ---------------------------------------------------------
+   tileRenderRequestPool：歷史／自訂圖層圖磚渲染節流池
+   ---------------------------------------------------------
+   slot 有空位時，TileRenderPool.run() 會同步呼叫 fn()（刻意不用
+   async function 包裝，理由見 tileLoadGuard.js 檔頭註解），所以下面
+   這個測試不需要等任何 tick，送出全部請求後就能立刻同步檢查
+   active／queued 是否符合節流上限。
+--------------------------------------------------------- */
+test('tileRenderRequestPool：節流池併發上限，超過 TILE_RENDER_MAX_CONCURRENCY 的請求會先排隊，不會一次全部發送', async () => {
+  assertEqual(TILE_RENDER_MAX_CONCURRENCY, 4, '目前拍板的上限應該是 4，調整上限時記得同步更新這條斷言');
+
+  const total = 8;
+  const urls = Array.from({ length: total }, (_, i) => `http://tile-load-guard/render-pool-${i}`);
+  urls.forEach(u => { urlResults[u] = true; });
+  const tiles = urls.map(() => new FakeTile([TAIPEI_TILE.z, TAIPEI_TILE.x, TAIPEI_TILE.y]));
+
+  const loadFn = createGuardedTileLoadFunction({ timeoutMs: 5000 }); // 夠長，確保不會被逾時機制搶先判定
+  urls.forEach((u, i) => loadFn(tiles[i], u));
+
+  assertEqual(tileRenderRequestPool.getStats().active, TILE_RENDER_MAX_CONCURRENCY, `8 顆圖磚一次送出，應該立刻佔滿節流池上限 ${TILE_RENDER_MAX_CONCURRENCY} 個 slot`);
+  assertEqual(tileRenderRequestPool.getStats().queued, total - TILE_RENDER_MAX_CONCURRENCY, '超過上限的請求應該先排隊，不能一次全部發送');
+
+  await Promise.all(tiles.map(t => waitForState(t)));
+
+  tiles.forEach((t, i) => assertEqual(t.state, TILE_STATE.LOADED, `第 ${i} 顆圖磚排隊後仍應該正常載入成功`));
+  urls.forEach(u => assertEqual(urlAttempts[u], 1, '每個網址應該只發送 1 次請求，排隊不應該造成重複發送'));
+  assertEqual(tileRenderRequestPool.getStats().active, 0, '全部完成後，節流池的 active 應該歸零');
+  assertTrue(tileRenderRequestPool.getStats().maxObserved <= TILE_RENDER_MAX_CONCURRENCY, `maxObserved 不應該超過上限 ${TILE_RENDER_MAX_CONCURRENCY}`);
+});
+
+/* ---------------------------------------------------------
+   throttle()：通用節流器
+--------------------------------------------------------- */
+test('throttle()：窗口內第一次呼叫立即執行（leading），窗口內其餘呼叫合併成窗口結束後最多補跑一次（trailing）', async () => {
+  const calls = [];
+  const throttled = throttle((label) => calls.push(label), 30);
+
+  throttled('a');
+  assertEqual(calls.length, 1, '第一次呼叫應該立即執行');
+  assertEqual(calls[0], 'a', '第一次呼叫應該帶正確的參數');
+
+  throttled('b');
+  throttled('c');
+  assertEqual(calls.length, 1, '窗口內的後續呼叫不應該立即執行');
+
+  await sleep(60);
+  assertEqual(calls.length, 2, '窗口結束後應該補跑一次');
+  assertEqual(calls[1], 'c', 'trailing 呼叫應該帶最後一次呼叫的參數，不是被吃掉的中間那次');
+
+  await sleep(60);
+  assertEqual(calls.length, 2, '窗口結束後如果沒有新呼叫，不應該無中生有再多跑一次');
+});
+
+/* ---------------------------------------------------------
+   attachStaleTileAbort()：拖曳互動中的節流版清理
+   ---------------------------------------------------------
+   跟前面 moveend 的案例對照：這裡改用 view 的 change:center 觸發，
+   驗證不用等放開滑鼠的 moveend，互動過程中一樣能提早放棄過期請求。
+--------------------------------------------------------- */
+test('attachStaleTileAbort：拖曳中透過 change:center 節流清理，不用等 moveend 就能放棄過期請求', () => {
+  const urlStale = 'http://tile-load-guard/drag-throttle-stale';
+  const urlKeep = 'http://tile-load-guard/drag-throttle-keep';
+  urlResults[urlStale] = 'timeout-always';
+  urlResults[urlKeep] = 'timeout-always';
+
+  const taipei15 = TAIPEI_TILE;
+  const kaohsiung15 = lonLatToTileXY(120.3010, 22.6273, 15); // z 相同、bbox 跟目前視角對不上
+
+  const tileStale = new FakeTile([kaohsiung15.z, kaohsiung15.x, kaohsiung15.y]);
+  const tileKeep = new FakeTile([taipei15.z, taipei15.x, taipei15.y]);
+
+  const loadFn = createGuardedTileLoadFunction({ timeoutMs: 999999 });
+  loadFn(tileStale, urlStale);
+  loadFn(tileKeep, urlKeep);
+
+  assertEqual(tileStale.state, null, '前置條件：請求還在進行中');
+  assertEqual(tileKeep.state, null, '前置條件：請求還在進行中');
+
+  // 目前視角：z15、範圍剛好等於 tileKeep 的 bbox（保證相交），tileStale
+  // （高雄）明顯不相交，模擬「使用者正在拖曳、還沒放開滑鼠到 moveend」。
+  const currentExtent = tileXYToBbox(taipei15.x, taipei15.y, taipei15.z);
+  const fakeMap = makeFakeMap({ zoom: 15, extent: currentExtent });
+  attachStaleTileAbort(fakeMap);
+
+  assertEqual(tileStale.state, null, '掛上監聽器本身不應該立刻觸發清理');
+
+  fakeMap._triggerView('change:center');
+
+  assertEqual(tileStale.state, TILE_STATE.ERROR, 'change:center 節流的第一次觸發（leading）應該立即掃描並放棄過期請求，不用等 moveend');
+  assertEqual(tileKeep.state, null, '沒有過期的請求不應該被拖曳中的節流清理誤傷');
+
+  // 節流窗口內立刻再次觸發：tileStale 已經被 abort、從 registry 移除，
+  // 這裡主要驗證重複觸發不會拋例外、也不會改變已經結束的狀態。
+  fakeMap._triggerView('change:center');
+  assertEqual(tileStale.state, TILE_STATE.ERROR, '重複觸發不應該改變已經 abort 的狀態');
+  assertEqual(tileKeep.state, null, '重複觸發不應該誤傷沒有過期的請求');
+
+  // 測試結束前主動清掉 tileKeep：它刻意用 999999ms 的 timeoutMs 模擬
+  // 「請求還在進行中」，不清乾淨的話會留下一個真正的 setTimeout，讓
+  // Node process 沒辦法自然結束（要等 999999ms 才會觸發）。改用
+  // moveend（不受節流影響，立即執行）搭配跟 tileKeep 也對不上的視角，
+  // 比照檔案開頭其他案例「結束前想辦法讓它 resolve／被 abort」的慣例。
+  fakeMap._setViewState({ extent: [130, 30, 131, 31] });
+  fakeMap._trigger('moveend');
+  assertEqual(tileKeep.state, TILE_STATE.ERROR, '測試結束前主動清理 tileKeep，避免遺留逾時計時器');
 });
 
 await run();
