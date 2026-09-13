@@ -40,7 +40,7 @@
 // 依賴鏈，不會像 store.js／features/ 底下的 feature 層模組那樣有反過來
 // import data.js 的循環風險，所以不需要比照 setCustomSourcesProvider()
 // 那套依賴注入，直接 import 即可。
-import { createGuardedTileLoadFunction } from './core/tileLoadGuard.js';
+import { createGuardedTileLoadFunction, DEFAULT_TILE_CACHE_SIZE } from './core/tileLoadGuard.js';
 
 // 用單一 const 物件裝載這 5 個「載入完成後才有值」的模組狀態，取代原本
 // 個別 export let 逐一重新賦值的寫法（SonarQube javascript:S6861：不要
@@ -327,7 +327,10 @@ function makeWmtsSourceFromEntry(entry){
       // 使用者自訂服務沒有可靠的 WGS84 bbox 資料來源，不傳 regionBbox——
       // createGuardedTileLoadFunction() 內建的防呆會自動略過邊界檢查，
       // 只保留逾時保護（見 core/tileLoadGuard.js）。
-      tileLoadFunction: createGuardedTileLoadFunction({})
+      tileLoadFunction: createGuardedTileLoadFunction({}),
+      // 不帶這個選項 OL 會當成 0（不是退回預設 2048），LRU 過期機制
+      // 形同虛設——見 DEFAULT_TILE_CACHE_SIZE 的說明。
+      cacheSize: DEFAULT_TILE_CACHE_SIZE
     });
   }catch(err){
     console.warn('建立自訂 WMTS 圖層失敗（資料可能已經跟服務端改版不相容）', entry, err);
@@ -336,8 +339,8 @@ function makeWmtsSourceFromEntry(entry){
 }
 
 export function makeSourceForKey(key){
-  if(key === 'base:osm') return new ol.source.OSM({ crossOrigin: 'anonymous' });
-  if(key === 'base:sat') return new ol.source.XYZ({ url: SAT_URL, attributions: 'Esri, Maxar, Earthstar Geographics', crossOrigin: 'anonymous' });
+  if(key === 'base:osm') return new ol.source.OSM({ crossOrigin: 'anonymous', cacheSize: DEFAULT_TILE_CACHE_SIZE });
+  if(key === 'base:sat') return new ol.source.XYZ({ url: SAT_URL, attributions: 'Esri, Maxar, Earthstar Geographics', crossOrigin: 'anonymous', cacheSize: DEFAULT_TILE_CACHE_SIZE });
   if(key.startsWith('custom:')){
     const id = key.slice('custom:'.length);
     const entry = customSourcesProvider().find(s => s.id === id);
@@ -356,7 +359,8 @@ export function makeSourceForKey(key){
     return new ol.source.XYZ({
       url: entry.urlTemplate,
       attributions: entry.attribution || '',
-      tileLoadFunction: createGuardedTileLoadFunction({}) // 同上，沒有可靠 bbox，只做逾時保護
+      tileLoadFunction: createGuardedTileLoadFunction({}), // 同上，沒有可靠 bbox，只做逾時保護
+      cacheSize: DEFAULT_TILE_CACHE_SIZE
     });
   }
   const parts = key.split(':'); // ["hist", sourceId, id, fmt]
@@ -373,7 +377,8 @@ export function makeSourceForKey(key){
     url: src.tileUrl(layer),
     attributions: src.attribution,
     crossOrigin: 'anonymous',
-    tileLoadFunction: createGuardedTileLoadFunction({ regionBbox })
+    tileLoadFunction: createGuardedTileLoadFunction({ regionBbox }),
+    cacheSize: DEFAULT_TILE_CACHE_SIZE
   });
 }
 

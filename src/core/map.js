@@ -11,15 +11,21 @@
 import { state as store, setBaseLayer } from '../store.js';
 import { DATA } from '../data.js';
 import { getBaseLayerConfig } from '../config/baseLayers.js';
+import { DEFAULT_TILE_CACHE_SIZE, attachStaleTileAbort } from './tileLoadGuard.js';
 
 const osmConfig = getBaseLayerConfig('osm');
 const satConfig = getBaseLayerConfig('sat');
 
+// cacheSize 一定要明確帶：不帶的話 OL 會把它當成 0（不是退回內建預設
+// 2048），tile cache 的 LRU 過期機制形同虛設，這兩個底圖又是整頁
+// session 唯一一次建立、永遠不重建的單例，越用越久圖磚只增不減
+// （細節見 core/tileLoadGuard.js 的 DEFAULT_TILE_CACHE_SIZE 說明）。
 const osmLayer = new ol.layer.Tile({
   source: new ol.source.OSM({
     crossOrigin: 'anonymous',
     minZoom: osmConfig.minZoom,
-    maxZoom: osmConfig.maxZoom
+    maxZoom: osmConfig.maxZoom,
+    cacheSize: DEFAULT_TILE_CACHE_SIZE
   }),
   visible: true
 });
@@ -29,7 +35,8 @@ const satLayer = new ol.layer.Tile({
     attributions: satConfig.attribution,
     crossOrigin: 'anonymous',
     minZoom: satConfig.minZoom,
-    maxZoom: satConfig.maxZoom
+    maxZoom: satConfig.maxZoom,
+    cacheSize: DEFAULT_TILE_CACHE_SIZE
   }),
   visible: false
 });
@@ -53,6 +60,11 @@ export const map = new ol.Map({
 map.once('rendercomplete', () => {
   document.body.classList.add('map-ready');
 });
+
+// 快速縮放／拉動／混合操作時，讓已經跟不上視角的歷史圖層圖磚請求
+// 提早放棄、釋放 OL 全域圖磚載入佇列的名額（見 tileLoadGuard.js 的
+// attachStaleTileAbort() 說明）。只需要建立一次，map 是整頁唯一實例。
+attachStaleTileAbort(map);
 
 /* ---------------------------------------------------------
    點擊展開圖資來源（最大階層，例如「宜蘭百年歷史地圖」）時，
