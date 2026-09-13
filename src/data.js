@@ -35,6 +35,12 @@
      4. 視情況在 data/source-map.json 加一筆縣市對應規則
    不需要更動任何既有來源的檔案，也不需要更動任何 .js 檔案。
 --------------------------------------------------------- */
+// data.js 本來完全沒有 import——這是唯一一個例外：core/tileLoadGuard.js
+// 只依賴 core/tileGeo.js（純函式、零依賴），三者形成單向、不回頭的
+// 依賴鏈，不會像 store.js／features/ 底下的 feature 層模組那樣有反過來
+// import data.js 的循環風險，所以不需要比照 setCustomSourcesProvider()
+// 那套依賴注入，直接 import 即可。
+import { createGuardedTileLoadFunction } from './core/tileLoadGuard.js';
 
 // 用單一 const 物件裝載這 5 個「載入完成後才有值」的模組狀態，取代原本
 // 個別 export let 逐一重新賦值的寫法（SonarQube javascript:S6861：不要
@@ -50,9 +56,10 @@ export const DATA = {
 
 // 使用者自訂 WMTS／XYZ 圖層（`custom:<id>` key 命名空間）不屬於
 // LAYER_SOURCES——那批是 data/layers/*.json 產生的內建 curated 資料。
-// data.js 刻意「不依賴任何其他 src 模組」（見檔頭），所以不直接 import
-// store.js，改用參數注入：由 features/multiOverlay.js 在初始化時呼叫
-// setCustomSourcesProvider() 把「怎麼拿到目前的自訂來源清單」這件事
+// data.js 刻意不直接 import store.js／features/ 底下的 feature 層模組
+// （避免 store.js／features/multiOverlay.js 反過來 import data.js 時
+// 形成循環依賴），改用參數注入：由 features/multiOverlay.js 在初始化時
+// 呼叫 setCustomSourcesProvider() 把「怎麼拿到目前的自訂來源清單」這件事
 // 註冊進來，makeSourceForKey()／titleForKey() 需要時再透過這個函式
 // 去查，兩邊模組互不 import 對方。
 let customSourcesProvider = () => [];
@@ -316,7 +323,11 @@ function makeWmtsSourceFromEntry(entry){
       requestEncoding: w.requestEncoding,
       style: w.style,
       tileGrid,
-      attributions: entry.attribution || ''
+      attributions: entry.attribution || '',
+      // 使用者自訂服務沒有可靠的 WGS84 bbox 資料來源，不傳 regionBbox——
+      // createGuardedTileLoadFunction() 內建的防呆會自動略過邊界檢查，
+      // 只保留逾時保護（見 core/tileLoadGuard.js）。
+      tileLoadFunction: createGuardedTileLoadFunction({})
     });
   }catch(err){
     console.warn('建立自訂 WMTS 圖層失敗（資料可能已經跟服務端改版不相容）', entry, err);
@@ -342,14 +353,28 @@ export function makeSourceForKey(key){
     // 「截圖匯出」這個要讀 canvas 像素的操作在那個當下會失敗（已有
     // 對應的錯誤訊息與 try/catch，不影響一般瀏覽）。
     if(entry.type === 'wmts') return makeWmtsSourceFromEntry(entry);
-    return new ol.source.XYZ({ url: entry.urlTemplate, attributions: entry.attribution || '' });
+    return new ol.source.XYZ({
+      url: entry.urlTemplate,
+      attributions: entry.attribution || '',
+      tileLoadFunction: createGuardedTileLoadFunction({}) // 同上，沒有可靠 bbox，只做逾時保護
+    });
   }
   const parts = key.split(':'); // ["hist", sourceId, id, fmt]
   const src = DATA.LAYER_SOURCES.find(s => s.id === parts[1]);
   if(!src) return new ol.source.XYZ({ url: '', crossOrigin: 'anonymous' });
   const layer = findLayerById(src, parts[2]);
   if(!layer) return new ol.source.XYZ({ url: '', crossOrigin: 'anonymous' });
-  return new ol.source.XYZ({ url: src.tileUrl(layer), attributions: src.attribution, crossOrigin: 'anonymous' });
+  // 邊界保護用的 bbox：優先用圖層自己的 region.bbox（較精確，但非強制
+  // 存在），沒有時退回來源層級的 REGION_EXTENTS（較粗略，但
+  // validateLayersBundle() 保證每個來源都有，見 loadAppData()）。兩層
+  // 都沒有合法值時，bboxIntersects() 內建防呆會自動不排除，安全。
+  const regionBbox = layer.region?.bbox || DATA.REGION_EXTENTS[src.id];
+  return new ol.source.XYZ({
+    url: src.tileUrl(layer),
+    attributions: src.attribution,
+    crossOrigin: 'anonymous',
+    tileLoadFunction: createGuardedTileLoadFunction({ regionBbox })
+  });
 }
 
 export function titleForKey(key){

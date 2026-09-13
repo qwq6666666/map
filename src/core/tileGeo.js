@@ -55,6 +55,14 @@ export function neighborTiles(tile){
   return result;
 }
 
+// pointInBbox()／bboxIntersects() 共用的 bbox 格式驗證：必須是長度 4
+// 的陣列，且每個值都是有限數字。抽成獨立函式避免兩處重複寫同一段
+// 檢查邏輯（原本 pointInBbox() 內聯一份，新增 bboxIntersects() 時
+// 會需要再寫一份一模一樣的）。
+function isValidBbox(bbox){
+  return Array.isArray(bbox) && bbox.length === 4 && bbox.every(Number.isFinite);
+}
+
 /**
  * 判斷一個 WGS84 經緯度點是否落在給定的 bbox 範圍內。
  *
@@ -73,10 +81,58 @@ export function neighborTiles(tile){
  * @returns {boolean} 點是否落在 bbox 範圍內（邊界視為在範圍內）；bbox 格式不合法時一律回傳 true
  */
 export function pointInBbox(lon, lat, bbox){
-  if(!Array.isArray(bbox) || bbox.length !== 4) return true;
+  if(!isValidBbox(bbox)) return true;
   const [minLon, minLat, maxLon, maxLat] = bbox;
-  if(![minLon, minLat, maxLon, maxLat].every(Number.isFinite)) return true;
   return lon >= minLon && lon <= maxLon && lat >= minLat && lat <= maxLat;
+}
+
+/**
+ * lonLatToTileXY() 的反函式：給定 slippy map 圖磚座標，算出這顆圖磚
+ * 在 WGS84 座標系下的涵蓋範圍。
+ *
+ * 用途：圖磚載入前的邊界保護（core/tileLoadGuard.js）——算出目前要
+ * 載入的這顆圖磚實際涵蓋的經緯度範圍，跟圖層的 region.bbox 用
+ * bboxIntersects() 比對，完全不相交就代表這顆圖磚不可能有資料，不需要
+ * 真的發送 file-exists.php 請求。
+ *
+ * 注意參數順序：跟本檔案既有慣例（lonLatToTileXY 回傳 {x,y,z}、
+ * neighborTiles({x,y,z})）一致，是 (x, y, z)，不是 OpenLayers
+ * tile.getTileCoord() 回傳的 [z, x, y]——呼叫端如果是從 OL 的 tile
+ * 物件取得座標，要自己重新排列，不能直接展開傳入。
+ *
+ * @param {number} x 圖磚 X 座標
+ * @param {number} y 圖磚 Y 座標
+ * @param {number} z 縮放層級
+ * @returns {[number, number, number, number]} [minLon, minLat, maxLon, maxLat]，EPSG:4326
+ */
+export function tileXYToBbox(x, y, z){
+  const n = Math.pow(2, z);
+  const lonAt = (tx) => tx / n * 360 - 180;
+  const latAt = (ty) => Math.atan(Math.sinh(Math.PI * (1 - 2 * ty / n))) * 180 / Math.PI;
+  // y 往南遞增，所以圖磚的北緯上緣對應 latAt(y)、南緯下緣對應 latAt(y+1)。
+  return [lonAt(x), latAt(y + 1), lonAt(x + 1), latAt(y)];
+}
+
+/**
+ * 判斷兩個 WGS84 bbox 是否有重疊（相交或其中一個包含另一個都算）。
+ *
+ * 用途：圖磚渲染的邊界保護——比對「這顆圖磚的涵蓋範圍」（tileXYToBbox()
+ * 算出來的）跟「圖層的 region.bbox」，完全不相交就代表這顆圖磚落在
+ * 圖層資料範圍之外。
+ *
+ * 防呆規則跟 pointInBbox() 完全一致：任一個 bbox 格式不合法（缺失、
+ * 不是長度 4 的陣列、含非有限數字），一律回傳 true——沒有可靠索引
+ * 資料時寧可不排除。
+ *
+ * @param {[number, number, number, number]} bboxA [minLon, minLat, maxLon, maxLat]
+ * @param {[number, number, number, number]} bboxB 同上
+ * @returns {boolean} 是否相交（含邊界相切）；任一 bbox 格式不合法時一律回傳 true
+ */
+export function bboxIntersects(bboxA, bboxB){
+  if(!isValidBbox(bboxA) || !isValidBbox(bboxB)) return true;
+  const [aMinLon, aMinLat, aMaxLon, aMaxLat] = bboxA;
+  const [bMinLon, bMinLat, bMaxLon, bMaxLat] = bboxB;
+  return aMinLon <= bMaxLon && aMaxLon >= bMinLon && aMinLat <= bMaxLat && aMaxLat >= bMinLat;
 }
 
 /* ---------------------------------------------------------

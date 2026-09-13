@@ -12,7 +12,7 @@ model: sonnet
 你僅能檢視與修改下列底層地圖核心檔案：
 - 地圖核心主體：`src/mapCore.js`、`src/core/map.js`
 - 圖層管理與快取：`src/core/layerManager.js`、`src/core/layerCache.js`、`src/core/protectedKeys.js`（統一計算 layerCache LRU 保護名單，跟 layerCache.js 綁在一起維護）
-- 圖磚幾何與容錯：`src/core/tileGeo.js`、`src/tileChecker.js`
+- 圖磚幾何與容錯：`src/core/tileGeo.js`、`src/tileChecker.js`、`src/core/tileLoadGuard.js`（一般瀏覽/平移時圖磚渲染的逾時＋邊界保護，跟 tileChecker.js 的地址搜尋探測用途刻意分開、不共用 RequestPool）
 - 座標與地理編碼：`src/geocode.js`
 - 底圖服務集中配置：`src/config/baseLayers.js`（現代地圖／衛星影像等底圖之 URL 樣板、縮放範圍、attribution 元資料）
 
@@ -27,5 +27,5 @@ model: sonnet
 
 # 驗證規範
 - 修改後執行單元測試進行驗證：
-  `node tests/run-all.mjs tests/specs/tile-checker.test.mjs tests/specs/neighbor-tile-fallback.test.mjs tests/specs/coordinate-transform.test.mjs`
-  （`coordinate-transform.test.mjs` 測的是 `src/core/tileGeo.js` 的座標轉換函式，屬於本代理權責檔案）
+  `node tests/run-all.mjs tests/specs/tile-checker.test.mjs tests/specs/neighbor-tile-fallback.test.mjs tests/specs/coordinate-transform.test.mjs tests/specs/spatial-index.test.mjs tests/specs/tile-load-guard.test.mjs`
+  （`coordinate-transform.test.mjs`／`spatial-index.test.mjs` 測的是 `src/core/tileGeo.js` 的座標轉換與 bbox 判斷函式，`tile-load-guard.test.mjs` 測的是 `src/core/tileLoadGuard.js`，都屬於本代理權責檔案）

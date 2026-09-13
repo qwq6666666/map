@@ -25,6 +25,13 @@
 - `TileChecker`（`src/tileChecker.js`）的 `_probe()` 一律包在 `RequestPool.run()` 裡才送出 `Image` 請求，確保巢狀 fallback／timeout retry 不會讓併發數超上限。未傳入 `pool` 時各 instance 自建專屬 pool；`search.js`／`timelineMode.js` 明確共用 `globalTileRequestPool`（上限 `TILE_REQUEST_MAX_CONCURRENCY = 8`）。
 - 測試：`tests/specs/spatial-index.test.mjs`（bbox 覆蓋率回歸＋全站總圖層數斷言，增刪來源時同步更新）、`tests/specs/tile-request-pool.test.mjs`（併發上限、cache/in-flight dedup、timeout 釋放 slot、retry 不繞過 pool）。
 
+**以上都是「地址搜尋」背景探測專用的路徑。** 使用者平移／縮放地圖時實際看到的圖磚，是 OpenLayers 依 viewport 直接對 `ol.source.XYZ`／`ol.source.WMTS` 發送請求，跟上面這套完全無關——`sinica` 的 `file-exists.php` 端點對「該座標沒有歷史圖資」的圖磚回應可以慢達 2~3 秒（正常圖磚跟 OSM 一樣快，約 50~150ms），一般瀏覽路徑原本沒有任何保護，會卡在這些慢請求上，還會排擠瀏覽器對同一 host 其他真正有資料的圖磚。`src/core/tileLoadGuard.js`（`createGuardedTileLoadFunction()`）是**獨立的第二套機制**，接在 `src/data.js` 的 `makeSourceForKey()` / `makeWmtsSourceFromEntry()`，作為 `tileLoadFunction` 選項套用在每個 WMTS/XYZ source：
+- 邊界保護：重用 `tileGeo.js` 新增的 `tileXYToBbox()`（`lonLatToTileXY()` 的反函式）＋ `bboxIntersects()`（比對「圖磚 bbox」而非單一經緯度點，防呆慣例跟 `pointInBbox()` 一致），完全不相交就 `tile.setState(EMPTY)`，不發送任何請求。`hist:` 圖層優先用 `layer.region?.bbox`，沒有時退回來源層級、保證存在的 `DATA.REGION_EXTENTS[src.id]`；`custom:` 匯入的使用者自訂服務沒有可靠 bbox，只套用下面的逾時保護。
+- 逾時保護＋重試一次：邏輯比照 `tileChecker._probeWithRetry()`（只有逾時才重試一次，明確 onerror 不重試），但預設 `timeoutMs`（`DEFAULT_TILE_LOAD_TIMEOUT_MS`，目前 2000ms）刻意遠短於 `tileChecker.js` 的 6000ms——這裡要解決的是「盡快釋放連線名額」，沿用 6000ms 會讓逾時機制形同虛設。
+- **刻意不共用** `tileChecker.js` 的 `RequestPool`／`globalTileRequestPool`：那是背景批次探測用的節流閥，跟使用者正在看的地圖圖磚混在一起排隊會讓兩種用途互相拖累，圖磚渲染的併發交給瀏覽器對同一 host 的原生連線限制即可。
+- `ol.TileState` 沒有被匯出到全域 UMD 的 `ol` 命名空間（`ol.source`／`ol.layer`／`ol.tilegrid` 等子命名空間才有），`tileLoadGuard.js` 自己定義了數值等價的 `TILE_STATE` 常數，不要改回讀 `ol.TileState`。
+- 測試：`tests/specs/tile-load-guard.test.mjs`（邊界外不發請求、邊界內正常載入、逾時重試、明確失敗不重試等案例），`tileXYToBbox`／`bboxIntersects` 的測試分別補在 `coordinate-transform.test.mjs`／`spatial-index.test.mjs`。
+
 ## 手機版 Responsive UI (<=768px Bottom Sheet)
 手機版是「地圖為主、可拖曳二態 Bottom Sheet 為輔」，不是桌面 `#sidebar` 縮小；平板 (769~1024px) 與桌面不受影響。協調層 `src/ui/mobileLayout.js`（不重新實作搜尋／模式切換／圖層邏輯，只做既有 DOM 搬移與 UI 狀態同步），樣式集中在 `style.css` 檔尾「Mobile Responsive Layout」區塊（`@media (max-width:768px)`，靠後宣告覆寫桌面規則、不改原規則）。
 - **Bottom Sheet 二態**：縮小(peek) 沿用 `#sidebar.collapsed`；展開(75vh) 是唯一非收合態，僅用有無 `.collapsed` 表達兩態（無「半開」中間態）。高度吃 `--vvh`（`updateViewportMetrics()` 量測 `window.visualViewport.height` 寫入），**不可改回純 `vh`**——手機瀏覽器工具列動態顯隱會讓 `100vh` 跟可視高度不符（實機踩過的坑）。

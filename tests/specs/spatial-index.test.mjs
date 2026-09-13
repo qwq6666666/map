@@ -2,7 +2,7 @@ import '../env-stub.mjs';
 import { test, run, assertEqual, assertTrue } from '../assert.mjs';
 import { readFileSync } from 'fs';
 import path from 'path';
-import { lonLatToTileXY, pointInBbox } from '../../src/core/tileGeo.js';
+import { lonLatToTileXY, pointInBbox, bboxIntersects, tileXYToBbox } from '../../src/core/tileGeo.js';
 import { TileChecker } from '../../src/tileChecker.js';
 import { filterCandidatesByBbox, SEARCH_ZOOM } from '../../src/features/search.js';
 
@@ -29,6 +29,50 @@ test('pointInBbox：座標剛好等於 minLon/maxLon/minLat/maxLat 邊界 -> 應
 
 test('pointInBbox：經度、緯度都明顯超出範圍好幾度 -> false', () => {
   assertTrue(!pointInBbox(90, 40, TAIWAN_BBOX), '經緯度都遠遠超出範圍，應為 false');
+});
+
+/* ---------------------------------------------------------
+   bboxIntersects：兩個 bbox 是否相交（圖磚渲染邊界保護用）
+--------------------------------------------------------- */
+test('bboxIntersects：兩個明顯重疊的 bbox -> true', () => {
+  assertTrue(bboxIntersects([119, 21, 123, 26], [121, 24, 125, 28]), '兩個 bbox 有重疊，應該回傳 true');
+});
+
+test('bboxIntersects：一個 bbox 完全包含另一個 -> true', () => {
+  assertTrue(bboxIntersects(TAIWAN_BBOX, [121, 24, 122, 25]), '被完全包含也算相交，應該回傳 true');
+});
+
+test('bboxIntersects：兩個明顯不相交的 bbox（台北 vs 高雄外海）-> false', () => {
+  assertTrue(!bboxIntersects([121.4, 24.9, 121.7, 25.2], [119, 21, 119.5, 21.5]), '兩個 bbox 明顯不重疊，應該回傳 false');
+});
+
+test('bboxIntersects：邊界剛好相切（一個的 maxLon 等於另一個的 minLon）-> true', () => {
+  assertTrue(bboxIntersects([119, 21, 121, 23], [121, 21, 123, 23]), '邊界相切應視為相交（跟 pointInBbox 邊界視為範圍內的慣例一致）');
+});
+
+test('bboxIntersects：任一 bbox 為 null／格式不合法 -> fallback true', () => {
+  assertTrue(bboxIntersects(TAIWAN_BBOX, null), 'bboxB 為 null 應該 fallback 為 true');
+  assertTrue(bboxIntersects(null, TAIWAN_BBOX), 'bboxA 為 null 應該 fallback 為 true');
+  assertTrue(bboxIntersects([119, 21, 123], TAIWAN_BBOX), 'bboxA 長度不是 4 應該 fallback 為 true');
+  assertTrue(bboxIntersects(TAIWAN_BBOX, [119, NaN, 123, 26]), 'bboxB 含 NaN 應該 fallback 為 true');
+});
+
+test('bboxIntersects：搭配 tileXYToBbox 驗證圖磚渲染實際情境——已知有資料的圖磚應與圖層 bbox 相交', () => {
+  const sinicaPath = path.join(process.cwd(), 'data/layers/sinica.json');
+  const sinica = JSON.parse(readFileSync(sinicaPath, 'utf-8'));
+  let target = null;
+  (sinica.categories || []).forEach(cat => {
+    const layersArr = cat.groups ? cat.groups.flatMap(g => g.layers) : cat.layers;
+    (layersArr || []).forEach(layer => { if(layer.id === 'JM20K_1904') target = layer; });
+  });
+  const bbox = target.region.bbox;
+
+  const z = 15;
+  const insideTile = lonLatToTileXY(121.5654, 25.0330, z); // 台北，落在 bbox 內
+  const outsideTile = lonLatToTileXY(116.4074, 39.9042, z); // 北京，明顯在 bbox 外
+
+  assertTrue(bboxIntersects(tileXYToBbox(insideTile.x, insideTile.y, insideTile.z), bbox), '台北座標所在圖磚應該跟 JM20K_1904 的 bbox 相交');
+  assertTrue(!bboxIntersects(tileXYToBbox(outsideTile.x, outsideTile.y, outsideTile.z), bbox), '北京座標所在圖磚應該跟 JM20K_1904 的 bbox 不相交');
 });
 
 /* ---------------------------------------------------------

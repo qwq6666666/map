@@ -1,6 +1,6 @@
 import '../env-stub.mjs';
 import { test, run, assertTrue, assertEqual } from '../assert.mjs';
-import { toTWD97, formatWGS84, formatTWD97 } from '../../src/core/tileGeo.js';
+import { toTWD97, formatWGS84, formatTWD97, tileXYToBbox, lonLatToTileXY, pointInBbox } from '../../src/core/tileGeo.js';
 import { buildCoordInfoElement } from '../../src/features/search.js';
 
 // 誤差容許：1 公尺以內（依任務需求的精度基準）
@@ -92,6 +92,33 @@ test('buildCoordInfoElement：內容包含正確換算後的 WGS84／TWD97 座�
   const htmlAll = rows.map(row => row.innerHTML).join('\n');
   assertTrue(htmlAll.includes(expectedWGS84), `應包含 WGS84 格式化字串：${expectedWGS84}`);
   assertTrue(htmlAll.includes(expectedTWD97), `應包含 TWD97 格式化字串：${expectedTWD97}`);
+});
+
+/* ---------------------------------------------------------
+   tileXYToBbox：lonLatToTileXY 的反函式
+--------------------------------------------------------- */
+test('tileXYToBbox：算出的 bbox 應該包住原始經緯度（跟 lonLatToTileXY 互為反函式）', () => {
+  const z = 15;
+  const lon = 121.5654, lat = 25.0330; // 台北市中心
+  const tile = lonLatToTileXY(lon, lat, z);
+  const bbox = tileXYToBbox(tile.x, tile.y, tile.z);
+
+  assertEqual(bbox.length, 4, 'bbox 應該是長度 4 的陣列');
+  assertTrue(pointInBbox(lon, lat, bbox), '算出的 bbox 應該包住原始經緯度');
+  assertTrue(bbox[0] < bbox[2], 'minLon 應小於 maxLon');
+  assertTrue(bbox[1] < bbox[3], 'minLat 應小於 maxLat');
+});
+
+test('tileXYToBbox：世界地圖邊緣圖磚（x=0、z=0）不應出現 NaN 或 Infinity', () => {
+  const bbox = tileXYToBbox(0, 0, 0);
+  bbox.forEach(v => assertTrue(Number.isFinite(v), `bbox 元素應為有限數字，實際 ${v}`));
+  assertTrue(bbox[0] >= -180 && bbox[2] <= 180, `經度應落在 -180~180 範圍內，實際 ${JSON.stringify(bbox)}`);
+});
+
+test('tileXYToBbox：z=0 唯一一顆圖磚應涵蓋全世界經度範圍 -180~180', () => {
+  const bbox = tileXYToBbox(0, 0, 0);
+  assertNear(bbox[0], -180, 1e-9, 'minLon 應為 -180');
+  assertNear(bbox[2], 180, 1e-9, 'maxLon 應為 180');
 });
 
 await run();
