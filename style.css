@@ -1420,11 +1420,14 @@
   /* ---------- 新手導覽／使用指南（src/ui/onboarding.js） ----------
      獨立疊加層，不共用側邊欄既有摺疊語彙的 class（避免跟 initCollapsibleSections()
      的選擇器互相誤觸），只借用同一套顏色變數維持視覺一致。 */
-  .tour-btn-row{display:flex; gap:8px; margin-top:12px;}
+  /* 4 顆按鈕排一整排會太窄、文字被迫兩行擠壓，改用 2x2 grid 讓每顆
+     按鈕拿到雙倍寬度，大部分標籤能單行顯示。 */
+  .tour-btn-row{display:grid; grid-template-columns:repeat(2, 1fr); gap:8px; margin-top:12px;}
   .tour-btn-row-btn{
-    flex:1; padding:8px 4px; background:var(--paper); border:1px solid var(--rule);
+    padding:8px 4px; background:var(--paper); border:1px solid var(--rule);
     border-radius:2px; font-family:var(--sans); font-size:12px; font-weight:600;
-    color:var(--ink); cursor:pointer; text-align:center;
+    color:var(--ink); cursor:pointer; text-align:center; white-space:nowrap;
+    overflow:hidden; text-overflow:ellipsis;
   }
   .tour-btn-row-btn:hover{background:var(--paper-dim); border-color:var(--brass-dark); color:var(--brass-dark);}
 
