@@ -1,0 +1,1650 @@
+{
+  "id": "ls",
+  "name": "地方社會研究WMTS圖資",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（地方社會研究WMTS圖資）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/ls/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      116.0579429,
+      20.0223073,
+      125.68565702,
+      27.60173358
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "池上",
+      "layers": [
+        {
+          "id": "Chihshang_15K_1992",
+          "title": "臺東縣池上鄉行政區域圖(1992)",
+          "format": "png",
+          "year": 1992,
+          "dateLabel": "1992",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.1676554,
+              23.0176313,
+              121.2836728,
+              23.167133
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Chihshang_16K_2005",
+          "title": "臺東縣池上鄉行政區域圖(2005)",
+          "format": "png",
+          "year": 2005,
+          "dateLabel": "2005",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.11728402,
+              22.99922215,
+              121.3491126,
+              23.17587424
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Chihshang_1919",
+          "title": "池上村豫約賣渡出願圖",
+          "format": "png",
+          "year": 1919,
+          "dateLabel": "1919",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.1344055,
+              23.065257,
+              121.2901264,
+              23.1654613
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Chihshang_1940s",
+          "title": "池上舊航照(1940年代)",
+          "format": "png",
+          "year": 1940,
+          "dateLabel": "1940年代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.1146427,
+              22.9947616,
+              121.2917148,
+              23.1840916
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Chihshang_19480628",
+          "title": "池上地區舊航照影像(1948)",
+          "format": "png",
+          "year": 1948,
+          "dateLabel": "1948",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.13477519934,
+              23.003976480313,
+              121.33333596949,
+              23.226737483858
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Chihshang_1950s",
+          "title": "池上舊航照(1950年代)",
+          "format": "png",
+          "year": 1950,
+          "dateLabel": "1950年代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.1656045,
+              23.0085383,
+              121.2895506,
+              23.1635175
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Chihshang_19510623",
+          "title": "池上地區舊航照影像(1951)",
+          "format": "png",
+          "year": 1951,
+          "dateLabel": "1951",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.20350924011,
+              23.081344485537,
+              121.25926131223,
+              23.143892846438
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Chihshang_1960s",
+          "title": "池上舊航照(1960年代)",
+          "format": "png",
+          "year": 1960,
+          "dateLabel": "1960年代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.1364937,
+              22.9881331,
+              121.2783654,
+              23.1912012
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Chihshang_19640722",
+          "title": "池上地區舊航照影像(1964)",
+          "format": "png",
+          "year": 1964,
+          "dateLabel": "1964",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.15917135547,
+              23.044413483147,
+              121.2935487366,
+              23.195163632959
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Chihshang_19681120",
+          "title": "池上地區舊航照影像(1968)",
+          "format": "png",
+          "year": 1968,
+          "dateLabel": "1968",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.16090836987,
+              23.043847486164,
+              121.29574673974,
+              23.195115138276
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Chihshang_1970s",
+          "title": "池上舊航照(1970年代)",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970年代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.17363041,
+              23.02374116,
+              121.26247859,
+              23.15743598
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Chihshang_19740622",
+          "title": "池上地區舊航照影像(1974)",
+          "format": "png",
+          "year": 1974,
+          "dateLabel": "1974",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.1959143669,
+              23.089259577119,
+              121.23688208647,
+              23.135221474299
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Chihshang_19750202",
+          "title": "池上地區舊航照影像(1975)",
+          "format": "png",
+          "year": 1975,
+          "dateLabel": "1975",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.1904788441,
+              23.095380545145,
+              121.26560190623,
+              23.179645616867
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Chihshang_1K_1975",
+          "title": "臺東縣池上鄉都計地形原圖",
+          "format": "png",
+          "year": 1975,
+          "dateLabel": "1975",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.2033434,
+              23.1119456,
+              121.2268159,
+              23.1362915
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Chihshang_2.5K_1928",
+          "title": "池上地方平面圖",
+          "format": "png",
+          "year": 1928,
+          "dateLabel": "1928",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.172225,
+              23.0885937,
+              121.2256586,
+              23.1476447
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Chihshang_25K_1956",
+          "title": "池上大圳灌溉區域地形圖",
+          "format": "png",
+          "year": 1956,
+          "dateLabel": "1956",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.1226822,
+              23.082268,
+              121.2399771,
+              23.1543992
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Chihshang_25K_1967",
+          "title": "1967-臺灣二萬五千分一地形圖",
+          "format": "png",
+          "year": 1967,
+          "dateLabel": "1967",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.0310212,
+              22.9786536,
+              121.4122745,
+              23.175004
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Chihshang_25K_1979",
+          "title": "台東縣土地灌溉利用圖：池上",
+          "format": "png",
+          "year": 1979,
+          "dateLabel": "1979",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.128242,
+              23.0770387,
+              121.2676187,
+              23.1703503
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Chihshang_3K_1973",
+          "title": "臺東縣池上鄉都計地形原圖",
+          "format": "png",
+          "year": 1973,
+          "dateLabel": "1973",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.1516505,
+              23.0489005,
+              121.2630908,
+              23.1772047
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Chihshang_50K_1944",
+          "title": "1944-日治五萬分之一編纂地形圖",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9904663,
+              22.982426,
+              121.2744974,
+              23.1831612
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Chihshang_irrigation_A",
+          "title": "台東水利會池上工作站轄區平面圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": null,
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.1516505,
+              23.0489005,
+              121.2630908,
+              23.1772047
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Chihshang_irrigation_B",
+          "title": "台東水利會池上工作站灌溉區域平面圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": null,
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.1771454,
+              23.0619707,
+              121.2664159,
+              23.1710032
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "map_wra_00257",
+          "title": "池上大圳灌溉區域地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": null,
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.12266392,
+              23.08187463,
+              121.24233886,
+              23.15460269
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "關山",
+      "layers": [
+        {
+          "id": "Guanshan_1K_1977",
+          "title": "臺東縣關山鎮都計地形原圖",
+          "format": "png",
+          "year": 1977,
+          "dateLabel": "1977",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.1546327,
+              23.0380759,
+              121.1703234,
+              23.0624405
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taitung_aerialphoto_1979",
+          "title": "臺東池上、關山舊航照影像(1979)",
+          "format": "png",
+          "year": 1979,
+          "dateLabel": "1979",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.14998956355,
+              22.98135649611,
+              121.29113282702,
+              23.215213598875
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "map_wra_00815",
+          "title": "關山地方調查平面圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": null,
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.11890766,
+              22.93051717,
+              121.1996577,
+              23.13321118
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "臺東（卑南溪流域）水利圖",
+      "layers": [
+        {
+          "id": "map_wra_00261",
+          "title": "呂家溪平面圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": null,
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.04598828,
+              22.69949948,
+              121.1086498,
+              22.77202592
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "map_wra_00835",
+          "title": "卑南上圳灌溉區域地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": null,
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.05614664,
+              22.7281313,
+              121.14357728,
+              22.88009324
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "map_wra_00841",
+          "title": "卑南大溪地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": null,
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.09042837,
+              22.72537792,
+              121.19065613,
+              22.79162629
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "map_wra_00849_852",
+          "title": "卑南大溪原圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": null,
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.08560901,
+              22.74862234,
+              121.2137342,
+              23.1388749
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "富里",
+      "layers": [
+        {
+          "id": "Fuli_1970s",
+          "title": "富里舊航照",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970年代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.212268,
+              23.091009,
+              121.395027,
+              23.311757
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Fuli_24K_2007",
+          "title": "花蓮縣富里鄉行政區域圖(2007)",
+          "format": "png",
+          "year": 2007,
+          "dateLabel": "2007",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.1957553,
+              23.0736862,
+              121.3953721,
+              23.3203044
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Fuli_25K_1992",
+          "title": "花蓮縣富里鄉行政區域圖(1992)",
+          "format": "png",
+          "year": 1992,
+          "dateLabel": "1992",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.1953295,
+              23.0791847,
+              121.3898124,
+              23.3267522
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Fuli_5K_1980",
+          "title": "花蓮縣富里鄉(鱉溪流域)正射影像",
+          "format": "png",
+          "year": 1980,
+          "dateLabel": "1980",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.2312592,
+              23.0969455,
+              121.3098637,
+              23.1997853
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "玉里",
+      "layers": [
+        {
+          "id": "Yuli_1K_1982",
+          "title": "花蓮縣玉里地區地形圖",
+          "format": "png",
+          "year": 1982,
+          "dateLabel": "1982",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.301438,
+              23.3203886,
+              121.3288904,
+              23.3501333
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yuli_3K_1970",
+          "title": "花蓮縣玉里鎮地形圖",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.2935381,
+              23.3148107,
+              121.3288617,
+              23.3482023
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "瑞穗",
+      "layers": [
+        {
+          "id": "Ruisui_1970s",
+          "title": "瑞穗舊航照(1970年代)",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970年代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.304043,
+              23.406419,
+              121.485371,
+              23.615297
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Ruisui_3K_1971",
+          "title": "花蓮縣瑞穗鄉地形圖",
+          "format": "png",
+          "year": 1971,
+          "dateLabel": "1971",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.370284,
+              23.4874214,
+              121.3990343,
+              23.5024013
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "光復",
+      "layers": [
+        {
+          "id": "Guangfu_1970s",
+          "title": "光復舊航照(1970年代)",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970年代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.350225,
+              23.581039,
+              121.527597,
+              23.726896
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hualien_Dahe_2.5K_1939",
+          "title": "花蓮大和地方(光復鄉)平面圖(1939)",
+          "format": "png",
+          "year": 1939,
+          "dateLabel": "1939",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.31430606,
+              23.53869468,
+              121.47363317,
+              23.68486542
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "花蓮（花東縱谷）",
+      "layers": [
+        {
+          "id": "Hualien_1910",
+          "title": "台東花蓮港廳管內土地整理豫查圖",
+          "format": "png",
+          "year": 1910,
+          "dateLabel": "1910",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.5448243,
+              22.1034526,
+              121.9989268,
+              24.3830632
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hualien_1952",
+          "title": "秀姑巒溪流域航拍(1952)",
+          "format": "png",
+          "year": 1952,
+          "dateLabel": "1952",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9534031,
+              23.1184334,
+              121.5346421,
+              23.742154
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hualien_1960s",
+          "title": "花東縱谷舊航照影像(1960年代)",
+          "format": "png",
+          "year": 1960,
+          "dateLabel": "1960年代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.320445,
+              23.410148,
+              121.5870637,
+              23.8265374
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hualien_1970s",
+          "title": "花東縱谷舊航照影像(1970年代)",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970年代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.321292,
+              23.4134745,
+              121.5592419,
+              23.8353698
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hualien_1973",
+          "title": "花東縱谷舊航照影像(1973)",
+          "format": "png",
+          "year": 1973,
+          "dateLabel": "1973",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.0414992,
+              22.756847,
+              121.6019323,
+              24.0330156
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hualien_2.5K_1923",
+          "title": "秀姑巒溪河川測量原圖",
+          "format": "png",
+          "year": 1923,
+          "dateLabel": "1923",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.2610451,
+              23.2835053,
+              121.3412641,
+              23.3359097
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hualien_2.5K_1932",
+          "title": "秀姑巒溪平面圖",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.240707,
+              23.1760371,
+              121.4276436,
+              23.5293091
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hualien_25K_1944",
+          "title": "美軍二萬五千分之一地形圖",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.1329787,
+              22.9981272,
+              121.6332017,
+              23.581598
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Map_LSB1_Taitung",
+          "title": "1914-日治官有林野圖(臺東廳)",
+          "format": "png",
+          "year": 1914,
+          "dateLabel": "1914",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.46839944,
+              22.19114896,
+              121.7776719,
+              23.58993418
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "樂生療養院",
+      "layers": [
+        {
+          "id": "Losheng_Campus_1931",
+          "title": "日治時期樂生院院區空間示意圖(1930-1931)",
+          "format": "png",
+          "year": 1930,
+          "dateLabel": "1930-1931",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.4056922,
+              25.018545,
+              121.411975,
+              25.0254005
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Losheng_Campus_1937",
+          "title": "日治時期樂生院院區空間示意圖(1937)",
+          "format": "png",
+          "year": 1937,
+          "dateLabel": "1937",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.4052588,
+              25.018003,
+              121.4119131,
+              25.0253052
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Losheng_Campus_1941",
+          "title": "日治時期樂生院院區空間示意圖(1941)",
+          "format": "png",
+          "year": 1941,
+          "dateLabel": "1941",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.4048708,
+              25.0176578,
+              121.4126141,
+              25.026417
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Losheng_Campus_1955",
+          "title": "省立樂生療養院平面圖(1955)",
+          "format": "png",
+          "year": 1955,
+          "dateLabel": "1955",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.4057725,
+              25.0192933,
+              121.4104237,
+              25.0247119
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "鹿野",
+      "layers": [
+        {
+          "id": "Luye_3K_1972",
+          "title": "臺東縣鹿野鄉地形圖",
+          "format": "png",
+          "year": 1972,
+          "dateLabel": "1972",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.1093404,
+              22.8983152,
+              121.1414044,
+              22.9172275
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "南投（埔里・竹山）",
+      "layers": [
+        {
+          "id": "Puli_aerialphoto_1951",
+          "title": "埔里舊航照影像(1951)",
+          "format": "png",
+          "year": 1951,
+          "dateLabel": "1951",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.8731472,
+              23.879923,
+              121.0168726,
+              24.0838616
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Puli_aerialphoto_1957",
+          "title": "埔里舊航照影像(1957)",
+          "format": "png",
+          "year": 1957,
+          "dateLabel": "1957",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9402352,
+              23.9224558,
+              121.0352116,
+              24.0112316
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Puli_aerialphoto_1963",
+          "title": "埔里舊航照影像(1963)",
+          "format": "png",
+          "year": 1963,
+          "dateLabel": "1963",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.8772278,
+              23.9255182,
+              121.0252346,
+              24.0569651
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "map_wra_00259",
+          "title": "竹山地方平面圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": null,
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.60261304,
+              23.71857012,
+              120.7754731,
+              23.82694761
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "苗栗（西湖溪流域）",
+      "layers": [
+        {
+          "id": "map_wra_00936",
+          "title": "打那叭溪(西湖溪)平面圖_2.5K",
+          "format": "png",
+          "year": null,
+          "dateLabel": null,
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.73206459,
+              24.4114674,
+              120.79361039,
+              24.62148645
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "臺北市",
+      "layers": [
+        {
+          "id": "Taipei_aerialphoto_1947_ac",
+          "title": "美軍航照影像（1947）",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.29331607,
+              24.89870874,
+              121.80428342,
+              25.27707014
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taipei_aerialphoto_1956",
+          "title": "台北市舊航照影像（1956）",
+          "format": "png",
+          "year": 1956,
+          "dateLabel": "1956",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.29331607,
+              24.89870874,
+              121.80428342,
+              25.27707014
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taipei_aerialphoto_1965",
+          "title": "台北市舊航照影像（1965）",
+          "format": "png",
+          "year": 1965,
+          "dateLabel": "1965",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.29331607,
+              24.89870874,
+              121.80428342,
+              25.27707014
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "新店",
+      "layers": [
+        {
+          "id": "Xindian_1947",
+          "title": "新店舊航照影像(1974)",
+          "format": "png",
+          "year": 1974,
+          "dateLabel": "1974",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.4825719,
+              24.8664293,
+              121.6229982,
+              25.0077005
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "板橋",
+      "layers": [
+        {
+          "id": "Banqiao_3K_1970s_A",
+          "title": "板橋江子翠都市計畫地形測量原圖",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970年代",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.4297003,
+              24.9850247,
+              121.490612,
+              25.0439458
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "新莊",
+      "layers": [
+        {
+          "id": "Xinzhuang_1.2K_1981",
+          "title": "塔寮坑溪河道地形圖",
+          "format": "png",
+          "year": 1981,
+          "dateLabel": "1981",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.4002922,
+              25.0183792,
+              121.4409397,
+              25.034646
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Xinzhuang_10K_1991",
+          "title": "臺北縣新莊市全圖(1991)",
+          "format": "png",
+          "year": 1991,
+          "dateLabel": "1991",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.3898975,
+              24.9803245,
+              121.4707496,
+              25.0760841
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Xinzhuang_1895",
+          "title": "1895-日治初期地形圖",
+          "format": "png",
+          "year": 1895,
+          "dateLabel": "1895",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.37304756901,
+              25.007638576906,
+              121.51404707252,
+              25.111272683414
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Xinzhuang_1944",
+          "title": "1944-舊航照影像",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.36348688204,
+              24.969838312982,
+              121.6084193738,
+              25.149862125378
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Xinzhuang_1948",
+          "title": "1948-舊航照影像",
+          "format": "png",
+          "year": 1948,
+          "dateLabel": "1948",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.3728194,
+              24.9616193,
+              121.473737,
+              25.0531076
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Xinzhuang_1948b",
+          "title": "1948-舊航照影像",
+          "format": "png",
+          "year": 1948,
+          "dateLabel": "1948",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.3742142,
+              24.9635187,
+              121.4723808,
+              25.0524955
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Xinzhuang_1953",
+          "title": "1953-舊地籍圖",
+          "format": "png",
+          "year": 1953,
+          "dateLabel": "1953",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.43383674208,
+              25.066194121903,
+              121.46675538436,
+              25.090385484977
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Xinzhuang_1970sb",
+          "title": "新莊都市計畫地形圖",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970年代",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.4001363,
+              25.0154005,
+              121.4258107,
+              25.0332023
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Xinzhuang_1973",
+          "title": "1973-新莊都市計畫",
+          "format": "png",
+          "year": 1973,
+          "dateLabel": "1973",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.39385340488,
+              24.996466348163,
+              121.47912011439,
+              25.068514510433
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Xinzhuang_1973b",
+          "title": "1973-舊航照影像",
+          "format": "png",
+          "year": 1973,
+          "dateLabel": "1973",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.42118199995,
+              25.051241282749,
+              121.47384404629,
+              25.095724472394
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Xinzhuang_1977",
+          "title": "新莊樹林交界都市計畫地形圖",
+          "format": "png",
+          "year": 1977,
+          "dateLabel": "1977",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.3887849,
+              24.9919971,
+              121.4364983,
+              25.0244532
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Xinzhuang_1978",
+          "title": "1978-歷史航照影像",
+          "format": "png",
+          "year": 1978,
+          "dateLabel": "1978",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.3908198658,
+              25.016494811995,
+              121.5254050458,
+              25.130177900072
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Xinzhuang_1978b",
+          "title": "1978-舊航照影像",
+          "format": "png",
+          "year": 1978,
+          "dateLabel": "1978",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.3560503,
+              24.9719783,
+              121.4601923,
+              25.0747223
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Xinzhuang_1979a",
+          "title": "新莊(頭前)都市計畫地形圖",
+          "format": "png",
+          "year": 1979,
+          "dateLabel": "1979",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.4573902,
+              25.0368988,
+              121.4694537,
+              25.0639554
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Xinzhuang_1979b",
+          "title": "新莊(西盛)都市計畫地形圖",
+          "format": "png",
+          "year": 1979,
+          "dateLabel": "1979",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.416607,
+              25.0036605,
+              121.4365678,
+              25.0361388
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Xinzhuang_1984",
+          "title": "新莊泰山交界都市計畫地形圖",
+          "format": "png",
+          "year": 1984,
+          "dateLabel": "1984",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.4287442,
+              25.0472938,
+              121.471843,
+              25.10893
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Xinzhuang_3K",
+          "title": "新莊都市計畫地形測量原圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": null,
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.4007026,
+              25.0000917,
+              121.4724344,
+              25.0649033
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Xinzhuang_3K_1970s_A",
+          "title": "新莊都市計畫地形原圖",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970年代",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.4007026,
+              25.0000917,
+              121.4724344,
+              25.0649033
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Xinzhuang_9.5K_2007",
+          "title": "臺北縣新莊市行政區域圖(2007)",
+          "format": "png",
+          "year": 2007,
+          "dateLabel": "2007",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.3898988,
+              24.9871437,
+              121.4695828,
+              25.0798113
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "全臺底圖",
+      "layers": [
+        {
+          "id": "moi_osm",
+          "title": "魯地圖(twmap style)",
+          "format": "png",
+          "year": null,
+          "dateLabel": null,
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              116.0579429,
+              20.0223073,
+              125.68565702,
+              27.60173358
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "rudy",
+          "title": "魯地圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": null,
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              116.0579429,
+              20.0223073,
+              125.68565702,
+              27.60173358
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

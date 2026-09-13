@@ -1,0 +1,756 @@
+{
+  "id": "japan",
+  "name": "日本百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（日本百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/japan/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      127.5451138,
+      25.7965728,
+      143.0837266,
+      41.8333602
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "函館",
+      "layers": [
+        {
+          "id": "Hakoba_13K_1952",
+          "title": "北海道南岸函館港海圖",
+          "format": "png",
+          "year": 1952,
+          "dateLabel": "1952",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              140.6329626,
+              41.7071281,
+              140.7501712,
+              41.8333602
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "神戶",
+      "layers": [
+        {
+          "id": "Kobe_11K_1954",
+          "title": "神戶港海圖",
+          "format": "png",
+          "year": 1954,
+          "dateLabel": "1954",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              135.1565166,
+              34.6220652,
+              135.2475171,
+              34.7289118
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Kobe_15K",
+          "title": "實地踏測神戶市街全圖 [15000]",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              135.10622,
+              34.61675,
+              135.25012,
+              34.73108
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Kobe_1954",
+          "title": "苅藻島付近海圖",
+          "format": "png",
+          "year": 1954,
+          "dateLabel": "1954",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              135.1460004,
+              34.6412407,
+              135.1727784,
+              34.6596752
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Kobe_20K_1968",
+          "title": "神戶港 PORT OF KOBE海圖",
+          "format": "png",
+          "year": 1968,
+          "dateLabel": "1968",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              135.0682221,
+              34.5836902,
+              135.3327908,
+              34.7651296
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Kobe_36.4K_1935",
+          "title": "大阪港及神戶港海圖",
+          "format": "png",
+          "year": 1935,
+          "dateLabel": "1935",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              135.0976123,
+              34.5468061,
+              135.5269309,
+              34.8000705
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "大阪",
+      "layers": [
+        {
+          "id": "Osaka_10K_1905",
+          "title": "大阪市圖",
+          "format": "png",
+          "year": 1905,
+          "dateLabel": "1905",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              135.383262,
+              34.6169608,
+              135.5477581,
+              34.7206606
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Osaka_11K_1952",
+          "title": "大阪港海圖",
+          "format": "png",
+          "year": 1952,
+          "dateLabel": "1952",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              135.3627884,
+              34.6159752,
+              135.490504,
+              34.6919489
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Osaka_16K_1919",
+          "title": "大阪市街新地圖",
+          "format": "png",
+          "year": 1919,
+          "dateLabel": "1919",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              135.4124223,
+              34.6367353,
+              135.5404582,
+              34.7226792
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Osaka_1970A",
+          "title": "大阪市街図",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              135.4286983,
+              34.5920135,
+              135.5769112,
+              34.755217
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Osaka_1970B",
+          "title": "大阪觀光絵図",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              135.4431253,
+              34.6434405,
+              135.5681754,
+              34.7166289
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Osaka_30KA",
+          "title": "大阪市工場分布圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              135.4037567,
+              34.5725875,
+              135.5892126,
+              34.7869265
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Osaka_30KB",
+          "title": "大阪市雜種工場分布圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              135.4053834,
+              34.5710571,
+              135.5881488,
+              34.7864105
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Osaka_30KC",
+          "title": "大阪市飲食品工場分布圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              135.4049228,
+              34.5702894,
+              135.589095,
+              34.7883133
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Osaka_30KD",
+          "title": "大阪市染織工場分布圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              135.4060191,
+              34.5711046,
+              135.5876584,
+              34.7878886
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Osaka_30KE",
+          "title": "大阪市化學工場分布圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              135.405853,
+              34.5710163,
+              135.5882382,
+              34.7884541
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Osaka_30KF",
+          "title": "大阪市金屬工場分布圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              135.4045189,
+              34.5649261,
+              135.5891049,
+              34.7950582
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Osaka_36.4K_1935",
+          "title": "大阪港及神戶港海圖",
+          "format": "png",
+          "year": 1935,
+          "dateLabel": "1935",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              135.0976123,
+              34.5468061,
+              135.5269309,
+              34.8000705
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "琉球／沖繩",
+      "layers": [
+        {
+          "id": "Ryuku_125K",
+          "title": "沖繩群島全圖 Map of Okinawa Islands",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              127.5982807,
+              25.9858937,
+              128.3679408,
+              26.9349781
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Ryuku_150K",
+          "title": "沖繩OKINAWA",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              127.5451138,
+              25.7965728,
+              128.4228783,
+              26.9692863
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Ryuku_A",
+          "title": "那霸市街図",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              127.6663789,
+              26.2001263,
+              127.7039647,
+              26.2276855
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Ryuku_B",
+          "title": "首里管內図",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              127.7072129,
+              26.2133427,
+              127.7259826,
+              26.2266051
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Ryuku_C",
+          "title": "コザ市街図",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              127.7856528,
+              26.315747,
+              127.8242094,
+              26.3455293
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "下田",
+      "layers": [
+        {
+          "id": "Shimoda_10K_1954A",
+          "title": "手石港(湊錨地)海圖",
+          "format": "png",
+          "year": 1954,
+          "dateLabel": "1954",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              138.883527,
+              34.620927,
+              138.9058056,
+              34.6392814
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Shimoda_10K_1954B",
+          "title": "下田港海圖",
+          "format": "png",
+          "year": 1954,
+          "dateLabel": "1954",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              138.9342375,
+              34.6369388,
+              138.9667125,
+              34.6804369
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Shimoda_35K_1954",
+          "title": "下田港及附近海圖",
+          "format": "png",
+          "year": 1954,
+          "dateLabel": "1954",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              138.8436962,
+              34.5702223,
+              138.9918577,
+              34.7232479
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "東京",
+      "layers": [
+        {
+          "id": "Tokyo_10K_1902",
+          "title": "東京市全圖",
+          "format": "png",
+          "year": 1902,
+          "dateLabel": "1902",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              139.6974978,
+              35.624716,
+              139.8311041,
+              35.7416198
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Tokyo_1929",
+          "title": "江戶錦大繪圖",
+          "format": "png",
+          "year": 1929,
+          "dateLabel": "1929",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              139.6910678,
+              35.6104195,
+              139.835694,
+              35.7515726
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Tokyo_200K_1933",
+          "title": "東京海灣及犬吠埼海圖",
+          "format": "png",
+          "year": 1933,
+          "dateLabel": "1933",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              139.2140492,
+              34.5266295,
+              141.5893673,
+              35.8970238
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Tokyo_36K",
+          "title": "東京近郊地圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              139.5574762,
+              35.5851192,
+              139.8813689,
+              35.7688932
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Tokyo_40K_1934",
+          "title": "大東京市制全圖",
+          "format": "png",
+          "year": 1934,
+          "dateLabel": "1934",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              139.5450706,
+              35.5071478,
+              139.9390093,
+              35.8419409
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Tokyo_500K_1926",
+          "title": "東京海灣至金華山海圖",
+          "format": "png",
+          "year": 1926,
+          "dateLabel": "1926",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              138.9831482,
+              34.0808877,
+              143.0837266,
+              38.8354304
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Tokyo_75K_1930",
+          "title": "東京近郊地圖",
+          "format": "png",
+          "year": 1930,
+          "dateLabel": "1930",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              139.3594659,
+              35.483464,
+              139.9467663,
+              35.8291395
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "浦賀",
+      "layers": [
+        {
+          "id": "Uraga_10K_1946",
+          "title": "東京海灣浦賀港及近海海圖",
+          "format": "png",
+          "year": 1946,
+          "dateLabel": "1946",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              139.6975554,
+              35.1901847,
+              139.7594211,
+              35.2647688
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "四日市",
+      "layers": [
+        {
+          "id": "Yokkaichi_200K_1930",
+          "title": "御前埼至伊勢海海圖",
+          "format": "png",
+          "year": 1930,
+          "dateLabel": "1930",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              136.1672038,
+              33.9155765,
+              138.5082183,
+              35.2896901
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "橫濱",
+      "layers": [
+        {
+          "id": "Yokohama_11K_1952",
+          "title": "京浜港橫浜東部海圖",
+          "format": "png",
+          "year": 1952,
+          "dateLabel": "1952",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              139.6492454,
+              35.4459994,
+              139.8163971,
+              35.544604
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yokohama_11K_1953",
+          "title": "東京海灣京浜港橫浜海圖",
+          "format": "png",
+          "year": 1953,
+          "dateLabel": "1953",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              139.6150589,
+              35.3985979,
+              139.7064464,
+              35.5034763
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yokohama_15K_1915",
+          "title": "大正調查番地入橫濱市全圖",
+          "format": "png",
+          "year": 1915,
+          "dateLabel": "1915",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              139.5871592,
+              35.3984097,
+              139.6768077,
+              35.502706
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

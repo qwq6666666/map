@@ -1,0 +1,756 @@
+{
+  "id": "hsinchu",
+  "name": "新竹百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（新竹百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/hsinchu/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      120.85,
+      24.45,
+      121.25,
+      24.85
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "日治時期地圖",
+      "layers": [
+        {
+          "id": "Touchien_River_2.5K_1914",
+          "title": "頭前溪地形圖",
+          "format": "png",
+          "year": 1914,
+          "dateLabel": "1914",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.91653441,
+              24.66403004,
+              121.19821545,
+              24.87394991
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_3K_1905",
+          "title": "新竹街市區改正計畫圖",
+          "format": "png",
+          "year": 1905,
+          "dateLabel": "1905",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.959921,
+              24.7970982,
+              120.9740618,
+              24.8124796
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_3K_1905b",
+          "title": "新竹街市區改正計畫圖(藍曬)",
+          "format": "png",
+          "year": 1905,
+          "dateLabel": "1905",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.958942,
+              24.7947622,
+              120.9751439,
+              24.814287
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_3K_1913",
+          "title": "新竹街市區改正計畫圖",
+          "format": "png",
+          "year": 1913,
+          "dateLabel": "1913",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.959349,
+              24.795383,
+              120.9759189,
+              24.8134934
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_6K_1917",
+          "title": "新竹市區計畫變更圖",
+          "format": "png",
+          "year": 1917,
+          "dateLabel": "1917",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9548917,
+              24.789488,
+              120.984663,
+              24.8203712
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_3K_1921",
+          "title": "新竹市區改正圖",
+          "format": "png",
+          "year": 1921,
+          "dateLabel": "1921",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9493353,
+              24.7880642,
+              120.9855227,
+              24.8192669
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_6K_1928",
+          "title": "新竹市街圖",
+          "format": "png",
+          "year": 1928,
+          "dateLabel": "1928",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9496168,
+              24.7884912,
+              120.9891209,
+              24.8192178
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_8K_1935",
+          "title": "新竹市職業別明細圖",
+          "format": "png",
+          "year": 1935,
+          "dateLabel": "1935",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9533228,
+              24.7836708,
+              120.9903865,
+              24.8244879
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_6K_1936",
+          "title": "新竹都市計畫圖",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9443914,
+              24.769449,
+              121.0143677,
+              24.8258051
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchun_6K_1938",
+          "title": "新竹都市計畫圖",
+          "format": "png",
+          "year": 1938,
+          "dateLabel": "1938",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9449262,
+              24.779428,
+              121.0020127,
+              24.8262124
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Touchien_River_2.5K_1938",
+          "title": "頭前溪二千五百分之一河川地形圖",
+          "format": "png",
+          "year": 1938,
+          "dateLabel": "1938",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.90823284,
+              24.68838223,
+              121.21520559,
+              24.88103002
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "概觀地圖（1940年代）",
+      "layers": [
+        {
+          "id": "Hsinchu_5K_1940s",
+          "title": "新竹市管內圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1940s",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.8698828,
+              24.6982447,
+              121.0518999,
+              24.8712458
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_10K_1940s",
+          "title": "新竹市街附近平面圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1940s",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9116937,
+              24.7782092,
+              120.9946097,
+              24.84471
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_25K_1940s",
+          "title": "新竹市管內圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1940s",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.8767677,
+              24.6880091,
+              121.1400823,
+              24.8695627
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_50K_1940s",
+          "title": "新竹市五萬分之一地圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1940s",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.814221,
+              24.5684145,
+              121.2234799,
+              24.9253845
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰後都市計畫地形圖",
+      "layers": [
+        {
+          "id": "Hsinchun_25K_1950",
+          "title": "新竹市區二萬五千分一地形圖",
+          "format": "png",
+          "year": 1950,
+          "dateLabel": "1950",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.8831976,
+              24.7478802,
+              121.0082661,
+              24.8310913
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_6K_1953",
+          "title": "新竹都市計畫圖",
+          "format": "png",
+          "year": 1953,
+          "dateLabel": "1953",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.94485989,
+              24.77736569,
+              121.02993118,
+              24.82646376
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_3K_1970",
+          "title": "新竹工業區都市計畫地形測量原圖",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9726777,
+              24.76845251,
+              121.02122719,
+              24.80394311
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_5K_1970",
+          "title": "新竹五千分一地形圖",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.948828921,
+              24.762904262,
+              121.067597693,
+              24.830648034
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_3K_1973",
+          "title": "新竹市細部計畫都市計畫地形測量原圖",
+          "format": "png",
+          "year": 1973,
+          "dateLabel": "1973",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.94925406,
+              24.78403116,
+              120.97925356,
+              24.82661234
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_3K_1975",
+          "title": "新竹段高速公路交流道都市計畫地形測量原圖",
+          "format": "png",
+          "year": 1975,
+          "dateLabel": "1975",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.97873769,
+              24.76254499,
+              121.03938003,
+              24.8028209
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_3K_1977",
+          "title": "新竹市未設定區都市計畫地形測量原圖",
+          "format": "png",
+          "year": 1977,
+          "dateLabel": "1977",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.94490471,
+              24.77669967,
+              121.00494219,
+              24.80121511
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "街道／行政區域圖",
+      "layers": [
+        {
+          "id": "Hsinchu_10K_1976",
+          "title": "新竹市一萬分之一城市圖",
+          "format": "png",
+          "year": 1976,
+          "dateLabel": "1976",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9001088,
+              24.7778625,
+              121.0100445,
+              24.8564994
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_12.5K_1982",
+          "title": "新竹市改制升格省轄市行政區域圖",
+          "format": "png",
+          "year": 1982,
+          "dateLabel": "1982",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.8361465,
+              24.6555154,
+              121.0720091,
+              24.8786964
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_25K_1983",
+          "title": "新竹市圖",
+          "format": "png",
+          "year": 1983,
+          "dateLabel": "1983",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.8552933,
+              24.6635542,
+              121.056645,
+              24.9049548
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_10K_1986",
+          "title": "新竹市區街道圖",
+          "format": "png",
+          "year": 1986,
+          "dateLabel": "1986",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9119853,
+              24.7653745,
+              121.0200553,
+              24.8363967
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_15K_2007",
+          "title": "新竹市行政區域圖",
+          "format": "png",
+          "year": 2006,
+          "dateLabel": "2006",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.8319438,
+              24.703072,
+              121.077107,
+              24.862449
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "舊地籍圖",
+      "layers": [
+        {
+          "id": "Hsinchu_cadastral_1953A",
+          "title": "新竹市區舊地籍圖(1/1200)",
+          "format": "png",
+          "year": 1953,
+          "dateLabel": "1953",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9441563,
+              24.7882842,
+              120.9891066,
+              24.8211564
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_cadastral_1953B",
+          "title": "新竹市區舊地籍圖(1/600)",
+          "format": "png",
+          "year": 1953,
+          "dateLabel": "1953",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.96211,
+              24.7948628,
+              120.9845922,
+              24.8145897
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_cadastral_1974",
+          "title": "新竹市東門段等7段舊地籍圖(1/600)",
+          "format": "png",
+          "year": 1974,
+          "dateLabel": "1974",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.96439444,
+              24.79833481,
+              120.97800149,
+              24.81287416
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_OA002715",
+          "title": "新竹市舊地籍圖：赤土崎",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9628733,
+              24.7768578,
+              120.9989018,
+              24.8097313
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "舊航照影像",
+      "layers": [
+        {
+          "id": "Hsinchu_aerialphoto_1945",
+          "title": "新竹市舊航照",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.8198395,
+              24.6889028,
+              121.1670305,
+              25.0156595
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "hlanguage_1948",
+          "title": "航照影像",
+          "format": "png",
+          "year": 1948,
+          "dateLabel": "1948",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.949,
+              24.86,
+              121.049,
+              24.948
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_aerialphoto_1947",
+          "title": "新竹市舊航照",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.8198395,
+              24.6889028,
+              121.1670305,
+              25.0156595
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_aerialphoto_1959",
+          "title": "新竹科學園區舊航照",
+          "format": "png",
+          "year": 1959,
+          "dateLabel": "1959",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9606925,
+              24.7131155,
+              121.0757562,
+              24.8141086
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_aerialphoto_1972",
+          "title": "新竹市舊航照",
+          "format": "png",
+          "year": 1972,
+          "dateLabel": "1972",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9228362,
+              24.7430303,
+              121.0192339,
+              24.8458595
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_aerialphoto_1973",
+          "title": "新竹科學園區舊航照",
+          "format": "png",
+          "year": 1973,
+          "dateLabel": "1973",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9870192,
+              24.7567062,
+              121.0260747,
+              24.8130466
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hsinchu_aerialphoto_1976",
+          "title": "新竹市舊航照",
+          "format": "png",
+          "year": 1976,
+          "dateLabel": "1976",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.931313,
+              24.7719278,
+              121.0099028,
+              24.8247606
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "hlanguage_2004",
+          "title": "航照影像",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.982,
+              24.897,
+              121.009,
+              24.924
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

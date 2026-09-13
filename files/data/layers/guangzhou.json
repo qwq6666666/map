@@ -1,0 +1,276 @@
+{
+  "id": "guangzhou",
+  "name": "廣州百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（廣州百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/guangzhou/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      112.2560497,
+      21.8557145,
+      113.8922741,
+      23.9081345
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "清末民初(1910s-1920s)",
+      "layers": [
+        {
+          "id": "Guangzhou_200K_1918",
+          "title": "廣州三角洲圖",
+          "format": "png",
+          "year": 1918,
+          "dateLabel": "1918",
+          "type": null,
+          "scale": "1:200000",
+          "region": {
+            "bbox": [
+              112.2560497,
+              21.8557145,
+              113.8922741,
+              23.9081345
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Guangzhou_25K_1914",
+          "title": "廣州市區域啚",
+          "format": "png",
+          "year": 1914,
+          "dateLabel": "1914",
+          "type": "行政區劃圖",
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              113.1859848,
+              23.0359661,
+              113.4833674,
+              23.2355875
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Guangzhou_25K_1923",
+          "title": "廣州市區域啚(1923)",
+          "format": "png",
+          "year": 1923,
+          "dateLabel": "1923",
+          "type": "行政區劃圖",
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              113.1748003,
+              23.0294056,
+              113.432496,
+              23.2441846
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "1930年代",
+      "layers": [
+        {
+          "id": "Guangzhou_10K_1932",
+          "title": "廣州市馬路路線圖",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": null,
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              113.2157881,
+              23.0743528,
+              113.3163786,
+              23.1454001
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Guangzhou_12K_1936",
+          "title": "廣州市馬路圖(CANTON CITY)",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": "1:12000",
+          "region": {
+            "bbox": [
+              113.2091597,
+              23.0790289,
+              113.3237016,
+              23.1688962
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Guangzhou_12K_1937",
+          "title": "廣州外港黃埔地形圖",
+          "format": "png",
+          "year": 1937,
+          "dateLabel": "1937",
+          "type": "地形圖",
+          "scale": "1:12000",
+          "region": {
+            "bbox": [
+              113.3820387,
+              23.0436633,
+              113.5139114,
+              23.1368016
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰爭末期至戰後(1945-1948)",
+      "layers": [
+        {
+          "id": "Guangzhou_25K_1945",
+          "title": "1945 CANTON",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              113.19399,
+              23.01801,
+              113.39047,
+              23.15596
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Guangzhou_10K_1947A",
+          "title": "廣州市(甲)",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              113.2221004,
+              23.102807,
+              113.282717,
+              23.1828151
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Guangzhou_10K_1947B",
+          "title": "廣州市圖(乙)",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              113.1988398,
+              23.0408396,
+              113.4134431,
+              23.2265284
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Guangzhou_12K_1947",
+          "title": "廣州市馬路圖",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": "1:12000",
+          "region": {
+            "bbox": [
+              113.2204655,
+              23.079603,
+              113.3214618,
+              23.1609121
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Guangzhou_6K_1948",
+          "title": "廣州市街道詳圖(1948)",
+          "format": "png",
+          "year": 1948,
+          "dateLabel": "1948",
+          "type": null,
+          "scale": "1:6000",
+          "region": {
+            "bbox": [
+              113.217498363,
+              23.0956013515,
+              113.29469688,
+              23.1473577514
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "當代",
+      "layers": [
+        {
+          "id": "Guangzhou_50K_1973",
+          "title": "廣州市(1973)",
+          "format": "png",
+          "year": 1973,
+          "dateLabel": "1973",
+          "type": null,
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              113.238939681,
+              22.9217214605,
+              113.5173574,
+              23.2648048876
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Guangzhou_9K_2012",
+          "title": "廣州市街道詳圖(2012)",
+          "format": "png",
+          "year": 2012,
+          "dateLabel": "2012",
+          "type": null,
+          "scale": "1:9000",
+          "region": {
+            "bbox": [
+              113.2174931,
+              23.0971704,
+              113.295667,
+              23.1486276
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

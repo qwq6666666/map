@@ -1,0 +1,186 @@
+{
+  "id": "tamsui",
+  "name": "淡水百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（淡水百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/tamsui/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      121.3614,
+      25.1276,
+      121.5224572,
+      25.22644717
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "淡水百年歷史地圖",
+      "layers": [
+        {
+          "id": "Tamsui_1888",
+          "title": "淡水港市街及兵備圖(1888)",
+          "format": "png",
+          "year": 1888,
+          "dateLabel": "1888",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.39649,
+              25.15532,
+              121.45891,
+              25.19393
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Tamsui_1893",
+          "title": "淡水港區計畫圖(1893)",
+          "format": "png",
+          "year": 1893,
+          "dateLabel": "1893",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.40042,
+              25.15046,
+              121.45814,
+              25.18617
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Tamsui_1895",
+          "title": "淡水港水路圖(1895)",
+          "format": "png",
+          "year": 1895,
+          "dateLabel": "1895",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.3614,
+              25.1276,
+              121.4783,
+              25.2
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Tamsui_1896",
+          "title": "淡水港區計畫圖(1896)",
+          "format": "png",
+          "year": 1896,
+          "dateLabel": "1896",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.3949,
+              25.1541,
+              121.4545,
+              25.191
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Tamsui_3K_1910",
+          "title": "滬尾市街之圖(1910)",
+          "format": "png",
+          "year": 1910,
+          "dateLabel": "1910",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.4261683,
+              25.1633825,
+              121.4518379,
+              25.1853664
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Tamsui_1913",
+          "title": "淡水港市街圖(1913)",
+          "format": "png",
+          "year": 1913,
+          "dateLabel": "1913",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.41283,
+              25.15998,
+              121.45972,
+              25.18899
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Tamsui_2.5K_1913",
+          "title": "淡水河平面圖(1913)",
+          "format": "png",
+          "year": 1913,
+          "dateLabel": "1913",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.3876847,
+              25.1693877,
+              121.4418723,
+              25.195635
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tamsui_2.5K_1939",
+          "title": "淡水河港灣調查平面圖(1939)",
+          "format": "png",
+          "year": 1939,
+          "dateLabel": "1939",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.39602831,
+              25.15443962,
+              121.43225491,
+              25.20054148
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tamsui_2.5K_1944",
+          "title": "淡水地方調查平面圖(1944)",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.4505582,
+              25.19985833,
+              121.5224572,
+              25.22644717
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

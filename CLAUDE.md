@@ -7,7 +7,7 @@
 ## 常用指令 (Commands)
 - 安裝依賴：`npm install`
 - 開發模式（Vite，含 HMR）：`npm run dev`
-- 正式建置：`npm run build`（輸出到 `dist/`，含 hash 檔名與 sourcemap）
+- 正式建置：`npm run build`（輸出到 `files/`，含 hash 檔名與 sourcemap；`files/` 就是 GitHub Pages 實際發布的資料夾，build 完直接 commit + push 即完成部署，不用再手動複製貼上到別的 repo）
 - 預覽建置結果：`npm run preview`
 - 免建置純靜態啟動（備用，不經過 Vite）：`.\start-website.bat` 或 `npx serve`
 - 全域測試：`node tests/run-all.mjs`（或 `npm test`）；單一測試：`node tests/run-all.mjs tests/specs/<test-file>.mjs`

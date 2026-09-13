@@ -1,0 +1,660 @@
+{
+  "id": "beijing",
+  "name": "北京百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（北京百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/beijing/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      114.499427441,
+      36.7498166915,
+      118.000723913,
+      40.16734432
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "明清時期歷史復原圖",
+      "layers": [
+        {
+          "id": "Beijing_1550",
+          "title": "明北京城復原圖",
+          "format": "png",
+          "year": 1550,
+          "dateLabel": "明 1550",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              116.28456816677,
+              39.724433259602,
+              116.54606383799,
+              39.985928930828
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_1750B",
+          "title": "清乾隆北京城復原圖",
+          "format": "png",
+          "year": 1750,
+          "dateLabel": "清乾隆 1750",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              116.28456816677,
+              39.724433259602,
+              116.54606383799,
+              39.985928930828
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_Qianlong",
+          "title": "乾隆京城全圖",
+          "format": "png",
+          "year": 1750,
+          "dateLabel": "清乾隆",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              116.30949513043,
+              39.775880255268,
+              116.49834573058,
+              39.964730855426
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_6.25K_1900",
+          "title": "清乾隆北京城復原圖",
+          "format": "png",
+          "year": 1900,
+          "dateLabel": "1900",
+          "type": null,
+          "scale": "1:6250",
+          "region": {
+            "bbox": [
+              116.34200383232,
+              39.844856338551,
+              116.45383386583,
+              39.956686372067
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "清末民初實測圖",
+      "layers": [
+        {
+          "id": "Beijing_15K_1887",
+          "title": "北京全圖",
+          "format": "png",
+          "year": 1887,
+          "dateLabel": "1887",
+          "type": null,
+          "scale": "1:15000",
+          "region": {
+            "bbox": [
+              116.27565179388,
+              39.714826169586,
+              116.565652036,
+              40.004826411708
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_25K_1907",
+          "title": "北京附地（PEKING UND UMGEBUNG）",
+          "format": "png",
+          "year": 1907,
+          "dateLabel": "1907",
+          "type": null,
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              116.2806182,
+              39.8089459,
+              116.5037759,
+              40.0017931
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_2K_1908",
+          "title": "PEKING. LEGATIONS QUARTER",
+          "format": "png",
+          "year": 1908,
+          "dateLabel": "1908",
+          "type": null,
+          "scale": "1:2000",
+          "region": {
+            "bbox": [
+              116.3888185,
+              39.896553,
+              116.4144256,
+              39.9125703
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_25K_1909",
+          "title": "北京附地圖(1909)",
+          "format": "png",
+          "year": 1909,
+          "dateLabel": "1909",
+          "type": "行政區劃圖",
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              116.11695303975,
+              39.653828155647,
+              116.58079900146,
+              40.117674117355
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_25K_1910sa",
+          "title": "北苑（北平）",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1910s",
+          "type": null,
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              116.3168483,
+              39.9486409,
+              116.4781982,
+              40.0388661
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_25K_1910sb",
+          "title": "CARTE DES ENVIRONS DE PEKING. PEKING(NORD) 北京（北）",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1910s",
+          "type": null,
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              116.2994996,
+              39.8307875,
+              116.460543,
+              40.0007226
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_1913",
+          "title": "實測北京內外城地圖",
+          "format": "png",
+          "year": 1913,
+          "dateLabel": "1913",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              116.30980409006,
+              39.775176470755,
+              116.49865526875,
+              39.964027649445
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_2K_1912",
+          "title": "LEGATIONS QUARTER. PEKING",
+          "format": "png",
+          "year": 1912,
+          "dateLabel": "1912",
+          "type": null,
+          "scale": "1:2000",
+          "region": {
+            "bbox": [
+              116.3876587,
+              39.8957092,
+              116.4152977,
+              39.9106596
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_25K_1914",
+          "title": "北京附地圖(1914)",
+          "format": "png",
+          "year": 1914,
+          "dateLabel": "1914",
+          "type": "行政區劃圖",
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              116.11695303975,
+              39.653828155647,
+              116.58079900146,
+              40.117674117355
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_1915",
+          "title": "實測京師四郊地圖",
+          "format": "png",
+          "year": 1915,
+          "dateLabel": "1915",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              115.78708947,
+              39.59281339,
+              116.82574988,
+              40.16734432
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_2.5K_1918",
+          "title": "三海圖",
+          "format": "png",
+          "year": 1918,
+          "dateLabel": "1918",
+          "type": null,
+          "scale": "1:2500",
+          "region": {
+            "bbox": [
+              116.3738692,
+              39.9036838,
+              116.3887874,
+              39.933414
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "民國北平時期(1920s–1930s)",
+      "layers": [
+        {
+          "id": "Beijing_10K_1928",
+          "title": "PEKING 1928",
+          "format": "png",
+          "year": 1928,
+          "dateLabel": "1928",
+          "type": null,
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              116.3341795,
+              39.8622733,
+              116.4412519,
+              39.9575442
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_50K_1928",
+          "title": "順直(華北)水利委員會實測地形圖",
+          "format": "png",
+          "year": 1928,
+          "dateLabel": "1928",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              114.499427441,
+              36.7498166915,
+              118.000723913,
+              40.0002634668
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_1930",
+          "title": "北平市最新詳細全圖(1930)",
+          "format": "png",
+          "year": 1930,
+          "dateLabel": "1930",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              116.30456570415,
+              39.750261585645,
+              116.52917371831,
+              39.974869599806
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_31.7K_1933",
+          "title": "MILITARY TACTICAL MAP PEIPING ＆ ENVIRONS",
+          "format": "png",
+          "year": 1933,
+          "dateLabel": "1933",
+          "type": null,
+          "scale": "1:31700",
+          "region": {
+            "bbox": [
+              116.1773883,
+              39.7521664,
+              116.5164115,
+              40.0678637
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_2.5K_1935",
+          "title": "北平北海公園全圖",
+          "format": "png",
+          "year": 1935,
+          "dateLabel": "1935",
+          "type": null,
+          "scale": "1:2500",
+          "region": {
+            "bbox": [
+              116.3765042,
+              39.9204069,
+              116.3884756,
+              39.9328357
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_15K_1935",
+          "title": "PLAN OF PEKING（北平城平面圖）",
+          "format": "png",
+          "year": 1935,
+          "dateLabel": "1935",
+          "type": null,
+          "scale": "1:15000",
+          "region": {
+            "bbox": [
+              116.3369483,
+              39.8647624,
+              116.4429649,
+              39.9546889
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_25K_1936",
+          "title": "北平（PEIPING）",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              116.2884956,
+              39.8517935,
+              116.4958988,
+              39.9720475
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_15K_1939",
+          "title": "最新北京市街地圖",
+          "format": "png",
+          "year": 1939,
+          "dateLabel": "1939",
+          "type": "行政區劃圖",
+          "scale": "1:15000",
+          "region": {
+            "bbox": [
+              116.33825122,
+              39.842954512,
+              116.440794416,
+              39.958727478
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰後及當代",
+      "layers": [
+        {
+          "id": "Beijing_1940s",
+          "title": "北平市全圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1940s",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              116.3324311,
+              39.8588947,
+              116.4637845,
+              40.0046376
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_10K_1947",
+          "title": "北京內外城詳圖",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              116.336325687,
+              39.8513356893,
+              116.442232935,
+              39.9580048597
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_50K_1947",
+          "title": "北平市城郊地圖",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": "行政區劃圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              116.0438513,
+              39.7492021,
+              116.6178846,
+              40.0944038
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_A1949",
+          "title": "北京市城區主要街道圖",
+          "format": "png",
+          "year": 1949,
+          "dateLabel": "1949",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              116.26829,
+              39.85752,
+              116.47486,
+              39.96801
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_20K_1950",
+          "title": "北京市街道詳圖(1950)",
+          "format": "png",
+          "year": 1950,
+          "dateLabel": "1950",
+          "type": null,
+          "scale": "1:20000",
+          "region": {
+            "bbox": [
+              116.30640644711,
+              39.742493664949,
+              116.53102358801,
+              39.967110805845
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Beijing_2009",
+          "title": "北京優秀近現代建築地圖(2009)",
+          "format": "png",
+          "year": 2009,
+          "dateLabel": "2009",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              116.12346546429,
+              39.512531390603,
+              116.71355687417,
+              40.102622800483
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "其他掃描版本／未標年代",
+      "layers": [
+        {
+          "id": "Beijing_10K",
+          "title": "北京德勝門外東校場附近圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              116.370371,
+              39.94017,
+              116.405308,
+              39.967029
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Peking_1913",
+          "title": "實測北京內外城地圖（舊版）",
+          "format": "jpg",
+          "year": 1913,
+          "dateLabel": "1913",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              116.30980409006,
+              39.775176470755,
+              116.49865526875,
+              39.964027649445
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Peking_1918",
+          "title": "京都市內外城地圖",
+          "format": "jpg",
+          "year": 1918,
+          "dateLabel": "1918",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              116.30166616836,
+              39.764629420772,
+              116.50545048485,
+              39.968413737265
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Peking_1937",
+          "title": "實測北平市內外城地形圖",
+          "format": "jpg",
+          "year": 1937,
+          "dateLabel": "1937",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              116.30881344096,
+              39.774885069143,
+              116.49766485919,
+              39.963736487372
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "peking_25K_1936_20210416_1",
+          "title": "北平（PEIPING）（掃描版）",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              116.2884956,
+              39.8517935,
+              116.4958988,
+              39.9720475
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

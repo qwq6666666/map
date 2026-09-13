@@ -1,0 +1,354 @@
+{
+  "id": "suzhou",
+  "name": "蘇州百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（蘇州百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/suzhou/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      120.4140324,
+      31.1256815,
+      120.8633399,
+      31.4161658
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "清代",
+      "layers": [
+        {
+          "id": "Suzhou_1880",
+          "title": "蘇州城圖(1880)",
+          "format": "png",
+          "year": 1880,
+          "dateLabel": "1880",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.597889,
+              31.2868183,
+              120.6447355,
+              31.3345164
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "清末民初(1900s-1920s)",
+      "layers": [
+        {
+          "id": "Suzhou_63.4K_1901",
+          "title": "蘇境新測圖（MAP OF THE COUNTRY ROUND SOOCHOW）",
+          "format": "png",
+          "year": 1901,
+          "dateLabel": "1901",
+          "type": null,
+          "scale": "1:63400",
+          "region": {
+            "bbox": [
+              120.4140324,
+              31.1256815,
+              120.8633399,
+              31.4161658
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_1904",
+          "title": "新測蘇州城廂明細全圖",
+          "format": "png",
+          "year": 1904,
+          "dateLabel": "1904",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.5753199,
+              31.2738396,
+              120.6555419,
+              31.3538582
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_1921",
+          "title": "最新蘇州城廂明細全圖",
+          "format": "png",
+          "year": 1921,
+          "dateLabel": "1921",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.5744813,
+              31.2743015,
+              120.6560953,
+              31.3546887
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_1927",
+          "title": "最新蘇州市全圖",
+          "format": "png",
+          "year": 1927,
+          "dateLabel": "1927",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.572876,
+              31.273186,
+              120.6563709,
+              31.3605336
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "1930年代",
+      "layers": [
+        {
+          "id": "Suzhou_12.5K_1931",
+          "title": "蘇州新地圖",
+          "format": "png",
+          "year": 1931,
+          "dateLabel": "1931",
+          "type": "行政區劃圖",
+          "scale": "1:12500",
+          "region": {
+            "bbox": [
+              120.5539976,
+              31.2741951,
+              120.6534244,
+              31.3432429
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_1931",
+          "title": "蘇州日本租界圖",
+          "format": "png",
+          "year": 1931,
+          "dateLabel": "1931",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.6203535,
+              31.2839903,
+              120.6339676,
+              31.2925855
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_1938",
+          "title": "最新蘇州地圖(1938)",
+          "format": "png",
+          "year": 1938,
+          "dateLabel": "1938",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.5479708,
+              31.2771503,
+              120.6494642,
+              31.3413685
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰爭末期至戰後(1940-1949)",
+      "layers": [
+        {
+          "id": "Suzhou_5K_1940",
+          "title": "吳縣城廂圖",
+          "format": "png",
+          "year": 1940,
+          "dateLabel": "1940",
+          "type": null,
+          "scale": "1:5000",
+          "region": {
+            "bbox": [
+              120.5894167,
+              31.283411,
+              120.645868,
+              31.3451663
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_12.5K_1943",
+          "title": "最近蘇州遊覽地圖",
+          "format": "png",
+          "year": 1943,
+          "dateLabel": "1943",
+          "type": "行政區劃圖",
+          "scale": "1:12500",
+          "region": {
+            "bbox": [
+              120.5727347,
+              31.2638728,
+              120.6503972,
+              31.345195
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_11.5K_1944",
+          "title": "CHINA, EAST COAST：CITY OF SU-CHOU 中國東部海岸：蘇州城(甲)",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": null,
+          "scale": "1:11500",
+          "region": {
+            "bbox": [
+              120.5735933,
+              31.2792832,
+              120.6459592,
+              31.3430421
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_11.5K_1944b",
+          "title": "中國東部海岸：蘇州城(乙)",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": null,
+          "scale": "1:11500",
+          "region": {
+            "bbox": [
+              120.576586521,
+              31.2795295022,
+              120.645671798,
+              31.3430932745
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_22K_1949",
+          "title": "最新蘇州地圖(1949)",
+          "format": "png",
+          "year": 1949,
+          "dateLabel": "1949",
+          "type": "行政區劃圖",
+          "scale": "1:22000",
+          "region": {
+            "bbox": [
+              120.5509821,
+              31.2775603,
+              120.648446,
+              31.3411139
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "其他未標年代",
+      "layers": [
+        {
+          "id": "Suzhou_A",
+          "title": "蘇州城圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.5946729,
+              31.2875872,
+              120.6490146,
+              31.3392594
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_B",
+          "title": "蘇城地理圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.5889518,
+              31.2754239,
+              120.6517304,
+              31.3505622
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_C",
+          "title": "蘇城廂圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.596399,
+              31.2818781,
+              120.6471068,
+              31.3392943
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Suzhou_D",
+          "title": "蘇城全圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.5767815,
+              31.2720962,
+              120.6615809,
+              31.3571633
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2106 @@
+{
+  "id": "ccts",
+  "name": "中華文明之時空基礎架構",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（中華文明之時空基礎架構 CCTS）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/ccts/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      57.35,
+      9.89,
+      156.22,
+      61.626
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "中國全圖(近代)",
+      "layers": [
+        {
+          "id": "AMS_L500",
+          "title": "二十五萬分一中國圖(AMS L500)",
+          "format": "jpg",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": "1:250000",
+          "region": {
+            "bbox": [
+              80.74,
+              17.658,
+              123.098,
+              46.94
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "CM300M_1959",
+          "title": "中華民國地理掛圖",
+          "format": "png",
+          "year": 1959,
+          "dateLabel": "1959",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              67.099,
+              11.707,
+              142.854,
+              57.376
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_500K_1918",
+          "title": "五十萬分一中國輿圖(青藏高原地區)",
+          "format": "png",
+          "year": 1918,
+          "dateLabel": "1918",
+          "type": null,
+          "scale": "1:500000",
+          "region": {
+            "bbox": [
+              75.87,
+              25.867,
+              103.167,
+              40.46
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_Map_1903",
+          "title": "中國地圖(1903)",
+          "format": "png",
+          "year": 1903,
+          "dateLabel": "1903",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              104.414,
+              16.915,
+              126.749,
+              42.959
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_Map_1937",
+          "title": "中華民國全圖",
+          "format": "png",
+          "year": 1937,
+          "dateLabel": "1937",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              63.623,
+              14.47,
+              144.1,
+              55.774
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_Map_1938",
+          "title": "中華新形勢大地圖(1938)",
+          "format": "png",
+          "year": 1938,
+          "dateLabel": "1938",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              57.53,
+              12.46,
+              146.55,
+              11.53
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_Map_1940s",
+          "title": "中華民國新地圖(1940s)",
+          "format": "png",
+          "year": 1940,
+          "dateLabel": "1940",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              60.632,
+              11.08,
+              146.75,
+              56.801
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_Map_1941",
+          "title": "最新中華大地圖",
+          "format": "png",
+          "year": 1941,
+          "dateLabel": "1941",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              59.46,
+              9.89,
+              156.22,
+              59.91
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_Map_1942",
+          "title": "中華形勢地圖(1942)",
+          "format": "png",
+          "year": 1942,
+          "dateLabel": "1942",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              57.35,
+              10.47,
+              147.08,
+              58.62
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_Map_1945a",
+          "title": "中華民國新地圖(1945)",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              60.05,
+              11.18,
+              151.77,
+              57.56
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_Map_1945b",
+          "title": "中華民國新地圖",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              57.94,
+              10.82,
+              155.05,
+              58.27
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_Map_1945c",
+          "title": "中華民國新地圖(1945)",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              60.867,
+              10.94,
+              152.12,
+              57.387
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_Map_1947",
+          "title": "中華民國新地圖(1947)",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              59.654,
+              10.59,
+              153.41,
+              57.138
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_Map_1950s",
+          "title": "中華民國全圖",
+          "format": "png",
+          "year": 1950,
+          "dateLabel": "1950",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              61.437,
+              12.73,
+              148.39,
+              56.44
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_Waterway_1941",
+          "title": "中國水道航線圖",
+          "format": "png",
+          "year": 1941,
+          "dateLabel": "1941",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              98.66301381,
+              18.18728325,
+              123.8380907,
+              36.19983313
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "ShunPao_Human_Geo",
+          "title": "申報人文地圖(1934)",
+          "format": "png",
+          "year": 1934,
+          "dateLabel": "1934",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              72.334,
+              17.289,
+              135.358,
+              55.575
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "ShunPao_Physical_Geo",
+          "title": "申報自然地圖(1934)",
+          "format": "png",
+          "year": 1934,
+          "dateLabel": "1934",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              72.277,
+              17.289,
+              135.473,
+              55.748
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "spaper",
+          "title": "中華民國新地圖(1934)",
+          "format": "png",
+          "year": 1934,
+          "dateLabel": "1934",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              72.85,
+              16.79,
+              135.687,
+              54.959
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "歷代疆域歷史地圖",
+      "layers": [
+        {
+          "id": "Tang_Admin",
+          "title": "唐代各道、州界",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              66.85,
+              17.13,
+              146.7,
+              61.4
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Tang_TrafficRoute",
+          "title": "唐代交通路線圖",
+          "format": "jpg",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              68.139,
+              17.04,
+              145.66,
+              57.103
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Xijhou",
+          "title": "西周時期地圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              103.342,
+              28.303,
+              122.844,
+              41.873
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "ad0140",
+          "title": "東漢歷史地圖(E. Han)",
+          "format": "png",
+          "year": 140,
+          "dateLabel": "140",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              70.683,
+              14.957,
+              145.687,
+              58.043
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "ad0262",
+          "title": "三國歷史地圖(Sanguo)",
+          "format": "png",
+          "year": 262,
+          "dateLabel": "262",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              70.433,
+              15.957,
+              142.271,
+              57.96
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "ad0281",
+          "title": "西晉歷史地圖(W. Jing)",
+          "format": "png",
+          "year": 281,
+          "dateLabel": "281",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              70.849,
+              15.207,
+              145.687,
+              57.96
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "ad0382",
+          "title": "東晉歷史地圖(E. Jing)",
+          "format": "png",
+          "year": 382,
+          "dateLabel": "382",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              70.849,
+              16.54,
+              145.771,
+              56.793
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "ad0497",
+          "title": "南北朝歷史地圖(South and North)",
+          "format": "png",
+          "year": 497,
+          "dateLabel": "497",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              70.516,
+              17.29,
+              145.687,
+              57.376
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "ad0612",
+          "title": "隋代歷史地圖(Sui)",
+          "format": "png",
+          "year": 612,
+          "dateLabel": "612",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              59.182,
+              16.624,
+              145.771,
+              59.376
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "ad0741",
+          "title": "唐代歷史地圖(Tang)",
+          "format": "png",
+          "year": 741,
+          "dateLabel": "741",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              66.266,
+              17.04,
+              147.021,
+              60.626
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "ad1111",
+          "title": "北宋歷史地圖(N. Song)",
+          "format": "png",
+          "year": 1111,
+          "dateLabel": "1111",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              65.266,
+              16.957,
+              145.437,
+              59.376
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "ad1208",
+          "title": "南宋歷史地圖(S. Song)",
+          "format": "png",
+          "year": 1208,
+          "dateLabel": "1208",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              59.099,
+              17.29,
+              145.271,
+              58.793
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "ad1330",
+          "title": "元代歷史地圖(Yuan)",
+          "format": "png",
+          "year": 1330,
+          "dateLabel": "1330",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              59.265,
+              17.04,
+              145.687,
+              61.626
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "ad1582",
+          "title": "明代歷史地圖(Ming)",
+          "format": "png",
+          "year": 1582,
+          "dateLabel": "1582",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              69.349,
+              16.874,
+              145.437,
+              58.626
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "ad1582_10_2s",
+          "title": "讀史方輿紀要地名",
+          "format": "png",
+          "year": 1582,
+          "dateLabel": "1582",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              97.534,
+              17.593,
+              130.24,
+              49.891
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "ad1820",
+          "title": "清代歷史地圖(Qing)",
+          "format": "png",
+          "year": 1820,
+          "dateLabel": "1820",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              68.849,
+              17.29,
+              145.354,
+              56.793
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "bc0007",
+          "title": "西漢歷史地圖(W. Han)",
+          "format": "png",
+          "year": -7,
+          "dateLabel": "西元前7年",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              96.101,
+              18.082,
+              129.061,
+              45.125
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "bc0210",
+          "title": "秦代歷史地圖(Qin)",
+          "format": "png",
+          "year": -210,
+          "dateLabel": "西元前210年",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              98.351,
+              19.874,
+              126.603,
+              43.209
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "mingbd_yn",
+          "title": "明代雲南外邊與軍管政區",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              95.734,
+              18.533,
+              104.31,
+              29.204
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "mingtraffic",
+          "title": "明代驛站與驛路",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              88.39,
+              16.2,
+              138.18,
+              44.64
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "shang",
+          "title": "商時期地圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              103.352,
+              29.253,
+              120.783,
+              42.279
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "spring_autumn",
+          "title": "春秋時期地圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              103.383,
+              25.581,
+              122.479,
+              41.446
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "warring_states",
+          "title": "戰國時期地圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              93.947,
+              22.285,
+              130.849,
+              45.057
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "分省五萬分一地形圖(民國)",
+      "layers": [
+        {
+          "id": "Beijing_50K_1928b",
+          "title": "直隸省五萬分一地形圖(1928)",
+          "format": "png",
+          "year": 1928,
+          "dateLabel": "1928",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              114.39756216,
+              36.68339003,
+              118.28006553,
+              40.00831876
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_50K_Anhui",
+          "title": "安徽省五萬分一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              115.2278,
+              29.0055,
+              120.0354,
+              34.2663
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_50K_Fujian",
+          "title": "福建省五萬分一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              115.8737,
+              23.9358,
+              120.0822,
+              28.4086
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_50K_Fuzhou_to_Hangzhou",
+          "title": "福州至杭州五萬分一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              117.6529618,
+              25.9989342,
+              120.3547868,
+              30.2962097
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_50K_Guangdong",
+          "title": "廣東省五萬分一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              107.3417,
+              17.7857,
+              117.5564,
+              25.7836
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_50K_Guangxi",
+          "title": "廣西省五萬分一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              105.147,
+              22.367,
+              112.557,
+              26.477
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_50K_Guizhou",
+          "title": "貴州省五萬分一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              104.1923,
+              25.2501,
+              109.5629,
+              28.8946
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_50K_Hebei",
+          "title": "河北省五萬分一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              113.6877,
+              36.586,
+              119.875,
+              40.9102
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_50K_Henan",
+          "title": "河南省五萬分一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              110.1805,
+              31.118,
+              116.8213,
+              37.0664
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_50K_Hubei",
+          "title": "湖北省五萬分一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              108.406,
+              28.921,
+              116.345,
+              33.46
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_50K_Hunan",
+          "title": "湖南省五萬分一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              108.6995,
+              24.7898,
+              114.0472,
+              30.0391
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_50K_Jiangsu",
+          "title": "江蘇省五萬分一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              115.6143,
+              30.4203,
+              122.1208,
+              35.2956
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_50K_Jiangxi",
+          "title": "江西省五萬分一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              113.451,
+              25.153,
+              118.903,
+              30.195
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_50K_Liaoning",
+          "title": "遼寧省五萬分一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              119.4718,
+              39.7887,
+              126.5415,
+              44.9478
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_50K_Shaanxi",
+          "title": "陝西省五萬分一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              106.2132,
+              32.8226,
+              111.0272,
+              35.9063
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_50K_Shandong",
+          "title": "山東省五萬分一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              115.192,
+              34.369,
+              122.783,
+              38.615
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_50K_Shanxi",
+          "title": "山西省五萬分一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              109.8676,
+              34.2602,
+              114.7608,
+              40.9419
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_50K_Sichuan",
+          "title": "四川省五萬分一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              103.4575,
+              27.7782,
+              110.0362,
+              32.8949
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_50K_Yunnan",
+          "title": "雲南省五萬分一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              99.4591,
+              23.3899,
+              107.0655,
+              28.6973
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_50K_Zhejiang",
+          "title": "浙江省五萬分一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              117.7142,
+              26.7787,
+              123.0177,
+              31.3874
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_Harbin_1907",
+          "title": "哈爾濱關界之詳圖(1907)",
+          "format": "png",
+          "year": 1907,
+          "dateLabel": "1907",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              114.06,
+              42.084,
+              138.333,
+              56.168
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "China_Jiangshu_1930",
+          "title": "蘇南浙北十萬分一地形圖",
+          "format": "png",
+          "year": 1930,
+          "dateLabel": "1930",
+          "type": "地形圖",
+          "scale": "1:100000",
+          "region": {
+            "bbox": [
+              117.9253,
+              29.9422,
+              122.0766,
+              32.8122
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Xinjiang_500K_1943",
+          "title": "河西新疆五十萬分一地圖集",
+          "format": "png",
+          "year": 1943,
+          "dateLabel": "1943",
+          "type": "行政區劃圖",
+          "scale": "1:500000",
+          "region": {
+            "bbox": [
+              73.664,
+              37.816,
+              100.336,
+              44.458
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "jiangnan_100K",
+          "title": "蘇南十萬分之一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": "1:100000",
+          "region": {
+            "bbox": [
+              118.4295,
+              29.7035,
+              122.0584,
+              32.5746
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "分省地圖掛圖(民國參謀本部)",
+      "layers": [
+        {
+          "id": "tile_Fujian_Taiwan1",
+          "title": "福建、台灣1",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.186,
+              21.582,
+              124.176,
+              28.687
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Fujian_Taiwan2",
+          "title": "福建、台灣2",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              114.196,
+              21.395,
+              120.873,
+              28.729
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Gansu_Ningxia1",
+          "title": "甘肅、寧夏1",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              99.924,
+              36.698,
+              109.81,
+              42.834
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Gansu_Ningxia2",
+          "title": "甘肅、寧夏2",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              100.424,
+              32.448,
+              109.446,
+              38.469
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Gansu_Ningxia3",
+          "title": "甘肅、寧夏3",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              92.747,
+              38.208,
+              102.862,
+              43.511
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Guangdong1",
+          "title": "廣東1",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              106.524,
+              18.332,
+              113.139,
+              25.708
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Guangdong2",
+          "title": "廣東2",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              111.144,
+              18.415,
+              117.79,
+              25.822
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Guangxi",
+          "title": "廣西",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              104.831,
+              21.322,
+              112.915,
+              26.531
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Hebei_Shanxi1",
+          "title": "山西、河北1",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              113.706,
+              34.198,
+              121.488,
+              41.448
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Hebei_Shanxi2",
+          "title": "山西、河北2",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              108.164,
+              33.948,
+              116.029,
+              41.511
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Heilongjiang_Xinan_Nenjiang1",
+          "title": "黑龍江、興安、嫩江1",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              122.769,
+              42.396,
+              139.479,
+              55.293
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Heilongjiang_Xinan_Nenjiang2",
+          "title": "黑龍江、興安、嫩江2",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              111.227,
+              42.334,
+              126.832,
+              54.918
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Hunan",
+          "title": "湖南",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              108.571,
+              23.853,
+              114.654,
+              31.114
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Jiangsu_Anhui1",
+          "title": "江蘇、安徽1",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              114.227,
+              28.354,
+              121.478,
+              35.646
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Jiangsu_Anhui2",
+          "title": "江蘇、安徽2",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.384,
+              28.291,
+              126.603,
+              35.792
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Jiangxi",
+          "title": "江西",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              112.904,
+              23.645,
+              118.946,
+              30.948
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Jilin_Songjiang_Hejiang1",
+          "title": "吉林、松江、合江1",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              127.613,
+              41.511,
+              136.51,
+              49.074
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Jilin_Songjiang_Hejiang2",
+          "title": "吉林、松江、合江2",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.071,
+              41.5,
+              129.551,
+              49.011
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Liaoning_Anton_Liaobei1",
+          "title": "遼寧、安東、遼北",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              118.55,
+              41.375,
+              129.051,
+              47.178
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Mongolia1",
+          "title": "蒙古1",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              101.164,
+              36.667,
+              125.749,
+              56.335
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Mongolia2",
+          "title": "蒙古2",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              82.684,
+              36.708,
+              107.56,
+              56.376
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Qinghai",
+          "title": "青海",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              88.465,
+              30.937,
+              104.341,
+              39.938
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Rehe_Chahar1",
+          "title": "熱河、察哈爾1",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              115.613,
+              39.333,
+              124.113,
+              46.803
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Rehe_Chahar2",
+          "title": "熱河、察哈爾2",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              109.779,
+              39.188,
+              118.321,
+              46.834
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Shaanxi1",
+          "title": "陝西1",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              103.727,
+              35.156,
+              113.477,
+              41.219
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Shaanxi2",
+          "title": "陝西2",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              104.331,
+              31.052,
+              113.071,
+              37.135
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Shandong_Henan1",
+          "title": "山東、河南1",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              115.508,
+              30.937,
+              123.04,
+              38.573
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Shandong_Henan2",
+          "title": "山東、河南2",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              110.144,
+              31.031,
+              117.363,
+              38.375
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Sichuan1",
+          "title": "四川1",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              99.976,
+              27.208,
+              107.185,
+              34.656
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Sichuan2",
+          "title": "四川2",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              104.768,
+              27.354,
+              112.029,
+              34.625
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Suiyuan1",
+          "title": "綏遠1",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              108.373,
+              36.667,
+              116.498,
+              44.271
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Suiyuan2",
+          "title": "綏遠2",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              102.601,
+              36.76,
+              110.498,
+              44.063
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Tibet1",
+          "title": "西藏1",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              83.882,
+              24.78,
+              96.049,
+              37.573
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Tibet2",
+          "title": "西藏2",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              75.319,
+              24.801,
+              87.611,
+              37.615
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Xinjiang1",
+          "title": "新疆1",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              80.975,
+              31.916,
+              101.518,
+              51.543
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Xinjiang2",
+          "title": "新疆2",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              67.016,
+              32.021,
+              89.705,
+              51.543
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Yunnan1",
+          "title": "雲南1",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              95.778,
+              20.895,
+              102.258,
+              28.26
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Yunnan2",
+          "title": "雲南2",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              100.768,
+              20.801,
+              107.373,
+              28.322
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_Zhejiang",
+          "title": "浙江",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.404,
+              25.468,
+              123.571,
+              32.729
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "中國全圖／專題圖(民國)",
+      "layers": [
+        {
+          "id": "tile_ChinaAdmin",
+          "title": "[中國政治區域圖]",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              63.599,
+              11.123,
+              149.771,
+              56.043
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_ChinaGeomagnetic",
+          "title": "[中國磁針等偏差線圖]",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              64.349,
+              13.54,
+              145.021,
+              55.709
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_ChinaLand",
+          "title": "[中國土壤分佈圖]",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              64.516,
+              14.04,
+              145.062,
+              56.043
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_ChinaLanguage",
+          "title": "[中國語言區域圖]",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              63.932,
+              13.54,
+              145.021,
+              55.459
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_ChinaMine",
+          "title": "[中國重要礦產分佈圖]",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              63.891,
+              13.79,
+              151.771,
+              57.21
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_ChinaPopulation",
+          "title": "[中國重要城市及人口分佈圖]",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              64.266,
+              14.124,
+              144.646,
+              54.959
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "tile_ChinaTerrain",
+          "title": "[中國地形總圖]",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              62.307,
+              12.04,
+              151.771,
+              57.293
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "殷墟考古圖層",
+      "layers": [
+        {
+          "id": "yinxu_1965",
+          "title": "1965年殷墟地形圖",
+          "format": "png",
+          "year": 1965,
+          "dateLabel": "1965",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              114.231,
+              35.976,
+              114.53,
+              36.193
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "yinxu_2002",
+          "title": "2002年殷墟衛星影像",
+          "format": "png",
+          "year": 2002,
+          "dateLabel": "2002",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              113.72,
+              35.849,
+              114.763,
+              36.623
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "yinxu_2003",
+          "title": "2003年殷墟高解析度衛星影像",
+          "format": "png",
+          "year": 2003,
+          "dateLabel": "2003",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              114.244,
+              36.074,
+              114.377,
+              36.177
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

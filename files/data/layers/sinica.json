@@ -1,0 +1,1619 @@
+{
+  "id": "sinica",
+  "name": "台灣百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/tileserver/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      119.9,
+      21.85,
+      122.05,
+      25.35
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "日治時期地形圖／地圖",
+      "layers": [
+        {
+          "id": "JM20K_1904",
+          "title": "日治臺灣堡圖(明治版) 1:20,000",
+          "format": "jpg",
+          "year": 1904,
+          "dateLabel": "1904",
+          "type": "地形圖",
+          "scale": "1:20000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/JM20K_1904"
+        },
+        {
+          "id": "JM20K_1904_triangulation",
+          "title": "三角測量點及水準點配置圖",
+          "format": "png",
+          "year": 1904,
+          "dateLabel": "1904",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.7310447,
+              21.8633966,
+              122.4125793,
+              25.5821163
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "JM20K_1921",
+          "title": "日治臺灣堡圖(大正版) 1:20,000",
+          "format": "jpg",
+          "year": 1921,
+          "dateLabel": "1921",
+          "type": "地形圖",
+          "scale": "1:20000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "JM25K_1921",
+          "title": "日治二萬五千分之一地形圖",
+          "format": "png",
+          "year": 1921,
+          "dateLabel": "1921",
+          "type": "地形圖",
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "JM25K_1942",
+          "title": "二萬五千分之一(昭和修正版)",
+          "format": "png",
+          "year": 1942,
+          "dateLabel": "1942",
+          "type": "地形圖",
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              120.02013144,
+              22.27231389,
+              120.75321262,
+              22.95000985
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "JM25K_1944",
+          "title": "地形圖(航照修正版) 1:25,000",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": "地形圖",
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "JM50K_1916",
+          "title": "日治蕃地地形圖 1:50,000",
+          "format": "jpg",
+          "year": 1916,
+          "dateLabel": "1916",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "JM50K_1920",
+          "title": "五萬分一(總督府土木局)",
+          "format": "png",
+          "year": 1920,
+          "dateLabel": "1920",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "JM50K_1924",
+          "title": "五萬分一(陸地測量部)",
+          "format": "jpg",
+          "year": 1924,
+          "dateLabel": "1924",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "JM50K_1924_new",
+          "title": "五萬分一(陸地測量部)新版",
+          "format": "png",
+          "year": 1924,
+          "dateLabel": "1924",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "JM100K_1905",
+          "title": "日治十萬分一臺灣圖",
+          "format": "png",
+          "year": 1905,
+          "dateLabel": "1905",
+          "type": "地形圖",
+          "scale": "1:100000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/JM100K_1905"
+        },
+        {
+          "id": "JM200K_1897",
+          "title": "假製二十萬分一圖",
+          "format": "png",
+          "year": 1897,
+          "dateLabel": "1897",
+          "type": "地形圖",
+          "scale": "1:200000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "JM200K_1897_new",
+          "title": "假製二十萬分一圖(新版)",
+          "format": "png",
+          "year": 1897,
+          "dateLabel": "1897",
+          "type": "地形圖",
+          "scale": "1:200000",
+          "region": {
+            "bbox": [
+              118.99405956,
+              21.32295872,
+              122.0398151,
+              25.31253696
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "JM200K_1932",
+          "title": "二十萬分一帝國圖",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": "地形圖",
+          "scale": "1:200000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/JM200K_1932"
+        },
+        {
+          "id": "JM200K_1944",
+          "title": "二十萬分一帝國圖(聯勤翻印版)",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": "地形圖",
+          "scale": "1:200000",
+          "region": {
+            "bbox": [
+              119.0078937,
+              21.331299,
+              123.0081935,
+              25.9985212
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "JM300K_1924",
+          "title": "臺灣全圖(第一版) 1:300,000",
+          "format": "png",
+          "year": 1924,
+          "dateLabel": "1924",
+          "type": "地形圖",
+          "scale": "1:300000",
+          "region": {
+            "bbox": [
+              119.1325821,
+              21.7151907,
+              122.1868776,
+              25.5403769
+            ]
+          },
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/JM300K_1924"
+        },
+        {
+          "id": "JM300K_1934",
+          "title": "臺灣全圖(第三版) 1:300,000",
+          "format": "jpg",
+          "year": 1934,
+          "dateLabel": "1934",
+          "type": "地形圖",
+          "scale": "1:300000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "JM300K_1939",
+          "title": "臺灣全圖(第五版) 1:300,000",
+          "format": "png",
+          "year": 1939,
+          "dateLabel": "1939",
+          "type": "地形圖",
+          "scale": "1:300000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "JM400K_1899",
+          "title": "日治臺灣全圖 1:400,000",
+          "format": "png",
+          "year": 1899,
+          "dateLabel": "1899",
+          "type": "地形圖",
+          "scale": "1:400000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "JM500K_1936",
+          "title": "五十萬分一輿地圖",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": "行政區劃圖",
+          "scale": "1:500000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/JM500K_1936"
+        },
+        {
+          "id": "JMWar_1895",
+          "title": "日軍攻台戰鬥地圖",
+          "format": "png",
+          "year": 1895,
+          "dateLabel": "1895",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              118.79899651,
+              21.21543381,
+              122.94979345,
+              26.08890834
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "JMGeo_1930s",
+          "title": "日治時期地質圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1930s",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.5078058,
+              22.3316458,
+              122.2583625,
+              25.6650665
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "JM1M_1931",
+          "title": "埤圳組合及水利灌溉排水區域圖",
+          "format": "png",
+          "year": 1931,
+          "dateLabel": "1931",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              118.97722596639,
+              21.491114844721,
+              122.41309285433,
+              25.985766478853
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yushan_50K_1933",
+          "title": "新高登山地圖 1:50,000",
+          "format": "png",
+          "year": 1933,
+          "dateLabel": "1933",
+          "type": "行政區劃圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              120.71229,
+              23.38214,
+              121.10499,
+              23.65096
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Map_LSB1_Hualien",
+          "title": "官有林野圖(花蓮港廳)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.02485092,
+              23.40445158,
+              121.94933436,
+              24.16549592
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Map_LSB1_Taitung",
+          "title": "官有林野圖(臺東廳)",
+          "format": "png",
+          "year": 1914,
+          "dateLabel": "1914",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.46839944,
+              22.19114896,
+              121.7776719,
+              23.58993418
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "日治行政區劃圖層",
+      "layers": [
+        {
+          "id": "Admin_1901a",
+          "title": "行政區-廳(1900年代)",
+          "format": "png",
+          "year": 1901,
+          "dateLabel": "1901",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1901b",
+          "title": "行政區-堡里(1900年代)",
+          "format": "png",
+          "year": 1901,
+          "dateLabel": "1901",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1901c",
+          "title": "行政區-街庄(1900年代)",
+          "format": "png",
+          "year": 1901,
+          "dateLabel": "1901",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1930a",
+          "title": "行政區-州廳(1930年代)",
+          "format": "png",
+          "year": 1930,
+          "dateLabel": "1930",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1930b",
+          "title": "行政區-郡市(1930年代)",
+          "format": "png",
+          "year": 1930,
+          "dateLabel": "1930",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1930c",
+          "title": "行政區-街庄(1930年代)",
+          "format": "png",
+          "year": 1930,
+          "dateLabel": "1930",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "美軍繪製地圖",
+      "layers": [
+        {
+          "id": "AM25K_1944A",
+          "title": "美軍地形圖 1:25,000",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": "地形圖",
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              119.2580245,
+              21.8315325,
+              122.1332848,
+              25.6648823
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "AM25K_1944B",
+          "title": "美軍航照圖 1:25,000",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": null,
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              119.3828649,
+              21.8314946,
+              122.0082911,
+              25.3317016
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "AM50K_1944",
+          "title": "美軍地形圖 1:50,000",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/AM50K_1944"
+        },
+        {
+          "id": "AMCityPlan_1945",
+          "title": "美軍繪製臺灣城市地圖",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "AMS250K_1944",
+          "title": "美軍二十五萬分一地形圖",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": "地形圖",
+          "scale": "1:250000",
+          "region": {
+            "bbox": [
+              118.90262767,
+              19.88167794,
+              123.21454613,
+              26.04199673
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰後臺灣地形圖（含經建版）",
+      "layers": [
+        {
+          "id": "TM25K_1950",
+          "title": "臺灣地形圖 1:25,000",
+          "format": "png",
+          "year": 1950,
+          "dateLabel": "1950",
+          "type": "地形圖",
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              119.2499087,
+              21.8333067,
+              122.1250768,
+              25.666769
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM25K_1955",
+          "title": "二萬五千分一臺灣省圖",
+          "format": "png",
+          "year": 1955,
+          "dateLabel": "1955",
+          "type": "地形圖",
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              119.2630987,
+              21.8184722,
+              122.1582605,
+              25.6655868
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM25K_1966",
+          "title": "二萬五千分一地形圖",
+          "format": "png",
+          "year": 1966,
+          "dateLabel": "1966",
+          "type": "地形圖",
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              119.16211784009,
+              21.8184526,
+              122.1333275,
+              25.6656749
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM25K_1989",
+          "title": "經建1版 1:25,000",
+          "format": "jpg",
+          "year": 1989,
+          "dateLabel": "1989",
+          "type": "地形圖",
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/TM25K_1989"
+        },
+        {
+          "id": "TM25K_1993",
+          "title": "經建2版 1:25,000",
+          "format": "jpg",
+          "year": 1993,
+          "dateLabel": "1993",
+          "type": "地形圖",
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM25K_2001",
+          "title": "經建3版 1:25,000",
+          "format": "jpg",
+          "year": 2001,
+          "dateLabel": "2001",
+          "type": "地形圖",
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM25K_2003",
+          "title": "經建4版 1:25,000",
+          "format": "jpg",
+          "year": 2003,
+          "dateLabel": "2003",
+          "type": "地形圖",
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM50K_1954",
+          "title": "臺灣地形圖 1:50,000",
+          "format": "png",
+          "year": 1954,
+          "dateLabel": "1954",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              119.2998126,
+              21.8335493,
+              122.1668521,
+              25.5833777
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM50K_1956",
+          "title": "臺灣地形圖 1:50,000",
+          "format": "jpg",
+          "year": 1956,
+          "dateLabel": "1956",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/TM50K_1956"
+        },
+        {
+          "id": "TM50K_1966",
+          "title": "水利工程/水文站/基準點位置圖",
+          "format": "png",
+          "year": 1966,
+          "dateLabel": "1966",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/TM50K_1966"
+        },
+        {
+          "id": "TM50K_1990",
+          "title": "經建1版 1:50,000",
+          "format": "png",
+          "year": 1990,
+          "dateLabel": "1990",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM50K_1996",
+          "title": "經建2版 1:50,000",
+          "format": "png",
+          "year": 1996,
+          "dateLabel": "1996",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM50K_2003",
+          "title": "經建3版 1:50,000",
+          "format": "png",
+          "year": 2003,
+          "dateLabel": "2003",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM50K_2000A",
+          "title": "五萬分之一衛星影像地圖(921災區)",
+          "format": "png",
+          "year": 2000,
+          "dateLabel": "2000",
+          "type": "行政區劃圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              120.5081628,
+              23.4974278,
+              121.2600578,
+              24.4987522
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM50K_2000B",
+          "title": "五萬分之一衛星影像地形圖(921災區)",
+          "format": "png",
+          "year": 2000,
+          "dateLabel": "2000",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              120.508064,
+              23.4974816,
+              121.2601332,
+              24.4988446
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM10K_1970",
+          "title": "地形圖(航測隊版) 1:10,000",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970",
+          "type": "地形圖",
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              121.106649,
+              24.0960691,
+              121.9123905,
+              25.1987445
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM10K_1974",
+          "title": "地形圖(聯勤版) 1:10,000",
+          "format": "png",
+          "year": 1974,
+          "dateLabel": "1974",
+          "type": "地形圖",
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              121.0590422,
+              24.7941643,
+              121.5076214,
+              25.1503655
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM100K_1953",
+          "title": "交通圖 1:100,000",
+          "format": "png",
+          "year": 1953,
+          "dateLabel": "1953",
+          "type": "地形圖",
+          "scale": "1:100000",
+          "region": {
+            "bbox": [
+              119.1678814,
+              21.8826745,
+              122.0851541,
+              25.3075065
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM100K_1984",
+          "title": "交通圖 1:100,000",
+          "format": "png",
+          "year": 1984,
+          "dateLabel": "1984",
+          "type": "地形圖",
+          "scale": "1:100000",
+          "region": {
+            "bbox": [
+              119.2538476,
+              21.8256457,
+              122.1152616,
+              25.3044774
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM100K_1987",
+          "title": "臺灣地形圖 1:100,000",
+          "format": "png",
+          "year": 1987,
+          "dateLabel": "1987",
+          "type": "地形圖",
+          "scale": "1:100000",
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/TM100K_1987/"
+        },
+        {
+          "id": "TM250K_1963",
+          "title": "二十五萬分一地形圖",
+          "format": "png",
+          "year": 1963,
+          "dateLabel": "1963",
+          "type": "地形圖",
+          "scale": "1:250000",
+          "region": {
+            "bbox": [
+              118.91549766,
+              21.85982524,
+              122.55531142,
+              25.98629048
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM250K_1973",
+          "title": "二十五萬分一地形圖",
+          "format": "png",
+          "year": 1973,
+          "dateLabel": "1973",
+          "type": "地形圖",
+          "scale": "1:250000",
+          "region": {
+            "bbox": [
+              118.91549766,
+              21.85982524,
+              122.55531142,
+              25.98629048
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM250K_1988",
+          "title": "臺灣地區地形圖 1:250,000",
+          "format": "png",
+          "year": 1988,
+          "dateLabel": "1988",
+          "type": "地形圖",
+          "scale": "1:250000",
+          "region": {
+            "bbox": [
+              119.3722152,
+              21.8384253,
+              122.0618345,
+              25.335036
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM300K_1959",
+          "title": "三十萬分之一臺灣省地圖",
+          "format": "png",
+          "year": 1959,
+          "dateLabel": "1959",
+          "type": "行政區劃圖",
+          "scale": "1:100000",
+          "region": {
+            "bbox": [
+              119.2144695,
+              21.6765002,
+              122.1772158,
+              25.6905558
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM500K_1966",
+          "title": "五十萬分一臺灣地圖",
+          "format": "png",
+          "year": 1966,
+          "dateLabel": "1966",
+          "type": "行政區劃圖",
+          "scale": "1:500000",
+          "region": {
+            "bbox": [
+              119.9939108,
+              21.88002,
+              123.021175,
+              26.0019467
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM500K_1978",
+          "title": "主要公路編號路線圖 1:500,000",
+          "format": "png",
+          "year": 1978,
+          "dateLabel": "1978",
+          "type": "地形圖",
+          "scale": "1:500000",
+          "region": {
+            "bbox": [
+              119.259226122,
+              21.7654808322,
+              122.089344603,
+              25.3881445076
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM150K_1953",
+          "title": "臺糖鐵道網圖 1:150,000",
+          "format": "png",
+          "year": 1953,
+          "dateLabel": "1953",
+          "type": "地形圖",
+          "scale": "1:150000",
+          "region": {
+            "bbox": [
+              119.85060301,
+              22.33224526,
+              121.15032016,
+              25.0798876
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM1M_1980",
+          "title": "林務局各林區轄區圖",
+          "format": "png",
+          "year": 1980,
+          "dateLabel": "1980",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.07025337,
+              21.83978771,
+              122.36408393,
+              25.47430429
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TM5K_1962",
+          "title": "西海岸海埔地地形圖",
+          "format": "png",
+          "year": 1962,
+          "dateLabel": "1962",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.981952,
+              23.0997438,
+              120.1900142,
+              23.645126
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "衛星影像／現代影像",
+      "layers": [
+        {
+          "id": "Taiwan_Corona_1966",
+          "title": "Corona 衛星影像",
+          "format": "png",
+          "year": 1966,
+          "dateLabel": "1966",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.2531638,
+              23.2255413,
+              122.3217775,
+              25.4716521
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taiwan_Corona_1969",
+          "title": "Corona 衛星影像",
+          "format": "png",
+          "year": 1969,
+          "dateLabel": "1969",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.2556117,
+              23.595197,
+              122.2372394,
+              25.4723892
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Sunriver_50K_N_2017",
+          "title": "臺灣地理人文全覽圖北島",
+          "format": "png",
+          "year": 2017,
+          "dateLabel": "2017",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.11840653,
+              23.36956994,
+              122.13719076,
+              25.32982836
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "土地利用／林型圖",
+      "layers": [
+        {
+          "id": "1956_Landuse",
+          "title": "臺灣土地利用及林型圖",
+          "format": "png",
+          "year": 1956,
+          "dateLabel": "1956",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "1956_Landuse_250K_1",
+          "title": "土地利用及林型分類圖",
+          "format": "png",
+          "year": 1956,
+          "dateLabel": "1956",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              118.8549905,
+              20.9829132,
+              122.793139,
+              26.0289983
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "1956_Landuse_250K_2",
+          "title": "材積級與保育問題等級圖",
+          "format": "png",
+          "year": 1956,
+          "dateLabel": "1956",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              118.8549905,
+              20.9829132,
+              122.793139,
+              26.0289983
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "1959_Landuse_windbreak_25K",
+          "title": "海岸及耕地防風林狀況圖",
+          "format": "png",
+          "year": 1959,
+          "dateLabel": "1959",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.92607786,
+              21.81402485,
+              122.02866549,
+              25.35205167
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "1974_Landuse_250K",
+          "title": "山坡地土地利用現況圖",
+          "format": "png",
+          "year": 1974,
+          "dateLabel": "1974",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.3283612,
+              21.7983225,
+              122.1306051,
+              25.7001634
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "1979_Landuse_25K_Changhua",
+          "title": "土地灌溉利用圖-彰化縣",
+          "format": "png",
+          "year": 1979,
+          "dateLabel": "1979",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.24750575,
+              23.75080046,
+              120.75817603,
+              24.24576621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "1979_Landuse_25K_Hsinchu",
+          "title": "土地灌溉利用圖-新竹縣",
+          "format": "png",
+          "year": 1979,
+          "dateLabel": "1979",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.88167281,
+              24.42108591,
+              121.50201241,
+              24.99746833
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "1979_Landuse_25K_Hualien",
+          "title": "土地灌溉利用圖-花蓮縣",
+          "format": "png",
+          "year": 1979,
+          "dateLabel": "1979",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.90334164,
+              23.09323763,
+              121.85489573,
+              24.40942276
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "1979_Landuse_25K_Miaoli",
+          "title": "土地灌溉利用圖-苗栗縣",
+          "format": "png",
+          "year": 1979,
+          "dateLabel": "1979",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.62057062,
+              24.25031554,
+              121.26030514,
+              24.74392263
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "1979_Landuse_25K_Nantou",
+          "title": "土地灌溉利用圖-南投縣",
+          "format": "png",
+          "year": 1979,
+          "dateLabel": "1979",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.50851962,
+              23.4198829,
+              121.3861047,
+              24.2524198
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "1979_Landuse_25K_Pingtung",
+          "title": "土地灌溉利用圖-屏東縣",
+          "format": "png",
+          "year": 1979,
+          "dateLabel": "1979",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.38284921,
+              21.83305421,
+              121.00615092,
+              22.91174345
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "1979_Landuse_25K_Taichung",
+          "title": "土地灌溉利用圖-臺中縣市",
+          "format": "png",
+          "year": 1979,
+          "dateLabel": "1979",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.37934021,
+              24.00026224,
+              121.49687019,
+              24.49760272
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "1979_Landuse_25K_Taipei",
+          "title": "土地灌溉利用圖-臺北縣市",
+          "format": "png",
+          "year": 1979,
+          "dateLabel": "1979",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.25358392,
+              24.66588456,
+              122.01627544,
+              25.3294446
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "1979_Landuse_25K_Taitung",
+          "title": "土地灌溉利用圖-臺東縣",
+          "format": "png",
+          "year": 1979,
+          "dateLabel": "1979",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.60603034,
+              22.18273116,
+              121.51917782,
+              23.50248058
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "1979_Landuse_25K_Taoyuan",
+          "title": "土地灌溉利用圖-桃園縣",
+          "format": "png",
+          "year": 1979,
+          "dateLabel": "1979",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.87475434,
+              24.58076281,
+              121.63220228,
+              25.16892831
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "1979_Landuse_25K_Yilan",
+          "title": "土地灌溉利用圖-宜蘭縣",
+          "format": "png",
+          "year": 1979,
+          "dateLabel": "1979",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.25018538,
+              24.25200274,
+              122.00180883,
+              24.99650574
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "特殊考證圖",
+      "layers": [
+        {
+          "id": "abm",
+          "title": "乾隆臺灣番界（柯志明、陳兆勇考證繪製）",
+          "format": "png",
+          "year": null,
+          "dateLabel": "清",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/abm/"
+        }
+      ]
+    }
+  ]
+}

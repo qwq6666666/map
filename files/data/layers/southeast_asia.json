@@ -1,0 +1,624 @@
+{
+  "id": "southeast_asia",
+  "name": "東南亞百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（東南亞百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/southeast_asia/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      97.279081,
+      -6.2535655,
+      124.0765393,
+      20.88851
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "曼谷",
+      "layers": [
+        {
+          "id": "Bangkok_10K",
+          "title": "PLAN OF BANGKOK",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              100.436601,
+              13.7772074,
+              100.5256323,
+              13.8263923
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Bangkok_240k_1932",
+          "title": "暹羅海灣第2( GULF OF SIAM SHEET 2 )",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              99.4841734,
+              11.5359689,
+              101.2103814,
+              13.9024339
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Bangkok_240k_1938",
+          "title": "暹羅海灣第1( GULF OF SIAM SHEET 1 )",
+          "format": "png",
+          "year": 1938,
+          "dateLabel": "1938",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              101.815203,
+              8.8690421,
+              104.0220377,
+              11.9378038
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Bangkok_25K_1913",
+          "title": "PLAN of BANGKOK and District",
+          "format": "png",
+          "year": 1913,
+          "dateLabel": "1913",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              100.43939,
+              13.6492418,
+              100.6316298,
+              13.8955478
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Bangkok_300K_1934A",
+          "title": "暹羅海灣第4( GULF OF SIAM SHEET 4 )",
+          "format": "png",
+          "year": 1934,
+          "dateLabel": "1934",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              101.815203,
+              8.8690422,
+              104.0220377,
+              11.9378038
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Bangkok_300K_1934B",
+          "title": "暹羅海灣第5( GULF OF SIAM SHEET 5 )",
+          "format": "png",
+          "year": 1934,
+          "dateLabel": "1934",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              103.0572116,
+              7.8741197,
+              105.2585668,
+              10.9414369
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "巴達維亞",
+      "layers": [
+        {
+          "id": "Batavia_20K_A",
+          "title": "Plattegrond van Batavia, met stratenlijst",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              106.7752092,
+              -6.2535655,
+              106.9138174,
+              -6.0719376
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Batavia_20K_B",
+          "title": "PLAN OF BATAVIA",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              106.7803049,
+              -6.2456551,
+              106.9178451,
+              -6.0867825
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Batavia_20K_C",
+          "title": "PLATTEGROND VAN BATAVIA",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              106.7815159,
+              -6.2392735,
+              106.9076423,
+              -6.082497
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Batavia_30K",
+          "title": "batavia[巴達維亞] en omstreken自來水考察圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              106.7678762,
+              -6.2338735,
+              106.9079926,
+              -6.0690774
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "宿霧",
+      "layers": [
+        {
+          "id": "Cebu_10K_1936",
+          "title": "セブ港",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              123.8779863,
+              10.2660142,
+              123.9210011,
+              10.3095913
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Cebu_30K_1936",
+          "title": "セブ港、セブ港及附近",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              123.7774908,
+              10.2035685,
+              124.0765393,
+              10.4151731
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "海防",
+      "layers": [
+        {
+          "id": "Haiphong_10K_1940",
+          "title": "1940 海防市圖 [10000]",
+          "format": "png",
+          "year": 1940,
+          "dateLabel": "1940",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              106.654091,
+              20.837103,
+              106.714977,
+              20.88851
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "吉隆坡",
+      "layers": [
+        {
+          "id": "Kualalumpur_1000K_1963",
+          "title": "Malaya, Singapore, North Borneo, Brunei and Sarawak",
+          "format": "png",
+          "year": 1963,
+          "dateLabel": "1963",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              99.8414458,
+              1.0845617,
+              105.4193669,
+              6.8854291
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Kualalumpur_10K_1962",
+          "title": "KUALA LUMPUR",
+          "format": "png",
+          "year": 1962,
+          "dateLabel": "1962",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              101.6677622,
+              3.1008502,
+              101.7336689,
+              3.192498
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Kualalumpur_63.4K_1962",
+          "title": "KUALA LUMPUR",
+          "format": "png",
+          "year": 1962,
+          "dateLabel": "1962",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              101.6664277,
+              3.0995072,
+              101.7351909,
+              3.195874
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "納閩",
+      "layers": [
+        {
+          "id": "Labuan_100K_1937",
+          "title": "ブルネイ灣及附近、ブルネイ河",
+          "format": "png",
+          "year": 1937,
+          "dateLabel": "1937",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              114.9192108,
+              4.7037305,
+              115.6111625,
+              5.7034281
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Labuan_200K_1937",
+          "title": "バラム角至ラブアン( TANJONG BARAM TO LABUAN )",
+          "format": "png",
+          "year": 1937,
+          "dateLabel": "1937",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              113.6176047,
+              4.3843077,
+              115.6200064,
+              5.8526361
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "馬尼拉",
+      "layers": [
+        {
+          "id": "Manila_11K_1913",
+          "title": "CITY OF MANILA",
+          "format": "png",
+          "year": 1913,
+          "dateLabel": "1913",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9532433,
+              14.543117,
+              121.0290845,
+              14.6432103
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Manila_11K_1920",
+          "title": "City of Manila",
+          "format": "png",
+          "year": 1920,
+          "dateLabel": "1920",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.954841,
+              14.5448985,
+              121.0274098,
+              14.6402492
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Manila_11K_1935",
+          "title": "MAP OF MANILA",
+          "format": "png",
+          "year": 1935,
+          "dateLabel": "1935",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9548027,
+              14.540879,
+              121.0271056,
+              14.6401547
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Manila_11K_1941",
+          "title": "マニラ市街地圖",
+          "format": "png",
+          "year": 1941,
+          "dateLabel": "1941",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.9534343,
+              14.5400093,
+              121.0295955,
+              14.640717
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "新加坡",
+      "layers": [
+        {
+          "id": "Singapore_100K_1939",
+          "title": "シンガポール海峽東口附近( APPROACHES TO EAST ENTRANCE OF SINGAPORE STRAIT)",
+          "format": "png",
+          "year": 1939,
+          "dateLabel": "1939",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              104.0028125,
+              1.0025838,
+              104.7060205,
+              1.9950141
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Singapore_126.7K",
+          "title": "MAP OF SINGAPORE ISLAND",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              103.5987374,
+              1.2104552,
+              104.0223959,
+              1.50395
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Singapore_1941",
+          "title": "マレー半島及シンガポール スマトラ要圖",
+          "format": "png",
+          "year": 1941,
+          "dateLabel": "1941",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              97.279081,
+              -1.1779652,
+              109.4530598,
+              16.2613946
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Singapore_493.55K_1930",
+          "title": "新嘉坡近海( APPROACHES TO SINGAPORE )",
+          "format": "png",
+          "year": 1930,
+          "dateLabel": "1930",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              103.0433377,
+              0.716204,
+              106.4764486,
+              5.5973672
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Singapore_63.4K_1946",
+          "title": "SINGAPORE",
+          "format": "png",
+          "year": 1946,
+          "dateLabel": "1946",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              103.5763295,
+              1.1694072,
+              104.0495475,
+              1.5324537
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Singapore_63.4K_1958",
+          "title": "SINGAPORE",
+          "format": "png",
+          "year": 1958,
+          "dateLabel": "1958",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              103.589257,
+              1.185919,
+              104.0357492,
+              1.5304865
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Singapore_63.4K_1966",
+          "title": "SINGAPORE",
+          "format": "png",
+          "year": 1966,
+          "dateLabel": "1966",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              103.5611794,
+              1.0681688,
+              104.136977,
+              1.5103695
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Singapore_A",
+          "title": "馬來半島旅行案內地圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              98.9701207,
+              -1.2044309,
+              105.3746294,
+              7.2186751
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Singapore_B",
+          "title": "新嘉坡全島地圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              103.625293,
+              1.2545314,
+              104.0070771,
+              1.4811548
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

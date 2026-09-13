@@ -1,0 +1,348 @@
+{
+  "id": "korea",
+  "name": "韓國百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（韓國百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/korea/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      122.63240746,
+      34.7636454,
+      131.40633649,
+      43.46353045
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "仁川",
+      "layers": [
+        {
+          "id": "Incheon_10K_1928",
+          "title": "仁川府內圖",
+          "format": "png",
+          "year": 1928,
+          "dateLabel": "1928",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              126.5913642,
+              37.4508042,
+              126.6579785,
+              37.4933154
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "馬山",
+      "layers": [
+        {
+          "id": "Masan_10K_1924",
+          "title": "馬山",
+          "format": "png",
+          "year": 1924,
+          "dateLabel": "1924",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              128.5353338,
+              35.1658517,
+              128.5878908,
+              35.2180828
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "木浦",
+      "layers": [
+        {
+          "id": "Mokpo_10K_1917",
+          "title": "木浦",
+          "format": "png",
+          "year": 1917,
+          "dateLabel": "1917",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              126.3457495,
+              34.7636454,
+              126.4094914,
+              34.817656
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "釜山",
+      "layers": [
+        {
+          "id": "Pusan_25K_1963",
+          "title": "1963 PUSAN HANG [25000]",
+          "format": "png",
+          "year": 1963,
+          "dateLabel": "1963",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              129.01239,
+              35.0034,
+              129.14159,
+              35.14832
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Ryukyu_10K_1924",
+          "title": "釜山",
+          "format": "png",
+          "year": 1924,
+          "dateLabel": "1924",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              128.9961032,
+              35.0697125,
+              129.0861791,
+              35.1489707
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Ryukyu_12K_1936",
+          "title": "日本 朝鮮南岸 釜山港",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              129.0044113,
+              35.0664561,
+              129.1471599,
+              35.1479241
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Ryukyu_26K_1945",
+          "title": "韓國釜山城市圖(TOWN PLAN OF PUSAN)",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              128.9975353,
+              35.0772713,
+              129.0854258,
+              35.1547937
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Ryukyu_35K_1936",
+          "title": "釜山港附近",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              128.9329967,
+              34.9080359,
+              129.2261429,
+              35.2531378
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "京城／首爾",
+      "layers": [
+        {
+          "id": "Seoul_1927",
+          "title": "京城市街圖(1927)",
+          "format": "png",
+          "year": 1927,
+          "dateLabel": "1927",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              126.93490239,
+              37.53497774,
+              127.01951637,
+              37.6031747
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Seoul_1933",
+          "title": "京城市街圖(1933)",
+          "format": "png",
+          "year": 1933,
+          "dateLabel": "1933",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              126.93490239,
+              37.53497774,
+              127.01951637,
+              37.6031747
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Seoul_1942",
+          "title": "Seoul Historical Map(1942)",
+          "format": "png",
+          "year": 1942,
+          "dateLabel": "1942",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              126.91885901,
+              37.48529787,
+              127.08808697,
+              37.62172025
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "元山",
+      "layers": [
+        {
+          "id": "Wonsan_10K_1917",
+          "title": "元山",
+          "format": "png",
+          "year": 1917,
+          "dateLabel": "1917",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              127.398498,
+              39.1388363,
+              127.4691315,
+              39.1807849
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Wonsan_10K_1933",
+          "title": "元山港 內港",
+          "format": "png",
+          "year": 1933,
+          "dateLabel": "1933",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              127.4225626,
+              39.1590101,
+              127.4523773,
+              39.1780058
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Wonsan_18.2K_1933",
+          "title": "日本 朝鮮東岸 元山港",
+          "format": "png",
+          "year": 1933,
+          "dateLabel": "1933",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              127.3751751,
+              39.1071433,
+              127.493335,
+              39.2376697
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "北朝鮮全域",
+      "layers": [
+        {
+          "id": "korea",
+          "title": "美製北朝鮮五萬分之一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": null,
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              122.92595842,
+              36.89873104,
+              131.38735673,
+              43.46353045
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "northkorea",
+          "title": "日治時期北朝鮮五萬分一地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "日治",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              122.63240746,
+              36.42840046,
+              131.40633649,
+              43.0772543
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,757 @@
+{
+  "id": "hakkaliudui",
+  "name": "六堆百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（六堆百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/hakkaliudui/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      120.45,
+      22.55,
+      120.65,
+      22.85
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "臺灣通用歷史地形圖",
+      "layers": [
+        {
+          "id": "AM50K_1944",
+          "title": "美軍地形圖 1:50,000",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": [],
+          "legend": "https://gis.sinica.edu.tw/legend/AM50K_1944"
+        },
+        {
+          "id": "AMCityPlan_1945",
+          "title": "美軍繪製臺灣城市地圖",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "高雄縣鄉鎮行政區域圖",
+      "layers": [
+        {
+          "id": "Admin_1001220_1991",
+          "title": "高雄縣美濃鎮全圖",
+          "format": "png",
+          "year": 1991,
+          "dateLabel": "1991",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.486408023,
+              22.8074951178,
+              120.633786736,
+              22.9938034638
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001220_2004",
+          "title": "高雄縣美濃鎮行政區域圖",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.4878925,
+              22.8031092,
+              120.6387033,
+              22.9921428
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001221_2004",
+          "title": "高雄縣六龜鄉行政區域圖",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.5484679,
+              22.8529958,
+              120.7897053,
+              23.154519
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001223_2004",
+          "title": "高雄縣杉林鄉行政區域圖",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.4942955,
+              22.8951788,
+              120.644541,
+              23.0840341
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "屏東縣鄉鎮行政區域圖",
+      "layers": [
+        {
+          "id": "Admin_1001301_1992",
+          "title": "屏東縣屏東市行政區域圖",
+          "format": "png",
+          "year": 1992,
+          "dateLabel": "1992",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.428238162,
+              22.6049353996,
+              120.533037737,
+              22.7333620474
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001301_2004",
+          "title": "屏東縣屏東市行政區域圖",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.3841413,
+              22.6118233,
+              120.5461029,
+              22.7243121
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001306_1994",
+          "title": "屏東縣長治鄉行政區域圖",
+          "format": "png",
+          "year": 1994,
+          "dateLabel": "1994",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.503225324,
+              22.6548120128,
+              120.624891893,
+              22.735511001
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001306_2004",
+          "title": "屏東縣長治鄉行政區域圖",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.4878322,
+              22.6428015,
+              120.6294606,
+              22.7409118
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001307_1994",
+          "title": "屏東縣麟洛鄉行政區域圖",
+          "format": "png",
+          "year": 1994,
+          "dateLabel": "1994",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.494344674,
+              22.6172263235,
+              120.574538501,
+              22.6747420227
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001307_2004",
+          "title": "屏東縣麟洛鄉行政區域圖",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.5033094,
+              22.6061524,
+              120.5633038,
+              22.6816409
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001309_1994",
+          "title": "屏東縣里港鄉行政區域圖",
+          "format": "png",
+          "year": 1994,
+          "dateLabel": "1994",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.446719043,
+              22.7513585703,
+              120.574196921,
+              22.8433055515
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001309_2004",
+          "title": "屏東縣里港鄉行政區域圖",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.4228342,
+              22.7385872,
+              120.5747502,
+              22.8435775
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001310_1994",
+          "title": "屏東縣鹽埔鄉行政區域圖",
+          "format": "png",
+          "year": 1994,
+          "dateLabel": "1994",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.496123172,
+              22.6878318746,
+              120.641714372,
+              22.7862578262
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001310_2004",
+          "title": "屏東縣鹽埔鄉行政區域圖",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.4986024,
+              22.6852086,
+              120.6403551,
+              22.7834858
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001311_1994",
+          "title": "屏東縣高樹鄉行政區域圖",
+          "format": "png",
+          "year": 1994,
+          "dateLabel": "1994",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.532120103,
+              22.7131507538,
+              120.664272063,
+              22.892800564
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001311_2004",
+          "title": "屏東縣高樹鄉行政區域圖",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.5183544,
+              22.7052408,
+              120.6680932,
+              22.8940232
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001312_1993",
+          "title": "屏東縣萬巒鄉行政區域圖",
+          "format": "png",
+          "year": 1993,
+          "dateLabel": "1993",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.523438912,
+              22.5086881395,
+              120.647800626,
+              22.6691505572
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001312_2004",
+          "title": "屏東縣萬巒鄉行政區域圖",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.523438912,
+              22.5086881395,
+              120.647800626,
+              22.6691505572
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001313_1995",
+          "title": "屏東縣內埔鄉行政區域圖",
+          "format": "png",
+          "year": 1995,
+          "dateLabel": "1995",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.524136023,
+              22.5486339721,
+              120.659658903,
+              22.7205503919
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001313_2004",
+          "title": "屏東縣內埔鄉行政區域圖",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.5205874,
+              22.5598793,
+              120.6552962,
+              22.7298085
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001314_1994",
+          "title": "屏東縣竹田鄉行政區域圖",
+          "format": "png",
+          "year": 1994,
+          "dateLabel": "1994",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.479457683,
+              22.5356481658,
+              120.566147992,
+              22.6455802994
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001314_2004",
+          "title": "屏東縣竹田鄉行政區域圖",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.480063,
+              22.5311188,
+              120.5735006,
+              22.6493014
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001315_1993",
+          "title": "屏東縣新埤鄉行政區域圖",
+          "format": "png",
+          "year": 1993,
+          "dateLabel": "1993",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.503165475,
+              22.4341398696,
+              120.648223725,
+              22.5374752786
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001315_2004",
+          "title": "屏東縣新埤鄉行政區域圖",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.5178047,
+              22.4373497,
+              120.6597253,
+              22.535269
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001321_1993",
+          "title": "屏東縣佳冬鄉行政區域圖",
+          "format": "png",
+          "year": 1993,
+          "dateLabel": "1993",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.507365406,
+              22.3760531725,
+              120.580040834,
+              22.4720413469
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1001321_2004",
+          "title": "屏東縣佳冬鄉行政區域圖",
+          "format": "png",
+          "year": 2004,
+          "dateLabel": "2004",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.5042489,
+              22.3812962,
+              120.5792956,
+              22.4758823
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "六堆客庄範圍與聚落分布圖",
+      "layers": [
+        {
+          "id": "hakkaliudui_county",
+          "title": "客家六堆(高屏12鄉區)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.19778353,
+              22.35545139,
+              121.04165342,
+              23.24929796
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "LiuduiHakkaVillage",
+          "title": "六堆客庄實質認定範圍",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.2915967,
+              22.36598034,
+              120.85540413,
+              23.02976686
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Liudui_Settlement",
+          "title": "六堆客家舊聚落概況圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.4973428,
+              22.4050899,
+              120.6325402,
+              22.9285321
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "六堆舊航照影像",
+      "layers": [
+        {
+          "id": "Liudui_aerialphoto_1950s",
+          "title": "六堆舊航照影像(1950年代)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1950s",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.4207047,
+              22.3350305,
+              120.741764,
+              23.1657281
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Liudui_aerialphoto_1960s",
+          "title": "六堆舊航照影像(1960年代)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1960s",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.4433987,
+              22.3919,
+              120.7428575,
+              23.0454178
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Liudui_aerialphoto_1970s",
+          "title": "六堆正射影像",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1970s",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.4817088,
+              22.3964703,
+              120.6596417,
+              23.0001931
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "河川／水利專題圖",
+      "layers": [
+        {
+          "id": "shadanshuei_river1927",
+          "title": "下淡水溪治水計畫圖",
+          "format": "jpg",
+          "year": 1927,
+          "dateLabel": "1927",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.72838784,
+              21.92193446,
+              121.12466222,
+              23.19298394
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "LinabianRiver_1936",
+          "title": "林邊溪治水計畫圖",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.299897182,
+              22.2860239412,
+              120.830685973,
+              22.6578982732
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "KHhydromap",
+          "title": "高雄州水利組合圖",
+          "format": "jpg",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.20167875,
+              21.71545831,
+              122.19240838,
+              24.42743951
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "LinabianRiver_1980s",
+          "title": "保安林圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1980s",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.49220122,
+              22.1774137201,
+              120.772304128,
+              22.5137791149
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Pingtung_150K_1956",
+          "title": "屏東水利管理處灌溉區域圖",
+          "format": "png",
+          "year": 1956,
+          "dateLabel": "1956",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.205508202,
+              22.156334738,
+              120.791740454,
+              22.9362031551
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

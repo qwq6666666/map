@@ -1,0 +1,714 @@
+{
+  "id": "nanjing",
+  "name": "南京百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（南京百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/nanjing/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      118.1858289,
+      31.7368199,
+      119.36969251,
+      32.32044639
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "清代",
+      "layers": [
+        {
+          "id": "Nanjing_1898",
+          "title": "江甯府城圖",
+          "format": "png",
+          "year": 1898,
+          "dateLabel": "1898",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              118.7186058,
+              31.9893259,
+              118.8404517,
+              32.1283521
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "清末民初(1900s-1910s)",
+      "layers": [
+        {
+          "id": "Nanjing_1910",
+          "title": "南京全圖",
+          "format": "png",
+          "year": 1910,
+          "dateLabel": "1910",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              118.7228904,
+              31.9885031,
+              118.8402939,
+              32.119421
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "nanjing_10k_1909",
+          "title": "陸師學堂新測金陵省城全圖",
+          "format": "png",
+          "year": 1909,
+          "dateLabel": "1909",
+          "type": null,
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              118.66954250495,
+              31.965222288333,
+              118.89528897446,
+              32.120481726589
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanjing_10K_1903",
+          "title": "陸師學堂新測金陵省城全圖",
+          "format": "png",
+          "year": 1903,
+          "dateLabel": "1903",
+          "type": null,
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              118.7251954,
+              31.995144,
+              118.8406689,
+              32.1139953
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanking_10K_1903",
+          "title": "1903 陸師學新測金陵省城全圖",
+          "format": "png",
+          "year": 1903,
+          "dateLabel": "1903",
+          "type": null,
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              118.73438,
+              31.99936,
+              118.83122,
+              32.1043
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "北伐至訓政初期(1920s)",
+      "layers": [
+        {
+          "id": "Nanjing_10K_1927",
+          "title": "最新南京全圖",
+          "format": "png",
+          "year": 1927,
+          "dateLabel": "1927",
+          "type": null,
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              118.7353987,
+              31.9958702,
+              118.8351033,
+              32.1102025
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanking_1928",
+          "title": "1928 最新首都城市全圖",
+          "format": "png",
+          "year": 1928,
+          "dateLabel": "1928",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              118.73616,
+              31.99882,
+              118.83118,
+              32.10851
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanjing_10K_1930",
+          "title": "南京最新全圖",
+          "format": "png",
+          "year": 1930,
+          "dateLabel": "1930",
+          "type": null,
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              118.7344906,
+              31.9980069,
+              118.8344905,
+              32.1099472
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanking_10K_1929",
+          "title": "1929 首都城市實測圖",
+          "format": "png",
+          "year": 1929,
+          "dateLabel": "1929",
+          "type": null,
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              118.69934,
+              32.00484,
+              118.88517,
+              32.11426
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "首都建設時期(1930s)",
+      "layers": [
+        {
+          "id": "Nanjing_10K_1932",
+          "title": "首都道路系統圖",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": null,
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              118.7297961,
+              32.0049837,
+              118.813805,
+              32.1044383
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanking_25K_1932",
+          "title": "1932 NANKING",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": null,
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              118.68601,
+              32.01236,
+              118.8802,
+              32.12992
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "nanjing_10k_1933",
+          "title": "南京附近一萬分一地形圖",
+          "format": "png",
+          "year": 1933,
+          "dateLabel": "1933",
+          "type": "地形圖",
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              118.1858289,
+              31.7368199,
+              119.36969251,
+              32.32044639
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanjing_15K_1934",
+          "title": "南京市簡明圖",
+          "format": "png",
+          "year": 1934,
+          "dateLabel": "1934",
+          "type": null,
+          "scale": "1:15000",
+          "region": {
+            "bbox": [
+              118.6967384,
+              31.9910576,
+              118.8598457,
+              32.1412245
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanjing_14.5K_1935",
+          "title": "南京城市圖",
+          "format": "png",
+          "year": 1935,
+          "dateLabel": "1935",
+          "type": null,
+          "scale": "1:14500",
+          "region": {
+            "bbox": [
+              118.7055208,
+              31.9996866,
+              118.8729453,
+              32.1310501
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "nanjing_1936",
+          "title": "南京市舊地籍圖分區索引(1936)",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              118.1858289,
+              31.7368199,
+              119.36969251,
+              32.32044639
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanjing_20K_1936",
+          "title": "南京市土地登記區域圖",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": "地籍圖",
+          "scale": "1:20000",
+          "region": {
+            "bbox": [
+              118.7141466,
+              31.9887845,
+              118.8301715,
+              32.1298416
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanjing_50K_1937",
+          "title": "新南京地圖",
+          "format": "png",
+          "year": 1937,
+          "dateLabel": "1937",
+          "type": "行政區劃圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              118.7028917,
+              31.9809511,
+              118.878172,
+              32.1507771
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanjing_20K_1938",
+          "title": "最新南京地圖",
+          "format": "png",
+          "year": 1938,
+          "dateLabel": "1938",
+          "type": "行政區劃圖",
+          "scale": "1:20000",
+          "region": {
+            "bbox": [
+              118.6993654,
+              31.9920728,
+              118.8719153,
+              32.1570942
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "抗戰時期(1937-1945)",
+      "layers": [
+        {
+          "id": "Nanjing_10K_1943",
+          "title": "中華民國 江蘇省 揚子江 南京港",
+          "format": "png",
+          "year": 1943,
+          "dateLabel": "1943",
+          "type": null,
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              118.6927749,
+              32.0548017,
+              118.7737889,
+              32.1530545
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanjing_20K_1943A",
+          "title": "南京市市街圖(甲)",
+          "format": "png",
+          "year": 1943,
+          "dateLabel": "1943",
+          "type": null,
+          "scale": "1:20000",
+          "region": {
+            "bbox": [
+              118.6794161,
+              31.9837133,
+              118.8723741,
+              32.1277648
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanjing_20K_1943B",
+          "title": "南京市市街圖(乙)",
+          "format": "png",
+          "year": 1943,
+          "dateLabel": "1943",
+          "type": null,
+          "scale": "1:20000",
+          "region": {
+            "bbox": [
+              118.6801383,
+              31.9843666,
+              118.8713176,
+              32.1265822
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanjing_25K_1940",
+          "title": "南京市街近傍圖",
+          "format": "png",
+          "year": 1940,
+          "dateLabel": "1940",
+          "type": null,
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              118.7026692,
+              31.9526806,
+              118.9119699,
+              32.1961646
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanjing_50K_1940",
+          "title": "南京市市區圖",
+          "format": "png",
+          "year": 1940,
+          "dateLabel": "1940",
+          "type": "行政區劃圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              118.5328827,
+              31.8669331,
+              119.0061119,
+              32.2787
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanking_25K_1945",
+          "title": "1945 NANKING",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              118.68458,
+              32.01305,
+              118.88079,
+              32.13106
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰後(1945-1949)",
+      "layers": [
+        {
+          "id": "Nanjing_10K_1946A",
+          "title": "首都政治區現狀圖",
+          "format": "png",
+          "year": 1946,
+          "dateLabel": "1946",
+          "type": null,
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              118.790397,
+              32.0187712,
+              118.8297653,
+              32.0552334
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanjing_10K_1946B",
+          "title": "首都政治區都市計畫圖",
+          "format": "png",
+          "year": 1946,
+          "dateLabel": "1946",
+          "type": null,
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              118.7899088,
+              32.0188453,
+              118.8291715,
+              32.0545175
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanjing_10K_1946C",
+          "title": "首都政治區地形圖",
+          "format": "png",
+          "year": 1946,
+          "dateLabel": "1946",
+          "type": "地形圖",
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              118.7924993,
+              32.0211056,
+              118.8270641,
+              32.0519651
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanjing_50K_1946",
+          "title": "首都警察廳管區地形圖（附南京街道圖、浦口街道圖、下關街道圖）",
+          "format": "png",
+          "year": 1946,
+          "dateLabel": "1946",
+          "type": "地形圖",
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              118.5889148,
+              31.9305683,
+              119.1735085,
+              32.2820854
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanjing_20K_1947",
+          "title": "南京市街道詳圖",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": "1:20000",
+          "region": {
+            "bbox": [
+              118.6848722,
+              31.9753267,
+              118.8815776,
+              32.1179556
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanking_2K_1947",
+          "title": "1947 國防部平面圖",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": "1:2000",
+          "region": {
+            "bbox": [
+              118.796394,
+              32.047526,
+              118.814124,
+              32.058018
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "airphoto_nanjing_1947",
+          "title": "南京舊航照影像(1947)",
+          "format": "jpg",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              118.1858289,
+              31.7368199,
+              119.36969251,
+              32.32044639
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanjing_20K_1948",
+          "title": "南京市街道詳圖",
+          "format": "png",
+          "year": 1948,
+          "dateLabel": "1948",
+          "type": null,
+          "scale": "1:20000",
+          "region": {
+            "bbox": [
+              118.6985742,
+              31.9917922,
+              118.872055,
+              32.1578874
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "當代",
+      "layers": [
+        {
+          "id": "Nanjing_16.25K_1969",
+          "title": "紫金山(南京市近郊圖)",
+          "format": "png",
+          "year": 1969,
+          "dateLabel": "1969",
+          "type": null,
+          "scale": "1:16250",
+          "region": {
+            "bbox": [
+              118.7869757,
+              32.0188858,
+              118.9044508,
+              32.1012966
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "其他未標年代",
+      "layers": [
+        {
+          "id": "Nanjing_10K",
+          "title": "首都道路系統圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              118.7244932,
+              31.9905429,
+              118.8329595,
+              32.1306639
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanjing_22.6K",
+          "title": "南京市街道詳圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": "1:22600",
+          "region": {
+            "bbox": [
+              118.6925488,
+              31.9993057,
+              118.8726925,
+              32.109074
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Nanjing_50K",
+          "title": "南京市全圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": "1:50000",
+          "region": {
+            "bbox": [
+              118.6075637,
+              31.9431393,
+              118.9247483,
+              32.2396826
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

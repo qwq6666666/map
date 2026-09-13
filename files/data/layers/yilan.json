@@ -1,0 +1,816 @@
+{
+  "id": "yilan",
+  "name": "宜蘭百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（宜蘭百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/yilan/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      121.35,
+      24.35,
+      121.95,
+      24.9
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "日治時期地圖",
+      "layers": [
+        {
+          "id": "Yilan_1900",
+          "title": "宜蘭廳里程圖",
+          "format": "png",
+          "year": 1900,
+          "dateLabel": "1900",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.5932582,
+              24.5312306,
+              122.0057622,
+              25.0399813
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_3K_1905",
+          "title": "宜蘭街實測平面圖(1905)",
+          "format": "png",
+          "year": 1905,
+          "dateLabel": "1905",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.74016303,
+              24.7494284,
+              121.76176376,
+              24.76859087
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_1911",
+          "title": "宜蘭廳管內圖(1911)",
+          "format": "png",
+          "year": 1911,
+          "dateLabel": "1911",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.3987812,
+              24.3462713,
+              122.0208554,
+              25.1234629
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_2.5K_1915",
+          "title": "宜蘭濁水溪(蘭陽溪)原圖(1915)",
+          "format": "png",
+          "year": 1915,
+          "dateLabel": "1915",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.55442178,
+              24.62986664,
+              121.84429279,
+              24.77307046
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_3K_1914",
+          "title": "宜蘭市區改正圖(1914)",
+          "format": "png",
+          "year": 1914,
+          "dateLabel": "1914",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.7385661,
+              24.74707,
+              121.7619161,
+              24.76667
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_1917",
+          "title": "宜蘭廳管內圖(1917)",
+          "format": "png",
+          "year": 1917,
+          "dateLabel": "1917",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.2536662,
+              24.1840617,
+              122.0309587,
+              25.1833589
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_4.8K_1917",
+          "title": "宜蘭廳管內聯絡庄圖(1917)",
+          "format": "png",
+          "year": 1917,
+          "dateLabel": "1917",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.59076115,
+              24.55283919,
+              121.88921991,
+              24.90525405
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_1920",
+          "title": "宜蘭廳管內圖(1920)",
+          "format": "png",
+          "year": 1920,
+          "dateLabel": "1920",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.2521178,
+              24.1898037,
+              122.028598,
+              25.1840228
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_100K_1920",
+          "title": "宜蘭郡管內圖",
+          "format": "png",
+          "year": 1920,
+          "dateLabel": "1920",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.545061207,
+              24.662528907,
+              122.004072106,
+              25.032405751
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_50K_1927",
+          "title": "宜蘭濁水溪(蘭陽溪)治水計畫圖(1927)",
+          "format": "png",
+          "year": 1927,
+          "dateLabel": "1927",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.5036423,
+              24.5764325,
+              121.8879402,
+              24.8321259
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_shanxi_1930",
+          "title": "三星地方平面圖(1930)",
+          "format": "png",
+          "year": 1930,
+          "dateLabel": "1930",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.60192509,
+              24.65533941,
+              121.761465,
+              24.72303772
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_6K_1932",
+          "title": "宜蘭街市區計畫圖(1932)",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.721144493,
+              24.740408646,
+              121.766208551,
+              24.768818921
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_6K_1932b",
+          "title": "宜蘭街市區計畫圖(1932)",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.7214426,
+              24.7409654,
+              121.7663302,
+              24.7683659
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_3K_1934",
+          "title": "宜蘭街案內圖",
+          "format": "png",
+          "year": 1934,
+          "dateLabel": "1934",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.745518532,
+              24.751822921,
+              121.762306379,
+              24.761829413
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_15K_1936",
+          "title": "宜蘭街市區計畫圖(1936)",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.724618022,
+              24.729450766,
+              121.776632122,
+              24.779503339
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_2.5K_1937",
+          "title": "宜蘭濁水溪(蘭陽溪)平面圖(1937)",
+          "format": "png",
+          "year": 1937,
+          "dateLabel": "1937",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.5928792,
+              24.64794049,
+              121.8409531,
+              24.7254935
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_shanxi_1940",
+          "title": "三星地方平面圖(1940)",
+          "format": "png",
+          "year": 1940,
+          "dateLabel": "1940",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.56152104,
+              24.59534582,
+              121.76219239,
+              24.68699019
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_15K_1940s",
+          "title": "宜蘭(南)飛行場地圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1940s",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.681232607,
+              24.71488471,
+              121.775842004,
+              24.765928586
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_63K_1944",
+          "title": "轟炸目標圖（宜蘭）",
+          "format": "png",
+          "year": 1944,
+          "dateLabel": "1944",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.6251903,
+              24.5975913,
+              121.8689776,
+              24.852696
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yuanshan",
+          "title": "宜蘭縣員山鄉舊地籍圖：深溝",
+          "format": "png",
+          "year": null,
+          "dateLabel": "日治",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.6455338,
+              24.6952638,
+              121.7267314,
+              24.7342085
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰後宜蘭市街／都市計畫圖",
+      "layers": [
+        {
+          "id": "Yilan_1.2K_1951",
+          "title": "宜蘭市區舊地籍圖(1951)",
+          "format": "png",
+          "year": 1951,
+          "dateLabel": "1951",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.73952542,
+              24.7486265,
+              121.76391788,
+              24.76515124
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Lotong_3K_1970s",
+          "title": "羅東都市計劃地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1970s",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.7467405,
+              24.6626523,
+              121.7854484,
+              24.6957891
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_3K_1972",
+          "title": "宜蘭市都市計畫地形圖",
+          "format": "png",
+          "year": 1972,
+          "dateLabel": "1972",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.7155083,
+              24.7264802,
+              121.7752764,
+              24.7831057
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_123K_1976",
+          "title": "宜蘭縣地圖(1976)",
+          "format": "png",
+          "year": 1976,
+          "dateLabel": "1976",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.289914413,
+              24.206722773,
+              122.00003368,
+              25.108316971
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_3K_1978",
+          "title": "宜蘭市擴大都市計畫地形圖",
+          "format": "png",
+          "year": 1978,
+          "dateLabel": "1978",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.7293477,
+              24.7282165,
+              121.7890993,
+              24.7848365
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_10K_1993",
+          "title": "宜蘭市行政區域圖(1993)",
+          "format": "png",
+          "year": 1993,
+          "dateLabel": "1993",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.7174546,
+              24.69899,
+              121.7963473,
+              24.7982196
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_65K_1997",
+          "title": "宜蘭縣行政區域圖(1997)",
+          "format": "png",
+          "year": 1997,
+          "dateLabel": "1997",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.2991289,
+              24.1226904,
+              121.9799569,
+              25.0606672
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_9K_2007",
+          "title": "宜蘭市行政區域圖(2007)",
+          "format": "png",
+          "year": 2007,
+          "dateLabel": "2007",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.7195522,
+              24.7073333,
+              121.7921266,
+              24.7936615
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "航照影像",
+      "layers": [
+        {
+          "id": "Yilan_aerialphoto_1945",
+          "title": "宜蘭市舊航照影像(1945)",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.7104105,
+              24.7178983,
+              121.7811262,
+              24.7839663
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_aerialphoto_1947",
+          "title": "員山鄉舊航照影像(1947)",
+          "format": "png",
+          "year": 1947,
+          "dateLabel": "1947",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.6486478,
+              24.6879962,
+              121.7374601,
+              24.768385
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_aerialphoto_1948",
+          "title": "宜蘭市舊航照影像(1948)",
+          "format": "png",
+          "year": 1948,
+          "dateLabel": "1948",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.7297888,
+              24.7327297,
+              121.7727092,
+              24.7719441
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_aerialphoto_1978",
+          "title": "宜蘭市舊航照影像(1978)",
+          "format": "png",
+          "year": 1978,
+          "dateLabel": "1978",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.7311025,
+              24.7219755,
+              121.7850755,
+              24.774761
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Lotong_1978",
+          "title": "羅東舊航照影像(1978)",
+          "format": "png",
+          "year": 1978,
+          "dateLabel": "1978",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.7559144,
+              24.6470173,
+              121.8102926,
+              24.7247374
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_5K_1988",
+          "title": "宜蘭市區像片基本圖(第二版)",
+          "format": "png",
+          "year": 1988,
+          "dateLabel": "1988",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.7329033,
+              24.7231886,
+              121.7835302,
+              24.7732023
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "水利／灌溉／河道圖",
+      "layers": [
+        {
+          "id": "Yilan_5K_1955",
+          "title": "宜蘭濁水溪(蘭陽溪)河道測量地形圖",
+          "format": "png",
+          "year": 1955,
+          "dateLabel": "1955",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.35522299,
+              24.40352602,
+              121.86412391,
+              24.73399683
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_canal_P38_1959",
+          "title": "蘇澳水利委員會灌溉區域圖(1959)",
+          "format": "png",
+          "year": 1959,
+          "dateLabel": "1959",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.78471888,
+              24.5432455,
+              121.90975842,
+              24.66558362
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_canal_P39_1959",
+          "title": "羅東水利委員會灌溉區域圖(1959)",
+          "format": "png",
+          "year": 1959,
+          "dateLabel": "1959",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.59900388,
+              24.58983474,
+              121.85547012,
+              24.75844688
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_canal_P40_1959",
+          "title": "宜蘭水利委員會灌溉區域圖(1959)",
+          "format": "png",
+          "year": 1959,
+          "dateLabel": "1959",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.59177843,
+              24.70670025,
+              121.84467727,
+              24.87085004
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_50K_1962",
+          "title": "宜蘭農田水利會灌溉區域圖(1962)",
+          "format": "png",
+          "year": 1962,
+          "dateLabel": "1962",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.53481445,
+              24.54004312,
+              121.91200042,
+              24.89952212
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_50K_1965",
+          "title": "宜蘭農田水利會灌溉區域圖(1965)",
+          "format": "png",
+          "year": 1965,
+          "dateLabel": "1965",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.55284983,
+              24.52978973,
+              121.95138979,
+              25.00311214
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_50K_1971",
+          "title": "宜蘭農田水利會灌區外灌溉地位置圖(1971)",
+          "format": "png",
+          "year": 1971,
+          "dateLabel": "1971",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.55552724,
+              24.43097711,
+              122.014389,
+              24.99699685
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_100K_1960s",
+          "title": "宜蘭農田水利會灌溉區域圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1960s",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.47597484,
+              24.52814939,
+              122.02461935,
+              25.01215132
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Yilan_60K_1960s",
+          "title": "六萬分之一宜蘭農田水利會灌溉區域圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1960s",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.55193057,
+              24.52136247,
+              121.9378128,
+              25.01215132
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

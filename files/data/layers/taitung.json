@@ -1,0 +1,312 @@
+{
+  "id": "taitung",
+  "name": "臺東百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（臺東百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/taitung/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      120.30794617,
+      21.76324171,
+      121.7770863,
+      23.686702
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "臺東百年歷史地圖",
+      "layers": [
+        {
+          "id": "Taitung_150K_1920",
+          "title": "臺東廳管內圖(1920)",
+          "format": "png",
+          "year": 1920,
+          "dateLabel": "1920",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.6300453,
+              22.1635137,
+              121.6372038,
+              23.5239351
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taitung_2.5K_1932",
+          "title": "知本溪地形圖(1932)",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.00463617,
+              22.67792908,
+              121.08248098,
+              22.71376969
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taitung_2.5K_1932b",
+          "title": "新武呂溪地形圖(1932)",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.16375075,
+              23.04082345,
+              121.2157515,
+              23.11954299
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taitung_200K_1932",
+          "title": "臺東廳附近圖(1932)",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.30794617,
+              21.76324171,
+              121.71347085,
+              23.6153719
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taitung_200K_1935",
+          "title": "臺東廳管內圖(1935)",
+          "format": "png",
+          "year": 1935,
+          "dateLabel": "1935",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.3807128,
+              22.0196888,
+              121.7770863,
+              23.686702
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taitung_6K_1960",
+          "title": "臺東都市計劃圖(1960)",
+          "format": "png",
+          "year": 1960,
+          "dateLabel": "1960",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.12910788,
+              22.73416882,
+              121.17288445,
+              22.78012284
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taitung_5K_1961",
+          "title": "新武呂溪地形圖(1961)",
+          "format": "png",
+          "year": 1961,
+          "dateLabel": "1961",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.11518284,
+              22.97549287,
+              121.23280302,
+              23.13140247
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taitung_Sishan_2.5K_1967",
+          "title": "臺東石山地區地形圖(1967)",
+          "format": "png",
+          "year": 1967,
+          "dateLabel": "1967",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.13581834,
+              22.76890712,
+              121.30648448,
+              22.95321058
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taitung_5K_1968",
+          "title": "南迴鐵路沿線地形圖(1968)",
+          "format": "png",
+          "year": 1968,
+          "dateLabel": "1968",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.73387422,
+              21.99367881,
+              120.90821724,
+              22.28130747
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taitung_Landuse_1980",
+          "title": "臺東縣山坡地土地利用現況調查圖",
+          "format": "png",
+          "year": 1980,
+          "dateLabel": "1980",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.63374922,
+              22.17050106,
+              121.55013181,
+              23.4978262
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taitung_150K_1982",
+          "title": "臺東縣圖(1982)",
+          "format": "png",
+          "year": 1982,
+          "dateLabel": "1982",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.5950582,
+              22.01387057,
+              121.67969617,
+              23.57320974
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taitung_5K_1982",
+          "title": "臺東市區像片基本圖(1982)",
+          "format": "png",
+          "year": 1982,
+          "dateLabel": "1982",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.133062302,
+              22.7231885529,
+              121.183064707,
+              22.7731988178
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taitung_5K_2001",
+          "title": "臺東市區像片基本圖(2001)",
+          "format": "png",
+          "year": 2001,
+          "dateLabel": "2001",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.133054673,
+              22.7233319763,
+              121.183048926,
+              22.7733380335
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "map_TFB3_0601",
+          "title": "臺東廳臺東郡國有林野圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.67438719,
+              22.1999663,
+              121.22674166,
+              22.90410498
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "map_TFB3_0602",
+          "title": "臺東廳關山郡國有林野圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.94620304,
+              22.84813067,
+              121.29923079,
+              23.2331131
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "map_TFB3_0603",
+          "title": "臺東廳新港郡國有林野圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              121.13444926,
+              22.84559859,
+              121.57723477,
+              23.48858794
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

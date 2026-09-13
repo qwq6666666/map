@@ -1,0 +1,1134 @@
+{
+  "id": "taichung",
+  "name": "臺中百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（臺中百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/taichung/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      120.5,
+      23.95,
+      121.3,
+      24.45
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "日治時期地圖",
+      "layers": [
+        {
+          "id": "Taichung_20K_1895",
+          "title": "日治臺灣二萬分一圖：臺灣近傍",
+          "format": "png",
+          "year": 1895,
+          "dateLabel": "1895",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.53390083,
+              24.07948726,
+              120.74585926,
+              24.23395508
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_2K_1899",
+          "title": "臺中市區計畫圖",
+          "format": "png",
+          "year": 1899,
+          "dateLabel": "1899",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.66218481409,
+              24.11786080046,
+              120.71085793432,
+              24.15390034062
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_5K_1900",
+          "title": "臺中城內略圖",
+          "format": "png",
+          "year": 1900,
+          "dateLabel": "1900",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.66983561,
+              24.12277921,
+              120.69963044,
+              24.14789426
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_1910",
+          "title": "臺中市街圖",
+          "format": "png",
+          "year": 1910,
+          "dateLabel": "1910",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.66843,
+              24.12885,
+              120.69642,
+              24.15056
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_1910b",
+          "title": "臺中市街圖",
+          "format": "png",
+          "year": 1910,
+          "dateLabel": "1910",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.66843,
+              24.12885,
+              120.69642,
+              24.15056
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_1911",
+          "title": "臺中街實測圖",
+          "format": "png",
+          "year": 1911,
+          "dateLabel": "1911",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.6588,
+              24.1253,
+              120.7018,
+              24.1587
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_30K_1912",
+          "title": "臺中市區計畫圖",
+          "format": "png",
+          "year": 1912,
+          "dateLabel": "1912",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.66505330549,
+              24.128743959037,
+              120.69455611299,
+              24.150588380475
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_1913",
+          "title": "臺中街實測圖",
+          "format": "png",
+          "year": 1913,
+          "dateLabel": "1913",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.6588,
+              24.1253,
+              120.7018,
+              24.1587
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Daan_River_2.5K",
+          "title": "日治大安溪河川地形圖",
+          "format": "png",
+          "year": 1916,
+          "dateLabel": "1916",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.55664306,
+              24.27356693,
+              120.91812135,
+              24.46084548
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_1916b",
+          "title": "臺中市街圖",
+          "format": "png",
+          "year": 1916,
+          "dateLabel": "1916",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.6606,
+              24.1231,
+              120.7018,
+              24.155
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_dajiariver_1916",
+          "title": "大甲溪河川地形圖",
+          "format": "png",
+          "year": 1916,
+          "dateLabel": "1916",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.51325834,
+              24.2217662,
+              120.85565974,
+              24.3608593
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_20K_1917",
+          "title": "臺中二萬分之一圖",
+          "format": "png",
+          "year": 1917,
+          "dateLabel": "1917",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.66281734106,
+              24.126324245507,
+              120.69748714392,
+              24.151994507039
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_200K_1920",
+          "title": "臺中州管內圖",
+          "format": "png",
+          "year": 1920,
+          "dateLabel": "1920",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.86036029822,
+              23.446155877357,
+              121.39424897095,
+              24.582957904307
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_1926",
+          "title": "臺中市改正圖",
+          "format": "png",
+          "year": 1926,
+          "dateLabel": "1926",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.65287,
+              24.11792,
+              120.70899,
+              24.16143
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_1928",
+          "title": "臺中市區改正圖",
+          "format": "png",
+          "year": 1928,
+          "dateLabel": "1928",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.65455,
+              24.12025,
+              120.7072,
+              24.16108
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_Gongaun_2.5K_1928",
+          "title": "臺中公館地方(沙鹿區)平面圖",
+          "format": "png",
+          "year": 1928,
+          "dateLabel": "1928",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.57521447,
+              24.20524315,
+              120.74957612,
+              24.3091833
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_1935b",
+          "title": "臺中市街圖",
+          "format": "png",
+          "year": 1935,
+          "dateLabel": "1935",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.65375817,
+              24.12307223,
+              120.70761619,
+              24.15849911
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_500K_1937",
+          "title": "臺中州管內水利組合灌溉區域圖",
+          "format": "png",
+          "year": 1937,
+          "dateLabel": "1937",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              119.66063101045,
+              23.212629283931,
+              121.9632139083,
+              24.918403271936
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_1937",
+          "title": "臺中市地圖",
+          "format": "png",
+          "year": 1937,
+          "dateLabel": "1937",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.64231,
+              24.12052,
+              120.70592,
+              24.16128
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰後臺中市街／都市計畫圖",
+      "layers": [
+        {
+          "id": "Taichung_10K_1948",
+          "title": "臺中市城市圖",
+          "format": "png",
+          "year": 1948,
+          "dateLabel": "1948",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.65281583,
+              24.11536642,
+              120.71174915,
+              24.16154261
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_25K_1950",
+          "title": "臺中二萬五千分之一圖",
+          "format": "png",
+          "year": 1950,
+          "dateLabel": "1950",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.60514377897,
+              24.055396019531,
+              120.7889234356,
+              24.191487077617
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_5K_1952",
+          "title": "臺中市街道圖",
+          "format": "png",
+          "year": 1952,
+          "dateLabel": "1952",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.65063852224,
+              24.11860006917,
+              120.71161992299,
+              24.163751285797
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Gonguan_airport_1956",
+          "title": "臺中公館機場(清泉崗機場)附近地形圖",
+          "format": "png",
+          "year": 1956,
+          "dateLabel": "1956",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.56905,
+              24.20099,
+              120.66444,
+              24.31015
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_10K_1956",
+          "title": "臺中市街道圖",
+          "format": "png",
+          "year": 1956,
+          "dateLabel": "1956",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.65114047436,
+              24.119643104059,
+              120.71079846949,
+              24.163814267406
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_10K_1957",
+          "title": "臺中市街道圖",
+          "format": "png",
+          "year": 1957,
+          "dateLabel": "1957",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.6547097,
+              24.1090926,
+              120.70280599,
+              24.16839689
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_5K_1957",
+          "title": "臺中市街道圖",
+          "format": "png",
+          "year": 1957,
+          "dateLabel": "1957",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.6409323863,
+              24.111526120968,
+              120.72363954241,
+              24.17276283023
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_10K_1959",
+          "title": "臺中市都市計劃圖",
+          "format": "png",
+          "year": 1959,
+          "dateLabel": "1959",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.61943011,
+              24.09037029,
+              120.72519759,
+              24.1885154
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_4.8K_1960s",
+          "title": "臺中市東勢子附近地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1960s",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.69041595,
+              24.14162874,
+              120.70285192,
+              24.16575298
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_8K_1964",
+          "title": "臺中市街圖",
+          "format": "png",
+          "year": 1964,
+          "dateLabel": "1964",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.65276928,
+              24.11549389,
+              120.7117026,
+              24.16150014
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_10K_1967B",
+          "title": "臺中市街道圖",
+          "format": "png",
+          "year": 1967,
+          "dateLabel": "1967",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.60368935095,
+              24.089467468148,
+              120.74855022368,
+              24.196722225645
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_8K_1968",
+          "title": "臺中市街道圖",
+          "format": "png",
+          "year": 1968,
+          "dateLabel": "1968",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.62770425797,
+              24.11227728413,
+              120.72625403052,
+              24.185240152096
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_1970",
+          "title": "臺中市地形圖",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.5439319,
+              24.03831657,
+              120.81559702,
+              24.2702521
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_5K_1970",
+          "title": "臺中五千分一地形圖",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.594707927,
+              24.107852342,
+              120.713143724,
+              24.198419862
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_8.5K_1973",
+          "title": "臺中市街圖",
+          "format": "png",
+          "year": 1973,
+          "dateLabel": "1973",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.64435355813,
+              24.118226121513,
+              120.71059660569,
+              24.167272508039
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_7.4K_1975",
+          "title": "臺中市街圖",
+          "format": "png",
+          "year": 1975,
+          "dateLabel": "1975",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.63240032908,
+              24.109352867296,
+              120.72382269927,
+              24.177041797416
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_15K_1976",
+          "title": "臺中市街圖",
+          "format": "png",
+          "year": 1976,
+          "dateLabel": "1976",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.63866136562,
+              24.114306639629,
+              120.71537679476,
+              24.171106800976
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_25K_1981",
+          "title": "臺中市街道圖",
+          "format": "png",
+          "year": 1981,
+          "dateLabel": "1981",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.64115554372,
+              24.122008386176,
+              120.71613658868,
+              24.177521342585
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taipchung_25K_1982B",
+          "title": "臺中市區圖",
+          "format": "png",
+          "year": 1982,
+          "dateLabel": "1982",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.54837474,
+              24.04645154,
+              120.82884894,
+              24.28588556
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "分區行政區域圖(1972)",
+      "layers": [
+        {
+          "id": "Taichung_25K_1972a",
+          "title": "臺中市西屯區行政區域圖",
+          "format": "png",
+          "year": 1972,
+          "dateLabel": "1972",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.54833177904,
+              24.121679141911,
+              120.7089810896,
+              24.240588206397
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_25K_1972b",
+          "title": "臺中市北屯區行政區域圖",
+          "format": "png",
+          "year": 1972,
+          "dateLabel": "1972",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.61648005908,
+              24.10145505046,
+              120.84272878299,
+              24.268913990746
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_25K_1972c",
+          "title": "臺中市中區行政區域圖",
+          "format": "png",
+          "year": 1972,
+          "dateLabel": "1972",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.66640335636,
+              24.130536722742,
+              120.69710089306,
+              24.153265346315
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_25K_1972d",
+          "title": "臺中市東區行政區域圖",
+          "format": "png",
+          "year": 1972,
+          "dateLabel": "1972",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.65121044938,
+              24.103869734853,
+              120.74182250899,
+              24.170961746885
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_25K_1972e",
+          "title": "臺中市南區行政區域圖",
+          "format": "png",
+          "year": 1972,
+          "dateLabel": "1972",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.62542344237,
+              24.095487234178,
+              120.699026735,
+              24.149991676578
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_25K_1972f",
+          "title": "臺中市全圖",
+          "format": "png",
+          "year": 1972,
+          "dateLabel": "1972",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.53326013096,
+              24.054772960822,
+              120.83264036015,
+              24.276394439363
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "現代行政區域圖",
+      "layers": [
+        {
+          "id": "Admin_1000615_1992",
+          "title": "臺中縣烏日鄉行政區域圖",
+          "format": "png",
+          "year": 1992,
+          "dateLabel": "1992",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.57359487,
+              24.02311861,
+              120.67019472,
+              24.14352237
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1000615_2005",
+          "title": "臺中縣烏日鄉行政區域圖",
+          "format": "png",
+          "year": 2005,
+          "dateLabel": "2005",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.57359487,
+              24.02311861,
+              120.67019472,
+              24.14352237
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_16K_2006",
+          "title": "臺中市行政區域圖",
+          "format": "png",
+          "year": 2006,
+          "dateLabel": "2006",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.56784067,
+              24.08420405,
+              120.80756842,
+              24.22975618
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_Nantun_2003",
+          "title": "臺中市南屯區行政區域圖",
+          "format": "png",
+          "year": 2003,
+          "dateLabel": "2003",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.56356842,
+              24.10765801,
+              120.66624607,
+              24.17185886
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Admin_1000615_2021",
+          "title": "臺中市烏日區行政區域圖",
+          "format": "png",
+          "year": 2021,
+          "dateLabel": "2021",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.57359487,
+              24.02311861,
+              120.67019472,
+              24.14352237
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "水利／河川專題圖",
+      "layers": [
+        {
+          "id": "map_wra_00240",
+          "title": "后里新圳地方平面圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.65595994,
+              24.3088162,
+              120.78235907,
+              24.36851167
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "map_wra_00501",
+          "title": "烏溪大肚橋附近地形圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.53556531,
+              24.04423445,
+              120.65558781,
+              24.12332512
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "map_wra_00502",
+          "title": "烏溪支川大里溪平面圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "—",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.6839139,
+              24.12543318,
+              120.74650414,
+              24.19737712
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "舊航照影像",
+      "layers": [
+        {
+          "id": "Taichung_aerialphoto_1948",
+          "title": "臺中市舊航照影像",
+          "format": "png",
+          "year": 1948,
+          "dateLabel": "1948",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.62,
+              24.095,
+              120.7548,
+              24.1813
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_aerialphoto_1959",
+          "title": "臺中市舊航照影像",
+          "format": "png",
+          "year": 1959,
+          "dateLabel": "1959",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.60987291,
+              24.09556446,
+              120.72581028,
+              24.19455382
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_aerialphoto_1973",
+          "title": "臺中市舊航照影像",
+          "format": "png",
+          "year": 1973,
+          "dateLabel": "1973",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.52907361,
+              24.08819535,
+              120.70226985,
+              24.23605356
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_aerialphoto_1976",
+          "title": "臺中市舊航照影像",
+          "format": "png",
+          "year": 1976,
+          "dateLabel": "1976",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.5813845,
+              24.0966555,
+              120.7347981,
+              24.2250706
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_aerialphoto_1998",
+          "title": "臺中市舊航照影像【TCUD】",
+          "format": "png",
+          "year": 1998,
+          "dateLabel": "1998",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.563255,
+              24.1028097,
+              120.7956798,
+              24.2216968
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_aerialphoto_2002",
+          "title": "臺中市舊航照影像【TCUD】",
+          "format": "png",
+          "year": 2002,
+          "dateLabel": "2002",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.5629905,
+              24.0998322,
+              120.798076,
+              24.2235656
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_aerialphoto_2005",
+          "title": "臺中市舊航照影像【TCUD】",
+          "format": "png",
+          "year": 2005,
+          "dateLabel": "2005",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.571416,
+              24.1003922,
+              120.8073174,
+              24.2199362
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Taichung_aerialphoto_2008",
+          "title": "臺中市舊航照影像【TCUD】",
+          "format": "png",
+          "year": 2008,
+          "dateLabel": "2008",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              120.5731446,
+              24.10089485,
+              120.807093468,
+              24.22164447
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

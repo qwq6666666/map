@@ -1,0 +1,270 @@
+{
+  "id": "hongkong",
+  "name": "香港百年歷史地圖",
+  "attribution": "中央研究院人文社會科學研究中心 GIS 專題中心（香港百年歷史地圖）",
+  "provider": {
+    "tileTemplate": "https://gis.sinica.edu.tw/hongkong/file-exists.php?img={id}-{format}-{z}-{x}-{y}"
+  },
+  "region": {
+    "bbox": [
+      112.511054,
+      21.62773479,
+      114.6540639,
+      23.06819239
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "清末民初(1900s-1930s)",
+      "layers": [
+        {
+          "id": "Hongkong_1900s",
+          "title": "香港及澳門",
+          "format": "png",
+          "year": null,
+          "dateLabel": "1900s",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              113.4328549,
+              21.9397465,
+              114.5805257,
+              22.7073598
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hongkong_1931",
+          "title": "展拓香港界址圖",
+          "format": "png",
+          "year": 1931,
+          "dateLabel": "1931",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              113.6094587,
+              21.6983474,
+              114.6540639,
+              22.8257609
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hongkong_84.5K_1932",
+          "title": "MAP OF HONG-KONG",
+          "format": "png",
+          "year": 1932,
+          "dateLabel": "1932",
+          "type": null,
+          "scale": "1:84500",
+          "region": {
+            "bbox": [
+              113.8138453,
+              22.1137733,
+              114.5274424,
+              22.6524849
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hongkong_6K_1935",
+          "title": "香港海圖",
+          "format": "png",
+          "year": 1935,
+          "dateLabel": "1935",
+          "type": null,
+          "scale": "1:6000",
+          "region": {
+            "bbox": [
+              114.1406328,
+              22.2717635,
+              114.202292,
+              22.3124285
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hongkong_80K_1936",
+          "title": "HONG KONG AND THE NEW TERRITORIES",
+          "format": "png",
+          "year": 1936,
+          "dateLabel": "1936",
+          "type": null,
+          "scale": "1:80000",
+          "region": {
+            "bbox": [
+              113.7813573,
+              22.1099652,
+              114.5563715,
+              22.6412589
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰爭末期(1945)",
+      "layers": [
+        {
+          "id": "Hongkong_10K_1945_1",
+          "title": "1945 Victoria (a)",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              114.128389,
+              22.269035,
+              114.196983,
+              22.313433
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hongkong_10K_1945_2",
+          "title": "1945 Victoria (b)",
+          "format": "png",
+          "year": 1945,
+          "dateLabel": "1945",
+          "type": null,
+          "scale": "1:10000",
+          "region": {
+            "bbox": [
+              114.128389,
+              22.269035,
+              114.196983,
+              22.313433
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "戰後及當代(1960s-1970s)",
+      "layers": [
+        {
+          "id": "1964_Corona_Zhujiang",
+          "title": "珠江口Corona衛星影像(1964)",
+          "format": "png",
+          "year": 1964,
+          "dateLabel": "1964",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              112.511054,
+              21.62773479,
+              114.26471484,
+              23.06819239
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hongkong_1967a",
+          "title": "HONG KONG, KOWLOON AND THE NEW TERRITORIES",
+          "format": "png",
+          "year": 1967,
+          "dateLabel": "1967",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              113.7826725,
+              22.1365538,
+              114.5455382,
+              22.6426738
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hongkong_1967b1",
+          "title": "KOWLOON",
+          "format": "png",
+          "year": 1967,
+          "dateLabel": "1967",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              114.1600793,
+              22.2924321,
+              114.1881149,
+              22.3138468
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hongkong_1967b2",
+          "title": "VICTORIA PEAK",
+          "format": "png",
+          "year": 1967,
+          "dateLabel": "1967",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              114.1377052,
+              22.2573998,
+              114.1731345,
+              22.2788925
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hongkong_1967b3",
+          "title": "VICTORIA AND KOWLOON",
+          "format": "png",
+          "year": 1967,
+          "dateLabel": "1967",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              114.1448578,
+              22.2754807,
+              114.1890421,
+              22.3054531
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Hongkong_25K_1970",
+          "title": "1970 KOWLOON ＆ VICTORIA",
+          "format": "png",
+          "year": 1970,
+          "dateLabel": "1970",
+          "type": null,
+          "scale": "1:25000",
+          "region": {
+            "bbox": [
+              114.10349,
+              22.24772,
+              114.209264,
+              22.361933
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

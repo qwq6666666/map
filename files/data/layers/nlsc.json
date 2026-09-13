@@ -1,0 +1,4188 @@
+{
+  "id": "nlsc",
+  "name": "國土測繪圖資（現代參考圖層）",
+  "attribution": "內政部國土測繪中心 國土測繪圖資服務雲",
+  "provider": {
+    "tileTemplate": "https://wmts.nlsc.gov.tw/wmts/{id}/default/GoogleMapsCompatible/{z}/{y}/{x}"
+  },
+  "region": {
+    "bbox": [
+      117.84953432,
+      21.65607265,
+      123.85924109,
+      25.64233621
+    ]
+  },
+  "categories": [
+    {
+      "id": null,
+      "name": "現代電子地圖",
+      "layers": [
+        {
+          "id": "EMAP",
+          "title": "臺灣通用電子地圖",
+          "format": "jpg",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "EMAP01",
+          "title": "臺灣通用電子地圖(灰階)",
+          "format": "jpg",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "EMAP12",
+          "title": "臺灣通用電子地圖透明(無門牌)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "EMAP15",
+          "title": "臺灣通用電子地圖(等高線無門牌)",
+          "format": "jpg",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "EMAP16",
+          "title": "臺灣通用電子地圖(無等高線及門牌)",
+          "format": "jpg",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "EMAP2",
+          "title": "臺灣通用電子地圖透明",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "EMAP5",
+          "title": "臺灣通用電子地圖(等高線+門牌)",
+          "format": "jpg",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "EMAP5_OPENDATA",
+          "title": "臺灣通用電子地圖(套疊等高線)OpenData, 最大比例尺一萬八千分之一",
+          "format": "jpg",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "EMAP6",
+          "title": "臺灣通用電子地圖(無等高線)",
+          "format": "jpg",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "EMAP6_OPENDATA",
+          "title": "臺灣通用電子地圖(不含等高線)OpenData, 最大比例尺一萬八千分之一",
+          "format": "jpg",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "EMAP7",
+          "title": "TaiwanE-Map(Transparent)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "EMAP8",
+          "title": "TaiwanE-Map(EN)",
+          "format": "jpg",
+          "year": null,
+          "dateLabel": "現代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "EMAP9",
+          "title": "臺灣通用電子地圖(無鐵公路)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "EMAP96",
+          "title": "臺灣通用電子地圖(高DPI字)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "EMAP97",
+          "title": "Taiwan e-Map(new)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "EMAP98",
+          "title": "臺灣通用電子地圖(新)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "EMAPX99",
+          "title": "臺灣通用電子地圖(無文字)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "歷年正射影像",
+      "groups": [
+        {
+          "name": "综合影像",
+          "layers": [
+            {
+              "id": "PHOTO_MIX",
+              "title": "正射影像(混合)",
+              "format": "jpg",
+              "year": null,
+              "dateLabel": "現代",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "PHOTO1",
+              "title": "正射影像圖(92-94)",
+              "format": "jpg",
+              "year": null,
+              "dateLabel": "現代",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "PHOTO2",
+              "title": "正射影像圖(通用)",
+              "format": "jpg",
+              "year": null,
+              "dateLabel": "現代",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "PHOTO_VA",
+              "title": "蘭嶼鄉正射影像109年",
+              "format": "png",
+              "year": 2020,
+              "dateLabel": "2020",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        },
+        {
+          "name": "各年正射影像",
+          "layers": [
+            {
+              "id": "PHOTO2014",
+              "title": "103年正射影像圖",
+              "format": "jpg",
+              "year": 2014,
+              "dateLabel": "2014",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "PHOTO2015",
+              "title": "104年正射影像圖",
+              "format": "jpg",
+              "year": 2015,
+              "dateLabel": "2015",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "PHOTO2016",
+              "title": "105年正射影像圖",
+              "format": "jpg",
+              "year": 2016,
+              "dateLabel": "2016",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "PHOTO2017",
+              "title": "106年正射影像圖",
+              "format": "jpg",
+              "year": 2017,
+              "dateLabel": "2017",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "PHOTO2018",
+              "title": "107年正射影像圖",
+              "format": "jpg",
+              "year": 2018,
+              "dateLabel": "2018",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "PHOTO2019",
+              "title": "108年正射影像圖",
+              "format": "jpg",
+              "year": 2019,
+              "dateLabel": "2019",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "PHOTO2020",
+              "title": "109年正射影像圖",
+              "format": "jpg",
+              "year": 2020,
+              "dateLabel": "2020",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "PHOTO2021",
+              "title": "110年正射影像圖",
+              "format": "jpg",
+              "year": 2021,
+              "dateLabel": "2021",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "PHOTO2022",
+              "title": "111年正射影像圖",
+              "format": "jpg",
+              "year": 2022,
+              "dateLabel": "2022",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "PHOTO2023",
+              "title": "112年正射影像圖",
+              "format": "jpg",
+              "year": 2023,
+              "dateLabel": "2023",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "PHOTO2024",
+              "title": "113年正射影像圖",
+              "format": "jpg",
+              "year": 2024,
+              "dateLabel": "2024",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "PHOTO2025",
+              "title": "114年正射影像圖",
+              "format": "jpg",
+              "year": 2025,
+              "dateLabel": "2025",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "歷年地形圖",
+      "groups": [
+        {
+          "name": "1/25000地形圖",
+          "layers": [
+            {
+              "id": "B25000",
+              "title": "1/25000 地形圖",
+              "format": "png",
+              "year": null,
+              "dateLabel": "現代",
+              "type": "地形圖",
+              "scale": "1:25000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO25K_107",
+              "title": "1/25000地形圖107",
+              "format": "png",
+              "year": 2018,
+              "dateLabel": "2018",
+              "type": "地形圖",
+              "scale": "1:25000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO25K_108",
+              "title": "1/25000地形圖108",
+              "format": "png",
+              "year": 2019,
+              "dateLabel": "2019",
+              "type": "地形圖",
+              "scale": "1:25000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO25K_109",
+              "title": "1/25000地形圖109",
+              "format": "png",
+              "year": 2020,
+              "dateLabel": "2020",
+              "type": "地形圖",
+              "scale": "1:25000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO25K_110",
+              "title": "1/25000地形圖110",
+              "format": "png",
+              "year": 2021,
+              "dateLabel": "2021",
+              "type": "地形圖",
+              "scale": "1:25000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO25K_111",
+              "title": "1/25000地形圖111",
+              "format": "png",
+              "year": 2022,
+              "dateLabel": "2022",
+              "type": "地形圖",
+              "scale": "1:25000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO25K_112",
+              "title": "1/25000地形圖112",
+              "format": "png",
+              "year": 2023,
+              "dateLabel": "2023",
+              "type": "地形圖",
+              "scale": "1:25000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO25K_113",
+              "title": "1/25000地形圖113",
+              "format": "png",
+              "year": 2024,
+              "dateLabel": "2024",
+              "type": "地形圖",
+              "scale": "1:25000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO25K_114",
+              "title": "1/25000地形圖114",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025",
+              "type": "地形圖",
+              "scale": "1:25000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        },
+        {
+          "name": "1/50000地形圖",
+          "layers": [
+            {
+              "id": "B50000",
+              "title": "1/50000 地形圖",
+              "format": "png",
+              "year": null,
+              "dateLabel": "現代",
+              "type": "地形圖",
+              "scale": "1:50000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO50K_107",
+              "title": "1/50000地形圖107",
+              "format": "png",
+              "year": 2018,
+              "dateLabel": "2018",
+              "type": "地形圖",
+              "scale": "1:50000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO50K_109",
+              "title": "1/50000地形圖109",
+              "format": "png",
+              "year": 2020,
+              "dateLabel": "2020",
+              "type": "地形圖",
+              "scale": "1:50000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO50K_110",
+              "title": "1/50000地形圖110",
+              "format": "png",
+              "year": 2021,
+              "dateLabel": "2021",
+              "type": "地形圖",
+              "scale": "1:50000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO50K_111",
+              "title": "1/50000地形圖111",
+              "format": "png",
+              "year": 2022,
+              "dateLabel": "2022",
+              "type": "地形圖",
+              "scale": "1:50000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO50K_112",
+              "title": "1/50000地形圖112",
+              "format": "png",
+              "year": 2023,
+              "dateLabel": "2023",
+              "type": "地形圖",
+              "scale": "1:50000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO50K_113",
+              "title": "1/50000地形圖113",
+              "format": "png",
+              "year": 2024,
+              "dateLabel": "2024",
+              "type": "地形圖",
+              "scale": "1:50000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        },
+        {
+          "name": "1/10萬地形圖",
+          "layers": [
+            {
+              "id": "B100000",
+              "title": "1/100000 地形圖",
+              "format": "png",
+              "year": null,
+              "dateLabel": "現代",
+              "type": "地形圖",
+              "scale": "1:100000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO10M_107",
+              "title": "1/100000地形圖107",
+              "format": "png",
+              "year": 2018,
+              "dateLabel": "2018",
+              "type": "地形圖",
+              "scale": "1:100000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO10M_109",
+              "title": "1/100000地形圖109",
+              "format": "png",
+              "year": 2020,
+              "dateLabel": "2020",
+              "type": "地形圖",
+              "scale": "1:100000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO10M_110",
+              "title": "1/100000地形圖110",
+              "format": "png",
+              "year": 2021,
+              "dateLabel": "2021",
+              "type": "地形圖",
+              "scale": "1:100000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO10M_111",
+              "title": "1/100000地形圖111",
+              "format": "png",
+              "year": 2022,
+              "dateLabel": "2022",
+              "type": "地形圖",
+              "scale": "1:100000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO10M_112",
+              "title": "1/100000地形圖112",
+              "format": "png",
+              "year": 2023,
+              "dateLabel": "2023",
+              "type": "地形圖",
+              "scale": "1:100000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO10M_113",
+              "title": "1/100000地形圖113",
+              "format": "png",
+              "year": 2024,
+              "dateLabel": "2024",
+              "type": "地形圖",
+              "scale": "1:100000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO10M_114",
+              "title": "1/100000地形圖114",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025",
+              "type": "地形圖",
+              "scale": "1:100000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        },
+        {
+          "name": "1/5000像片基本圖",
+          "layers": [
+            {
+              "id": "B5000",
+              "title": "1/5000基本地形圖",
+              "format": "png",
+              "year": null,
+              "dateLabel": "現代",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_065",
+              "title": "1/5000像片基本圖65",
+              "format": "png",
+              "year": 1976,
+              "dateLabel": "1976",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_066",
+              "title": "1/5000像片基本圖66",
+              "format": "png",
+              "year": 1977,
+              "dateLabel": "1977",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_067",
+              "title": "1/5000像片基本圖67",
+              "format": "png",
+              "year": 1978,
+              "dateLabel": "1978",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_068",
+              "title": "1/5000像片基本圖68",
+              "format": "png",
+              "year": 1979,
+              "dateLabel": "1979",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_069",
+              "title": "1/5000像片基本圖69",
+              "format": "png",
+              "year": 1980,
+              "dateLabel": "1980",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_070",
+              "title": "1/5000像片基本圖70",
+              "format": "png",
+              "year": 1981,
+              "dateLabel": "1981",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_071",
+              "title": "1/5000像片基本圖71",
+              "format": "png",
+              "year": 1982,
+              "dateLabel": "1982",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_072",
+              "title": "1/5000像片基本圖72",
+              "format": "png",
+              "year": 1983,
+              "dateLabel": "1983",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_073",
+              "title": "1/5000像片基本圖73",
+              "format": "png",
+              "year": 1984,
+              "dateLabel": "1984",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_074",
+              "title": "1/5000像片基本圖74",
+              "format": "png",
+              "year": 1985,
+              "dateLabel": "1985",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_075",
+              "title": "1/5000像片基本圖75",
+              "format": "png",
+              "year": 1986,
+              "dateLabel": "1986",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_076",
+              "title": "1/5000像片基本圖76",
+              "format": "png",
+              "year": 1987,
+              "dateLabel": "1987",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_078",
+              "title": "1/5000像片基本圖78",
+              "format": "png",
+              "year": 1989,
+              "dateLabel": "1989",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_079",
+              "title": "1/5000像片基本圖79",
+              "format": "png",
+              "year": 1990,
+              "dateLabel": "1990",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_080",
+              "title": "1/5000像片基本圖80",
+              "format": "png",
+              "year": 1991,
+              "dateLabel": "1991",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_081",
+              "title": "1/5000像片基本圖81",
+              "format": "png",
+              "year": 1992,
+              "dateLabel": "1992",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_083",
+              "title": "1/5000像片基本圖83",
+              "format": "png",
+              "year": 1994,
+              "dateLabel": "1994",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_084",
+              "title": "1/5000像片基本圖84",
+              "format": "png",
+              "year": 1995,
+              "dateLabel": "1995",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_086",
+              "title": "1/5000像片基本圖86",
+              "format": "png",
+              "year": 1997,
+              "dateLabel": "1997",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_087",
+              "title": "1/5000像片基本圖87",
+              "format": "png",
+              "year": 1998,
+              "dateLabel": "1998",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_088",
+              "title": "1/5000像片基本圖88",
+              "format": "png",
+              "year": 1999,
+              "dateLabel": "1999",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_089",
+              "title": "1/5000像片基本圖89",
+              "format": "png",
+              "year": 2000,
+              "dateLabel": "2000",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_090",
+              "title": "1/5000像片基本圖90",
+              "format": "png",
+              "year": 2001,
+              "dateLabel": "2001",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_091",
+              "title": "1/5000像片基本圖91",
+              "format": "png",
+              "year": 2002,
+              "dateLabel": "2002",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_092",
+              "title": "1/5000像片基本圖92",
+              "format": "png",
+              "year": 2003,
+              "dateLabel": "2003",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_093",
+              "title": "1/5000像片基本圖93",
+              "format": "png",
+              "year": 2004,
+              "dateLabel": "2004",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_094",
+              "title": "1/5000像片基本圖94",
+              "format": "png",
+              "year": 2005,
+              "dateLabel": "2005",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_095",
+              "title": "1/5000像片基本圖95",
+              "format": "png",
+              "year": 2006,
+              "dateLabel": "2006",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_096",
+              "title": "1/5000像片基本圖96",
+              "format": "png",
+              "year": 2007,
+              "dateLabel": "2007",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_097",
+              "title": "1/5000像片基本圖97",
+              "format": "png",
+              "year": 2008,
+              "dateLabel": "2008",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_098",
+              "title": "1/5000像片基本圖98",
+              "format": "png",
+              "year": 2009,
+              "dateLabel": "2009",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_099",
+              "title": "1/5000像片基本圖99",
+              "format": "png",
+              "year": 2010,
+              "dateLabel": "2010",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_100",
+              "title": "1/5000像片基本圖100",
+              "format": "png",
+              "year": 2011,
+              "dateLabel": "2011",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_101",
+              "title": "1/5000像片基本圖101",
+              "format": "png",
+              "year": 2012,
+              "dateLabel": "2012",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_102",
+              "title": "1/5000像片基本圖102",
+              "format": "png",
+              "year": 2013,
+              "dateLabel": "2013",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_103",
+              "title": "1/5000像片基本圖103",
+              "format": "png",
+              "year": 2014,
+              "dateLabel": "2014",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_104",
+              "title": "1/5000像片基本圖104",
+              "format": "png",
+              "year": 2015,
+              "dateLabel": "2015",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_105",
+              "title": "1/5000像片基本圖105",
+              "format": "png",
+              "year": 2016,
+              "dateLabel": "2016",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_106",
+              "title": "1/5000像片基本圖106",
+              "format": "png",
+              "year": 2017,
+              "dateLabel": "2017",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_107",
+              "title": "1/5000像片基本圖107",
+              "format": "png",
+              "year": 2018,
+              "dateLabel": "2018",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_108",
+              "title": "1/5000像片基本圖108",
+              "format": "png",
+              "year": 2019,
+              "dateLabel": "2019",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_109",
+              "title": "1/5000像片基本圖109",
+              "format": "png",
+              "year": 2020,
+              "dateLabel": "2020",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_110",
+              "title": "1/5000像片基本圖110",
+              "format": "png",
+              "year": 2021,
+              "dateLabel": "2021",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_111",
+              "title": "1/5000像片基本圖111",
+              "format": "png",
+              "year": 2022,
+              "dateLabel": "2022",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_112",
+              "title": "1/5000像片基本圖112年",
+              "format": "png",
+              "year": 2023,
+              "dateLabel": "2023",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_113",
+              "title": "1/5000像片基本圖113年",
+              "format": "png",
+              "year": 2024,
+              "dateLabel": "2024",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "TOPO05KPHOTO_114",
+              "title": "1/5000像片基本圖114年",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025",
+              "type": "地形圖",
+              "scale": "1:5000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        },
+        {
+          "name": "其他比例尺圖幅",
+          "layers": [
+            {
+              "id": "TOPO10KPHOTO",
+              "title": "1/10000像片基本圖",
+              "format": "png",
+              "year": null,
+              "dateLabel": "現代",
+              "type": "地形圖",
+              "scale": "1:10000",
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "國土利用現況調查",
+      "groups": [
+        {
+          "name": "歷年更新區",
+          "layers": [
+            {
+              "id": "LUIMAP",
+              "title": "國土利用現況調查成果圖",
+              "format": "png",
+              "year": null,
+              "dateLabel": "現代",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP82",
+              "title": "國土利用調查成果圖82年",
+              "format": "png",
+              "year": 1993,
+              "dateLabel": "1993",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP95",
+              "title": "國土利用調查成果圖95-97年",
+              "format": "png",
+              "year": 2006,
+              "dateLabel": "2006-2008",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP98",
+              "title": "國土利用現況調查098年更新區",
+              "format": "png",
+              "year": 2009,
+              "dateLabel": "2009",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP99",
+              "title": "國土利用現況調查099年更新區",
+              "format": "png",
+              "year": 2010,
+              "dateLabel": "2010",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP100",
+              "title": "國土利用現況調查100年更新區",
+              "format": "png",
+              "year": 2011,
+              "dateLabel": "2011",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP101",
+              "title": "國土利用現況調查101年更新區",
+              "format": "png",
+              "year": 2012,
+              "dateLabel": "2012",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP102",
+              "title": "國土利用現況調查102年更新區",
+              "format": "png",
+              "year": 2013,
+              "dateLabel": "2013",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP103",
+              "title": "國土利用現況調查103年更新區",
+              "format": "png",
+              "year": 2014,
+              "dateLabel": "2014",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP104",
+              "title": "國土利用現況調查104年更新區",
+              "format": "png",
+              "year": 2015,
+              "dateLabel": "2015",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP105",
+              "title": "國土利用現況調查105年更新區",
+              "format": "png",
+              "year": 2016,
+              "dateLabel": "2016",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP106",
+              "title": "國土利用現況調查106年更新區",
+              "format": "png",
+              "year": 2017,
+              "dateLabel": "2017",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP107",
+              "title": "國土利用現況調查107年更新區",
+              "format": "png",
+              "year": 2018,
+              "dateLabel": "2018",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP108",
+              "title": "國土利用現況調查108年更新區",
+              "format": "png",
+              "year": 2019,
+              "dateLabel": "2019",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP109",
+              "title": "國土利用現況調查109年更新區",
+              "format": "png",
+              "year": 2020,
+              "dateLabel": "2020",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP110",
+              "title": "國土利用現況調查110年更新區",
+              "format": "png",
+              "year": 2021,
+              "dateLabel": "2021",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP111",
+              "title": "國土利用現況調查111年更新區",
+              "format": "png",
+              "year": 2022,
+              "dateLabel": "2022",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP112",
+              "title": "國土利用現況調查112年更新區",
+              "format": "png",
+              "year": 2023,
+              "dateLabel": "2023",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP113",
+              "title": "國土利用現況調查113年更新區",
+              "format": "png",
+              "year": 2024,
+              "dateLabel": "2024",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP114",
+              "title": "國土利用現況調查114年更新區",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        },
+        {
+          "name": "土地利用類別",
+          "layers": [
+            {
+              "id": "LUIMAP01",
+              "title": "國土利用現況調查-1類農業",
+              "format": "png",
+              "year": null,
+              "dateLabel": "現代",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP02",
+              "title": "國土利用現況調查-2類森林",
+              "format": "png",
+              "year": null,
+              "dateLabel": "現代",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP03",
+              "title": "國土利用現況調查-3類交通",
+              "format": "png",
+              "year": null,
+              "dateLabel": "現代",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP04",
+              "title": "國土利用現況調查-4類水利",
+              "format": "png",
+              "year": null,
+              "dateLabel": "現代",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP05",
+              "title": "國土利用現況調查-5類建築",
+              "format": "png",
+              "year": null,
+              "dateLabel": "現代",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP06",
+              "title": "國土利用現況調查-6類公共",
+              "format": "png",
+              "year": null,
+              "dateLabel": "現代",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP07",
+              "title": "國土利用現況調查-7類遊憩",
+              "format": "png",
+              "year": null,
+              "dateLabel": "現代",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP08",
+              "title": "國土利用現況調查-8類礦鹽",
+              "format": "png",
+              "year": null,
+              "dateLabel": "現代",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "LUIMAP09",
+              "title": "國土利用現況調查-9類其他",
+              "format": "png",
+              "year": null,
+              "dateLabel": "現代",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "地形分析圖",
+      "layers": [
+        {
+          "id": "DDEM05",
+          "title": "空載光達數值地形變異分析圖(0.5M門檻)_第2期減第1期",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "DDEM052",
+          "title": "空載光達數值地形變異分析圖(0.5M門檻)_第3期減第2期",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "MOI_ASPECT",
+          "title": "坡向圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "MOI_HILLSHADE",
+          "title": "陰影圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "MOI_SHADERMAP",
+          "title": "渲染圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "MOI_CONTOUR",
+          "title": "等高線圖(2003-2005)",
+          "format": "png",
+          "year": 2003,
+          "dateLabel": "2003-2005",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "MOI_SLOPEP_GT30",
+          "title": "坡度圖-30%坡(2003-2005)",
+          "format": "png",
+          "year": 2003,
+          "dateLabel": "2003-2005",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "MOI_SLOPEP_LV7",
+          "title": "坡度圖-7級(2003-2005)",
+          "format": "png",
+          "year": 2003,
+          "dateLabel": "2003-2005",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "MOI_CONTOUR_2",
+          "title": "等高線圖(2010-2015)",
+          "format": "png",
+          "year": 2010,
+          "dateLabel": "2010-2015",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "MOI_SLOPEP_GT30_2",
+          "title": "坡度圖-30%坡(2010-2015)",
+          "format": "jpg",
+          "year": 2010,
+          "dateLabel": "2010-2015",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "MOI_SLOPEP_LV7_2",
+          "title": "坡度圖-7級(2010-2015)",
+          "format": "png",
+          "year": 2010,
+          "dateLabel": "2010-2015",
+          "type": "地形圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "行政區界",
+      "layers": [
+        {
+          "id": "CITY",
+          "title": "縣市界",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "LandOffice",
+          "title": "地政事務所轄區圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "LANDSECT",
+          "title": "地段外圍圖(段籍圖)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "LANDSECT2",
+          "title": "地段外圍圖(段籍圖)(類別)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "MB5000",
+          "title": "1/5000圖幅框",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "TOWN",
+          "title": "鄉鎮區界",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Village",
+          "title": "村里界",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "Village201910",
+          "title": "村里界(108年10月)",
+          "format": "png",
+          "year": 2019,
+          "dateLabel": "2019",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "土地使用分區",
+      "layers": [
+        {
+          "id": "LAND_OPENDATA",
+          "title": "公有土地地籍圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "nURBAN1",
+          "title": "非都市土地使用分區圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "nURBAN2",
+          "title": "非都市土地使用地類別圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "地籍圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "防災與敏感區",
+      "layers": [
+        {
+          "id": "GeoSensitive",
+          "title": "地質敏感區",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "GeoSensitive2",
+          "title": "地質敏感區(山崩與地滑)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "SHELTERS",
+          "title": "避難收容所",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "SoilLiquefaction",
+          "title": "土壤液化潛勢_初級",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "SoilLiquefaction2",
+          "title": "土壤液化潛勢_中級",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "民生設施點位",
+      "layers": [
+        {
+          "id": "AED",
+          "title": "AED位置",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "ConvenienceStore",
+          "title": "便利商店(超商)",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "fireplug",
+          "title": "消防栓",
+          "format": "jpg",
+          "year": null,
+          "dateLabel": "現代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        },
+        {
+          "id": "SCHOOL",
+          "title": "各級學校範圍圖",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "路網",
+      "layers": [
+        {
+          "id": "ROAD",
+          "title": "道路路網",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": null,
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "馬太鞍溪事件航照",
+      "groups": [
+        {
+          "name": "災前正射影像",
+          "layers": [
+            {
+              "id": "Asrs_2025_ortho",
+              "title": "馬太鞍溪事件_2024_2025_災前航照圖",
+              "format": "jpg",
+              "year": 2025,
+              "dateLabel": "2025",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        },
+        {
+          "name": "2025/09/25 航照",
+          "layers": [
+            {
+              "id": "Asrs_20250925_1",
+              "title": "馬太鞍溪事件_20250925_航照圖1",
+              "format": "jpg",
+              "year": 2025,
+              "dateLabel": "2025/09/25",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20250925_2",
+              "title": "馬太鞍溪事件_20250925_航照圖2",
+              "format": "jpg",
+              "year": 2025,
+              "dateLabel": "2025/09/25",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20250925_3",
+              "title": "馬太鞍溪事件_20250925_航照圖3",
+              "format": "jpg",
+              "year": 2025,
+              "dateLabel": "2025/09/25",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        },
+        {
+          "name": "2025/09/27 航照",
+          "layers": [
+            {
+              "id": "Asrs_20250927_1",
+              "title": "馬太鞍溪事件_20250927_航照圖1",
+              "format": "jpg",
+              "year": 2025,
+              "dateLabel": "2025/09/27",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20250927_2",
+              "title": "馬太鞍溪事件_20250927_航照圖2",
+              "format": "jpg",
+              "year": 2025,
+              "dateLabel": "2025/09/27",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20250927_3",
+              "title": "馬太鞍溪事件_20250927_航照圖3",
+              "format": "jpg",
+              "year": 2025,
+              "dateLabel": "2025/09/27",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        },
+        {
+          "name": "2025/09/28 航照",
+          "layers": [
+            {
+              "id": "Asrs_20250928_1",
+              "title": "馬太鞍溪事件_20250928_航照圖1",
+              "format": "jpg",
+              "year": 2025,
+              "dateLabel": "2025/09/28",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20250928_2",
+              "title": "馬太鞍溪事件_20250928_航照圖2",
+              "format": "jpg",
+              "year": 2025,
+              "dateLabel": "2025/09/28",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        },
+        {
+          "name": "2025/09/29 航照",
+          "layers": [
+            {
+              "id": "Asrs_20250929_1",
+              "title": "馬太鞍溪事件_20250929_航照圖1",
+              "format": "jpg",
+              "year": 2025,
+              "dateLabel": "2025/09/29",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20250929_2",
+              "title": "馬太鞍溪事件_20250929_航照圖2",
+              "format": "jpg",
+              "year": 2025,
+              "dateLabel": "2025/09/29",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        },
+        {
+          "name": "2025/09/30 航照",
+          "layers": [
+            {
+              "id": "Asrs_20250930_1",
+              "title": "馬太鞍溪事件_20250930_航照圖1",
+              "format": "jpg",
+              "year": 2025,
+              "dateLabel": "2025/09/30",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20250930_2",
+              "title": "馬太鞍溪事件_20250930_航照圖2",
+              "format": "jpg",
+              "year": 2025,
+              "dateLabel": "2025/09/30",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        },
+        {
+          "name": "2025/10/01 航照",
+          "layers": [
+            {
+              "id": "Asrs_20251001_1",
+              "title": "馬太鞍溪事件_20251001_航照圖1",
+              "format": "jpg",
+              "year": 2025,
+              "dateLabel": "2025/10/01",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        },
+        {
+          "name": "2025/10/02 航照",
+          "layers": [
+            {
+              "id": "Asrs_20251002_1",
+              "title": "馬太鞍溪事件_20251002_航照圖1",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/02",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251002_2",
+              "title": "馬太鞍溪事件_20251002_航照圖2",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/02",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251002_3",
+              "title": "馬太鞍溪事件_20251002_航照圖3",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/02",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        },
+        {
+          "name": "2025/10/03 航照",
+          "layers": [
+            {
+              "id": "Asrs_20251003_1",
+              "title": "馬太鞍溪事件_20251003_航照圖1",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/03",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251003_2",
+              "title": "馬太鞍溪事件_20251003_航照圖2",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/03",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251003_3",
+              "title": "馬太鞍溪事件_20251003_航照圖3",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/03",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251003_4",
+              "title": "馬太鞍溪事件_20251003_航照圖4",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/03",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251003_5",
+              "title": "馬太鞍溪事件_20251003_航照圖5",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/03",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251003_6",
+              "title": "馬太鞍溪事件_20251003_航照圖6",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/03",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251003_7",
+              "title": "馬太鞍溪事件_20251003_航照圖7",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/03",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        },
+        {
+          "name": "2025/10/04 航照",
+          "layers": [
+            {
+              "id": "Asrs_20251004_1",
+              "title": "馬太鞍溪事件_20251004_航照圖1",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/04",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251004_2",
+              "title": "馬太鞍溪事件_20251004_航照圖2",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/04",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251004_3",
+              "title": "馬太鞍溪事件_20251004_航照圖3",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/04",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        },
+        {
+          "name": "2025/10/05 航照",
+          "layers": [
+            {
+              "id": "Asrs_20251005_1",
+              "title": "馬太鞍溪事件_20251005_航照圖1",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/05",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251005_2",
+              "title": "馬太鞍溪事件_20251005_航照圖2",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/05",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251005_3",
+              "title": "馬太鞍溪事件_20251005_航照圖3",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/05",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        },
+        {
+          "name": "2025/10/06 航照",
+          "layers": [
+            {
+              "id": "Asrs_20251006_1",
+              "title": "馬太鞍溪事件_20251006_航照圖1",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/06",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251006_2",
+              "title": "馬太鞍溪事件_20251006_航照圖2",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/06",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251006_3",
+              "title": "馬太鞍溪事件_20251006_航照圖3",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/06",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        },
+        {
+          "name": "2025/10/07 航照",
+          "layers": [
+            {
+              "id": "Asrs_20251007_1",
+              "title": "馬太鞍溪事件_20251007_航照圖1",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/07",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251007_2",
+              "title": "馬太鞍溪事件_20251007_航照圖2",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/07",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251007_3",
+              "title": "馬太鞍溪事件_20251007_航照圖3",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/07",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        },
+        {
+          "name": "2025/10/13 航照",
+          "layers": [
+            {
+              "id": "Asrs_20251013_1",
+              "title": "馬太鞍溪事件_20251013_航照圖1",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/13",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251013_2",
+              "title": "馬太鞍溪事件_20251013_航照圖2",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/13",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251013_3",
+              "title": "馬太鞍溪事件_20251013_航照圖3",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/13",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251013_4",
+              "title": "馬太鞍溪事件_20251013_航照圖4",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/13",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251013_5",
+              "title": "馬太鞍溪事件_20251013_航照圖5",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/13",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251013_6",
+              "title": "馬太鞍溪事件_20251013_航照圖6",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/13",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251013_7",
+              "title": "馬太鞍溪事件_20251013_航照圖7",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/13",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251013_8",
+              "title": "馬太鞍溪事件_20251013_航照圖8",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/13",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251013_9",
+              "title": "馬太鞍溪事件_20251013_航照圖9",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/10/13",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        },
+        {
+          "name": "2025/11/16 航照",
+          "layers": [
+            {
+              "id": "Asrs_20251116_1",
+              "title": "馬太鞍溪事件_20251116_航照圖1",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/11/16",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251116_2",
+              "title": "馬太鞍溪事件_20251116_航照圖2",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/11/16",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251116_3",
+              "title": "馬太鞍溪事件_20251116_航照圖3",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/11/16",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251116_4",
+              "title": "馬太鞍溪事件_20251116_航照圖4",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/11/16",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251116_5",
+              "title": "馬太鞍溪事件_20251116_航照圖5",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/11/16",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251116_6",
+              "title": "馬太鞍溪事件_20251116_航照圖6",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/11/16",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251116_7",
+              "title": "馬太鞍溪事件_20251116_航照圖7",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/11/16",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            },
+            {
+              "id": "Asrs_20251116_8",
+              "title": "馬太鞍溪事件_20251116_航照圖8",
+              "format": "png",
+              "year": 2025,
+              "dateLabel": "2025/11/16",
+              "type": null,
+              "scale": null,
+              "region": {
+                "bbox": [
+                  117.84953432,
+                  21.65607265,
+                  123.85924109,
+                  25.64233621
+                ]
+              },
+              "keywords": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": null,
+      "name": "其他圖資",
+      "layers": [
+        {
+          "id": "BUILDX",
+          "title": "臺灣通用電子地圖加值分棟建物框",
+          "format": "png",
+          "year": null,
+          "dateLabel": "現代",
+          "type": "行政區劃圖",
+          "scale": null,
+          "region": {
+            "bbox": [
+              117.84953432,
+              21.65607265,
+              123.85924109,
+              25.64233621
+            ]
+          },
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}
