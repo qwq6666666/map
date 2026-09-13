@@ -12,10 +12,11 @@
         重新下載大量圖磚——只有圖磚快取的資料結構本身要改（例如
         LRU 索引格式）才需要動這個版本號。
 
-     1.5 OSM_TILE_CACHE — 現代地圖底圖（OpenStreetMap）圖磚，快取策略
-        跟 TILE_CACHE 完全一樣，差別只在快取空間、LRU 名額各自獨立算，
-        原因見下方常數定義處的說明；跟 TILE_CACHE 共用
-        TILE_CACHE_VERSION（儲存格式一致，沒有分開版號的必要）。
+     1.5 OSM_TILE_CACHE／SAT_TILE_CACHE — 現代地圖底圖（OpenStreetMap／
+        Esri 衛星影像）圖磚，快取策略跟 TILE_CACHE 完全一樣，差別只在
+        快取空間、LRU 名額三邊各自獨立算，原因見下方常數定義處的說明；
+        都跟 TILE_CACHE 共用 TILE_CACHE_VERSION（儲存格式一致，沒有分開
+        版號的必要）。
 
      2. DATA_CACHE — data/*.json（layers.bundle.json、
         historical-names.json 等圖層與地名資料），Network-First：
@@ -57,23 +58,40 @@ const TILE_CACHE_VERSION = 'v1';
 const APP_CACHE = `app-shell-${CACHE_VERSION}`;
 const DATA_CACHE = `data-${CACHE_VERSION}`;
 const TILE_CACHE = `tile-cache-${TILE_CACHE_VERSION}`;
-// OSM 現代地圖底圖圖磚獨立一份快取空間＋獨立 LRU，不跟歷史 WMTS／衛星
-// 圖磚共用同一份 LRU 名單：地址搜尋一次會對上百筆候選歷史圖層送出探測
-// 用的圖磚請求（見 src/tileChecker.js），這些探測請求如果跟畫面上一直
-// 看得到、反覆重繪的 OSM 底圖擠在同一份 LRU 裡，搜尋密集時會把底圖圖磚
-// 排擠掉、需要重新下載，體感上就是「一直在看的底圖也跟著變慢」。分開
-// 後兩邊 LRU 名額互不影響，跟 TILE_CACHE 一樣用 TILE_CACHE_VERSION。
+// OSM／衛星影像現代地圖底圖圖磚各自獨立一份快取空間＋獨立 LRU，不跟
+// 歷史 WMTS 圖磚共用同一份 LRU 名單：地址搜尋一次會對上百筆候選歷史
+// 圖層送出探測用的圖磚請求（見 src/tileChecker.js），這些探測請求如果
+// 跟畫面上一直看得到、反覆重繪的現代底圖擠在同一份 LRU 裡，搜尋密集時
+// 會把底圖圖磚排擠掉、需要重新下載，體感上就是「一直在看的底圖也跟著
+// 變慢」。OSM／衛星影像兩者也彼此分開（而非合併成一份「現代底圖」快取），
+// 因為使用者切換底圖來回瀏覽不同地區時，兩者 LRU 名額互不影響才不會
+// 互相擠掉。三邊都跟 TILE_CACHE 一樣用 TILE_CACHE_VERSION。
 const OSM_TILE_CACHE = `tile-cache-osm-${TILE_CACHE_VERSION}`;
+const SAT_TILE_CACHE = `tile-cache-sat-${TILE_CACHE_VERSION}`;
 
 // activate 時只清除這些前綴開頭、且不是目前版本的快取；shell-cache- /
 // meta-cache- 是這次改版之前的舊命名，一併列入做一次性遷移清理。
-// tile-cache- 前綴刻意不在這份清單裡（TILE_CACHE、OSM_TILE_CACHE 兩者
-// 皆是），確保圖磚快取不會因為 App Shell／Data 改版而被清掉。
+// tile-cache- 前綴刻意不在這份清單裡（TILE_CACHE、OSM_TILE_CACHE、
+// SAT_TILE_CACHE 三者皆是），確保圖磚快取不會因為 App Shell／Data
+// 改版而被清掉。
 const MANAGED_CACHE_PREFIXES = ['app-shell-', 'data-', 'shell-cache-', 'meta-cache-'];
 
-const TILE_LRU_LIMIT = 5000;
+// 三邊上限各自估算（實測平均磚體積 OSM ~14KB、衛星 ~15KB）：
+// - TILE_LRU_LIMIT（歷史 WMTS，12000，約 170MB）：全站核心內容（2425
+//   筆圖層，見 spatial-index.test.mjs），史料圖磚永久不變、快取越久越
+//   划算；地址搜尋的 bbox 探測（tileChecker.js）也會對候選圖層送出
+//   probe 請求佔用這份 LRU，上限抓高一點可緩解「探測把剛瀏覽過的圖磚
+//   擠掉」的 thrashing。
+// - OSM_TILE_LRU_LIMIT（10000，約 140MB）：常駐底圖，使用者常在多個
+//   地區間快速縮放切換，抓較高上限避免來回瀏覽時舊地區被擠掉重下載。
+// - SAT_TILE_LRU_LIMIT（8000，約 120MB）：切換頻率通常低於 OSM、Esri
+//   影像更新週期也慢，抓比 OSM 略低但同量級的上限。
+const TILE_LRU_LIMIT = 12000;
+const OSM_TILE_LRU_LIMIT = 10000;
+const SAT_TILE_LRU_LIMIT = 8000;
 const TILE_LRU_KEY = new Request('https://tile-lru.local/__index__');
 const OSM_TILE_LRU_KEY = new Request('https://tile-lru.local/__osm_index__');
+const SAT_TILE_LRU_KEY = new Request('https://tile-lru.local/__sat_index__');
 
 self.addEventListener('install', () => {
   self.skipWaiting();
@@ -81,7 +99,7 @@ self.addEventListener('install', () => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
-    const keep = new Set([APP_CACHE, DATA_CACHE, TILE_CACHE, OSM_TILE_CACHE]);
+    const keep = new Set([APP_CACHE, DATA_CACHE, TILE_CACHE, OSM_TILE_CACHE, SAT_TILE_CACHE]);
     const names = await caches.keys();
     await Promise.all(
       names
@@ -104,12 +122,12 @@ async function writeTileLRU(cache, lruKey, list){
   }));
 }
 
-async function touchTileLRU(cache, lruKey, url){
+async function touchTileLRU(cache, lruKey, url, limit){
   const list = await readTileLRU(cache, lruKey);
   const idx = list.indexOf(url);
   if(idx !== -1) list.splice(idx, 1);
   list.push(url);
-  while(list.length > TILE_LRU_LIMIT){
+  while(list.length > limit){
     const oldest = list.shift();
     await cache.delete(oldest);
   }
@@ -124,6 +142,12 @@ function isTileRequest(request){
 // 走獨立的 OSM_TILE_CACHE，跟其他圖磚請求（歷史 WMTS、衛星底圖）分開。
 function isOsmTileRequest(url){
   return /(^|\.)tile\.openstreetmap\.org$/.test(url.hostname);
+}
+
+// 衛星影像底圖圖磚（見 src/config/baseLayers.js 的 'sat' urlTemplate）
+// 走獨立的 SAT_TILE_CACHE，同樣跟歷史 WMTS 圖磚分開。
+function isSatTileRequest(url){
+  return url.hostname === 'server.arcgisonline.com';
 }
 
 function isDataRequest(url){
@@ -146,19 +170,24 @@ function isOwnScriptRequest(url){
   return url.origin === self.location.origin && url.pathname.endsWith('/sw.js');
 }
 
+function tileCacheConfig(url){
+  if(isOsmTileRequest(url)) return { cacheName: OSM_TILE_CACHE, lruKey: OSM_TILE_LRU_KEY, limit: OSM_TILE_LRU_LIMIT };
+  if(isSatTileRequest(url)) return { cacheName: SAT_TILE_CACHE, lruKey: SAT_TILE_LRU_KEY, limit: SAT_TILE_LRU_LIMIT };
+  return { cacheName: TILE_CACHE, lruKey: TILE_LRU_KEY, limit: TILE_LRU_LIMIT };
+}
+
 async function cacheFirstTile(request, url){
-  const isOsm = isOsmTileRequest(url);
-  const cache = await caches.open(isOsm ? OSM_TILE_CACHE : TILE_CACHE);
-  const lruKey = isOsm ? OSM_TILE_LRU_KEY : TILE_LRU_KEY;
+  const { cacheName, lruKey, limit } = tileCacheConfig(url);
+  const cache = await caches.open(cacheName);
   const cached = await cache.match(request);
   if(cached){
-    await touchTileLRU(cache, lruKey, request.url);
+    await touchTileLRU(cache, lruKey, request.url, limit);
     return cached;
   }
   const res = await fetch(request);
   if(res && (res.ok || res.type === 'opaque')){
     await cache.put(request, res.clone());
-    await touchTileLRU(cache, lruKey, request.url);
+    await touchTileLRU(cache, lruKey, request.url, limit);
   }
   return res;
 }
@@ -230,4 +259,21 @@ self.addEventListener('fetch', (event) => {
   if(isHashedAssetRequest(request, url)){
     event.respondWith(cacheFirstAsset(request));
   }
+});
+
+// 頁面端「清除圖磚快取」按鈕觸發（見 src/main.js），透過 MessageChannel
+// 拿回執行結果。只清三份 tile cache（歷史 WMTS／OSM／衛星影像），刻意
+// 不動 APP_CACHE／DATA_CACHE——那兩份本來就有版本號機制自動汰換，清掉
+// 反而會讓使用者短暫離線時失去 fallback。
+self.addEventListener('message', (event) => {
+  if(event.data?.type !== 'CLEAR_TILE_CACHES') return;
+  const port = event.ports?.[0];
+  event.waitUntil((async () => {
+    try{
+      await Promise.all([TILE_CACHE, OSM_TILE_CACHE, SAT_TILE_CACHE].map(name => caches.delete(name)));
+      port?.postMessage({ ok: true });
+    }catch(err){
+      port?.postMessage({ ok: false, error: String(err) });
+    }
+  })());
 });

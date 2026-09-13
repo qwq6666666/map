@@ -34,6 +34,7 @@ const APP_CACHE = 'app-shell-v2';
 const DATA_CACHE = 'data-v2';
 const TILE_CACHE = 'tile-cache-v1';
 const OSM_TILE_CACHE = 'tile-cache-osm-v1';
+const SAT_TILE_CACHE = 'tile-cache-sat-v1';
 const OLD_APP_CACHE = 'app-shell-v1'; // 模擬「上一輪 SW 遺留」的舊版快取
 
 /* ---------------------------------------------------------
@@ -79,7 +80,7 @@ FakeResponse.error = () => new FakeResponse(null, { status: 0, ok: false, type: 
      reject 模擬離線）。
 --------------------------------------------------------- */
 function createSWEnv(){
-  const registered = { install: [], activate: [], fetch: [] };
+  const registered = { install: [], activate: [], fetch: [], message: [] };
   let skipWaitingCalled = false;
   let clientsClaimed = false;
   let fetchCallCount = 0;
@@ -165,6 +166,18 @@ function createSWEnv(){
     },
     triggerInstall(){
       registered.install.forEach(fn => fn({}));
+    },
+    // 觸發 message 事件（模擬 src/main.js 用 MessageChannel 呼叫
+    // sw.js），回傳 { waitUntilPromise, received }：received 是這個
+    // 假 port 收到的所有 postMessage 內容，呼叫端 await waitUntilPromise
+    // 後再檢查 received 即可。
+    triggerMessage(data){
+      const received = [];
+      const port = { postMessage(msg){ received.push(msg); } };
+      let waitUntilPromise = null;
+      const event = { data, ports: [port], waitUntil(p){ waitUntilPromise = p; } };
+      registered.message.forEach(fn => fn(event));
+      return { waitUntilPromise, received };
     },
     presetCache(name, url, response){
       getOrCreateCache(name).set(url, response);
@@ -314,6 +327,56 @@ test('activate：App Shell 改版清除舊快取時，完全不影響 OSM_TILE_C
 });
 
 /* ---------------------------------------------------------
+   4.6 衛星影像圖磚（Esri arcgisonline）也走獨立的 SAT_TILE_CACHE，
+       跟 OSM／歷史 WMTS 三邊互不干擾、activate 也不會誤刪。
+--------------------------------------------------------- */
+test('衛星影像圖磚（server.arcgisonline.com）快取命中時走 SAT_TILE_CACHE，不進 TILE_CACHE／OSM_TILE_CACHE', async () => {
+  const env = createSWEnv();
+  const url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/15/1234/5678';
+  env.presetCache(SAT_TILE_CACHE, url, new FakeResponse('衛星圖磚'));
+  env.setFetchImpl(async () => { throw new Error('快取命中時不應該打到網路'); });
+
+  const request = new FakeRequest(url, { destination: 'image' });
+  const { promise } = env.triggerFetch(request);
+  const res = await promise;
+
+  assertEqual(await res.text(), '衛星圖磚', '衛星影像圖磚快取命中時應該直接回傳 SAT_TILE_CACHE 裡的內容');
+  assertEqual(env.getCacheSize(TILE_CACHE), 0, '衛星影像圖磚不應該寫進 TILE_CACHE');
+  assertEqual(env.getCacheSize(OSM_TILE_CACHE), 0, '衛星影像圖磚不應該寫進 OSM_TILE_CACHE');
+});
+
+test('圖磚請求未命中快取時，衛星影像／OSM／歷史 WMTS 三邊分別寫進各自的快取空間', async () => {
+  const env = createSWEnv();
+  const satUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/12/100/200';
+  const osmUrl = 'https://b.tile.openstreetmap.org/10/100/200.png';
+  const wmtsUrl = 'https://gis.sinica.edu.tw/tile/2.png';
+  env.setFetchImpl(async () => new FakeResponse('新圖磚', { status: 200 }));
+
+  await env.triggerFetch(new FakeRequest(satUrl, { destination: 'image' })).promise;
+  await env.triggerFetch(new FakeRequest(osmUrl, { destination: 'image' })).promise;
+  await env.triggerFetch(new FakeRequest(wmtsUrl, { destination: 'image' })).promise;
+
+  assertTrue(!!env.getCacheEntry(SAT_TILE_CACHE, satUrl), '衛星影像圖磚應該寫進 SAT_TILE_CACHE');
+  assertTrue(!env.getCacheEntry(TILE_CACHE, satUrl), '衛星影像圖磚不應該同時出現在 TILE_CACHE');
+  assertTrue(!env.getCacheEntry(OSM_TILE_CACHE, satUrl), '衛星影像圖磚不應該同時出現在 OSM_TILE_CACHE');
+  assertTrue(!!env.getCacheEntry(OSM_TILE_CACHE, osmUrl), 'OSM 圖磚應該寫進 OSM_TILE_CACHE');
+  assertTrue(!!env.getCacheEntry(TILE_CACHE, wmtsUrl), '歷史 WMTS 圖磚應該寫進 TILE_CACHE');
+});
+
+test('activate：App Shell 改版清除舊快取時，完全不影響 SAT_TILE_CACHE 的內容', async () => {
+  const env = createSWEnv();
+  env.presetCache(OLD_APP_CACHE, 'https://example.local/old.html', new FakeResponse('舊版殘留'));
+  env.presetCache(SAT_TILE_CACHE, 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/1/1/1', new FakeResponse('衛星圖磚1'));
+
+  await env.triggerActivate();
+
+  const names = env.getCacheNames();
+  assertTrue(!names.includes(OLD_APP_CACHE), '舊版 App Shell 快取應該被清掉');
+  assertTrue(names.includes(SAT_TILE_CACHE), 'tile-cache-sat-v1 不應該被 activate 誤刪整個 cache');
+  assertEqual(env.getCacheSize(SAT_TILE_CACHE), 1, 'tile-cache-sat-v1 裡原本的圖磚應該完整保留');
+});
+
+/* ---------------------------------------------------------
    5. data/*.json Network-First：有網路就拿新版並更新 DATA_CACHE
 --------------------------------------------------------- */
 test('data/*.json：有網路時拿新版內容，且會更新 DATA_CACHE 裡的快取', async () => {
@@ -379,6 +442,42 @@ test('isOwnScriptRequest：對 /sw.js 的請求完全不呼叫 event.respondWith
   const request = new FakeRequest('https://example.local/sw.js');
   const { called } = env.triggerFetch(request);
   assertTrue(!called, 'sw.js 自己的請求應該完全不套用任何快取策略，不能呼叫 respondWith()');
+});
+
+/* ---------------------------------------------------------
+   7. message：頁面端「清除圖磚快取」按鈕觸發 CLEAR_TILE_CACHES，
+      三份 tile cache 都要被清掉，App/Data 快取不受影響。
+--------------------------------------------------------- */
+test('message CLEAR_TILE_CACHES：清掉 TILE_CACHE／OSM_TILE_CACHE／SAT_TILE_CACHE，不動 APP_CACHE／DATA_CACHE', async () => {
+  const env = createSWEnv();
+  env.presetCache(TILE_CACHE, 'https://gis.sinica.edu.tw/tile/1.png', new FakeResponse('WMTS圖磚'));
+  env.presetCache(OSM_TILE_CACHE, 'https://a.tile.openstreetmap.org/1/1/1.png', new FakeResponse('OSM圖磚'));
+  env.presetCache(SAT_TILE_CACHE, 'https://server.arcgisonline.com/tile/1/1/1', new FakeResponse('衛星圖磚'));
+  env.presetCache(APP_CACHE, 'https://example.local/', new FakeResponse('App Shell'));
+  env.presetCache(DATA_CACHE, 'https://example.local/data/layers.bundle.json', new FakeResponse('{}'));
+
+  const { waitUntilPromise, received } = env.triggerMessage({ type: 'CLEAR_TILE_CACHES' });
+  assertTrue(waitUntilPromise, 'message handler 應該呼叫 event.waitUntil()');
+  await waitUntilPromise;
+
+  const names = env.getCacheNames();
+  assertTrue(!names.includes(TILE_CACHE), 'TILE_CACHE 應該被清除');
+  assertTrue(!names.includes(OSM_TILE_CACHE), 'OSM_TILE_CACHE 應該被清除');
+  assertTrue(!names.includes(SAT_TILE_CACHE), 'SAT_TILE_CACHE 應該被清除');
+  assertTrue(names.includes(APP_CACHE), 'APP_CACHE 不應該被這個訊息清掉');
+  assertTrue(names.includes(DATA_CACHE), 'DATA_CACHE 不應該被這個訊息清掉');
+  assertEqual(received.length, 1, '應該透過 port 回傳一次執行結果');
+  assertEqual(received[0].ok, true, '清除成功時應該回傳 { ok: true }');
+});
+
+test('message：非 CLEAR_TILE_CACHES 的訊息完全不處理，不呼叫 waitUntil、不動任何快取', () => {
+  const env = createSWEnv();
+  env.presetCache(TILE_CACHE, 'https://gis.sinica.edu.tw/tile/1.png', new FakeResponse('WMTS圖磚'));
+
+  const { waitUntilPromise, received } = env.triggerMessage({ type: 'SOME_OTHER_MESSAGE' });
+  assertTrue(!waitUntilPromise, '不認得的訊息類型不應該呼叫 event.waitUntil()');
+  assertEqual(received.length, 0, '不認得的訊息類型不應該透過 port 回覆任何內容');
+  assertEqual(env.getCacheSize(TILE_CACHE), 1, 'TILE_CACHE 內容應該完全不受影響');
 });
 
 await run();

@@ -442,6 +442,7 @@ function initModePopover(){
       if(action === 'tour') document.getElementById('tourStartBtn')?.click();
       else if(action === 'guide') document.getElementById('guideOpenBtn')?.click();
       else if(action === 'share') document.getElementById('shareLinkBtn')?.click();
+      else if(action === 'clearCache') document.getElementById('clearTileCacheBtn')?.click();
       closePopover();
     });
   });
