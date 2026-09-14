@@ -28,6 +28,7 @@
 --------------------------------------------------------- */
 const fs = require('node:fs');
 const path = require('node:path');
+const { forEachLayer } = require('./lib/layerWalk');
 
 const LAYERS_DIR = path.join(__dirname, '..', 'data', 'layers');
 
@@ -61,20 +62,6 @@ function detectType(layer){
 
 function detectTypeFromParent(parentText){
   return matchRules(parentText, PARENT_TYPE_RULES);
-}
-
-function forEachLayer(src, fn){
-  src.categories.forEach(cat => {
-    if(cat.groups){
-      cat.groups.forEach(g => {
-        const parentText = `${cat.name || ''} ${g.name || ''}`;
-        g.layers.forEach(layer => fn(layer, parentText));
-      });
-    } else {
-      const parentText = `${cat.name || ''}`;
-      cat.layers.forEach(layer => fn(layer, parentText));
-    }
-  });
 }
 
 const index = JSON.parse(fs.readFileSync(path.join(LAYERS_DIR, 'index.json'), 'utf-8'));

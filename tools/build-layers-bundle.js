@@ -19,11 +19,17 @@
 --------------------------------------------------------- */
 const fs = require('node:fs');
 const path = require('node:path');
+const { forEachLayer } = require('./lib/layerWalk');
 
 const LAYERS_DIR = path.join(__dirname, '..', 'data', 'layers');
 const OUTPUT_PATH = path.join(__dirname, '..', 'data', 'layers.bundle.json');
 
 const index = JSON.parse(fs.readFileSync(path.join(LAYERS_DIR, 'index.json'), 'utf-8'));
+
+// 順手算出每個來源實際圖層筆數，跟 index.json 手動維護的 layerCount 比對，
+// 不一致時印出警告（不中斷建置，避免小落差就卡住整條資料管線；但足以
+// 讓維護者在執行這支腳本時看到需要回頭修正 index.json 的來源與差異數字）。
+const layerCountWarnings = [];
 
 const sources = index.sources.map(entry => {
   const filePath = path.join(LAYERS_DIR, entry.file);
@@ -31,15 +37,27 @@ const sources = index.sources.map(entry => {
   if(src.id !== entry.id){
     throw new Error(`index.json 裡的 id "${entry.id}" 跟 ${entry.file} 裡的 id "${src.id}" 不一致`);
   }
+
+  let actualCount = 0;
+  forEachLayer(src, () => { actualCount += 1; });
+  if(typeof entry.layerCount === 'number' && entry.layerCount !== actualCount){
+    layerCountWarnings.push({ id: entry.id, expected: entry.layerCount, actual: actualCount });
+  }
+
   return src;
 });
 
 fs.writeFileSync(OUTPUT_PATH, JSON.stringify({ sources }));
 
 let totalLayers = 0;
-sources.forEach(src => src.categories.forEach(cat => {
-  if(cat.groups) cat.groups.forEach(g => totalLayers += g.layers.length);
-  else totalLayers += cat.layers.length;
-}));
+sources.forEach(src => forEachLayer(src, () => { totalLayers += 1; }));
 
 console.log(`已合併 ${sources.length} 個來源、共 ${totalLayers} 筆圖層 → ${path.relative(process.cwd(), OUTPUT_PATH)}`);
+
+if(layerCountWarnings.length > 0){
+  console.warn(`\n⚠ 發現 ${layerCountWarnings.length} 個來源的 index.json layerCount 與實際圖層數不一致：`);
+  layerCountWarnings.forEach(w => {
+    console.warn(`  ${w.id}：index.json 記錄 ${w.expected} 筆，實際 ${w.actual} 筆（差 ${w.actual - w.expected}）`);
+  });
+  console.warn('請檢查是否忘記同步更新 data/layers/index.json 的 layerCount 欄位。');
+}

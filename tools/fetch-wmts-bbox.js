@@ -25,6 +25,7 @@
 --------------------------------------------------------- */
 const fs = require('node:fs');
 const path = require('node:path');
+const { forEachLayer } = require('./lib/layerWalk');
 
 // 這些來源的 Capabilities 端點與 provider.tileTemplate 都是固定樣式
 // https://gis.sinica.edu.tw/<id>/wmts/1.0.0/WMTSCapabilities.xml，
@@ -99,18 +100,6 @@ function parseLayerBBoxMap(xml){
     map[id] = [minLon, minLat, maxLon, maxLat];
   }
   return map;
-}
-
-// 走訪 categories -> (groups ->) layers，跟 tools/build-layers-bundle.js /
-// src/data.js 一致的巢狀走訪邏輯
-function forEachLayer(src, fn){
-  src.categories.forEach(cat => {
-    if(cat.groups){
-      cat.groups.forEach(g => g.layers.forEach(fn));
-    } else {
-      cat.layers.forEach(fn);
-    }
-  });
 }
 
 async function processSource(source){

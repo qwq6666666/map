@@ -35,6 +35,7 @@
 --------------------------------------------------------- */
 const fs = require('node:fs');
 const path = require('node:path');
+const { forEachLayer } = require('./lib/layerWalk');
 
 // tc 參數值 -> 對應要寫回的 data/layers/*.json 檔名
 // twhgis 是總站入口，例外對應到 sinica.json；其餘皆為
@@ -129,18 +130,6 @@ function buildLegendMap(urls){
     map[id] = normalizedUrl;
   });
   return map;
-}
-
-// 走訪 categories -> (groups ->) layers，跟 tools/fetch-wmts-bbox.js /
-// tools/build-layers-bundle.js / src/data.js 一致的巢狀走訪邏輯
-function forEachLayer(src, fn){
-  src.categories.forEach(cat => {
-    if(cat.groups){
-      cat.groups.forEach(g => g.layers.forEach(fn));
-    } else {
-      cat.layers.forEach(fn);
-    }
-  });
 }
 
 // 同一個 jsonFile 可能被多個 tc 來源命中，寫回時直接覆蓋，不判斷是否

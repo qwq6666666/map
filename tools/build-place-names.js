@@ -249,9 +249,30 @@ function rowToPlace(header, rowFields, sourceType) {
 
 module.exports = { parseCsv, splitAliases, extractAliasesFromDescription, rowToPlace };
 
+/**
+ * 檢查 CSV 檔案是否存在，不存在時印出清楚的中文錯誤訊息（提示可用命令列
+ * 參數指定路徑）後結束行程，避免直接讓原始 fs.readFileSync 的 ENOENT
+ * stack trace 炸給協作者看——DEFAULT_SETTLEMENT_CSV／DEFAULT_ADMIN_CSV
+ * 是刻意寫死的本機絕對路徑（CSV 本來就不進 repo），在其他機器上執行
+ * 一定找不到，需要靠這層提示引導改用命令列參數。
+ * @param {string} filePath
+ * @param {string} label 顯示用的說明文字（例如「聚落類 CSV」）
+ */
+function assertCsvExists(filePath, label) {
+  if (fs.existsSync(filePath)) return;
+  console.error(`錯誤：找不到${label}：${filePath}`);
+  console.error('這兩份內政部地名資料 CSV 不在專案 repo 內，預設路徑是寫死在本機的絕對路徑，僅供原開發機使用。');
+  console.error('請改用命令列參數指定實際路徑：');
+  console.error('    node tools/build-place-names.js <聚落CSV路徑> <行政區域CSV路徑>');
+  process.exit(1);
+}
+
 if (require.main === module) {
   const settlementPath = process.argv[2] || DEFAULT_SETTLEMENT_CSV;
   const adminPath = process.argv[3] || DEFAULT_ADMIN_CSV;
+
+  assertCsvExists(settlementPath, '聚落類 CSV');
+  assertCsvExists(adminPath, '行政區域類 CSV');
 
   /**
    * 讀取單一 CSV 檔案，解析出 place 物件陣列，並印出該檔案的解析統計。
