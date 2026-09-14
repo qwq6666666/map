@@ -16,7 +16,7 @@
    沒問題，可以省下一份重複的 CSS。根節點刻意不掛 id（也不需要跟
    #mobileTwBrowse 之類的名稱區分）——呼叫端（sidebarUI.js 的
    initMobileCountryBrowse()）用建立當下拿到的 DOM 參考直接操作，
-   不透過 id/class 查詢，多個分頁、甚至同一分頁在多重疊圖／比對模式
+   不透過 id/class 查詢，多個分頁、甚至同一分頁在複合疊圖／比對模式
    下建立的多份實例都不會互相撞名。
 
    這支檔案只留「中國專屬設定資料」（REGION_LABEL_OVERRIDES／

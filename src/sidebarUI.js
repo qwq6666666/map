@@ -15,7 +15,7 @@ import { flyToSourceExtent, flyToCategoryExtent } from './mapCore.js';
 // 城市的地理位置才有意義，其他來源不套用這個行為（見下方呼叫端）。
 const FLY_TO_CATEGORY_SOURCE_IDS = new Set(['japan', 'korea', 'southeast_asia']);
 import { createCountryFilterBar } from './ui/countryFilter.js';
-import { buildMobileTwBrowseUI } from './ui/mobileTwBrowse.js';
+import { buildMobileTwBrowseUI, macroRegionForSource, MACRO_REGION_ORDER } from './ui/mobileTwBrowse.js';
 import { buildMobileCnBrowseUI } from './ui/mobileCnBrowse.js';
 import { buildMobileOtherBrowseUI } from './ui/mobileOtherBrowse.js';
 
@@ -319,8 +319,31 @@ function buildSourceGroup(src){
 // 見 syncMobileBrowseView()），內容邏輯本身不變；這份手風琴的 DOM 節點
 // 也是替代瀏覽方式第二層 buildSourceGroup() 呼叫的同一支函式（各自重新
 // 建立獨立實例，不共用節點）。
+// 桌機清單原本直接照 DATA.LAYER_SOURCES 的順序畫——那個順序是
+// data/layers.bundle.json 收錄來源的順序（大致等於新增圖層的時間先後），
+// 跟地理或字母都無關，24 個台灣來源要捲很久才找得到。這裡重用手機版
+// mobileTwBrowse.js 已經跟使用者確認過的 MACRO_REGION_MAP／
+// MACRO_REGION_ORDER（北→中→南→東→離島）幫台灣來源排序，但刻意只排
+// 序、不畫分類標題或加新的一層點擊；中國／其他分頁來源數少，維持原順
+// 序不處理。
+// 實作刻意不用「整體 sort、非台灣比較回傳 0」這種寫法：DATA.LAYER_SOURCES
+// 裡台灣來源不保證彼此相鄰（曾實測發現確實有幾筆穿插在其他國家來源之間），
+// 那種寫法的穩定排序只能保留「跟非台灣來源」的相對順序，台灣來源仍會卡在
+// 原本分散的位置動不了。改成：先把台灣來源單獨取出依區域排序，再依序把
+// 排好的結果一個個放回原本「是台灣來源」的那些位置——非台灣來源的位置
+// 完全不動，台灣來源不管原本多分散，讀出來的相對順序都會是排序後的結果。
+function sortedLayerSources(){
+  const sortedTw = DATA.LAYER_SOURCES
+    .filter(src => src.country === 'tw')
+    .map(src => ({ src, rank: MACRO_REGION_ORDER.indexOf(macroRegionForSource(src)) }))
+    .sort((a, b) => (a.rank < 0 ? MACRO_REGION_ORDER.length : a.rank) - (b.rank < 0 ? MACRO_REGION_ORDER.length : b.rank))
+    .map(entry => entry.src);
+  let twIdx = 0;
+  return DATA.LAYER_SOURCES.map(src => src.country === 'tw' ? sortedTw[twIdx++] : src);
+}
+
 function renderSourceAccordion(categoriesEl, sourceWraps){
-  DATA.LAYER_SOURCES.forEach((src) => {
+  sortedLayerSources().forEach((src) => {
     const srcWrap = buildSourceGroup(src);
     categoriesEl.appendChild(srcWrap);
     sourceWraps.push({ src, wrap: srcWrap });

@@ -269,9 +269,9 @@ function initSearchBarAutoCollapse(){
   layerSearchInput?.addEventListener('blur', ()=>{ if(mq.matches) scheduleSearchBarCollapse(); });
   layerSearchInput?.addEventListener('input', ()=>{ if(mq.matches) scheduleSearchBarCollapse(); });
 
-  // 手機版某些模式（比對／時間軸／多重疊圖）會把整條 #mobileSearchBar
+  // 手機版某些模式（比對／時間軸／複合疊圖）會把整條 #mobileSearchBar
   // 用 body class 隱藏（見 style.css），切走時計時器留著沒意義（使用者
-  // 根本看不到這條 bar），切回歷史疊圖模式才需要展開＋重新倒數。
+  // 根本看不到這條 bar），切回透明疊圖模式才需要展開＋重新倒數。
   subscribe((state, prev, changedKeys)=>{
     if(!changedKeys.includes('mode') || !mq.matches) return;
     if(state.mode === 'overlay'){ expandSearchBar(); scheduleSearchBarCollapse(); }
