@@ -276,7 +276,7 @@
           "format": "png",
           "year": 1946,
           "dateLabel": "1946",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:8600",
           "region": {
             "bbox": [

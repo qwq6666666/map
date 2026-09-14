@@ -2,13 +2,18 @@
    tools/tag-layer-types.js
    ---------------------------------------------------------
    批次依關鍵字比對，自動填入 data/layers/<id>.json 內每筆圖層的
-   type 欄位（地形圖／地籍圖／行政區劃圖），供前端搜尋結果面板的
+   type 欄位（地形圖／地籍圖／海圖／行政區劃圖），供前端搜尋結果面板的
    「依類型篩選」功能使用（見 src/features/search.js 的
-   SEARCH_RESULT_TYPES）。
+   SEARCH_RESULT_TYPES；新增「海圖」type 後，若要在前端開放獨立篩選
+   分頁，需另外同步更新 SEARCH_RESULT_TYPES，屬 feature-state-agent
+   權責，本檔僅負責資料標記）。
 
    比對依據（Step 1）：layer.title 與 layer.keywords 合併後的字串，
-   依優先順序（地形圖 > 地籍圖 > 行政區劃圖）比對關鍵字，第一個命中的
-   分類即採用。
+   依優先順序（地形圖 > 地籍圖 > 海圖 > 行政區劃圖）比對關鍵字，第一個
+   命中的分類即採用。「海圖」涵蓋日式/海事測繪常見的港灣海圖、水路圖、
+   水道圖等史料（實測抽樣 hongkong/tamsui/japan/wuhan 四個來源標題後
+   歸納）；「行政區劃圖」額外收錄「市街」（含日式漢字「市街図」）與
+   「界址」，涵蓋城市街道圖／疆界圖等未被既有關鍵字涵蓋的常見標題。
 
    若 Step 1 比對不到任何關鍵字（type 仍為 null），則進入 Step 2：
    改用該圖層所屬的父層名稱（cat.name，若有 group.name 則一併合併）
@@ -30,13 +35,15 @@ const LAYERS_DIR = path.join(__dirname, '..', 'data', 'layers');
 const TYPE_RULES = [
   { type: '地形圖', keywords: ['地形', '等高線'] },
   { type: '地籍圖', keywords: ['地籍', '土地', '地番'] },
-  { type: '行政區劃圖', keywords: ['行政區', '市區', '街庄', '堡里', '地圖'] },
+  { type: '海圖', keywords: ['海圖', '水路圖', '水道圖'] },
+  { type: '行政區劃圖', keywords: ['行政區', '市區', '街庄', '堡里', '地圖', '市街', '界址'] },
 ];
 
 // 依同樣的優先順序排列：Step 2 父層（category／group 名稱）專用關鍵字
 const PARENT_TYPE_RULES = [
   { type: '地形圖', keywords: ['地形', '測量部', '等高線', '萬分一'] },
   { type: '地籍圖', keywords: ['地籍', '登記所', '土地調查'] },
+  { type: '海圖', keywords: ['海圖', '水路部'] },
   { type: '行政區劃圖', keywords: ['市區改正', '行政區', '管轄', '境界'] },
 ];
 
@@ -72,7 +79,7 @@ function forEachLayer(src, fn){
 
 const index = JSON.parse(fs.readFileSync(path.join(LAYERS_DIR, 'index.json'), 'utf-8'));
 
-const counts = { '地形圖': 0, '地籍圖': 0, '行政區劃圖': 0, '未分類': 0 };
+const counts = { '地形圖': 0, '地籍圖': 0, '海圖': 0, '行政區劃圖': 0, '未分類': 0 };
 let total = 0;
 let inheritedCount = 0;
 
@@ -94,12 +101,13 @@ index.sources.forEach(entry => {
     counts[type === null ? '未分類' : type] += 1;
   });
 
-  fs.writeFileSync(filePath, JSON.stringify(src, null, 2));
+  fs.writeFileSync(filePath, JSON.stringify(src, null, 2) + '\n');
 });
 
 console.log('圖層 type 標記統計：');
 console.log(`  地形圖　　：${counts['地形圖']}`);
 console.log(`  地籍圖　　：${counts['地籍圖']}`);
+console.log(`  海圖　　　：${counts['海圖']}`);
 console.log(`  行政區劃圖：${counts['行政區劃圖']}`);
 console.log(`  未分類　　：${counts['未分類']}`);
 console.log(`  總筆數　　：${total}`);

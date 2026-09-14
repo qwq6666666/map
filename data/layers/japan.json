@@ -24,7 +24,7 @@
           "format": "png",
           "year": 1952,
           "dateLabel": "1952",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -48,7 +48,7 @@
           "format": "png",
           "year": 1954,
           "dateLabel": "1954",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -66,7 +66,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "—",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -84,7 +84,7 @@
           "format": "png",
           "year": 1954,
           "dateLabel": "1954",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -102,7 +102,7 @@
           "format": "png",
           "year": 1968,
           "dateLabel": "1968",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -120,7 +120,7 @@
           "format": "png",
           "year": 1935,
           "dateLabel": "1935",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -162,7 +162,7 @@
           "format": "png",
           "year": 1952,
           "dateLabel": "1952",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -198,7 +198,7 @@
           "format": "png",
           "year": 1970,
           "dateLabel": "1970",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -342,7 +342,7 @@
           "format": "png",
           "year": 1935,
           "dateLabel": "1935",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -402,7 +402,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "—",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -438,7 +438,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "—",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -462,7 +462,7 @@
           "format": "png",
           "year": 1954,
           "dateLabel": "1954",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -480,7 +480,7 @@
           "format": "png",
           "year": 1954,
           "dateLabel": "1954",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -498,7 +498,7 @@
           "format": "png",
           "year": 1954,
           "dateLabel": "1954",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -558,7 +558,7 @@
           "format": "png",
           "year": 1933,
           "dateLabel": "1933",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -612,7 +612,7 @@
           "format": "png",
           "year": 1926,
           "dateLabel": "1926",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -654,7 +654,7 @@
           "format": "png",
           "year": 1946,
           "dateLabel": "1946",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -678,7 +678,7 @@
           "format": "png",
           "year": 1930,
           "dateLabel": "1930",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -702,7 +702,7 @@
           "format": "png",
           "year": 1952,
           "dateLabel": "1952",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -720,7 +720,7 @@
           "format": "png",
           "year": 1953,
           "dateLabel": "1953",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [

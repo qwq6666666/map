@@ -1902,7 +1902,7 @@
           "format": "png",
           "year": 1897,
           "dateLabel": "1897",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2013,7 +2013,7 @@
           "format": "png",
           "year": 1911,
           "dateLabel": "1911",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2031,7 +2031,7 @@
           "format": "png",
           "year": 1913,
           "dateLabel": "1913",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2067,7 +2067,7 @@
           "format": "png",
           "year": 1914,
           "dateLabel": "1914",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2085,7 +2085,7 @@
           "format": "png",
           "year": 1916,
           "dateLabel": "1916",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2104,7 +2104,7 @@
           "format": "png",
           "year": 1919,
           "dateLabel": "1919",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2122,7 +2122,7 @@
           "format": "png",
           "year": 1922,
           "dateLabel": "1922",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2140,7 +2140,7 @@
           "format": "png",
           "year": 1927,
           "dateLabel": "1927",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2158,7 +2158,7 @@
           "format": "png",
           "year": 1927,
           "dateLabel": "1927",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2230,7 +2230,7 @@
           "format": "png",
           "year": 1932,
           "dateLabel": "1932",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2320,7 +2320,7 @@
           "format": "png",
           "year": 1940,
           "dateLabel": "1940",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2338,7 +2338,7 @@
           "format": "png",
           "year": 1935,
           "dateLabel": "1935",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2374,7 +2374,7 @@
           "format": "png",
           "year": 1935,
           "dateLabel": "1935",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2542,7 +2542,7 @@
           "format": "png",
           "year": 1957,
           "dateLabel": "1957",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2686,7 +2686,7 @@
           "format": "png",
           "year": 1967,
           "dateLabel": "1967",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2722,7 +2722,7 @@
           "format": "png",
           "year": 1977,
           "dateLabel": "1977",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2776,7 +2776,7 @@
           "format": "png",
           "year": 1995,
           "dateLabel": "1995",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [

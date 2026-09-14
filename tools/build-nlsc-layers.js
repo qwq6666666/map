@@ -242,7 +242,7 @@ function computeScale(category, id){
 }
 
 function groupNameForPhoto(id){
-  return /^PHOTO\d{4}$/.test(id) ? '各年正射影像' : '综合影像';
+  return /^PHOTO\d{4}$/.test(id) ? '各年正射影像' : '綜合影像';
 }
 
 function groupNameForTopo(id){
@@ -277,7 +277,7 @@ function computeGroupName(category, id){
 
 // 分組排序順序（同一分類內，group 出現順序）
 const GROUP_ORDER = {
-  photo: ['综合影像', '各年正射影像'],
+  photo: ['綜合影像', '各年正射影像'],
   topo: ['1/25000地形圖', '1/50000地形圖', '1/10萬地形圖', '1/5000像片基本圖', '其他比例尺圖幅'],
   luimap: ['歷年更新區', '土地利用類別'],
 };

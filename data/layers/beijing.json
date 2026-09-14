@@ -282,7 +282,7 @@
           "format": "png",
           "year": 1918,
           "dateLabel": "1918",
-          "type": null,
+          "type": "海圖",
           "scale": "1:2500",
           "region": {
             "bbox": [
@@ -528,7 +528,7 @@
           "format": "png",
           "year": 1950,
           "dateLabel": "1950",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:20000",
           "region": {
             "bbox": [

@@ -24,7 +24,7 @@
           "format": "png",
           "year": 1854,
           "dateLabel": "1854",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -120,7 +120,7 @@
           "format": "png",
           "year": 1923,
           "dateLabel": "1923",
-          "type": "地形圖",
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -156,7 +156,7 @@
           "format": "png",
           "year": 1929,
           "dateLabel": "1929",
-          "type": "地形圖",
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -246,7 +246,7 @@
           "format": "png",
           "year": 1935,
           "dateLabel": "1935",
-          "type": "地形圖",
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -360,7 +360,7 @@
           "format": "png",
           "year": 1964,
           "dateLabel": "1964",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -396,7 +396,7 @@
           "format": "png",
           "year": 1974,
           "dateLabel": "1974",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [

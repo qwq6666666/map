@@ -24,7 +24,7 @@
           "format": "png",
           "year": 1888,
           "dateLabel": "1888",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -60,7 +60,7 @@
           "format": "png",
           "year": 1895,
           "dateLabel": "1895",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -96,7 +96,7 @@
           "format": "png",
           "year": 1910,
           "dateLabel": "1910",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -114,7 +114,7 @@
           "format": "png",
           "year": 1913,
           "dateLabel": "1913",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
