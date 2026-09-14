@@ -1195,14 +1195,6 @@
   .sidebar-body::-webkit-scrollbar-thumb{background:var(--rule); border-radius:4px;}
   .sidebar-body::-webkit-scrollbar-track{background:var(--paper-dim);}
 
-  @media (max-width:640px){
-    #sidebar{width:78vw; top:10px; left:10px; bottom:10px;}
-    #stamp{width:84px; height:84px; right:12px; bottom:12px;}
-    #stamp .stamp-year{font-size:20px;}
-    .floating-opacity{left:10px; bottom:10px; min-width:0; width:56vw; padding:8px 10px;}
-    #multiOverlayBar{width:calc(100% - 20px); max-height:40vh;}
-  }
-
   /* ---------- 使用者自訂 WMTS／XYZ 圖層（複合疊圖面板內） ---------- */
   .custom-source-block{
     margin-bottom:16px; padding:10px 10px 12px; border:1px solid var(--rule); border-radius:3px;
@@ -1411,11 +1403,6 @@
     padding:8px; margin:0;
   }
   .recent-section .recent-list:empty{padding:0;}
-
-  @media (max-width:640px){
-    .layer-search-list{max-height:44vh;}
-    .favorites-list, .recent-list{max-height:34vh;}
-  }
 
   /* ---------- 新手導覽／使用指南（src/ui/onboarding.js） ----------
      獨立疊加層，不共用側邊欄既有摺疊語彙的 class（避免跟 initCollapsibleSections()

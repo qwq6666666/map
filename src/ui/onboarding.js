@@ -177,7 +177,13 @@ function markSeenTour() {
   }
 }
 
+// 手機版導覽腳本（見 buildTourSteps()）點名的目標元素（#sheetHandle／
+// #addressInput／#mobileSearchModeBtn／#mobileModeBtn）全部都在
+// #sidebar（Bottom Sheet）之外，不需要展開面板才看得到；第一步文案
+// 還特別在示範「往上拖曳把手即可展開」，若一開始就強制展開會直接
+// 跟文案矛盾、也擋住示範情境。因此只在桌面版才強制展開側邊欄。
 function ensureSidebarExpanded() {
+  if (window.matchMedia('(max-width:768px)').matches) return;
   // 改呼叫 sidebarToggle.js 共用的 expandSidebar()，一併同步收合按鈕
   // 圖示／title／aria-label 與浮動透明度控制的顯示狀態，避免這裡自己
   // 手動改 classList／aria-expanded 卻遺漏其他跟著收合狀態連動的畫面。

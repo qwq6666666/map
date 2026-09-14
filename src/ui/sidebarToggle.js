@@ -58,12 +58,9 @@ export function initSidebarToggle(){
   floatingOpacityEl = document.getElementById('floatingOpacity');
   toggleSidebarBtn = document.getElementById('toggleSidebar');
   syncToggleBtnA11y(document.getElementById('sidebar').classList.contains('collapsed'));
-  toggleSidebarBtn.addEventListener('click', (e)=>{
+  toggleSidebarBtn.addEventListener('click', ()=>{
     const sb = document.getElementById('sidebar');
-    sb.classList.toggle('collapsed');
-    const collapsed = sb.classList.contains('collapsed');
-    e.target.textContent = collapsed ? '▸' : '◂';
-    syncToggleBtnA11y(collapsed);
-    updateFloatingOpacityVisibility();
+    if(sb.classList.contains('collapsed')) expandSidebar();
+    else collapseSidebar();
   });
 }
