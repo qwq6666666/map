@@ -38,6 +38,9 @@ import {
   tileRenderRequestPool,
   throttle,
   STALE_TILE_SWEEP_THROTTLE_MS,
+  getRecentTileFailures,
+  clearRecentTileFailures,
+  RECENT_TILE_FAILURE_LIMIT,
 } from '../../src/core/tileLoadGuard.js';
 import { lonLatToTileXY, tileXYToBbox } from '../../src/core/tileGeo.js';
 
@@ -495,6 +498,115 @@ test('Bug 修正回歸：stale abort 後同一顆 tile 被重新呼叫 tileLoadF
   }), 5000, '重新載入後一直沒有進入 LOADED/ERROR（可能發生 deadlock）');
   assertEqual(state, TILE_STATE.LOADED, '重新進入可視範圍後應該能正常重新載入成功，不會因為之前被 stale abort 而卡住');
   assertEqual(urlAttempts[url], 2, '應該有真的重新發送第 2 次請求（第 1 次是被 stale abort 放棄的那次）');
+});
+
+/* ---------------------------------------------------------
+   getRecentTileFailures() / clearRecentTileFailures()：供
+   ui/sourceStatusUI.js「最近圖磚載入失敗」面板顯示的診斷紀錄。
+   --------------------------------------------------------- */
+test('recordTileFailure：明確 onerror 會記錄一筆 reason=error，帶正確的 label／座標', async () => {
+  clearRecentTileFailures(); // 清掉前面其他案例累積的紀錄，取得乾淨的比對基準
+  const url = 'http://tile-load-guard/failure-log-explicit-error';
+  urlResults[url] = false;
+  const tile = new FakeTile([TAIPEI_TILE.z, TAIPEI_TILE.x, TAIPEI_TILE.y]);
+
+  const loadFn = createGuardedTileLoadFunction({ regionBbox: TAIPEI_BBOX, timeoutMs: 500, label: '測試圖層／明確錯誤' });
+  loadFn(tile, url);
+  await waitForState(tile);
+
+  const failures = getRecentTileFailures();
+  assertEqual(failures.length, 1, '明確 onerror 應該記錄剛好 1 筆失敗');
+  assertEqual(failures[0].reason, 'error', '失敗原因應該分類成 error');
+  assertEqual(failures[0].label, '測試圖層／明確錯誤', '應該帶上呼叫端傳入的 label');
+  assertEqual(failures[0].z, TAIPEI_TILE.z, '應該記錄正確的 z');
+  assertEqual(failures[0].x, TAIPEI_TILE.x, '應該記錄正確的 x');
+  assertEqual(failures[0].y, TAIPEI_TILE.y, '應該記錄正確的 y');
+});
+
+test('recordTileFailure：逾時兩次（含重試）後仍失敗，只記錄 1 筆 reason=timeout（不是每次逾時都記）', async () => {
+  clearRecentTileFailures();
+  const url = 'http://tile-load-guard/failure-log-timeout';
+  urlResults[url] = 'timeout-always';
+  const tile = new FakeTile([TAIPEI_TILE.z, TAIPEI_TILE.x, TAIPEI_TILE.y]);
+
+  const loadFn = createGuardedTileLoadFunction({ regionBbox: TAIPEI_BBOX, timeoutMs: 20, label: '測試圖層／逾時' });
+  loadFn(tile, url);
+  await waitForState(tile);
+
+  const failures = getRecentTileFailures();
+  assertEqual(failures.length, 1, '重試一次後仍逾時，最終只應該記錄 1 筆（第一次逾時只是觸發重試，不算最終失敗）');
+  assertEqual(failures[0].reason, 'timeout', '失敗原因應該分類成 timeout');
+  assertEqual(failures[0].label, '測試圖層／逾時', '應該帶上呼叫端傳入的 label');
+});
+
+test('recordTileFailure：正常載入成功不應該留下任何失敗紀錄', async () => {
+  clearRecentTileFailures();
+  const url = 'http://tile-load-guard/failure-log-success';
+  urlResults[url] = true;
+  const tile = new FakeTile([TAIPEI_TILE.z, TAIPEI_TILE.x, TAIPEI_TILE.y]);
+
+  const loadFn = createGuardedTileLoadFunction({ regionBbox: TAIPEI_BBOX, timeoutMs: 500, label: '測試圖層／成功' });
+  loadFn(tile, url);
+  await waitForState(tile);
+
+  assertEqual(getRecentTileFailures().length, 0, '成功載入不應該產生任何失敗紀錄');
+});
+
+test('recordTileFailure：邊界保護判定的 EMPTY 不應該被記錄為失敗（平移到範圍外是預期行為，不是故障）', () => {
+  clearRecentTileFailures();
+  const url = 'http://tile-load-guard/failure-log-bbox-empty';
+  urlResults[url] = true;
+  const tile = new FakeTile([TAIPEI_TILE.z, TAIPEI_TILE.x, TAIPEI_TILE.y]);
+
+  const loadFn = createGuardedTileLoadFunction({ regionBbox: [110, 30, 112, 32], timeoutMs: 30, label: '測試圖層／邊界外' });
+  loadFn(tile, url);
+
+  assertEqual(tile.state, TILE_STATE.EMPTY, '前置條件：邊界外應該直接 EMPTY');
+  assertEqual(getRecentTileFailures().length, 0, '邊界保護判定的 EMPTY 不應該計入失敗紀錄，只有真正逾時/明確錯誤才算');
+});
+
+test('getRecentTileFailures()：只保留最近 RECENT_TILE_FAILURE_LIMIT 筆，最新的排最前面', async () => {
+  clearRecentTileFailures();
+  const total = RECENT_TILE_FAILURE_LIMIT + 5;
+  for(let i = 0; i < total; i++){
+    const url = `http://tile-load-guard/failure-log-overflow-${i}`;
+    urlResults[url] = false; // 明確 onerror，同步判定失敗，不需要等逾時
+    const tile = new FakeTile([TAIPEI_TILE.z, TAIPEI_TILE.x, TAIPEI_TILE.y]);
+    const loadFn = createGuardedTileLoadFunction({ regionBbox: TAIPEI_BBOX, timeoutMs: 500, label: `第${i}筆` });
+    loadFn(tile, url);
+    await waitForState(tile);
+  }
+
+  const failures = getRecentTileFailures();
+  assertEqual(failures.length, RECENT_TILE_FAILURE_LIMIT, `超過上限的紀錄應該被丟棄，只保留最近 ${RECENT_TILE_FAILURE_LIMIT} 筆`);
+  assertEqual(failures[0].label, `第${total - 1}筆`, '最新的一筆應該排在最前面');
+});
+
+test('getRecentTileFailures()：回傳的是複本，呼叫端修改回傳陣列不會影響內部狀態', async () => {
+  clearRecentTileFailures();
+  const url = 'http://tile-load-guard/failure-log-copy';
+  urlResults[url] = false;
+  const tile = new FakeTile([TAIPEI_TILE.z, TAIPEI_TILE.x, TAIPEI_TILE.y]);
+  const loadFn = createGuardedTileLoadFunction({ regionBbox: TAIPEI_BBOX, timeoutMs: 500, label: '測試圖層／複本' });
+  loadFn(tile, url);
+  await waitForState(tile);
+
+  const failures = getRecentTileFailures();
+  failures.pop();
+  assertEqual(getRecentTileFailures().length, 1, '呼叫端清空回傳陣列不應該影響下次呼叫拿到的內部狀態');
+});
+
+test('clearRecentTileFailures()：清空後 getRecentTileFailures() 應該回傳空陣列', async () => {
+  const url = 'http://tile-load-guard/failure-log-clear';
+  urlResults[url] = false;
+  const tile = new FakeTile([TAIPEI_TILE.z, TAIPEI_TILE.x, TAIPEI_TILE.y]);
+  const loadFn = createGuardedTileLoadFunction({ regionBbox: TAIPEI_BBOX, timeoutMs: 500 });
+  loadFn(tile, url);
+  await waitForState(tile);
+  assertTrue(getRecentTileFailures().length > 0, '前置條件：應該至少有 1 筆紀錄');
+
+  clearRecentTileFailures();
+  assertEqual(getRecentTileFailures().length, 0, '清空後應該回傳空陣列');
 });
 
 await run();

@@ -327,7 +327,7 @@ function makeWmtsSourceFromEntry(entry){
       // 使用者自訂服務沒有可靠的 WGS84 bbox 資料來源，不傳 regionBbox——
       // createGuardedTileLoadFunction() 內建的防呆會自動略過邊界檢查，
       // 只保留逾時保護（見 core/tileLoadGuard.js）。
-      tileLoadFunction: createGuardedTileLoadFunction({}),
+      tileLoadFunction: createGuardedTileLoadFunction({ label: entry.name || '自訂 WMTS 圖層' }),
       // 不帶這個選項 OL 會當成 0（不是退回預設 2048），LRU 過期機制
       // 形同虛設——見 DEFAULT_TILE_CACHE_SIZE 的說明。
       cacheSize: DEFAULT_TILE_CACHE_SIZE
@@ -359,7 +359,7 @@ export function makeSourceForKey(key){
     return new ol.source.XYZ({
       url: entry.urlTemplate,
       attributions: entry.attribution || '',
-      tileLoadFunction: createGuardedTileLoadFunction({}), // 同上，沒有可靠 bbox，只做逾時保護
+      tileLoadFunction: createGuardedTileLoadFunction({ label: entry.name || '自訂圖層' }), // 同上，沒有可靠 bbox，只做逾時保護
       cacheSize: DEFAULT_TILE_CACHE_SIZE
     });
   }
@@ -377,7 +377,7 @@ export function makeSourceForKey(key){
     url: src.tileUrl(layer),
     attributions: src.attribution,
     crossOrigin: 'anonymous',
-    tileLoadFunction: createGuardedTileLoadFunction({ regionBbox }),
+    tileLoadFunction: createGuardedTileLoadFunction({ regionBbox, label: `${src.name}／${layer.title}` }),
     cacheSize: DEFAULT_TILE_CACHE_SIZE
   });
 }

@@ -158,6 +158,35 @@ class TileRenderPool {
 
 export const tileRenderRequestPool = new TileRenderPool(TILE_RENDER_MAX_CONCURRENCY);
 
+// ---------------------------------------------------------
+// 最近圖磚載入失敗紀錄——供「來源狀態」面板（ui/sourceStatusUI.js）
+// 顯示，跟 features/sourceStatus.js 的主機探測是互補、不是重複的兩件
+// 事：那邊只測「主機有沒有回應」（onload／onerror 都算活著），測不出
+// 「使用者實際瀏覽時，這個圖層／這個座標到底讀不讀得出來」；這裡記錄
+// 的才是使用者真正遇到的失敗。
+//
+// 刻意只記錄「明確失敗」的兩種終態（逾時重試後仍失敗、伺服器明確
+// onerror），不記錄邊界保護判定的 EMPTY——平移到圖層涵蓋範圍外是每次
+// 使用者操作都會正常發生的預期行為（一次平移可能觸發幾十次 EMPTY），
+// 記進來只會洗掉真正的失敗訊號，不是故障。
+// ---------------------------------------------------------
+export const RECENT_TILE_FAILURE_LIMIT = 30;
+const recentTileFailures = [];
+
+function recordTileFailure(label, reason, z, x, y){
+  recentTileFailures.unshift({ time: Date.now(), label: label || '（未知圖層）', reason, z, x, y });
+  if(recentTileFailures.length > RECENT_TILE_FAILURE_LIMIT) recentTileFailures.length = RECENT_TILE_FAILURE_LIMIT;
+}
+
+// 回傳複本（最新的排最前面），避免呼叫端不小心改到內部陣列。
+export function getRecentTileFailures(){
+  return recentTileFailures.slice();
+}
+
+export function clearRecentTileFailures(){
+  recentTileFailures.length = 0;
+}
+
 /**
  * 建立一個符合 OpenLayers tileLoadFunction 簽名（(tile, src) => void）
  * 的圖磚載入函式，具備邊界保護與逾時＋重試一次的保護。
@@ -168,9 +197,11 @@ export const tileRenderRequestPool = new TileRenderPool(TILE_RENDER_MAX_CONCURRE
  *   回傳 true（不可排除），等於跳過邊界保護、只保留逾時保護——呼叫端
  *   不需要自己先判斷「有沒有 bbox」。
  * @param {number} [options.timeoutMs] 逾時毫秒數，預設 DEFAULT_TILE_LOAD_TIMEOUT_MS。
+ * @param {string} [options.label] 供失敗紀錄顯示用的人類可讀圖層名稱
+ *   （例如「台灣百年歷史地圖／日治臺灣堡圖」），不影響載入邏輯本身。
  * @returns {function(tile, string): void}
  */
-export function createGuardedTileLoadFunction({ regionBbox, timeoutMs = DEFAULT_TILE_LOAD_TIMEOUT_MS } = {}){
+export function createGuardedTileLoadFunction({ regionBbox, timeoutMs = DEFAULT_TILE_LOAD_TIMEOUT_MS, label } = {}){
   return function guardedTileLoadFunction(tile, src){
     // tile.getTileCoord()（OL API）回傳 [z, x, y]，跟 tileXYToBbox()
     // 的 (x, y, z) 參數順序不同，這裡要重新排列，不能直接展開傳入。
@@ -180,7 +211,7 @@ export function createGuardedTileLoadFunction({ regionBbox, timeoutMs = DEFAULT_
       tile.setState(TILE_STATE.EMPTY);
       return;
     }
-    loadWithTimeoutRetry(tile, src, timeoutMs, tileBbox, z);
+    loadWithTimeoutRetry(tile, src, timeoutMs, tileBbox, z, x, y, label);
   };
 }
 
@@ -190,7 +221,7 @@ export function createGuardedTileLoadFunction({ regionBbox, timeoutMs = DEFAULT_
 // EMPTY 的圖磚從來不會進來，本來就沒有佔用載入名額，不需要放棄。
 const inFlightGuardedTiles = new Set();
 
-function loadWithTimeoutRetry(tile, src, timeoutMs, tileBbox, z){
+function loadWithTimeoutRetry(tile, src, timeoutMs, tileBbox, z, x, y, label){
   const img = tile.getImage();
 
   // attempt() 執行到底（不論成功、失敗、逾時判定 ERROR）都會呼叫這個
@@ -288,6 +319,7 @@ function loadWithTimeoutRetry(tile, src, timeoutMs, tileBbox, z){
         cleanup();
         tile.setState(TILE_STATE.ERROR);
         unregister();
+        recordTileFailure(label, 'error', z, x, y);
         resolve();
       };
       timer = setTimeout(() => {
@@ -304,6 +336,7 @@ function loadWithTimeoutRetry(tile, src, timeoutMs, tileBbox, z){
         if(!isRetry){ attempt(true); return; }
         tile.setState(TILE_STATE.ERROR);
         unregister();
+        recordTileFailure(label, 'timeout', z, x, y);
       }, timeoutMs);
       img.src = src;
     }));
