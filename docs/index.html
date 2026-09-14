@@ -50,7 +50,7 @@
 <link rel="icon" type="image/svg+xml" href="./icon.svg">
 <meta name="theme-color" content="#8A6A2E">
 
-  <script type="module" crossorigin src="./assets/index-HwIzTYab.js"></script>
+  <script type="module" crossorigin src="./assets/index-BmQHKIRy.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-B5vS_djn.css">
 </head>
 <body>
@@ -128,10 +128,10 @@
 </button>
 <div id="mobileModePopover" class="mobile-mode-popover">
   <div class="mobile-mode-popover-title">地圖模式</div>
-  <button type="button" class="mobile-mode-option" data-mode="overlay">歷史疊圖</button>
-  <button type="button" class="mobile-mode-option" data-mode="compare">左右比對</button>
-  <button type="button" class="mobile-mode-option" data-mode="timeline">時間軸</button>
-  <button type="button" class="mobile-mode-option" data-mode="multi">多重疊圖</button>
+  <button type="button" class="mobile-mode-option" data-mode="overlay" title="將歷史地圖疊加在現代底圖上，用透明度拉桿比較古今差異">🪟 透明疊圖</button>
+  <button type="button" class="mobile-mode-option" data-mode="compare" title="左右拖曳分割線，並排比對兩張地圖的差異">↔️ 左右比對</button>
+  <button type="button" class="mobile-mode-option" data-mode="timeline" title="依年代播放或拖曳瀏覽同系列歷史地形圖">🕰️ 時間軸</button>
+  <button type="button" class="mobile-mode-option" data-mode="multi" title="同時疊加多張歷史圖層，各自調整透明度與順序">🧩 複合疊圖</button>
   <div class="mobile-mode-popover-divider"></div>
   <div class="mobile-mode-popover-title">工具</div>
   <!-- 轉呼叫既有 #drawToggleBtn 的 click()，不重新實作繪圖工具開關邏輯 -->
@@ -377,10 +377,10 @@
       <button type="button" class="side-section-head">🗺 地圖模式</button>
       <div class="side-section-body">
         <div class="mode-switch" id="modeSwitch">
-          <button data-mode="overlay" class="active">透明疊圖</button>
-          <button data-mode="compare">左右比對</button>
-          <button data-mode="timeline">時間軸</button>
-          <button data-mode="multi">複合疊圖</button>
+          <button data-mode="overlay" class="active" title="將歷史地圖疊加在現代底圖上，用透明度拉桿比較古今差異">🪟 透明疊圖</button>
+          <button data-mode="compare" title="左右拖曳分割線，並排比對兩張地圖的差異">↔️ 左右比對</button>
+          <button data-mode="timeline" title="依年代播放或拖曳瀏覽同系列歷史地形圖">🕰️ 時間軸</button>
+          <button data-mode="multi" title="同時疊加多張歷史圖層，各自調整透明度與順序">🧩 複合疊圖</button>
         </div>
       </div>
     </div>
