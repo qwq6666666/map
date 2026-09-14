@@ -32,6 +32,14 @@ function syncToggleBtnA11y(collapsed){
   toggleSidebarBtn.setAttribute('aria-expanded', String(!collapsed));
 }
 
+// 同步 body.sidebar-collapsed：只給桌面版 style.css 的 #stamp 顯示規則
+// 用（@media min-width:769px，見該處註解）。手機版 Bottom Sheet 拖曳
+// 二態共用同一組 collapseSidebar()／expandSidebar()，這裡不分寬度一律
+// 同步，實際「只在桌面生效」是靠 CSS 那邊的 media query 限定，不是這裡。
+function syncBodyCollapsedClass(collapsed){
+  document.body.classList.toggle('sidebar-collapsed', collapsed);
+}
+
 // 共用的收合動作：手動點收合按鈕、跟左右比對模式點左下圖層切換按鈕時都會用到。
 export function collapseSidebar(){
   const sb = document.getElementById('sidebar');
@@ -39,6 +47,7 @@ export function collapseSidebar(){
   sb.classList.add('collapsed');
   if(toggleSidebarBtn) toggleSidebarBtn.textContent = '▸';
   syncToggleBtnA11y(true);
+  syncBodyCollapsedClass(true);
   updateFloatingOpacityVisibility();
 }
 
@@ -51,13 +60,16 @@ export function expandSidebar(){
   sb.classList.remove('collapsed');
   if(toggleSidebarBtn) toggleSidebarBtn.textContent = '◂';
   syncToggleBtnA11y(false);
+  syncBodyCollapsedClass(false);
   updateFloatingOpacityVisibility();
 }
 
 export function initSidebarToggle(){
   floatingOpacityEl = document.getElementById('floatingOpacity');
   toggleSidebarBtn = document.getElementById('toggleSidebar');
-  syncToggleBtnA11y(document.getElementById('sidebar').classList.contains('collapsed'));
+  const initiallyCollapsed = document.getElementById('sidebar').classList.contains('collapsed');
+  syncToggleBtnA11y(initiallyCollapsed);
+  syncBodyCollapsedClass(initiallyCollapsed);
   toggleSidebarBtn.addEventListener('click', ()=>{
     const sb = document.getElementById('sidebar');
     if(sb.classList.contains('collapsed')) expandSidebar();

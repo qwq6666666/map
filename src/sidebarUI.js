@@ -66,8 +66,8 @@ function updateStickyOffset(){
 /* ---------------------------------------------------------
    側邊欄可摺疊區塊（.side-section / .side-section-head / .side-section-body）
    通用 toggle 邏輯：跟 .source-head／.category-head 的手風琴各自獨立，
-   這裡包的是整個功能區塊（地圖模式／圖資／目前圖層…），互不影響、
-   可以同時展開多個。
+   這裡包的是整個功能區塊（目前只剩「地圖模式」#modeSection 還在用這套
+   摺疊語彙），互不影響、可以同時展開多個。
 --------------------------------------------------------- */
 function initCollapsibleSections(){
   document.querySelectorAll('.side-section-head').forEach(head => {
@@ -81,6 +81,32 @@ function initCollapsibleSections(){
 }
 
 /* ---------------------------------------------------------
+   「圖資／收藏／最近使用」分頁：同一時間只顯示一個 .sidebar-tab-panel，
+   純粹切換 active class／hidden attribute，不清除任何既有狀態（不重置
+   已展開的來源分類、不重新整理清單）。切換後重新量測一次 --sticky-offset：
+   切走「圖資」分頁時 #categories 內的 .country-filter 因祖先 hidden 而
+   量到高度 0，切回來時要重新量測才會恢復正確的吸附偏移量。
+--------------------------------------------------------- */
+function initSidebarTabs(){
+  const bar = document.getElementById('sidebarTabBar');
+  if(!bar) return;
+  bar.addEventListener('click', (e) => {
+    const btn = e.target.closest('.sidebar-tab-btn');
+    if(!btn) return;
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.sidebar-tab-btn').forEach(b => {
+      const active = b === btn;
+      b.classList.toggle('active', active);
+      b.setAttribute('aria-selected', String(active));
+    });
+    document.querySelectorAll('.sidebar-tab-panel').forEach(panel => {
+      panel.hidden = panel.dataset.tabPanel !== tab;
+    });
+    updateStickyOffset();
+  });
+}
+
+/* ---------------------------------------------------------
    「目前圖層」名稱與收藏星號：訂閱 store，activeOverlayKey／
    favoriteLayers 改變時同步畫面。
 --------------------------------------------------------- */
@@ -89,7 +115,11 @@ function renderCurrentLayer(){
   const favBtn = document.getElementById('currentLayerFavBtn');
   if(!nameEl || !favBtn) return;
   const key = store.activeOverlayKey;
-  nameEl.textContent = key ? titleForKey(key) : '尚未選取圖層';
+  const title = key ? titleForKey(key) : '';
+  nameEl.textContent = key ? title : '尚未選取圖層';
+  // 單行版 #opacityBlock（見 index.html／style.css .current-layer-row）
+  // 名稱過長時靠 CSS 截斷加「...」，title 屬性讓滑鼠移過去能看到完整名稱。
+  nameEl.title = title;
   favBtn.hidden = !key;
   const fav = key ? isFavoriteLayer(key) : false;
   favBtn.textContent = fav ? '★' : '☆';
@@ -101,7 +131,10 @@ function renderCurrentLayer(){
   // 顯示與否的 class，不是另一套圖層邏輯。桌面版此 class 恆為 CSS 隱藏，不受影響。
   const floatingNameEl = document.getElementById('floatingLayerName');
   const floatingOpacityEl = document.getElementById('floatingOpacity');
-  if(floatingNameEl) floatingNameEl.textContent = key ? titleForKey(key) : '';
+  if(floatingNameEl){
+    floatingNameEl.textContent = title;
+    floatingNameEl.title = title;
+  }
   if(floatingOpacityEl) floatingOpacityEl.classList.toggle('has-layer', !!key);
 
   // 手機版 #opacityBlock 整條隱藏（見 style.css），收藏功能唯一入口
@@ -140,6 +173,13 @@ function applyLayerFromList(key){
 function renderFavoritesList(){
   const listEl = document.getElementById('favoritesList');
   if(!listEl) return;
+  // 分頁標籤上的收藏數量小圓點徽章（「最近使用」分頁不需要對應徽章）。
+  const badge = document.getElementById('favoritesTabBadge');
+  if(badge){
+    const count = store.favoriteLayers.length;
+    badge.textContent = String(count);
+    badge.hidden = count === 0;
+  }
   listEl.innerHTML = '';
   if(store.favoriteLayers.length === 0){
     const empty = document.createElement('div');
@@ -339,6 +379,7 @@ export function initSidebar(){
   else mq.addListener(syncMobileBrowseView);
 
   initCollapsibleSections();
+  initSidebarTabs();
   initCurrentLayerFavButton();
   initRecentClearButton();
 
@@ -349,15 +390,6 @@ export function initSidebar(){
   subscribe((state, prevState, changedKeys) => {
     if(changedKeys.includes('activeOverlayKey') || changedKeys.includes('favoriteLayers')){
       renderCurrentLayer();
-    }
-    // 點圖資選到新的一層時，就算使用者之前手動收合過「目前圖層」，
-    // 也自動展開讓他看得到剛選到什麼，不用再手動點開。
-    if(changedKeys.includes('activeOverlayKey') && state.activeOverlayKey){
-      const opacityBlock = document.getElementById('opacityBlock');
-      if(opacityBlock && !opacityBlock.classList.contains('open')){
-        opacityBlock.classList.add('open');
-        updateStickyOffset();
-      }
     }
     if(changedKeys.includes('favoriteLayers')){
       renderFavoritesList();

@@ -254,11 +254,13 @@
   .subcategory.open > .subcategory-head .chevron{transform:rotate(90deg);}
   .subcategory .layer-item{padding-left:28px;}
 
-  /* opacity control：吸附在側邊欄可視範圍最上方，圖層清單再長也不用捲到底 */
+  /* opacity control：吸附在側邊欄可視範圍最上方，圖層清單再長也不用捲到底。
+     單行精簡樣式（見下方 .current-layer-row），不再是可摺疊的 .side-section，
+     上下都留一點 padding 撐開行高。 */
   .opacity-block{
     position:sticky; top:0; z-index:5;
     background:var(--paper);
-    border-bottom:1px solid var(--rule); padding-bottom:14px; margin-bottom:6px;
+    border-bottom:1px solid var(--rule); padding:10px 0 12px; margin-bottom:6px;
     box-shadow:0 6px 8px -6px rgba(0,0,0,.18);
     /* 強制獨立合成層，避免快速捲動／手機彈性回彈時吸附區塊來不及重繪，
        短暫露出下方被捲上來的圖層清單內容（例如深色的選取中圖層列） */
@@ -275,14 +277,17 @@
     background:var(--paper);
     z-index:1;
   }
-  .opacity-row{display:flex; align-items:center; gap:10px;}
-  .opacity-row input[type=range]{flex:1; accent-color:var(--brass-dark);}
-  .opacity-val{font-family:var(--serif); font-size:13px; color:var(--ink); width:34px; text-align:right;}
+  .opacity-val{font-family:var(--serif); font-size:13px; color:var(--ink); width:34px; text-align:right; flex-shrink:0;}
+  /* 「目前圖層」清除按鈕：改成跟 .current-layer-fav-btn 同款的圓形
+     小圖示按鈕，塞進單行版 #opacityBlock（見下方 .current-layer-row），
+     不再是原本的全寬文字按鈕。 */
   .clear-btn{
-    margin-top:10px; width:100%; background:none; border:1px solid var(--rule);
-    color:var(--rule); font-size:11.5px; padding:6px 0; cursor:pointer; border-radius:2px;
+    flex-shrink:0; width:24px; height:24px; padding:0; line-height:1;
+    background:var(--paper); border:1px solid var(--rule); border-radius:50%;
+    font-size:12px; color:var(--rule); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
   }
-  .clear-btn:hover{border-color:var(--ink); color:var(--ink);}
+  .clear-btn:hover{border-color:var(--stamp); color:var(--stamp);}
 
   /* ---------- 浮動透明度控制：側邊欄收合後（透明疊圖模式）顯示於左下角，
      讓使用者不必展開整個側邊欄也能調整歷史圖層透明度 ---------- */
@@ -406,6 +411,23 @@
   #stamp.show{opacity:1;}
   #stamp .stamp-year{font-size:26px; font-weight:700; line-height:1;}
   #stamp .stamp-label{font-size:9px; letter-spacing:.08em; margin-top:4px; max-width:82px; line-height:1.2;}
+
+  /* 桌面版側邊欄展開時，「目前圖層」單行列（#opacityBlock）已經能看到
+     圖層名稱＋透明度，右下角圓章的資訊重複，故隱藏；側邊欄收合時看不到
+     那行文字，圓章才是唯一的視覺提示。body.sidebar-collapsed 由
+     src/ui/sidebarToggle.js 的 collapseSidebar()／expandSidebar() 跟
+     #sidebar.collapsed 同步切換。手機版 Bottom Sheet 拖曳二態也共用同一組
+     collapseSidebar()／expandSidebar()（peek／展開 75vh，跟本規則「側邊欄
+     展開/收合面板」語意不同），用 min-width:769px 限定只在桌面寬度生效，
+     避免誤套用到手機版既有的 #stamp 行為（見 CLAUDE.md 手機版章節）。
+     這裡不需要 !important：body:not(.sidebar-collapsed) #stamp 比
+     #stamp.show 多一個型別選擇器（body），specificity 本來就比較高，
+     一定贏得了 cascade。截圖匯出（src/drawTool.js 的
+     drawAttributionAndStamp()）是直接在匯出用的 canvas 上另外畫一份圓章、
+     讀 store 狀態而非這個 DOM 元素的顯示狀態，不受這條規則影響。 */
+  @media (min-width:769px){
+    body:not(.sidebar-collapsed) #stamp{opacity:0;}
+  }
   #stamp::before{
     content:""; position:absolute; inset:6px; border:1px solid var(--stamp); border-radius:50%;
   }
@@ -1267,13 +1289,11 @@
   /* ---------- 側邊欄可摺疊區塊（src/sidebarUI.js 的 initCollapsibleSections()） ----------
      視覺語彙比照 .source-head／.category-head 手風琴標題列（淡底色方塊、
      chevron 指示展開方向），但獨立成一組 class，因為這裡包的是整個功能
-     區塊（模式切換、圖資、目前圖層…）而不是圖層清單節點，語意上分開。 */
+     區塊（目前只剩「地圖模式」#modeSection 還在用；「圖資／收藏／最近
+     使用」已改成分頁見 .sidebar-tabs，「目前圖層」#opacityBlock 已改成
+     恆常顯示的單行列，兩者都不再是可摺疊的 .side-section）而不是圖層
+     清單節點，語意上分開。 */
   .side-section{margin-bottom:14px;}
-  /* 不能用 :last-child 讓「最後一塊」少掉這段間距——#layersSection 雖然
-     是側邊欄視覺上中間的區塊，但因為外面包了 #overlayPanel（模式切換用
-     的顯示/隱藏包裝 div），DOM 結構上反而是它自己父層裡唯一的子元素，
-     :last-child 選到的其實是它，導致「圖資」跟下面「收藏」之間的間距
-     被歸零，跟其他區塊間距不一致。統一每塊都固定 14px，不看 DOM 位置。 */
   .side-section-head{
     width:100%; text-align:left; background:var(--paper-dim); border:1px solid var(--rule);
     padding:9px 10px; cursor:pointer; border-radius:2px;
@@ -1288,21 +1308,19 @@
   .side-section.open > .side-section-head::after{transform:rotate(90deg);}
   .side-section-body{padding-top:8px;}
   .side-section:not(.open) .side-section-body{display:none;}
-  /* #opacityBlock 本身仍維持吸附行為（見上方 .opacity-block 規則），這裡
-     只補摺疊標題／內容的間距，不動吸附相關屬性。 */
-  #opacityBlock.side-section .side-section-head{background:var(--paper); border:none; padding:0 0 8px; margin-bottom:0;}
-  #opacityBlock.side-section .side-section-head:hover{background:var(--paper);}
-  #opacityBlock.side-section .side-section-body{padding-top:0;}
 
-  /* ---------- 目前圖層（#opacityBlock 內） ---------- */
+  /* ---------- 目前圖層（#opacityBlock）單行版 ----------
+     跟地圖左下角浮動透明度列（.floating-opacity）同一種視覺語彙：
+     名稱＋收藏星號＋透明度滑桿＋清除鈕全部塞在一行。 */
   .current-layer-row{
-    display:flex; align-items:center; justify-content:space-between; gap:8px;
-    margin-bottom:10px;
+    display:flex; align-items:center; gap:8px;
   }
   .current-layer-name{
     font-family:var(--serif); font-size:12.5px; color:var(--ink); line-height:1.4;
     overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; min-width:0;
   }
+  .current-layer-row .field-label{margin:0; white-space:nowrap; flex-shrink:0;}
+  .current-layer-row input[type=range]{width:70px; flex-shrink:0; accent-color:var(--brass-dark);}
   .current-layer-fav-btn{
     flex-shrink:0; width:24px; height:24px; padding:0; line-height:1;
     background:var(--paper); border:1px solid var(--rule); border-radius:50%;
@@ -1384,39 +1402,66 @@
   }
   .favorites-item-remove:hover{background:rgba(181,140,74,.14);}
 
-  /* .recent-section 不是可摺疊區塊（不用 .side-section），永遠展開，
-     視覺上維持跟 .side-section-head 一致的標題列外觀，只是不能點擊摺疊。 */
-  .recent-section{margin-bottom:0;}
-  .recent-section-head{
-    background:var(--paper-dim); border:1px solid var(--rule);
-    padding:9px 10px; border-radius:2px 2px 0 0; border-bottom:none;
-    font-family:var(--sans); font-weight:700; font-size:12.5px; color:var(--ink);
-    display:flex; align-items:center; justify-content:space-between; gap:8px;
-  }
+  /* 「最近使用」分頁工具列：只剩「清除紀錄」一顆按鈕靠右對齊，標題文字
+     已經是分頁標籤本身（🕘 最近使用），不用再重複一次標題列。 */
+  .sidebar-tab-panel-toolbar{display:flex; justify-content:flex-end; margin-bottom:6px;}
   .recent-clear-btn{
     font-family:var(--sans); font-weight:400; font-size:11px; color:var(--brass-dark);
     background:none; border:none; padding:2px 4px; cursor:pointer; text-decoration:underline;
   }
   .recent-clear-btn:hover{color:var(--stamp);}
-  .recent-section .recent-list{
-    border:1px solid var(--rule); border-top:none; border-radius:0 0 2px 2px;
-    padding:8px; margin:0;
+
+  /* ---------- 側邊欄「圖資／收藏／最近使用」分頁（src/sidebarUI.js 的
+     initSidebarTabs()） ----------
+     視覺刻意用「文字＋底線標示 active」，跟 .segmented／.country-filter
+     （圓角按鈕群組樣式）明顯區隔開來，讓使用者一眼分辨「分頁」跟
+     「篩選」是兩種不同語意的控制項。同一時間只顯示一個
+     .sidebar-tab-panel，純粹 DOM 顯示切換，不清除任何既有狀態。 */
+  .sidebar-tabs{margin-bottom:14px;}
+  .sidebar-tab-bar{
+    display:flex; border-bottom:1px solid var(--rule); margin-bottom:10px;
   }
-  .recent-section .recent-list:empty{padding:0;}
+  .sidebar-tab-btn{
+    flex:1; background:none; border:none; border-bottom:2px solid transparent;
+    padding:8px 4px; margin-bottom:-1px; cursor:pointer;
+    font-family:var(--sans); font-weight:600; font-size:12.5px; color:var(--rule);
+    display:flex; align-items:center; justify-content:center; gap:5px;
+    transition:color .12s ease, border-color .12s ease;
+  }
+  .sidebar-tab-btn:hover{color:var(--ink);}
+  .sidebar-tab-btn.active{color:var(--ink); border-bottom-color:var(--brass-dark);}
+  .sidebar-tab-badge{
+    display:inline-flex; align-items:center; justify-content:center;
+    min-width:16px; height:16px; padding:0 4px; border-radius:8px;
+    background:var(--brass-dark); color:var(--paper);
+    font-size:10px; font-weight:700; line-height:1;
+  }
 
   /* ---------- 新手導覽／使用指南（src/ui/onboarding.js） ----------
      獨立疊加層，不共用側邊欄既有摺疊語彙的 class（避免跟 initCollapsibleSections()
      的選擇器互相誤觸），只借用同一套顏色變數維持視覺一致。 */
   /* 4 顆按鈕排一整排會太窄、文字被迫兩行擠壓，改用 2x2 grid 讓每顆
      按鈕拿到雙倍寬度，大部分標籤能單行顯示。 */
-  .tour-btn-row{display:grid; grid-template-columns:repeat(2, 1fr); gap:8px; margin-top:12px;}
+  .tour-btn-row{display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-top:12px;}
   .tour-btn-row-btn{
-    padding:8px 4px; background:var(--paper); border:1px solid var(--rule);
+    width:100%; padding:8px 4px; background:var(--paper); border:1px solid var(--rule);
     border-radius:2px; font-family:var(--sans); font-size:12px; font-weight:600;
     color:var(--ink); cursor:pointer; text-align:center; white-space:nowrap;
     overflow:hidden; text-overflow:ellipsis;
   }
   .tour-btn-row-btn:hover{background:var(--paper-dim); border-color:var(--brass-dark); color:var(--brass-dark);}
+  .tour-more-wrap{position:relative;}
+  .tour-more-menu{
+    position:absolute; top:calc(100% + 4px); right:0; z-index:30; min-width:150px;
+    background:var(--paper); border:1px solid var(--rule); border-radius:2px;
+    box-shadow:0 6px 16px rgba(0,0,0,.22); padding:4px; display:flex; flex-direction:column; gap:2px;
+  }
+  .tour-more-menu-btn{
+    width:100%; padding:8px 10px; background:none; border:none; border-radius:2px;
+    font-family:var(--sans); font-size:12px; font-weight:600; color:var(--ink);
+    cursor:pointer; text-align:left; white-space:nowrap;
+  }
+  .tour-more-menu-btn:hover{background:var(--paper-dim); color:var(--brass-dark);}
 
   /* -- Welcome Modal -- */
   .onboarding-modal-overlay{
@@ -2046,7 +2091,6 @@
       width:34px; height:34px;
     }
     input[type=range]{min-height:32px;}
-    .opacity-row input[type=range]{height:32px;}
     .current-layer-fav-btn, .location-clear-btn{width:32px; height:32px;}
     .address-search-btn, .locate-search-btn{width:40px; height:40px;}
 

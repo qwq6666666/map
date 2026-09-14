@@ -55,7 +55,7 @@ function applyModeTransition(prevState){
   if(store.mode !== 'multi') hideMultiOverlayLayers();
 
   if(store.mode === 'overlay'){
-    opacityBlockEl.style.display = 'block';
+    opacityBlockEl.style.display = 'flex'; // .current-layer-row 是單行 flex 版面，不是 block
     overlayPanel.style.display = 'block';
     comparePanel.style.display = 'none';
     timelinePanel.style.display = 'none';
@@ -67,7 +67,7 @@ function applyModeTransition(prevState){
     applyActiveOverlayKey();
     map.render();
   } else if(store.mode === 'timeline'){
-    opacityBlockEl.style.display = 'block'; // 時間軸模式一樣可以調整目前套疊圖層的透明度
+    opacityBlockEl.style.display = 'flex'; // 時間軸模式一樣可以調整目前套疊圖層的透明度（單行 flex 版面）
     overlayPanel.style.display = 'none';
     comparePanel.style.display = 'none';
     timelinePanel.style.display = 'block';

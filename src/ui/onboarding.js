@@ -446,7 +446,45 @@ export function openGuideDrawer() {
 
 /* ---------------- 進入點 ---------------- */
 
+// 工具列按鈕排「⋯ 更多」下拉選單：分享連結／清除快取／來源狀態三個
+// 低頻功能收在裡面，展開只是單純切換 hidden，不影響裡面按鈕各自的
+// click handler（見下方各自 addEventListener，選單開合跟功能觸發是
+// 兩件互不相干的事）。
+function initTourMoreMenu() {
+  const wrap = document.querySelector('.tour-more-wrap');
+  const moreBtn = document.getElementById('tourMoreBtn');
+  const menu = document.getElementById('tourMoreMenu');
+  if (!wrap || !moreBtn || !menu) return;
+
+  const close = () => {
+    menu.hidden = true;
+    moreBtn.setAttribute('aria-expanded', 'false');
+    document.removeEventListener('click', onOutsideClick);
+    document.removeEventListener('keydown', onKeydown);
+  };
+  const onOutsideClick = (e) => { if (!wrap.contains(e.target)) close(); };
+  const onKeydown = (e) => { if (e.key === 'Escape') close(); };
+
+  moreBtn.addEventListener('click', () => {
+    const willOpen = menu.hidden;
+    if (willOpen) {
+      menu.hidden = false;
+      moreBtn.setAttribute('aria-expanded', 'true');
+      document.addEventListener('click', onOutsideClick);
+      document.addEventListener('keydown', onKeydown);
+    } else {
+      close();
+    }
+  });
+  // 選單裡任何按鈕被點擊後（不論分享連結／清除快取／來源狀態），選單
+  // 本身就該收起來，不用各自的 click handler 記得收合。
+  menu.querySelectorAll('button').forEach((btn) => {
+    btn.addEventListener('click', close);
+  });
+}
+
 export function initOnboarding() {
+  initTourMoreMenu();
   const tourStartBtn = document.getElementById('tourStartBtn');
   const guideOpenBtn = document.getElementById('guideOpenBtn');
   const shareLinkBtn = document.getElementById('shareLinkBtn');

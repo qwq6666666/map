@@ -277,27 +277,29 @@
     <div class="tour-btn-row">
       <button type="button" id="tourStartBtn" class="tour-btn-row-btn">🧭 新手導覽</button>
       <button type="button" id="guideOpenBtn" class="tour-btn-row-btn">❔ 使用指南</button>
-      <button type="button" id="shareLinkBtn" class="tour-btn-row-btn">🔗 分享連結</button>
-      <button type="button" id="clearTileCacheBtn" class="tour-btn-row-btn" title="清除已下載的地圖圖磚快取（歷史地圖／現代地圖／衛星影像），釋放裝置儲存空間">🗑️ 清除快取</button>
-      <button type="button" id="sourceStatusBtn" class="tour-btn-row-btn" title="檢查各圖資來源主機目前是否能正常讀取">📡 來源狀態</button>
+      <div class="tour-more-wrap">
+        <button type="button" id="tourMoreBtn" class="tour-btn-row-btn" aria-haspopup="true" aria-expanded="false">⋯ 更多</button>
+        <div class="tour-more-menu" id="tourMoreMenu" hidden>
+          <button type="button" id="shareLinkBtn" class="tour-more-menu-btn">🔗 分享連結</button>
+          <button type="button" id="clearTileCacheBtn" class="tour-more-menu-btn" title="清除已下載的地圖圖磚快取（歷史地圖／現代地圖／衛星影像），釋放裝置儲存空間">🗑️ 清除快取</button>
+          <button type="button" id="sourceStatusBtn" class="tour-more-menu-btn" title="檢查各圖資來源主機目前是否能正常讀取">📡 來源狀態</button>
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="sidebar-body">
-    <div class="opacity-block side-section" id="opacityBlock">
-      <button type="button" class="side-section-head">📌 目前圖層</button>
-      <div class="side-section-body">
-        <div class="current-layer-row">
-          <span id="currentLayerName" class="current-layer-name">尚未選取圖層</span>
-          <button type="button" id="currentLayerFavBtn" class="current-layer-fav-btn" title="收藏此圖層" hidden>☆</button>
-        </div>
-        <div class="field-label">透明度</div>
-        <div class="opacity-row">
-          <input type="range" id="opacitySlider" min="0" max="100" value="100" aria-label="透明度">
-          <span class="opacity-val" id="opacityVal">100%</span>
-        </div>
-        <button class="clear-btn" id="clearBtn">清除疊圖</button>
-      </div>
+    <!-- 「目前圖層」改成單行精簡樣式（比照地圖左下角 #floatingOpacity）：
+         名稱＋收藏星號＋透明度滑桿＋清除鈕全部塞在一行，不再是摺疊區塊。
+         圖層名稱過長時由 .current-layer-name 的 CSS 截斷＋title 屬性
+         （src/sidebarUI.js 的 renderCurrentLayer()）顯示完整名稱。 -->
+    <div class="opacity-block current-layer-row" id="opacityBlock">
+      <span id="currentLayerName" class="current-layer-name">尚未選取圖層</span>
+      <button type="button" id="currentLayerFavBtn" class="current-layer-fav-btn" title="收藏此圖層" hidden>☆</button>
+      <span class="field-label">透明度</span>
+      <input type="range" id="opacitySlider" min="0" max="100" value="100" aria-label="透明度">
+      <span class="opacity-val" id="opacityVal">100%</span>
+      <button type="button" class="clear-btn" id="clearBtn" title="清除疊圖">✕</button>
     </div>
 
     <div class="search-block">
@@ -376,10 +378,23 @@
       </div>
     </div>
 
-    <div id="overlayPanel">
-      <div class="side-section" id="layersSection">
-        <button type="button" class="side-section-head">📚 圖資</button>
-        <div class="side-section-body">
+    <!-- 「圖資／收藏／最近使用」分頁：同一時間只顯示一個分頁內容，純粹
+         DOM 顯示切換（見 src/sidebarUI.js 的 initSidebarTabs()），不清除
+         任何既有狀態。視覺刻意跟下方「台灣／中國／其他」篩選列（圓角
+         按鈕群組，src/ui/countryFilter.js）區隔，改用文字＋底線標示
+         active。國家篩選列只存在於 #categories 內（圖資分頁專屬），
+         收藏／最近使用分頁不需要。 -->
+    <div class="sidebar-tabs" id="sidebarTabs">
+      <div class="sidebar-tab-bar" id="sidebarTabBar" role="tablist">
+        <button type="button" class="sidebar-tab-btn active" data-tab="layers" role="tab" aria-selected="true">📚 圖資</button>
+        <button type="button" class="sidebar-tab-btn" data-tab="favorites" role="tab" aria-selected="false">
+          ⭐ 收藏<span class="sidebar-tab-badge" id="favoritesTabBadge" hidden>0</span>
+        </button>
+        <button type="button" class="sidebar-tab-btn" data-tab="recent" role="tab" aria-selected="false">🕘 最近使用</button>
+      </div>
+
+      <div class="sidebar-tab-panel" data-tab-panel="layers">
+        <div id="overlayPanel">
           <div class="field-label">底圖</div>
           <div class="segmented" id="baseSwitch">
             <button data-base="osm" class="active">現代地圖</button>
@@ -388,6 +403,17 @@
 
           <div id="categories"></div>
         </div>
+      </div>
+
+      <div class="sidebar-tab-panel" data-tab-panel="favorites" hidden>
+        <div id="favoritesList" class="favorites-list"></div>
+      </div>
+
+      <div class="sidebar-tab-panel" data-tab-panel="recent" hidden>
+        <div class="sidebar-tab-panel-toolbar">
+          <button type="button" id="recentClearBtn" class="recent-clear-btn" hidden>清除紀錄</button>
+        </div>
+        <div id="recentList" class="recent-list"></div>
       </div>
     </div>
 
@@ -440,21 +466,6 @@
       </div>
 
       <div id="multiCategories" class="multi-categories"></div>
-    </div>
-
-    <div class="side-section" id="favoritesSection">
-      <button type="button" class="side-section-head">⭐ 收藏</button>
-      <div class="side-section-body">
-        <div id="favoritesList" class="favorites-list"></div>
-      </div>
-    </div>
-
-    <div class="recent-section" id="recentSection">
-      <div class="recent-section-head">
-        <span>🕘 最近使用</span>
-        <button type="button" id="recentClearBtn" class="recent-clear-btn" hidden>清除紀錄</button>
-      </div>
-      <div id="recentList" class="recent-list"></div>
     </div>
   </div>
 </div>
