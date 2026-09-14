@@ -1,12 +1,12 @@
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, beforeEach, run, assertEqual, assertTrue } from '../assert.mjs';
 import { loadAppData, DATA } from '../../src/data.js';
 import { initMapCore } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
 import { initSearchUI } from '../../src/searchUI.js';
 import { state as store, setState } from '../../src/store.js';
 import { map } from '../../src/core/map.js';
-import { buildShareURL, copyShareLink, applyShareStateFromURL } from '../../src/features/shareLink.js';
+import { buildShareURL, copyShareLink, applyShareStateFromURL, shareStateHasCustomLayers } from '../../src/features/shareLink.js';
 
 await loadAppData();
 initMapCore();
@@ -20,6 +20,8 @@ const keyA = `hist:sinica:${layerA.id}:${layerA.fmt}`;
 const keyB = `hist:sinica:${layerB.id}:${layerB.fmt}`;
 
 // 每個測試開始前重設成乾淨的預設狀態，避免測試互相汙染。
+// 用 beforeEach 掛上去，不用在下面每個 test() 開頭都手動呼叫一次
+// （原本的寫法、也是 DEVELOPMENT.md 提到的「寫測試時的陷阱」典型樣板）。
 function resetToDefault(){
   setState({
     mode: 'overlay',
@@ -35,12 +37,13 @@ function resetToDefault(){
   location.search = '';
 }
 
+beforeEach(resetToDefault);
+
 /* ---------------------------------------------------------
    buildShareURL()
 --------------------------------------------------------- */
 
 test('預設狀態下網址只帶 cmpA/cmpB（compareA/compareB 本身有非 null 預設值，不比對預設；其他欄位都是預設值不寫入）', () => {
-  resetToDefault();
   const url = buildShareURL();
   const qs = url.split('?')[1] || '';
   const params = new URLSearchParams(qs);
@@ -57,7 +60,6 @@ test('預設狀態下網址只帶 cmpA/cmpB（compareA/compareB 本身有非 nul
 });
 
 test('改變 mode／baseLayer／swipePercent 後網址正確帶上對應參數', () => {
-  resetToDefault();
   setState({ mode: 'compare', baseLayer: 'sat', swipePercent: 30 });
   const params = new URLSearchParams(buildShareURL().split('?')[1]);
   assertEqual(params.get('mode'), 'compare', 'mode 應該出現');
@@ -66,21 +68,18 @@ test('改變 mode／baseLayer／swipePercent 後網址正確帶上對應參數',
 });
 
 test('activeOverlayKey 有值時 overlay 參數會出現', () => {
-  resetToDefault();
   setState({ activeOverlayKey: keyA });
   const params = new URLSearchParams(buildShareURL().split('?')[1]);
   assertEqual(params.get('overlay'), keyA, 'overlay 應該出現');
 });
 
 test('multiOverlayLayers 會編碼成 key,opacity 用分號串接的 multi 參數', () => {
-  resetToDefault();
   setState({ multiOverlayLayers: [{ key: keyA, opacity: 100 }, { key: keyB, opacity: 40 }] });
   const params = new URLSearchParams(buildShareURL().split('?')[1]);
   assertEqual(params.get('multi'), `${keyA},100;${keyB},40`, 'multi 應該正確編碼');
 });
 
 test('地圖中心點/縮放沒變時不出現 lon/lat/zoom，變了才出現', () => {
-  resetToDefault();
   let params = new URLSearchParams(buildShareURL().split('?')[1]);
   assertEqual(params.get('lon'), null, '沒變不該出現 lon');
 
@@ -92,12 +91,38 @@ test('地圖中心點/縮放沒變時不出現 lon/lat/zoom，變了才出現', 
   assertEqual(params.get('zoom'), '12', 'zoom 應該出現');
 });
 
+test('activeOverlayKey/compareA/compareB/multiOverlayLayers 是 custom: 開頭時，網址不會帶對應參數', () => {
+  setState({
+    activeOverlayKey: 'custom:my-source',
+    compareA: 'custom:my-source',
+    compareB: 'custom:my-source',
+    multiOverlayLayers: [{ key: keyA, opacity: 100 }, { key: 'custom:my-source', opacity: 40 }]
+  });
+  const params = new URLSearchParams(buildShareURL().split('?')[1]);
+  assertEqual(params.get('overlay'), null, 'custom: overlay 不應該寫入網址');
+  assertEqual(params.get('cmpA'), null, 'custom: cmpA 不應該寫入網址');
+  assertEqual(params.get('cmpB'), null, 'custom: cmpB 不應該寫入網址');
+  assertEqual(params.get('multi'), `${keyA},100`, 'multi 只保留非 custom: 的圖層');
+});
+
+test('shareStateHasCustomLayers()：純函式偵測目前狀態是否含有分享連結不會帶到的自訂圖層', () => {
+  assertEqual(shareStateHasCustomLayers(), false, '預設狀態（compareA/compareB 都是內建 key）不應該偵測到 custom 圖層');
+
+  setState({ activeOverlayKey: 'custom:my-source' });
+  assertTrue(shareStateHasCustomLayers(), 'activeOverlayKey 是 custom: 時應該偵測到');
+
+  setState({ activeOverlayKey: null, multiOverlayLayers: [{ key: 'custom:my-source', opacity: 100 }] });
+  assertTrue(shareStateHasCustomLayers(), 'multiOverlayLayers 裡有 custom: 時應該偵測到');
+
+  setState({ multiOverlayLayers: [{ key: keyA, opacity: 100 }] });
+  assertEqual(shareStateHasCustomLayers(), false, '全部都是 hist: 圖層時不應該偵測到');
+});
+
 /* ---------------------------------------------------------
    applyShareStateFromURL()
 --------------------------------------------------------- */
 
 test('完全沒有相關參數時回傳 false，不覆蓋現有狀態', () => {
-  resetToDefault();
   setState({ mode: 'compare' }); // 先弄成非預設，確認函式沒亂動它
   location.search = '?unrelated=1';
   const result = applyShareStateFromURL();
@@ -107,7 +132,6 @@ test('完全沒有相關參數時回傳 false，不覆蓋現有狀態', () => {
 });
 
 test('合法的 overlay/cmpA/cmpB 能正確還原', () => {
-  resetToDefault();
   location.search = `?overlay=${encodeURIComponent(keyA)}&cmpA=${encodeURIComponent(keyB)}&cmpB=base:sat`;
   const result = applyShareStateFromURL();
   assertTrue(result, '應該回傳 true');
@@ -122,7 +146,6 @@ test('mode=compare 跟 cmpA/cmpB 一起還原時，compareA 不會被 enterCompa
   // enterCompareMode() 又會把 compareA 重設成目前疊圖模式的圖層/底圖，
   // 如果 shareLink.js 把 mode 跟 compareA/compareB 塞進同一次 setState()，
   // enterCompareMode() 的預設值就會蓋掉分享連結原本要還原的左側圖層。
-  resetToDefault();
   location.search = `?mode=compare&cmpA=${encodeURIComponent(keyA)}&cmpB=${encodeURIComponent(keyB)}`;
   const result = applyShareStateFromURL();
   assertTrue(result, '應該回傳 true');
@@ -138,7 +161,6 @@ test('不存在的 hist 圖層 key、custom: 開頭 key 都會被忽略，但同
   // 混進來會誤把這個測試要驗證的「compareA 該不該被 shareLink 自己的
   // 驗證邏輯覆蓋」跟「compare 模式本身進場的側效應」搞混，改用 base
   // 當作陪同驗證的合法欄位，只單純測 shareLink.js 自己的驗證邏輯。
-  resetToDefault();
   location.search = `?overlay=hist:sinica:not-a-real-layer:jpg&cmpA=custom:my-layer&cmpB=${encodeURIComponent(keyA)}&base=sat`;
   const before = { activeOverlayKey: store.activeOverlayKey, compareA: store.compareA };
   const result = applyShareStateFromURL();
@@ -150,7 +172,6 @@ test('不存在的 hist 圖層 key、custom: 開頭 key 都會被忽略，但同
 });
 
 test('multi 參數單筆壞掉只跳過那一筆，opacity 超出範圍會被 clamp', () => {
-  resetToDefault();
   location.search = `?multi=${encodeURIComponent(`${keyA},150;hist:sinica:not-real:jpg,50;${keyB},-20`)}`;
   const result = applyShareStateFromURL();
   assertTrue(result, '至少一筆合法應該回傳 true');
@@ -162,7 +183,6 @@ test('multi 參數單筆壞掉只跳過那一筆，opacity 超出範圍會被 cl
 });
 
 test('zoom/lon/lat 不是合法數字時會被忽略，不呼叫 setCenter/setZoom', () => {
-  resetToDefault();
   const beforeCenter = map.getView().getCenter();
   const beforeZoom = map.getView().getZoom();
   location.search = '?lon=abc&lat=xyz&zoom=notanumber';
@@ -173,7 +193,6 @@ test('zoom/lon/lat 不是合法數字時會被忽略，不呼叫 setCenter/setZo
 });
 
 test('合法的 lon/lat/zoom 能正確還原地圖視角', () => {
-  resetToDefault();
   location.search = '?lon=121.5&lat=25.05&zoom=12';
   const result = applyShareStateFromURL();
   assertTrue(result, '應該回傳 true');
@@ -187,7 +206,6 @@ test('合法的 lon/lat/zoom 能正確還原地圖視角', () => {
 --------------------------------------------------------- */
 
 test('navigator.clipboard.writeText 成功時回傳 true', async () => {
-  resetToDefault();
   navigator.clipboard = { writeText: async () => {} };
   const result = await copyShareLink();
   assertEqual(result, true, '應該回傳 true');
@@ -195,14 +213,12 @@ test('navigator.clipboard.writeText 成功時回傳 true', async () => {
 });
 
 test('navigator.clipboard 不存在時退回 execCommand fallback', async () => {
-  resetToDefault();
   delete navigator.clipboard;
   const result = await copyShareLink();
   assertTrue(typeof result === 'boolean', '應該回傳 boolean，不噴例外');
 });
 
 test('navigator.clipboard.writeText 失敗時退回 execCommand fallback，不噴例外', async () => {
-  resetToDefault();
   navigator.clipboard = { writeText: async () => { throw new Error('模擬複製失敗'); } };
   const result = await copyShareLink();
   assertTrue(typeof result === 'boolean', '應該回傳 boolean，不噴例外');

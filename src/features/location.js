@@ -12,6 +12,7 @@
 import { runtime } from '../runtime.js';
 import { map } from '../core/map.js';
 import { toTWD97, formatWGS84, formatTWD97 } from '../core/tileGeo.js';
+import { buildCoordRow } from './coordCopy.js';
 
 let locateMarkerEl, locateOverlay, locateBtn, locateToast;
 let locatePopupEl, locatePopupBody, locatePopupCloseBtn;
@@ -28,48 +29,8 @@ export function showLocateToast(msg){
   runtime.locateToastTimer = setTimeout(()=> locateToast.classList.remove('show'), 4500);
 }
 
-// 複製座標文字到剪貼簿，並讓按鈕短暫顯示 .copied 視覺回饋（1.5 秒後移除）。
-// navigator.clipboard 在非安全上下文（例如 http）可能不存在，退回舊式
-// execCommand('copy') 做基本容錯，失敗就靜默略過，不影響定位功能本身。
-// SonarQube javascript:S1874 複查：document.execCommand 雖已棄用，但目前
-// 沒有涵蓋範圍相同的替代 API（Clipboard API 需要安全上下文），這裡刻意
-// 只在 navigator.clipboard 不可用時才走這條 fallback 路徑，判定為可接受
-// 的刻意選擇，維持原寫法。
-function copyCoordText(text, btn){
-  const flash = () => {
-    btn.classList.add('copied');
-    setTimeout(()=> btn.classList.remove('copied'), 1500);
-  };
-  if(navigator.clipboard?.writeText){
-    navigator.clipboard.writeText(text).then(flash).catch(()=>{});
-    return;
-  }
-  try{
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.position = 'fixed';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    ta.remove();
-    flash();
-  }catch(e){ /* 略過 */ }
-}
-
-function buildCoordRow(label, text){
-  const row = document.createElement('div');
-  row.className = 'coord-info-row';
-  row.innerHTML = `<span class="coord-info-label">${label}</span><span class="coord-info-value">${text}</span>`;
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'coord-copy-btn';
-  btn.textContent = '複製';
-  btn.style.pointerEvents = 'auto';
-  btn.addEventListener('click', ()=> copyCoordText(text, btn));
-  row.appendChild(btn);
-  return row;
-}
+// 複製座標文字／座標列 DOM 工廠已抽到 coordCopy.js（跟 search.js 共用），
+// 避免兩邊各自維護逐漸分歧。
 
 // 定位成功後，在獨立的彈窗卡片（#locatePopup）顯示座標資訊（WGS84／TWD97 各一行＋複製按鈕），
 // 而非塞進 0 寬高的 #locateMarker（比照 identifyPin.js 的彈窗模式，避免版面被擠壓變形）。

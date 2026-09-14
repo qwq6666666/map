@@ -15,6 +15,13 @@ import { DATA, findLayerById } from '../data.js';
 const DEFAULT_MODE = 'overlay';
 const DEFAULT_BASE = 'osm';
 const DEFAULT_SWIPE = 50;
+// 跨代理邊界重複維護的常數：這兩個值是抄寫自 core/map.js 初始 View 設定
+// （map-core-agent 權責），只用來判斷「目前視角是不是預設值、不用寫進
+// 分享網址」。core/map.js 目前沒有匯出對應常數可以直接 import（Grep 過
+// mapCore.js／core/map.js 確認），新增匯出屬於 map-core-agent 的架構
+// 異動範圍，這裡不勉強跨界修改——如果之後 core/map.js 的初始中心點／
+// 縮放層級調整過，記得同步回來對一下這兩個值，避免「明明在預設視角、
+// 分享連結卻多帶了 lon/lat/zoom 參數」這種無害但多餘的落差。
 const DEFAULT_CENTER_LONLAT = [120.9, 23.7]; // 對應 core/map.js 的初始 View 中心點
 const DEFAULT_ZOOM = 8;
 const COORD_DECIMALS = 5; // 約 1 公尺精度，足夠還原畫面又不會讓網址過長
@@ -63,6 +70,23 @@ function parseMultiParam(raw){
   }).filter(Boolean);
 }
 
+// 'custom:' 開頭的 key 只存在於使用者自己瀏覽器的 localStorage
+// （customSources），別人打開分享連結時完全用不到，isValidLayerKey()
+// 在還原（applyShareStateFromURL）那一側本來就會過濾掉——這裡在編碼
+// 那一側也主動排除，避免網址夾帶對方永遠用不到的參數。
+function isCustomKey(key){
+  return typeof key === 'string' && key.startsWith('custom:');
+}
+
+// 純函式：目前狀態是否含有「分享連結不會帶到」的自訂圖層，供呼叫端
+// （例如複製連結成功的提示文字）決定要不要額外提醒使用者。
+export function shareStateHasCustomLayers(){
+  if(isCustomKey(state.activeOverlayKey)) return true;
+  if(isCustomKey(state.compareA)) return true;
+  if(isCustomKey(state.compareB)) return true;
+  return state.multiOverlayLayers.some(e => isCustomKey(e.key));
+}
+
 /* ---------------------------------------------------------
    buildShareURL() — 把目前狀態編碼成完整分享網址
 --------------------------------------------------------- */
@@ -73,12 +97,14 @@ export function buildShareURL(){
   if(state.baseLayer !== DEFAULT_BASE) params.set('base', state.baseLayer);
   // overlay/cmpA/cmpB 只要有值就寫，不跟預設值比較（compareA/compareB
   // 在 store 一律有預設 key，若比對預設會讓比對模式分享出去的連結漏帶資訊）。
-  if(state.activeOverlayKey) params.set('overlay', state.activeOverlayKey);
-  if(state.compareA) params.set('cmpA', state.compareA);
-  if(state.compareB) params.set('cmpB', state.compareB);
+  // 'custom:' 開頭一律不寫入（見 isCustomKey() 說明）。
+  if(state.activeOverlayKey && !isCustomKey(state.activeOverlayKey)) params.set('overlay', state.activeOverlayKey);
+  if(state.compareA && !isCustomKey(state.compareA)) params.set('cmpA', state.compareA);
+  if(state.compareB && !isCustomKey(state.compareB)) params.set('cmpB', state.compareB);
   if(state.swipePercent !== DEFAULT_SWIPE) params.set('swipe', String(state.swipePercent));
-  if(state.multiOverlayLayers.length > 0){
-    params.set('multi', state.multiOverlayLayers.map(e => `${e.key},${e.opacity}`).join(';'));
+  const shareableMultiLayers = state.multiOverlayLayers.filter(e => !isCustomKey(e.key));
+  if(shareableMultiLayers.length > 0){
+    params.set('multi', shareableMultiLayers.map(e => `${e.key},${e.opacity}`).join(';'));
   }
 
   const view = map.getView();

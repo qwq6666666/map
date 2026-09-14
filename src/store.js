@@ -21,28 +21,38 @@
 // 生命週期跟受眾都不一樣，不需要（也不能）經過那條路徑。
 const CUSTOM_SOURCES_STORAGE_KEY = 'hundredYearMap:customSources';
 
-function loadCustomSourcesFromStorage(){
+// 三組 localStorage 陣列（自訂圖層／收藏圖層／最近使用圖層）原本各自
+// 逐字重複同一套 try/JSON.parse/Array.isArray/console.warn 樣板，抽成
+// 這兩個通用函式，呼叫端只需要提供 key 跟一段給 console.warn 的說明文字。
+// 無痕模式／儲存空間被清過／內容壞掉時安靜地當成沒有既有資料，不要讓
+// 整個 app 因為讀不到本機清單而掛掉；寫入失敗（例如無痕模式或儲存空間
+// 已滿）也一樣，這次操作還是能用，只是不會被記住，不中斷操作流程。
+function loadJsonArrayFromStorage(key, label){
   try{
-    const raw = localStorage.getItem(CUSTOM_SOURCES_STORAGE_KEY);
+    const raw = localStorage.getItem(key);
     if(!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
   }catch(err){
-    // 無痕模式／儲存空間被清過／內容壞掉時，安靜地當成沒有既有資料，
-    // 不要讓整個 app 因為讀不到自訂圖層而掛掉。
-    console.warn('讀取自訂圖層清單失敗，忽略本機儲存的資料', err);
+    console.warn(`讀取${label}失敗，忽略本機儲存的資料`, err);
     return [];
   }
 }
 
-function persistCustomSources(){
+function persistJsonToStorage(key, value, label){
   try{
-    localStorage.setItem(CUSTOM_SOURCES_STORAGE_KEY, JSON.stringify(state.customSources));
+    localStorage.setItem(key, JSON.stringify(value));
   }catch(err){
-    // 例如無痕模式或儲存空間已滿：使用者這次加的圖層還是能用，只是
-    // 不會被記住，不需要因此中斷操作或跳出干擾性的錯誤訊息。
-    console.warn('儲存自訂圖層清單失敗（可能是無痕模式或儲存空間已滿）', err);
+    console.warn(`儲存${label}失敗（可能是無痕模式或儲存空間已滿）`, err);
   }
+}
+
+function loadCustomSourcesFromStorage(){
+  return loadJsonArrayFromStorage(CUSTOM_SOURCES_STORAGE_KEY, '自訂圖層清單');
+}
+
+function persistCustomSources(){
+  persistJsonToStorage(CUSTOM_SOURCES_STORAGE_KEY, state.customSources, '自訂圖層清單');
 }
 
 // 使用者「收藏」與「最近使用」的歷史圖層清單，存的都是 layerKey() 產生
@@ -55,43 +65,19 @@ const RECENT_LAYERS_STORAGE_KEY = 'hundredYearMap:recentLayers';
 const RECENT_LAYERS_MAX = 8;
 
 function loadFavoriteLayersFromStorage(){
-  try{
-    const raw = localStorage.getItem(FAVORITE_LAYERS_STORAGE_KEY);
-    if(!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  }catch(err){
-    console.warn('讀取收藏圖層清單失敗，忽略本機儲存的資料', err);
-    return [];
-  }
+  return loadJsonArrayFromStorage(FAVORITE_LAYERS_STORAGE_KEY, '收藏圖層清單');
 }
 
 function persistFavoriteLayers(){
-  try{
-    localStorage.setItem(FAVORITE_LAYERS_STORAGE_KEY, JSON.stringify(state.favoriteLayers));
-  }catch(err){
-    console.warn('儲存收藏圖層清單失敗（可能是無痕模式或儲存空間已滿）', err);
-  }
+  persistJsonToStorage(FAVORITE_LAYERS_STORAGE_KEY, state.favoriteLayers, '收藏圖層清單');
 }
 
 function loadRecentLayersFromStorage(){
-  try{
-    const raw = localStorage.getItem(RECENT_LAYERS_STORAGE_KEY);
-    if(!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  }catch(err){
-    console.warn('讀取最近使用圖層清單失敗，忽略本機儲存的資料', err);
-    return [];
-  }
+  return loadJsonArrayFromStorage(RECENT_LAYERS_STORAGE_KEY, '最近使用圖層清單');
 }
 
 function persistRecentLayers(){
-  try{
-    localStorage.setItem(RECENT_LAYERS_STORAGE_KEY, JSON.stringify(state.recentLayers));
-  }catch(err){
-    console.warn('儲存最近使用圖層清單失敗（可能是無痕模式或儲存空間已滿）', err);
-  }
+  persistJsonToStorage(RECENT_LAYERS_STORAGE_KEY, state.recentLayers, '最近使用圖層清單');
 }
 
 export const state = {

@@ -51,7 +51,7 @@ import { buildMobileOtherBrowseUI } from '../ui/mobileOtherBrowse.js';
 import { initMobileCountryBrowse } from '../ui/mobileRegionBrowse.js';
 import { setLayerOpacity } from '../core/layerCache.js';
 import { map } from '../core/map.js';
-import { fetchCapabilities, listLayers, buildWmtsEntryConfig } from './wmtsImport.js';
+import { fetchCapabilities, listLayers, buildWmtsEntryConfig, annotateLayersWithCompatibility } from './wmtsImport.js';
 
 let multiCategoriesEl, multiOverlayBarInnerEl;
 const sourceWraps = []; // [{ src, wrap }]，供國別篩選列（createCountryFilterBar）跟
@@ -263,15 +263,26 @@ async function handleFetchWmtsCapabilities(){
   }
 }
 
+// 渲染前先用 annotateLayersWithCompatibility() 逐張判斷跟地圖 EPSG:3857
+// 是否相容，不相容的圖層直接disabled＋灰階＋補一段提示文字，讓使用者
+// 勾選前就知道結果，不用等按下「加入勾選的圖層」才發現「勾了 5 張、
+// 只加入 3 張」。wmtsImportState.capabilities 呼叫這個函式時一定已經先
+// 設好（見 handleFetchWmtsCapabilities()），故直接讀模組變數即可，不需
+// 要多帶一個參數。
 function renderWmtsLayerList(layers){
   wmtsImportEls.list.innerHTML = '';
-  layers.forEach(l=>{
+  const capabilities = wmtsImportState.capabilities;
+  const annotated = capabilities ? annotateLayersWithCompatibility(capabilities, layers) : layers.map(l => ({ ...l, compatible: true }));
+  annotated.forEach(l=>{
     const row = document.createElement('label');
     row.className = 'wmts-layer-row';
+
+    const isCompatible = l.compatible;
 
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.dataset.identifier = l.identifier;
+    checkbox.disabled = !isCompatible;
 
     const titleSpan = document.createElement('span');
     titleSpan.className = 'wmts-layer-title';
@@ -280,13 +291,29 @@ function renderWmtsLayerList(layers){
 
     row.appendChild(checkbox);
     row.appendChild(titleSpan);
+
+    if(!isCompatible){
+      row.style.opacity = '0.5';
+      row.style.cursor = 'not-allowed';
+      const hintSpan = document.createElement('span');
+      hintSpan.className = 'wmts-layer-incompatible-hint';
+      hintSpan.textContent = '（座標系不相容，無法加入）';
+      hintSpan.style.fontSize = '0.85em';
+      hintSpan.style.color = 'var(--ink-faint, #999)';
+      hintSpan.style.marginLeft = '4px';
+      row.appendChild(hintSpan);
+    }
+
     wmtsImportEls.list.appendChild(row);
   });
 }
 
 function handleToggleSelectAllWmtsLayers(){
-  const checkboxes = wmtsImportEls.list.querySelectorAll('input[type=checkbox]');
-  const allChecked = checkboxes.length > 0 && Array.from(checkboxes).every(cb => cb.checked);
+  // 不相容的圖層一開始就 disabled，全選／取消全選不應該去動它們（disabled
+  // checkbox 本來就不會被使用者手動勾選，這裡跳過純粹是避免用 JS 直接改
+  // .checked 繞過 disabled 限制，造成「明明灰階卻被打勾」的視覺矛盾）。
+  const checkboxes = Array.from(wmtsImportEls.list.querySelectorAll('input[type=checkbox]:not(:disabled)'));
+  const allChecked = checkboxes.length > 0 && checkboxes.every(cb => cb.checked);
   checkboxes.forEach(cb => { cb.checked = !allChecked; });
 }
 
@@ -403,6 +430,11 @@ export function syncMultiLayerCheckedClasses(){
   if(!multiCategoriesEl) return;
   multiCategoriesEl.querySelectorAll('.layer-item.active').forEach(el => el.classList.remove('active'));
   store.multiOverlayLayers.forEach(entry => {
+    // custom: 開頭的自訂圖層在這份 checkbox 圖層樹裡沒有對應的 DOM
+    // 節點（.source-group[data-source-id] 這套結構只存在於內建
+    // hist: 圖層），split(':') 出來的欄位對不上、查詢註定落空，
+    // 提早跳過不必要地對每筆自訂圖層都做一次白工查詢。
+    if(!entry.key.startsWith('hist:')) return;
     const parts = entry.key.split(':'); // ["hist", sourceId, id, fmt]
     multiCategoriesEl.querySelectorAll(`.source-group[data-source-id="${parts[1]}"] .layer-item[data-layer-id="${parts[2]}"]`)
       .forEach(el => el.classList.add('active'));

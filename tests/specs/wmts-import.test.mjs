@@ -1,6 +1,6 @@
 import '../env-stub.mjs';
 import { test, run, assertEqual, assertTrue } from '../assert.mjs';
-import { listLayers, buildWmtsEntryConfig } from '../../src/features/wmtsImport.js';
+import { listLayers, buildWmtsEntryConfig, annotateLayersWithCompatibility, fetchCapabilities } from '../../src/features/wmtsImport.js';
 import { state as store, addCustomSource, clearCustomSources, toggleMultiOverlayLayer, clearMultiOverlayLayers } from '../../src/store.js';
 import { makeSourceForKey, setCustomSourcesProvider } from '../../src/data.js';
 
@@ -107,6 +107,44 @@ test('自訂 WMTS 圖層一樣可以透過 toggleMultiOverlayLayer 加入複合�
   const key = `custom:${entry.id}`;
   toggleMultiOverlayLayer(key);
   assertTrue(store.multiOverlayLayers.some(e => e.key === key), '應該已經加入疊圖組合');
+});
+
+test('annotateLayersWithCompatibility 會在渲染清單前就標示每張圖層是否相容，不用等加入才知道', () => {
+  const capabilities = buildFakeCapabilities();
+  const layers = listLayers(capabilities);
+  const annotated = annotateLayersWithCompatibility(capabilities, layers);
+  assertEqual(annotated.length, 3, '應該保留全部 3 筆');
+  assertEqual(annotated.find(l => l.identifier === 'layerA').compatible, true, 'layerA 相容');
+  assertEqual(annotated.find(l => l.identifier === 'layerB').compatible, true, 'layerB 相容');
+  assertEqual(annotated.find(l => l.identifier === 'layerC').compatible, false, 'layerC 不相容，應標示為 false');
+});
+
+test('fetchCapabilities 對同一網址的快取有 TTL：期限內重複讀取用快取，過期後重新抓取', async () => {
+  const fakeXmlText = JSON.stringify({ Contents: { Layer: [{ Identifier: 'x', Title: 'X' }] } });
+  let fetchCallCount = 0;
+  const originalFetch = globalThis.fetch;
+  const originalDateNow = Date.now;
+  globalThis.fetch = async () => {
+    fetchCallCount++;
+    return { ok: true, text: async () => fakeXmlText };
+  };
+  let now = 1_700_000_000_000;
+  Date.now = () => now;
+  try{
+    const url = 'https://example.com/ttl-test-capabilities.xml';
+    await fetchCapabilities(url);
+    assertEqual(fetchCallCount, 1, '第一次應該真的發送請求');
+
+    await fetchCapabilities(url);
+    assertEqual(fetchCallCount, 1, 'TTL 內重複讀同一網址應該直接用快取，不重新發送請求');
+
+    now += 6 * 60 * 1000; // 超過 5 分鐘 TTL
+    await fetchCapabilities(url);
+    assertEqual(fetchCallCount, 2, '超過 TTL 後應該視為過期，重新發送請求');
+  }finally{
+    globalThis.fetch = originalFetch;
+    Date.now = originalDateNow;
+  }
 });
 
 await run();

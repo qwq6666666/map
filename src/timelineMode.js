@@ -108,18 +108,18 @@ function refreshNow(){
   if(refreshBtn) refreshBtn.classList.remove('stale'); // 重新整理過了，取消「地圖已移動」提示
 
   const sourceConfig = TIMELINE_SOURCES[currentSourceKey];
-  const sinica = DATA.LAYER_SOURCES.find(s => s.id === sourceConfig.sourceId);
-  if(!sinica){
+  const activeSource = DATA.LAYER_SOURCES.find(s => s.id === sourceConfig.sourceId);
+  if(!activeSource){
     containerEl.innerHTML = `<p class="avail-empty">找不到「${sourceConfig.label}」這個來源。</p>`;
     return;
   }
 
   const activeMode = sourceConfig.modes[currentScaleMode];
   const candidates = [];
-  sinica.categories.forEach(cat => {
+  activeSource.categories.forEach(cat => {
     const layersArr = cat.groups ? cat.groups.flatMap(g => g.layers) : cat.layers;
     layersArr.forEach(layer => {
-      if(activeMode.match(layer, cat.category)) candidates.push({ src: sinica, layer });
+      if(activeMode.match(layer, cat.category)) candidates.push({ src: activeSource, layer });
     });
   });
 

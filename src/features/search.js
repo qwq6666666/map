@@ -38,7 +38,11 @@ import {
 } from '../data.js';
 import { TileChecker, globalTileRequestPool } from '../tileChecker.js';
 import { state as store, setMode, selectOverlayLayer } from '../store.js';
-import { lonLatToTileXY, toTWD97, formatWGS84, formatTWD97, pointInBbox } from '../core/tileGeo.js';
+import { lonLatToTileXY, pointInBbox } from '../core/tileGeo.js';
+// buildCoordInfoElement 已抽到共用模組 coordCopy.js（location.js 也會用到），
+// 這裡單純 re-export，維持既有呼叫端（ui/search.js、identifyPin.js）的
+// import 路徑不變。
+export { buildCoordInfoElement } from './coordCopy.js';
 
 export const SEARCH_ZOOM = 15;
 
@@ -282,61 +286,8 @@ export function activateFromSearch(src, layer){
   selectOverlayLayer(layerKey(src, layer));
 }
 
-// 座標資訊區塊（WGS84／TWD97 各一行＋一鍵複製）：純 DOM 工廠函式，不假設
-// 呼叫端的版面長什麼樣子，回傳的元素可以直接 append 進搜尋結果卡片、也可以
-// 塞進地圖 Pin 的 Popup，維持這支模組「不直接操作特定 DOM」的原則。
-// 注意：目前 ui/search.js 尚未呼叫這支函式把區塊實際掛進畫面，需要在
-// showLocationAndFindLayers()／selectGeocodeResult() 顯示結果卡片時，
-// 呼叫 buildCoordInfoElement(lat, lon) 並把回傳元素 append 進 locationResultEl。
-function copyCoordText(text, btn){
-  const flash = () => {
-    btn.classList.add('copied');
-    setTimeout(()=> btn.classList.remove('copied'), 1500);
-  };
-  if(navigator.clipboard?.writeText){
-    navigator.clipboard.writeText(text).then(flash).catch(()=>{});
-    return;
-  }
-  // 非安全上下文（例如 http）navigator.clipboard 可能不存在，退回舊式做法；
-  // 複製失敗就靜默略過，不影響搜尋結果本身的顯示。
-  // SonarQube javascript:S1874 複查：document.execCommand 雖已棄用，但目前
-  // 沒有涵蓋範圍相同的替代 API（Clipboard API 需要安全上下文），這裡刻意
-  // 只在 navigator.clipboard 不可用時才走這條 fallback 路徑，判定為可接受
-  // 的刻意選擇，維持原寫法。
-  try{
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.position = 'fixed';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    ta.remove();
-    flash();
-  }catch(e){ /* 略過 */ }
-}
-
-function buildCoordRow(label, text){
-  const row = document.createElement('div');
-  row.className = 'coord-info-row';
-  row.innerHTML = `<span class="coord-info-label">${label}</span><span class="coord-info-value">${text}</span>`;
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'coord-copy-btn';
-  btn.textContent = '複製';
-  btn.addEventListener('click', ()=> copyCoordText(text, btn));
-  row.appendChild(btn);
-  return row;
-}
-
-export function buildCoordInfoElement(lat, lon){
-  const wrap = document.createElement('div');
-  wrap.className = 'coord-info';
-  wrap.appendChild(buildCoordRow('WGS84', formatWGS84(lat, lon)));
-  const { x, y } = toTWD97(lat, lon);
-  wrap.appendChild(buildCoordRow('TWD97', formatTWD97(x, y)));
-  return wrap;
-}
+// 座標資訊區塊（WGS84／TWD97 各一行＋一鍵複製）已抽到 coordCopy.js，
+// 上方 `export { buildCoordInfoElement } from './coordCopy.js';` 純轉發。
 
 // 搜尋 token 相關的 runtime 讀寫集中在這裡，讓 ui/search.js 不用
 // 自己 import runtime.js 也能判斷「這次搜尋是不是已經過期」。

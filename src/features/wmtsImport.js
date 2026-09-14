@@ -4,8 +4,11 @@
    跟「手動貼單一網址樣板」（見 features/multiOverlay.js 的
    custom-source-form）是兩條平行的新增路徑，這支模組負責的是：
      1. fetchCapabilities(url)：抓 GetCapabilities XML，用 OL 內建的
-        ol.format.WMTSCapabilities 解析成 JS 物件。同一個網址在一次
-        操作中重複用到（使用者勾選好幾張圖層一次匯入）不會重複抓取。
+        ol.format.WMTSCapabilities 解析成 JS 物件。同一個網址在短時間內
+        重複用到（使用者勾選好幾張圖層一次匯入）不會重複抓取——單一
+        slot 快取有 CAPABILITIES_CACHE_TTL_MS（5 分鐘）存活期限，超過
+        就視為過期重新抓取，避免遠端服務內容已更新卻一直讀到舊快取；
+        使用者按「讀取」按鈕本身就是既有的手動重新整理入口。
      2. listLayers(capabilities)：把解析結果整理成 UI 要顯示的
         { identifier, title, abstract } 陣列。
      3. buildWmtsEntryConfig(capabilities, identifier)：這是最關鍵的
@@ -45,6 +48,15 @@ const CAPABILITIES_PROXY_URL = 'https://hundred-year-map.q032180396.workers.dev'
 
 let lastCapabilitiesUrl = null;
 let lastCapabilitiesObj = null;
+let lastCapabilitiesFetchedAt = 0;
+
+// 單一 slot 快取原本永不過期，同一網址在同一頁面 session 中重複讀取
+// 一律吃快取，即使遠端服務內容已更新也讀不到最新結果。加上簡單的存活
+// 時間：超過這個時間視為過期，下次呼叫 fetchCapabilities() 會重新抓取。
+// 使用者按下「讀取」按鈕（見 multiOverlay.js 的 handleFetchWmtsCapabilities()）
+// 本身就是既有的手動「重新整理」入口，這裡只是讓那個按鈕在快取過期後
+// 真的會發出新的請求，不需要額外在畫面上多加一顆按鈕。
+const CAPABILITIES_CACHE_TTL_MS = 5 * 60 * 1000; // 5 分鐘
 
 // 透過代理伺服器讀取目標網址的文字內容。代理本身的錯誤訊息（JSON
 // 格式的 { error } ）會被原樣帶出來，讓使用者看得懂到底是「代理連不
@@ -66,7 +78,8 @@ async function fetchTextViaProxy(targetUrl){
 export async function fetchCapabilities(url){
   const trimmed = (url || '').trim();
   if(!trimmed) throw new Error('請輸入 WMTS 服務的 GetCapabilities 網址');
-  if(trimmed === lastCapabilitiesUrl && lastCapabilitiesObj) return lastCapabilitiesObj;
+  const cacheIsFresh = (Date.now() - lastCapabilitiesFetchedAt) < CAPABILITIES_CACHE_TTL_MS;
+  if(trimmed === lastCapabilitiesUrl && lastCapabilitiesObj && cacheIsFresh) return lastCapabilitiesObj;
 
   let text;
   try{
@@ -113,6 +126,7 @@ export async function fetchCapabilities(url){
 
   lastCapabilitiesUrl = trimmed;
   lastCapabilitiesObj = capabilities;
+  lastCapabilitiesFetchedAt = Date.now();
   return capabilities;
 }
 
@@ -152,4 +166,16 @@ export function buildWmtsEntryConfig(capabilities, identifier){
     tileSize: (typeof tileGrid.getTileSize === 'function') ? tileGrid.getTileSize(0) : 256,
     extent: (typeof tileGrid.getExtent === 'function') ? tileGrid.getExtent() : undefined
   };
+}
+
+// 幫 UI 清單裡的每張圖層先標示是否跟地圖預設投影（EPSG:3857）相容，純
+// 函式（不碰 DOM）。給 multiOverlay.js 的 renderWmtsLayerList() 在使用者
+// 勾選前就先用disabled／灰階呈現結果，避免「勾了 5 張、加入後才發現只有
+// 3 張成功」——buildWmtsEntryConfig() 本來就是無副作用的判斷，這裡只是
+// 把它套用到整批圖層並附加 compatible 欄位，方便呼叫端直接用。
+export function annotateLayersWithCompatibility(capabilities, layers){
+  return layers.map(l => ({
+    ...l,
+    compatible: !!buildWmtsEntryConfig(capabilities, l.identifier)
+  }));
 }
