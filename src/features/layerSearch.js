@@ -92,8 +92,9 @@ export function searchLayers(query){
 }
 
 // 套用一筆圖資搜尋結果：複合疊圖模式底下加入疊圖組合，其餘模式沿用
-// 地址搜尋既有的 activateFromSearch()（會視需要先切回透明疊圖模式）。
-// 不操作任何 DOM、不改變地圖中心／zoom。
+// 地址搜尋既有的 activateFromSearch()（比對／複合疊圖模式外都會直接套用
+// activeOverlayKey；時間軸模式不會被強制切回透明疊圖模式，見 search.js
+// activateFromSearch() 的說明）。不操作任何 DOM、不改變地圖中心／zoom。
 export function activateLayerSearchResult(entry){
   if(store.mode === 'multi'){
     toggleMultiOverlayLayer(layerKey(entry.src, entry.layer));

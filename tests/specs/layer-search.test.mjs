@@ -116,6 +116,20 @@ test('activateLayerSearchResult：非 multi 模式下，會走 activateFromSearc
   setMode('overlay');
 });
 
+test('activateLayerSearchResult：時間軸模式下不會被強制切回 overlay，只更新 activeOverlayKey', () => {
+  reset();
+  setMode('timeline');
+  const sinica = DATA.LAYER_SOURCES.find(s => s.id === 'sinica');
+  const layer = sinica.categories[0].layers[0];
+  const key = layerKey(sinica, layer);
+
+  activateLayerSearchResult({ src: sinica, layer });
+  assertEqual(store.mode, 'timeline', '時間軸模式呼叫後應該維持在 timeline 模式，不強制切回 overlay');
+  assertEqual(store.activeOverlayKey, key, 'activeOverlayKey 應該設成對應的 key');
+
+  setMode('overlay');
+});
+
 // ---------------------------------------------------------
 // store.js — 收藏圖層 toggleFavoriteLayer／isFavoriteLayer
 // ---------------------------------------------------------

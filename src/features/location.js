@@ -100,6 +100,11 @@ export function initLocateButton(){
   if(locatePopupCloseBtn) locatePopupCloseBtn.addEventListener('click', closeLocatePopup);
 
   locateBtn.addEventListener('click', ()=>{
+    // 重入防護：上一次定位還在等待瀏覽器回應時（.loading 尚未移除）直接
+    // 忽略這次點擊，避免快速連點同時發出多個 getCurrentPosition() 請求，
+    // 導致畫面最終顯示哪個座標取決於「哪個請求最後回來」而非使用者最後
+    // 一次點擊的意圖。
+    if(locateBtn.classList.contains('loading')) return;
     if(!navigator.geolocation){
       showLocateToast('您的瀏覽器不支援定位功能。');
       return;

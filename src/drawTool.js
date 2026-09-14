@@ -214,7 +214,13 @@ function setTool(tool){
 function deleteSelected(){
   if(!selectInteraction) return;
   const selected = selectInteraction.getFeatures();
-  selected.forEach(f => vectorSource.removeFeature(f));
+  const features = [];
+  selected.forEach(f => features.push(f));
+  if(features.length === 0){
+    showStorageToast('請先在地圖上選取要刪除的圖形');
+    return;
+  }
+  features.forEach(f => vectorSource.removeFeature(f));
   selected.clear();
   persistFeatures();
 }

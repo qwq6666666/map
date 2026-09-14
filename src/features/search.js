@@ -268,9 +268,17 @@ export function splitAvailableByYearKnown(available){
 }
 
 // 從搜尋結果點選圖層：若目前在左右比對模式，先切回透明疊圖模式，
-// 再沿用跟主清單共用的 selectOverlayLayer（會一併同步兩個面板的高亮狀態）
+// 再沿用跟主清單共用的 selectOverlayLayer（會一併同步兩個面板的高亮狀態）。
+// 時間軸模式刻意排除在強制切換範圍外——modeManager.js 的 applyModeTransition()
+// 在 timeline 分支本來就會呼叫 applyActiveOverlayKey() 沿用目前選擇的圖層
+// （見該檔案「沿用目前選擇的圖層（可能是疊圖模式選的），不強制清空」的說明），
+// 所以待在 timeline 模式下呼叫 selectOverlayLayer() 一樣能立即在地圖上看到
+// 套用結果；若在這裡強制 setMode('overlay')，會被 applyModeTransition()
+// 判定成「離開時間軸模式」而觸發 clearLayerPool()，把時間軸模式剛預載好的
+// 候選圖層快取整批清空，使用者只是想套用一筆搜尋結果，卻連帶付出不必要的
+// 重新探測成本。
 export function activateFromSearch(src, layer){
-  if(store.mode !== 'overlay') setMode('overlay');
+  if(store.mode !== 'overlay' && store.mode !== 'timeline') setMode('overlay');
   selectOverlayLayer(layerKey(src, layer));
 }
 

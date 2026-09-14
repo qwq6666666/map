@@ -5,6 +5,8 @@ import { initMapCore } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
 import { initSearchUI } from '../../src/searchUI.js';
 import { state as store, setMode, setBaseLayer, selectOverlayLayer } from '../../src/store.js';
+import { activateFromSearch } from '../../src/features/search.js';
+import { getCacheStats } from '../../src/core/layerManager.js';
 
 await loadAppData();
 initMapCore();
@@ -67,6 +69,31 @@ test('進入比對模式時，compareA 會自動帶入目前的 activeOverlayKey
   selectOverlayLayer(key);
   setMode('compare');
   assertEqual(store.compareA, key, 'compareA 應該等於剛才選的圖層');
+  setMode('overlay');
+});
+
+test('activateFromSearch：時間軸模式下套用搜尋結果不會被強制切回 overlay，也不會清空時間軸圖層快取', async () => {
+  const sinica = DATA.LAYER_SOURCES.find(s => s.id === 'sinica');
+  const layerA = sinica.categories[0].layers[0];
+  const layerB = sinica.categories[0].layers[1];
+  const keyA = `hist:sinica:${layerA.id}:${layerA.fmt}`;
+  const keyB = `hist:sinica:${layerB.id}:${layerB.fmt}`;
+
+  setMode('overlay');
+  selectOverlayLayer(null);
+  selectOverlayLayer(keyA); // 先在疊圖模式套用一張圖層，讓它被放進 layerCache
+  assertTrue(getCacheStats().keys.includes(keyA), '前置條件：keyA 應該已經在 layerCache 裡');
+
+  setMode('timeline');
+  await sleep(300);
+  assertTrue(getCacheStats().keys.includes(keyA), '前置條件：切到 timeline 模式不應該清掉 keyA 的快取');
+
+  activateFromSearch(sinica, layerB);
+
+  assertEqual(store.mode, 'timeline', '套用搜尋結果不應該把模式強制切回 overlay，應該留在 timeline');
+  assertEqual(store.activeOverlayKey, keyB, 'activeOverlayKey 應該更新成搜尋選的圖層');
+  assertTrue(getCacheStats().keys.includes(keyA), 'keyA 的快取不應該因為這次搜尋套用而被清空（clearLayerPool 不應該被誤觸發）');
+
   setMode('overlay');
 });
 

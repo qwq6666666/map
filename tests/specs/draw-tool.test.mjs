@@ -110,4 +110,14 @@ test('匯出 GeoJSON 會產生正確的座標系設定（EPSG:3857 -> EPSG:4326�
   assertTrue(parsed.features.length > 0, '應該有至少一筆圖形（前面測試已經畫了好幾筆）');
 });
 
+test('沒有選取任何圖形時點擊「刪除」，會顯示提示 toast 而不是靜默無反應', () => {
+  const toast = document.getElementById('drawStorageToast');
+  toast.classList.remove('show');
+  toast.textContent = '';
+  ensureToolActive('select'); // 確保有進入 select 工具、selectInteraction 已建立，但沒有任何圖形被選取
+  document.getElementById('drawDeleteBtn').click();
+  assertTrue(toast.classList.contains('show'), '應該顯示提示 toast');
+  assertTrue(toast.textContent.length > 0, '提示文字不應該是空字串');
+});
+
 await run();
