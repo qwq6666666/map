@@ -5,7 +5,7 @@ import {
   addCustomSource, removeCustomSource, clearCustomSources,
   toggleMultiOverlayLayer, clearMultiOverlayLayers
 } from '../../src/store.js';
-import { titleForKey, makeSourceForKey, setCustomSourcesProvider } from '../../src/data.js';
+import { titleForKey, attributionForKey, makeSourceForKey, setCustomSourcesProvider, DATA } from '../../src/data.js';
 
 // 跟 features/multiOverlay.js 的 initMultiOverlayUI() 做的事一樣：
 // 註冊「怎麼拿到目前自訂來源清單」給 data.js。
@@ -44,6 +44,33 @@ test('titleForKey／makeSourceForKey 對 custom: 開頭的 key 能正確查到�
 
 test('titleForKey 對已刪除／不存在的 custom key 會退回顯示 key 本身，不拋例外', () => {
   assertEqual(titleForKey('custom:not-exist'), 'custom:not-exist', '找不到時應該退回 key 字串');
+});
+
+test('attributionForKey：底圖／custom 兩種 key 都能查到對應的版權標示', () => {
+  assertEqual(attributionForKey('base:osm'), '© OpenStreetMap contributors', '現代地圖底圖應回傳 OSM 版權標示');
+  assertEqual(attributionForKey('base:sat'), 'Esri, Maxar, Earthstar Geographics', '衛星底圖應回傳 Esri 版權標示');
+
+  const entry = addCustomSource({ name: '日本 GSI 地形圖', urlTemplate: 'https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', attribution: '地理院タイル' });
+  assertEqual(attributionForKey(`custom:${entry.id}`), '地理院タイル', '自訂來源應回傳使用者填寫的版權標示');
+});
+
+test('attributionForKey：hist 圖層回傳所屬來源的版權標示（來源共用，不需要真的存在這個 layer id）', () => {
+  // 不依賴真實 bundle 資料（DATA.LAYER_SOURCES 要不要在這個測試檔的執行
+  // 時機點被填充，取決於其他測試檔有沒有先呼叫過 loadAppData()，不可靠），
+  // 直接塞一筆假來源、測完立刻復原，做法比照本檔案其餘測試用
+  // addCustomSource() 建立獨立假資料的精神。
+  const fakeSrc = { id: 'attribution-test-src', attribution: '測試來源版權標示', categories: [] };
+  DATA.LAYER_SOURCES.push(fakeSrc);
+  try{
+    assertEqual(attributionForKey('hist:attribution-test-src:not-a-real-layer:jpg'), '測試來源版權標示', 'hist 圖層應回傳所屬來源的版權標示');
+  } finally {
+    DATA.LAYER_SOURCES.pop();
+  }
+});
+
+test('attributionForKey：查不到時回傳空字串，不拋例外', () => {
+  assertEqual(attributionForKey('custom:not-exist'), '', '找不到自訂來源時應回傳空字串');
+  assertEqual(attributionForKey('hist:not-a-real-source:x:jpg'), '', '找不到來源時應回傳空字串');
 });
 
 test('removeCustomSource 會一併把它從 multiOverlayLayers 移除', () => {

@@ -18,6 +18,8 @@
 --------------------------------------------------------- */
 import { map } from './mapCore.js';
 import { saveUserFeatures, loadUserFeatures, clearUserFeatures } from './features/storage.js';
+import { state as store } from './store.js';
+import { resolveOverlayKey, attributionForKey } from './data.js';
 
 let vectorSource = null;
 let vectorLayer = null;
@@ -38,6 +40,9 @@ let currentColor = DEFAULT_COLOR;
 
 const INK = '#17211D';
 const PAPER = '#EAE3D3';
+const STAMP_COLOR = '#A63D2F';
+const SERIF_FONT = "'Spectral', Georgia, serif";
+const SANS_FONT = "'Public Sans', -apple-system, sans-serif";
 
 // 要素編輯彈窗（繪製後二次改色／改名／刪除）相關狀態
 let editOverlay = null;
@@ -385,6 +390,8 @@ function doCapture(){
   mapContext.globalAlpha = 1;
   mapContext.setTransform(1, 0, 0, 1, 0, 0);
 
+  drawAttributionAndStamp(mapContext, pixelRatio);
+
   // 圖磚來自外部伺服器，如果該伺服器沒有明確允許跨網域讀取像素資料
   // （CORS），canvas 合成完的內容會被瀏覽器標記成「不能再讀出」，
   // toBlob() 這時候可能直接丟出例外，而不是單純回傳 null。這裡包一層
@@ -398,6 +405,108 @@ function doCapture(){
     console.error('地圖截圖失敗', err);
     alert('圖片匯出失敗：目前畫面上的圖層來自不允許跨網域讀取像素的伺服器（CORS 限制），瀏覽器基於安全考量擋下了這次匯出。');
   }
+}
+
+/**
+ * 補畫圖資來源與圖層名稱圓章：畫面上原本用 HTML／CSS 顯示的 OL
+ * attribution 控制項跟 #stamp 圓章都不在被擷取的 canvas 圖層清單裡，
+ * 截圖離開瀏覽器後對不到是哪張歷史圖、誰的著作權。這裡直接用 Canvas 2D
+ * API 補畫一次（不用 html2canvas 之類的重型套件），比對模式左右各畫
+ * 一份，其餘模式只在右下角畫當前疊圖那一份，跟畫面上 #stamp 的位置
+ * 一致。
+ */
+function drawAttributionAndStamp(ctx, scale){
+  const { width, height } = ctx.canvas;
+  const margin = 22 * scale;
+  const stampOffset = 54 * scale + margin;
+  const bottomY = height - 8 * scale;
+
+  if(store.mode === 'compare'){
+    drawSideLabel(ctx, store.compareA, stampOffset, height - stampOffset, 'left', bottomY, scale);
+    drawSideLabel(ctx, store.compareB, width - stampOffset, height - stampOffset, 'right', bottomY, scale);
+    return;
+  }
+  drawSideLabel(ctx, store.activeOverlayKey, width - stampOffset, height - stampOffset, 'right', bottomY, scale);
+}
+
+// key 對不到歷史圖層（純看底圖、或比對模式該側選的是底圖／自訂匯入
+// 圖層）時不畫圓章，只標一行來源文字；兩者都查不到就什麼都不畫。
+function drawSideLabel(ctx, key, stampX, stampY, align, bottomY, scale){
+  if(!key) return;
+  const attribution = attributionForKey(key);
+  const anchorX = align === 'left' ? 12 * scale : ctx.canvas.width - 12 * scale;
+  if(attribution) drawAttributionText(ctx, attribution, anchorX, bottomY, align, scale);
+  const resolved = resolveOverlayKey(key);
+  if(resolved) drawLayerStamp(ctx, stampX, stampY, resolved.layer.year, resolved.layer.title, scale);
+}
+
+// 跟畫面上 #stamp（style.css）同款式：兩層同心圓、-8deg 旋轉、上年份
+// 下名稱，只是改用 Canvas 2D 直接畫進輸出圖片。
+function drawLayerStamp(ctx, centerX, centerY, year, title, scale){
+  const radius = 54 * scale;
+  ctx.save();
+  ctx.translate(centerX, centerY);
+  ctx.rotate(-8 * Math.PI / 180);
+
+  ctx.beginPath();
+  ctx.arc(0, 0, radius, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(234,227,211,0.88)';
+  ctx.fill();
+  ctx.lineWidth = 2 * scale;
+  ctx.strokeStyle = STAMP_COLOR;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(0, 0, radius - 6 * scale, 0, Math.PI * 2);
+  ctx.lineWidth = scale;
+  ctx.stroke();
+
+  ctx.fillStyle = STAMP_COLOR;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  ctx.font = `700 ${26 * scale}px ${SERIF_FONT}`;
+  ctx.fillText(String(year ?? ''), 0, -4 * scale);
+
+  ctx.font = `${9 * scale}px ${SANS_FONT}`;
+  wrapStampLabel(ctx, title || '', 82 * scale, 2).forEach((line, i) => {
+    ctx.fillText(line, 0, (16 + i * 11) * scale);
+  });
+  ctx.restore();
+}
+
+// Canvas 不會自動換行，按字元寬度手動折行，超過 maxLines 的部分直接
+// 捨棄（圓章空間有限，跟畫面上 CSS 版本一樣沒有刪節號）。
+function wrapStampLabel(ctx, text, maxWidth, maxLines){
+  const chars = Array.from(text);
+  const lines = [];
+  let line = '';
+  for(const ch of chars){
+    const candidate = line + ch;
+    if(line && ctx.measureText(candidate).width > maxWidth){
+      lines.push(line);
+      if(lines.length === maxLines) return lines;
+      line = ch;
+    } else {
+      line = candidate;
+    }
+  }
+  if(line) lines.push(line);
+  return lines.slice(0, maxLines);
+}
+
+// 底部來源文字：墊一塊半透明紙色底色，避免疊在深色圖磚上看不清楚。
+function drawAttributionText(ctx, text, anchorX, bottomY, align, scale){
+  ctx.save();
+  ctx.font = `${11 * scale}px ${SANS_FONT}`;
+  ctx.textBaseline = 'alphabetic';
+  const padding = 6 * scale;
+  const textWidth = ctx.measureText(text).width;
+  const boxX = align === 'left' ? anchorX - padding : anchorX - textWidth - padding * 2;
+  ctx.fillStyle = 'rgba(234,227,211,0.82)';
+  ctx.fillRect(boxX, bottomY - 15 * scale, textWidth + padding * 2, 20 * scale);
+  ctx.fillStyle = 'rgba(23,33,29,0.85)';
+  ctx.textAlign = align === 'left' ? 'left' : 'right';
+  ctx.fillText(text, align === 'left' ? anchorX : anchorX - padding, bottomY);
+  ctx.restore();
 }
 
 // 把某個色票容器（工具列 #drawColorPalette 或編輯彈窗

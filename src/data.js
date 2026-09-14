@@ -402,6 +402,21 @@ export function titleForKey(key){
   return key;
 }
 
+// 跟 titleForKey() 平行的版權標示查詢：給截圖浮水印（drawTool.js）用，
+// 查不到就回傳空字串，呼叫端據此判斷要不要畫這行文字。
+export function attributionForKey(key){
+  if(key === 'base:osm') return '© OpenStreetMap contributors';
+  if(key === 'base:sat') return 'Esri, Maxar, Earthstar Geographics';
+  if(key.startsWith('custom:')){
+    const id = key.slice('custom:'.length);
+    const entry = customSourcesProvider().find(s => s.id === id);
+    return entry?.attribution || '';
+  }
+  const parts = key.split(':');
+  const src = DATA.LAYER_SOURCES.find(s => s.id === parts[1]);
+  return src?.attribution || '';
+}
+
 // 把 { src, layer } 組成 store 用的可序列化 key 字串（"hist:sourceId:id:fmt"）。
 export function layerKey(src, layer){
   return `hist:${src.id}:${layer.id}:${layer.fmt}`;
