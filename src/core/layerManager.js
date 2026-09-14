@@ -34,10 +34,27 @@ import { getProtectedKeys } from './protectedKeys.js';
 const FADE_GRACE_MS = 250; // 新圖層先背景載入、還沒開始淡入淡出的暖機時間
 const FADE_MS = 350;       // 交叉淡出／淡入本身的時長
 
+// 每個 layer 物件目前「最新一次」fadeLayerTo() 呼叫拿到的世代編號。
+// 時間軸滑桿拖曳（每個 input 事件都呼叫 selectOverlayLayer()）或快速
+// 切換圖層時，同一個 layer 物件可能在前一次淡入的 setTimeout 迴圈還
+// 沒跑完，就被下一次呼叫（例如淡出）搶著改同一個 layer 的 opacity，
+// 兩個獨立的 step() 迴圈交錯呼叫 setOpacity() 會造成閃爍。用 WeakMap
+// 記錄每個 layer 目前的世代編號，每次呼叫 fadeLayerTo() 先遞增並記下
+// 自己這次拿到的編號，step() 執行前先確認自己還是不是最新世代，不是
+// 就直接提早結束、不再呼叫 setOpacity()，讓舊動畫自然停手，改由新的
+// 那次呼叫接管這個 layer 的透明度。不用額外傳回 cancel 函式給呼叫端，
+// 對 store.js／timelineMode.js／compareMode.js 等既有呼叫端完全透明。
+const layerFadeGeneration = new WeakMap();
+
 function fadeLayerTo(layer, targetOpacity, durationMs, onDone){
+  const myGeneration = (layerFadeGeneration.get(layer) || 0) + 1;
+  layerFadeGeneration.set(layer, myGeneration);
   const startOpacity = layer.getOpacity ? layer.getOpacity() : 1;
   const start = (typeof performance !== 'undefined' ? performance.now() : Date.now());
   function step(){
+    // 這個 layer 已經被更新一次的 fadeLayerTo() 呼叫接管，代表本次是
+    // 過期的舊動畫，不能再繼續改 opacity，直接停手。
+    if(layerFadeGeneration.get(layer) !== myGeneration) return;
     const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
     const t = Math.min(1, (now - start) / durationMs);
     layer.setOpacity(startOpacity + (targetOpacity - startOpacity) * t);

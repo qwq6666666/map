@@ -13,7 +13,11 @@
             只發送 1 次請求。
      2. DEFAULT_TILE_CACHE_SIZE：常數本身的合理性（正數、不會過小）。
      3. attachStaleTileAbort()：視角 moveend 安定後，主動放棄 z／bbox
-        跟目前視角對不上的在途請求（見案例區塊開頭的完整說明）。
+        跟目前視角對不上的在途請求（見案例區塊開頭的完整說明）；放棄後
+        的最終狀態應該是 IDLE 而不是永久 ERROR，且同一顆 tile 之後若被
+        （模擬 OL 重新進入可視範圍）再次呼叫 tileLoadFunction，應該能
+        正常重新走一次完整流程並成功 LOADED，不會被之前的 stale abort
+        影響。
 
    風格比照 tests/specs/tile-request-pool.test.mjs：自訂 FakeImage +
    urlResults 查找表模擬 onload/onerror/逾時；另外自訂 FakeTile 模擬
@@ -243,7 +247,7 @@ test('attachStaleTileAbort：registry 是空的時候觸發 moveend 不應該拋
   fakeMap._trigger('moveend'); // 沒有任何在途請求，應該直接早退，不拋例外
 });
 
-test('attachStaleTileAbort：z／bbox 跟目前視角對不上的在途請求同步 abort 成 ERROR，對得上的維持不變', () => {
+test('attachStaleTileAbort：z／bbox 跟目前視角對不上的在途請求同步 abort 成 IDLE（非永久 ERROR），對得上的維持不變', () => {
   const urlKeep = 'http://tile-load-guard/stale-keep';
   const urlBboxMismatch = 'http://tile-load-guard/stale-bbox-mismatch';
   const urlZoomMismatch = 'http://tile-load-guard/stale-zoom-mismatch';
@@ -282,8 +286,12 @@ test('attachStaleTileAbort：z／bbox 跟目前視角對不上的在途請求同
   fakeMap._trigger('moveend');
 
   assertEqual(tileKeep.state, null, 'z、bbox 都對得上目前視角，不應該被 abort（應同步發生，不用等待）');
-  assertEqual(tileBboxMismatch.state, TILE_STATE.ERROR, 'z 相同但 bbox 對不上目前視角，應該同步被 abort 成 ERROR');
-  assertEqual(tileZoomMismatch.state, TILE_STATE.ERROR, 'bbox 對得上但 z 不同，應該同步被 abort 成 ERROR');
+  // 放棄的是「視角過期」而非真正逾時/失敗，最終狀態應該是 IDLE 而不是
+  // ERROR：OL 只有 IDLE 的 Tile 才會在下次重新進入可視範圍時被排回
+  // 載入佇列，卡在 ERROR 會永久顯示空白（見 tileLoadGuard.js entry.abort
+  // 的完整說明）。
+  assertEqual(tileBboxMismatch.state, TILE_STATE.IDLE, 'z 相同但 bbox 對不上目前視角，應該同步被 abort 成 IDLE，讓它之後能重新載入');
+  assertEqual(tileZoomMismatch.state, TILE_STATE.IDLE, 'bbox 對得上但 z 不同，應該同步被 abort 成 IDLE，讓它之後能重新載入');
   assertEqual(urlAttempts[urlKeep], 1, '未被 abort 的請求不應該產生額外的重新嘗試');
 
   // 第二次 moveend：模擬使用者又移動視角、這次 tileKeep 的位置也不再
@@ -292,7 +300,7 @@ test('attachStaleTileAbort：z／bbox 跟目前視角對不上的在途請求同
   const fakeMap2 = makeFakeMap({ zoom: 15, extent: [130, 30, 131, 31] });
   attachStaleTileAbort(fakeMap2);
   fakeMap2._trigger('moveend');
-  assertEqual(tileKeep.state, TILE_STATE.ERROR, '視角再次改變、涵蓋範圍已不相關時，應該同樣被 abort');
+  assertEqual(tileKeep.state, TILE_STATE.IDLE, '視角再次改變、涵蓋範圍已不相關時，應該同樣被 abort 成 IDLE');
 });
 
 test('attachStaleTileAbort：已經 resolve（LOADED）的圖磚，moveend 觸發時不應該被重複處理或拋例外', async () => {
@@ -419,13 +427,15 @@ test('attachStaleTileAbort：拖曳中透過 change:center 節流清理，不用
 
   fakeMap._triggerView('change:center');
 
-  assertEqual(tileStale.state, TILE_STATE.ERROR, 'change:center 節流的第一次觸發（leading）應該立即掃描並放棄過期請求，不用等 moveend');
+  // 放棄的是「視角過期」而非真正逾時/失敗，最終狀態應該是 IDLE（見上一個
+  // 案例的說明），不是永久 ERROR。
+  assertEqual(tileStale.state, TILE_STATE.IDLE, 'change:center 節流的第一次觸發（leading）應該立即掃描並放棄過期請求成 IDLE，不用等 moveend');
   assertEqual(tileKeep.state, null, '沒有過期的請求不應該被拖曳中的節流清理誤傷');
 
   // 節流窗口內立刻再次觸發：tileStale 已經被 abort、從 registry 移除，
   // 這裡主要驗證重複觸發不會拋例外、也不會改變已經結束的狀態。
   fakeMap._triggerView('change:center');
-  assertEqual(tileStale.state, TILE_STATE.ERROR, '重複觸發不應該改變已經 abort 的狀態');
+  assertEqual(tileStale.state, TILE_STATE.IDLE, '重複觸發不應該改變已經 abort 的狀態');
   assertEqual(tileKeep.state, null, '重複觸發不應該誤傷沒有過期的請求');
 
   // 測試結束前主動清掉 tileKeep：它刻意用 999999ms 的 timeoutMs 模擬
@@ -435,7 +445,56 @@ test('attachStaleTileAbort：拖曳中透過 change:center 節流清理，不用
   // 比照檔案開頭其他案例「結束前想辦法讓它 resolve／被 abort」的慣例。
   fakeMap._setViewState({ extent: [130, 30, 131, 31] });
   fakeMap._trigger('moveend');
-  assertEqual(tileKeep.state, TILE_STATE.ERROR, '測試結束前主動清理 tileKeep，避免遺留逾時計時器');
+  assertEqual(tileKeep.state, TILE_STATE.IDLE, '測試結束前主動清理 tileKeep，避免遺留逾時計時器');
+});
+
+/* ---------------------------------------------------------
+   Bug 修正回歸：stale abort 不應該讓圖磚永久卡在 ERROR
+   ---------------------------------------------------------
+   背景：attachStaleTileAbort() 原本讓過期請求跟真正逾時/失敗共用同一個
+   TILE_STATE.ERROR 終態；OL 只有 getState()===IDLE 的 Tile 才會在下次
+   重新進入可視範圍時被排回載入佇列，卡在 ERROR 會永久顯示空白，即使
+   實際上有歷史圖資。修正後 stale abort 的最終狀態應該是 IDLE，且模擬
+   OL「之後又呼叫一次 tileLoadFunction」（等同圖磚重新進入可視範圍、
+   OL 的 renderer 看到 IDLE 狀態重新呼叫 tile.load()）應該能正常走完
+   整個流程並成功 LOADED。
+--------------------------------------------------------- */
+test('Bug 修正回歸：stale abort 後同一顆 tile 被重新呼叫 tileLoadFunction，應該能正常重新載入成功', async () => {
+  const url = 'http://tile-load-guard/stale-then-reload';
+  urlResults[url] = 'timeout-always'; // 第一次呼叫：模擬請求已送出、還沒 resolve
+  const tile = new FakeTile([TAIPEI_TILE.z, TAIPEI_TILE.x, TAIPEI_TILE.y]);
+
+  const loadFn = createGuardedTileLoadFunction({ timeoutMs: 999999 });
+  loadFn(tile, url);
+  assertEqual(tile.state, null, '前置條件：請求還在進行中');
+
+  // 用跟這顆圖磚完全對不上的視角觸發 moveend，模擬使用者已經看不到它。
+  const fakeMap = makeFakeMap({ zoom: 3, extent: [1, 1, 2, 2] });
+  attachStaleTileAbort(fakeMap);
+  fakeMap._trigger('moveend');
+  assertEqual(tile.state, TILE_STATE.IDLE, 'stale abort 後應該是 IDLE，不是永久 ERROR');
+
+  // 模擬圖磚重新進入可視範圍：OL 看到 getState()===IDLE，重新呼叫
+  // tile.load() -> 我們的 guardedTileLoadFunction，這裡直接再呼叫一次
+  // loadFn(tile, url) 等價模擬。這次改成正常回應，驗證新的一次嘗試不
+  // 會被前一次 stale abort 留下的任何內部旗標卡住。
+  //
+  // 注意：不能直接沿用 waitForState()——它只檢查「state !== null」就
+  // 視為完成，但這裡的 tile.state 已經是 IDLE（0，不是 null）而不是
+  // 初始的 null，會被誤判成「已經到達最終狀態」而立刻用舊的 IDLE
+  // resolve，完全不會等到這次重新載入真的完成。改成明確等到狀態變成
+  // LOADED 或 ERROR（脫離 IDLE）才算數。
+  urlResults[url] = true;
+  loadFn(tile, url);
+  const state = await withTimeout(new Promise(resolve => {
+    const check = () => {
+      if(tile.state === TILE_STATE.LOADED || tile.state === TILE_STATE.ERROR) return resolve(tile.state);
+      setTimeout(check, 2);
+    };
+    check();
+  }), 5000, '重新載入後一直沒有進入 LOADED/ERROR（可能發生 deadlock）');
+  assertEqual(state, TILE_STATE.LOADED, '重新進入可視範圍後應該能正常重新載入成功，不會因為之前被 stale abort 而卡住');
+  assertEqual(urlAttempts[url], 2, '應該有真的重新發送第 2 次請求（第 1 次是被 stale abort 放棄的那次）');
 });
 
 await run();

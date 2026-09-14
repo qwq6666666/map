@@ -228,7 +228,27 @@ function loadWithTimeoutRetry(tile, src, timeoutMs, tileBbox, z){
     // 供 attachStaleTileAbort() 呼叫：視角已經換過、這顆圖磚不再相關時
     // 提早放棄，不會像逾時那樣再重試一次——都已經確定不相關了，重試
     // 也沒有意義。
-    entry.abort = () => {
+    //
+    // opts.stale === true 代表這次放棄純粹是「視角過期」，不是真正的
+    // 逾時／失敗——圖磚實際上可能有資料，不能讓它像真正失敗一樣卡在
+    // ERROR 永遠不會重試。已反解 OL 原始碼（Tile.load()／TileQueue.
+    // loadMoreTiles()／renderer 的 forEachTileCoord）確認：圖磚只有在
+    // getState()===IDLE 時才會被重新排進下一次載入佇列，ERROR 狀態的
+    // Tile 物件只要還留在 TileCache（cacheSize:256）裡，之後就算又進入
+    // 可視範圍也不會被重新排入、不會再呼叫 tileLoadFunction——會被誤判
+    // 成永久空白。這裡刻意先 setState(ERROR) 再 setState(IDLE) 兩步走，
+    // 不能直接從 LOADING 跳到 IDLE：OL 的 Tile.setState() 有序列檢查
+    // `if(this.state!==ERROR && this.state>t) throw`，只有「目前狀態
+    // 已經是 ERROR」時才會放行往回退的狀態轉移——這是 OL 自己內部
+    // ImageTile.load() 重新載入既有錯誤圖磚時依賴的同一個特例，不是
+    // 我們發明的旁門左道。setState(IDLE) 之後不會立刻觸發任何請求，
+    // 只是讓這顆 Tile 物件重新符合「還沒載入過」的判定，下次真的又
+    // 進入可視範圍、OL 的 renderer 重新走訪到它時才會自然呼叫
+    // tile.load() -> 我們的 guardedTileLoadFunction，跟一顆全新的圖磚
+    // 走一模一樣的流程（含邊界保護、逾時重試）。真正逾時/明確失敗的
+    // ERROR（見上面 timer 與 img.onerror）不受影響，繼續維持原本
+    // 「不會自動重試」的語意。
+    entry.abort = (opts) => {
       if(settled) return;
       settled = true;
       if(started){
@@ -236,6 +256,7 @@ function loadWithTimeoutRetry(tile, src, timeoutMs, tileBbox, z){
         img.src = '';
       }
       tile.setState(TILE_STATE.ERROR);
+      if(opts && opts.stale) tile.setState(TILE_STATE.IDLE);
       unregister();
       // 已經排到 slot（started===true）才需要主動釋放；還在排隊時
       // releaseSlot 尚未指定，稍後真的排到這次嘗試時，pool.run() 的
@@ -337,6 +358,14 @@ function loadWithTimeoutRetry(tile, src, timeoutMs, tileBbox, z){
    createGuardedTileLoadFunction() 建立的請求——OSM／衛星底圖沒有套用
    這支 tileLoadFunction，本身不在這個機制的管轄範圍內，但一樣會因為
    名額被更快釋放而受益。
+
+   放棄後的狀態不是永久 ERROR：這裡放棄的圖磚只是「視角過期」，不是
+   真正逾時／失敗，實際上可能有資料，所以 entry.abort({ stale: true })
+   會把 tile 重置回 IDLE（細節見 loadWithTimeoutRetry() 裡 entry.abort
+   的定義），讓它下次真的又進入可視範圍時可以被 OL 的 renderer 重新
+   排入載入佇列、正常重新呼叫 tileLoadFunction，不會被誤判成永久空白
+   （不同於 loadWithTimeoutRetry() 自己判定的真正逾時／明確失敗，那些
+   仍然維持原本「不會自動重試」的 ERROR 終態）。
 --------------------------------------------------------- */
 
 // 節流版拖曳中清理的間隔：CLAUDE.md／上方註解要求連續觸發的視角事件
@@ -387,7 +416,10 @@ function sweepStaleGuardedTiles(map){
   const extent3857 = view.calculateExtent(size);
   const extent4326 = ol.proj.transformExtent(extent3857, view.getProjection(), 'EPSG:4326');
   inFlightGuardedTiles.forEach(entry => {
-    if(entry.z !== currentZ || !bboxIntersects(entry.bbox, extent4326)) entry.abort();
+    // { stale: true }：只是視角過期而放棄，不是真正逾時/失敗，讓
+    // entry.abort() 把 tile 重置回 IDLE 而不是永久卡在 ERROR（見
+    // entry.abort 定義處的完整說明）。
+    if(entry.z !== currentZ || !bboxIntersects(entry.bbox, extent4326)) entry.abort({ stale: true });
   });
 }
 
