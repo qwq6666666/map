@@ -1,8 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#17211D"/>
-  <g>
-    <rect x="136" y="172" width="200" height="140" rx="20" fill="#6B5323" opacity="0.6" transform="rotate(-9 236 242)"/>
-    <rect x="150" y="182" width="200" height="140" rx="20" fill="#96742D" opacity="0.85" transform="rotate(-3 250 252)"/>
-    <rect x="166" y="194" width="200" height="140" rx="20" fill="#E7BE5A" transform="rotate(4 266 264)"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">百年歷史地圖主要圖示</title>
+  <desc id="desc">折疊歷史地圖、青綠定位標記與時間層次圓環</desc>
+  <defs>
+    <style>
+      .navy{fill:#17324D;stroke:#17324D;stroke-linejoin:round;stroke-linecap:round}
+      .paper{fill:#E9D7B5;stroke:#17324D;stroke-width:12;stroke-linejoin:round;stroke-linecap:round}
+      .teal{fill:#1C8C8C;stroke:#17324D;stroke-width:12;stroke-linejoin:round;stroke-linecap:round}
+      .coral{fill:none;stroke:#D9785B;stroke-width:20;stroke-linecap:round}
+      .line{fill:none;stroke:#17324D;stroke-width:10;stroke-linejoin:round;stroke-linecap:round}
+    </style>
+  </defs>
+
+  <!-- historical time layers -->
+  <path class="coral" d="M96 232a164 164 0 0 1 320 0"/>
+  <path fill="none" stroke="#17324D" stroke-width="18" d="M124 232a136 136 0 0 1 264 0"/>
+
+  <!-- folded historical map -->
+  <path class="paper" d="M58 246 174 204l82 38 82-38 116 42v184l-116 42-82-38-82 38-116-42Z"/>
+  <path class="line" d="M174 204v188M256 242v192M338 204v188"/>
+  <path class="line" d="M83 310c28-27 56-25 84 5s55 31 83 0 55-32 83-3 55 31 87-4"/>
+  <path class="line" d="M88 363c24-21 47-21 70 3s46 27 69 4"/>
+  <path class="line" d="M351 347c22-19 46-18 68 5 13 14 27 19 43 14"/>
+
+  <!-- modern location pin -->
+  <path class="teal" d="M256 74c-54 0-98 43-98 97 0 73 98 175 98 175s98-102 98-175c0-54-44-97-98-97Z"/>
+  <circle fill="#E9D7B5" stroke="#17324D" stroke-width="12" cx="256" cy="171" r="32"/>
+  <circle fill="#17324D" cx="256" cy="171" r="10"/>
 </svg>

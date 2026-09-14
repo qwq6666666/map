@@ -391,7 +391,8 @@ function buildCustomSourceRow(entry){
   removeBtn.type = 'button';
   removeBtn.className = 'custom-source-remove';
   removeBtn.title = '刪除這筆自訂圖層';
-  removeBtn.textContent = '✕';
+  removeBtn.setAttribute('aria-label', '刪除這筆自訂圖層');
+  removeBtn.innerHTML = '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg>';
   removeBtn.addEventListener('click', ()=> removeCustomSource(entry.id));
 
   row.appendChild(label);
@@ -483,7 +484,8 @@ function buildMultiLayerRow(entry, idx, total){
 
   const removeBtn = document.createElement('button');
   removeBtn.type = 'button'; removeBtn.className = 'multi-layer-remove'; removeBtn.title = '移除這張圖層';
-  removeBtn.textContent = '✕';
+  removeBtn.setAttribute('aria-label', '移除這張圖層');
+  removeBtn.innerHTML = '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg>';
   removeBtn.addEventListener('click', ()=> removeMultiOverlayLayer(entry.key));
 
   const controls = document.createElement('div');

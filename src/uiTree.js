@@ -32,7 +32,7 @@ function ensureLegendModal(){
   overlay.style.display = 'none';
   overlay.innerHTML = `
     <div class="legend-modal-card">
-      <button type="button" class="legend-modal-close" aria-label="關閉圖例">✕</button>
+      <button type="button" class="legend-modal-close" aria-label="關閉圖例"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg></button>
       <div class="legend-modal-body">
         <img class="legend-modal-img" alt="圖例">
         <p class="legend-modal-error" style="display:none;">圖例載入失敗</p>

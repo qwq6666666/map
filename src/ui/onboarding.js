@@ -411,8 +411,8 @@ function buildGuideDrawer() {
 
   drawer.innerHTML = `
     <div class="guide-drawer-header">
-      <h2 class="guide-drawer-title">❔ 使用指南</h2>
-      <button type="button" class="guide-drawer-close" title="關閉" aria-label="關閉">✕</button>
+      <h2 class="guide-drawer-title"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#guide"></use></svg> 使用指南</h2>
+      <button type="button" class="guide-drawer-close" title="關閉" aria-label="關閉"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg></button>
     </div>
     <div class="guide-drawer-body">${itemsHtml}</div>
   `;

@@ -82,7 +82,7 @@
   <div id="locatePopup" class="identify-popup locate-popup" hidden>
     <div class="identify-popup-header">
       <span class="identify-popup-title">📍 目前位置</span>
-      <button type="button" id="locatePopupClose" class="identify-popup-close" aria-label="關閉">×</button>
+      <button type="button" id="locatePopupClose" class="identify-popup-close" aria-label="關閉"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg></button>
     </div>
     <div id="locatePopupBody" class="identify-popup-body"></div>
   </div>
@@ -95,7 +95,7 @@
       <span class="identify-popup-title">📍 點位資訊</span>
       <div class="identify-popup-actions">
         <button type="button" id="identifyPopupClear" class="identify-popup-clear">清除點位</button>
-        <button type="button" id="identifyPopupClose" class="identify-popup-close" aria-label="關閉">×</button>
+        <button type="button" id="identifyPopupClose" class="identify-popup-close" aria-label="關閉"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg></button>
       </div>
     </div>
     <div id="identifyPopupBody" class="identify-popup-body"></div>
@@ -105,7 +105,7 @@
 
 <div class="floating-opacity" id="floatingOpacity">
   <span class="floating-layer-name" id="floatingLayerName"></span>
-  <button type="button" id="floatingClearBtn" class="current-layer-fav-btn floating-clear-btn" title="清除疊圖">✕</button>
+  <button type="button" id="floatingClearBtn" class="current-layer-fav-btn floating-clear-btn" title="清除疊圖" aria-label="清除疊圖"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg></button>
   <span class="field-label">透明度</span>
   <input type="range" id="floatingOpacitySlider" min="0" max="100" value="100" aria-label="透明度">
   <span class="opacity-val" id="floatingOpacityVal">100%</span>
@@ -127,10 +127,10 @@
 </button>
 <div id="mobileModePopover" class="mobile-mode-popover">
   <div class="mobile-mode-popover-title">地圖模式</div>
-  <button type="button" class="mobile-mode-option" data-mode="overlay" title="將歷史地圖疊加在現代底圖上，用透明度拉桿比較古今差異">🪟 透明疊圖</button>
-  <button type="button" class="mobile-mode-option" data-mode="compare" title="左右拖曳分割線，並排比對兩張地圖的差異">↔️ 左右比對</button>
-  <button type="button" class="mobile-mode-option" data-mode="timeline" title="依年代播放或拖曳瀏覽同系列歷史地形圖">🕰️ 時間軸</button>
-  <button type="button" class="mobile-mode-option" data-mode="multi" title="同時疊加多張歷史圖層，各自調整透明度與順序">🧩 複合疊圖</button>
+  <button type="button" class="mobile-mode-option" data-mode="overlay" title="將歷史地圖疊加在現代底圖上，用透明度拉桿比較古今差異"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#overlay"></use></svg> 透明疊圖</button>
+  <button type="button" class="mobile-mode-option" data-mode="compare" title="左右拖曳分割線，並排比對兩張地圖的差異"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#compare"></use></svg> 左右比對</button>
+  <button type="button" class="mobile-mode-option" data-mode="timeline" title="依年代播放或拖曳瀏覽同系列歷史地形圖"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#timeline"></use></svg> 時間軸</button>
+  <button type="button" class="mobile-mode-option" data-mode="multi" title="同時疊加多張歷史圖層，各自調整透明度與順序"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#layers"></use></svg> 複合疊圖</button>
   <div class="mobile-mode-popover-divider"></div>
   <div class="mobile-mode-popover-title">工具</div>
   <!-- 轉呼叫既有 #drawToggleBtn 的 click()，不重新實作繪圖工具開關邏輯 -->
@@ -141,11 +141,11 @@
        #clearTileCacheBtn／#sourceStatusBtn（.tour-btn-row 手機版整排隱藏，
        不是從 DOM 移除），不重新實作導覽/指南/分享連結/來源狀態邏輯，
        見 src/ui/onboarding.js／src/ui/sourceStatusUI.js -->
-  <button type="button" class="mobile-mode-option" data-help-action="tour">🧭 新手導覽</button>
-  <button type="button" class="mobile-mode-option" data-help-action="guide">❔ 使用指南</button>
-  <button type="button" class="mobile-mode-option" data-help-action="share">🔗 分享連結</button>
-  <button type="button" class="mobile-mode-option" data-help-action="clearCache">🗑️ 清除快取</button>
-  <button type="button" class="mobile-mode-option" data-help-action="sourceStatus">📡 來源狀態</button>
+  <button type="button" class="mobile-mode-option" data-help-action="tour"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#tour"></use></svg> 新手導覽</button>
+  <button type="button" class="mobile-mode-option" data-help-action="guide"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#guide"></use></svg> 使用指南</button>
+  <button type="button" class="mobile-mode-option" data-help-action="share"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 分享連結</button>
+  <button type="button" class="mobile-mode-option" data-help-action="clearCache"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#clear-cache"></use></svg> 清除快取</button>
+  <button type="button" class="mobile-mode-option" data-help-action="sourceStatus"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#source-status"></use></svg> 來源狀態</button>
 </div>
 
 <div class="compare-float-item" id="compareWrapA">
@@ -213,7 +213,7 @@
 <div id="drawFeatureEditPopup" class="draw-feature-popup" hidden>
   <div class="identify-popup-header">
     <span class="draw-feature-popup-title" id="drawFeaturePopupTitle">點</span>
-    <button type="button" class="identify-popup-close" id="drawFeaturePopupClose" title="關閉">✕</button>
+    <button type="button" class="identify-popup-close" id="drawFeaturePopupClose" title="關閉" aria-label="關閉"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg></button>
   </div>
   <input type="text" id="drawFeaturePopupName" class="draw-feature-popup-name" placeholder="名稱（可留空）" aria-label="圖形名稱">
   <div class="draw-toolbar-row draw-color-palette" id="drawFeaturePopupPalette">
@@ -225,7 +225,7 @@
     <button type="button" class="draw-color-swatch" data-color="#2C3E50" style="background-color:#2C3E50" title="墨黑"></button>
     <input type="color" id="drawFeaturePopupCustomColor" class="draw-color-custom" title="自訂顏色" aria-label="自訂顏色">
   </div>
-  <button type="button" id="drawFeaturePopupDelete" class="draw-feature-popup-delete">🗑️ 刪除此物件</button>
+  <button type="button" id="drawFeaturePopupDelete" class="draw-feature-popup-delete"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#clear-cache"></use></svg> 刪除此物件</button>
 </div>
 
 <div id="stamp">
@@ -280,14 +280,14 @@
       <button id="toggleSidebar" title="收合面板" aria-label="收合面板" aria-expanded="true">◂</button>
     </div>
     <div class="tour-btn-row">
-      <button type="button" id="tourStartBtn" class="tour-btn-row-btn">🧭 新手導覽</button>
-      <button type="button" id="guideOpenBtn" class="tour-btn-row-btn">❔ 使用指南</button>
+      <button type="button" id="tourStartBtn" class="tour-btn-row-btn"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#tour"></use></svg> 新手導覽</button>
+      <button type="button" id="guideOpenBtn" class="tour-btn-row-btn"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#guide"></use></svg> 使用指南</button>
       <div class="tour-more-wrap">
         <button type="button" id="tourMoreBtn" class="tour-btn-row-btn" aria-haspopup="true" aria-expanded="false">⋯ 更多</button>
         <div class="tour-more-menu" id="tourMoreMenu" hidden>
-          <button type="button" id="shareLinkBtn" class="tour-more-menu-btn">🔗 分享連結</button>
-          <button type="button" id="clearTileCacheBtn" class="tour-more-menu-btn" title="清除已下載的地圖圖磚快取（歷史地圖／現代地圖／衛星影像），釋放裝置儲存空間">🗑️ 清除快取</button>
-          <button type="button" id="sourceStatusBtn" class="tour-more-menu-btn" title="檢查各圖資來源主機目前是否能正常讀取">📡 來源狀態</button>
+          <button type="button" id="shareLinkBtn" class="tour-more-menu-btn"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 分享連結</button>
+          <button type="button" id="clearTileCacheBtn" class="tour-more-menu-btn" title="清除已下載的地圖圖磚快取（歷史地圖／現代地圖／衛星影像），釋放裝置儲存空間"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#clear-cache"></use></svg> 清除快取</button>
+          <button type="button" id="sourceStatusBtn" class="tour-more-menu-btn" title="檢查各圖資來源主機目前是否能正常讀取"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#source-status"></use></svg> 來源狀態</button>
         </div>
       </div>
     </div>
@@ -305,7 +305,7 @@
       <input type="range" id="opacitySlider" min="0" max="100" value="100" aria-label="透明度">
       <span class="opacity-val" id="opacityVal">100%</span>
       <button type="button" id="currentLayerFavBtn" class="current-layer-fav-btn" title="收藏此圖層" hidden>☆</button>
-      <button type="button" class="clear-btn" id="clearBtn" title="清除疊圖">✕</button>
+      <button type="button" class="clear-btn" id="clearBtn" title="清除疊圖" aria-label="清除疊圖"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg></button>
     </div>
 
     <div class="search-block">
@@ -342,7 +342,7 @@
       <div id="locationResult" class="location-result" style="display:none;">
         <div class="location-result-head">
           <span id="locationName" class="location-name"></span>
-          <button type="button" id="clearLocationBtn" class="location-clear-btn" title="清除搜尋">✕</button>
+          <button type="button" id="clearLocationBtn" class="location-clear-btn" title="清除搜尋" aria-label="清除搜尋"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg></button>
         </div>
         <div id="placeNameCard" class="place-name-card" hidden>
           <div class="place-name-card-head">
@@ -376,10 +376,10 @@
       <button type="button" class="side-section-head">🗺 地圖模式</button>
       <div class="side-section-body">
         <div class="mode-switch" id="modeSwitch">
-          <button data-mode="overlay" class="active" title="將歷史地圖疊加在現代底圖上，用透明度拉桿比較古今差異">🪟 透明疊圖</button>
-          <button data-mode="compare" title="左右拖曳分割線，並排比對兩張地圖的差異">↔️ 左右比對</button>
-          <button data-mode="timeline" title="依年代播放或拖曳瀏覽同系列歷史地形圖">🕰️ 時間軸</button>
-          <button data-mode="multi" title="同時疊加多張歷史圖層，各自調整透明度與順序">🧩 複合疊圖</button>
+          <button data-mode="overlay" class="active" title="將歷史地圖疊加在現代底圖上，用透明度拉桿比較古今差異"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#overlay"></use></svg> 透明疊圖</button>
+          <button data-mode="compare" title="左右拖曳分割線，並排比對兩張地圖的差異"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#compare"></use></svg> 左右比對</button>
+          <button data-mode="timeline" title="依年代播放或拖曳瀏覽同系列歷史地形圖"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#timeline"></use></svg> 時間軸</button>
+          <button data-mode="multi" title="同時疊加多張歷史圖層，各自調整透明度與順序"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#layers"></use></svg> 複合疊圖</button>
         </div>
       </div>
     </div>
@@ -392,11 +392,11 @@
          收藏／最近使用分頁不需要。 -->
     <div class="sidebar-tabs" id="sidebarTabs">
       <div class="sidebar-tab-bar" id="sidebarTabBar" role="tablist">
-        <button type="button" class="sidebar-tab-btn active" data-tab="layers" role="tab" aria-selected="true">📚 圖資</button>
+        <button type="button" class="sidebar-tab-btn active" data-tab="layers" role="tab" aria-selected="true"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#library"></use></svg> 圖資</button>
         <button type="button" class="sidebar-tab-btn" data-tab="favorites" role="tab" aria-selected="false">
-          ⭐ 收藏<span class="sidebar-tab-badge" id="favoritesTabBadge" hidden>0</span>
+          <svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#favorite"></use></svg> 收藏<span class="sidebar-tab-badge" id="favoritesTabBadge" hidden>0</span>
         </button>
-        <button type="button" class="sidebar-tab-btn" data-tab="recent" role="tab" aria-selected="false">🕘 最近使用</button>
+        <button type="button" class="sidebar-tab-btn" data-tab="recent" role="tab" aria-selected="false"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#recent"></use></svg> 最近使用</button>
       </div>
 
       <div class="sidebar-tab-panel" data-tab-panel="layers">

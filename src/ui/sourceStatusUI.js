@@ -118,8 +118,8 @@ function buildDrawer(){
 
   drawer.innerHTML = `
     <div class="guide-drawer-header">
-      <h2 class="guide-drawer-title">📡 圖資來源狀態</h2>
-      <button type="button" class="guide-drawer-close" title="關閉" aria-label="關閉">✕</button>
+      <h2 class="guide-drawer-title"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#source-status"></use></svg> 圖資來源狀態</h2>
+      <button type="button" class="guide-drawer-close" title="關閉" aria-label="關閉"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg></button>
     </div>
     <div class="guide-drawer-body">
       <p class="source-status-intro">對每個資料來源主機各發一次探測請求，確認目前讀取狀態——平常瀏覽時某個縣市的圖層「點了沒反應」，通常就是這裡顯示異常的主機。逾時／緩慢代表資料提供方那邊的問題，不是這個網站本身故障。</p>

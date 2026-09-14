@@ -150,7 +150,7 @@ export function openCustomTimelineDock(candidates, callbacks){
   closeBtn.type = 'button';
   closeBtn.className = 'custom-timeline-close';
   closeBtn.setAttribute('aria-label', '關閉自訂時間軸');
-  closeBtn.textContent = '✕';
+  closeBtn.innerHTML = '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg>';
   closeBtn.addEventListener('click', closeCustomTimelineDock);
 
   head.appendChild(headText);

@@ -16,6 +16,9 @@
      element.hidden = true 卻沒有真的隱藏。這裡統一補回 [hidden] 的優先權，
      所有用 .hidden 屬性控制顯示的元素都適用，不用每個 class 各自補一次。 */
   [hidden]{display:none !important;}
+  /* ---------- Icon（方案 A SVG sprite，public/assets/map-emoji-style-a-icons.svg，
+     以 <use> 外部引用，不把整包 sprite 內容插入頁面） ---------- */
+  .ui-icon{width:1em; height:1em; display:inline-block; flex:0 0 auto; vertical-align:-0.15em;}
   html,body{margin:0;padding:0;height:100%;font-family:var(--sans);background:var(--ink);}
   #map{position:absolute;inset:0;background:var(--paper-dim);}
 

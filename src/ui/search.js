@@ -845,7 +845,7 @@ function renderAvailableLayers(available, totalChecked){
 
   function enterSelectionMode(){
     selectionMode = true;
-    multiSelectBtn.textContent = '✕ 取消多選';
+    multiSelectBtn.innerHTML = '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg> 取消多選';
     layerAvailPanelEl.classList.add('selection-mode');
     tabsEl.style.display = 'none';
     refreshSelectionList();
