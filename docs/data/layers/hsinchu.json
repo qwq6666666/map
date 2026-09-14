@@ -132,7 +132,7 @@
           "format": "png",
           "year": 1928,
           "dateLabel": "1928",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -246,7 +246,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "1940s",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [

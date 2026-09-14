@@ -96,7 +96,7 @@
           "format": "png",
           "year": 1942,
           "dateLabel": "1942",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -168,7 +168,7 @@
           "format": "png",
           "year": 1952,
           "dateLabel": "1952",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -222,7 +222,7 @@
           "format": "png",
           "year": 1964,
           "dateLabel": "1964",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -582,7 +582,7 @@
           "format": "png",
           "year": 2016,
           "dateLabel": "2016",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -600,7 +600,7 @@
           "format": "png",
           "year": 2016,
           "dateLabel": "2016",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [

@@ -216,7 +216,7 @@
           "format": "png",
           "year": 1948,
           "dateLabel": "1948",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:6000",
           "region": {
             "bbox": [
@@ -258,7 +258,7 @@
           "format": "png",
           "year": 2012,
           "dateLabel": "2012",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:9000",
           "region": {
             "bbox": [

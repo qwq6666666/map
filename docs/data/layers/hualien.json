@@ -96,7 +96,7 @@
           "format": "png",
           "year": 1931,
           "dateLabel": "1931",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -240,7 +240,7 @@
           "format": "png",
           "year": 1941,
           "dateLabel": "1941",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -468,7 +468,7 @@
           "format": "png",
           "year": 1980,
           "dateLabel": "1980",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [

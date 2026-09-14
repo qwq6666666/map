@@ -390,7 +390,7 @@
           "format": "png",
           "year": 1943,
           "dateLabel": "1943",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:20000",
           "region": {
             "bbox": [
@@ -408,7 +408,7 @@
           "format": "png",
           "year": 1943,
           "dateLabel": "1943",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:20000",
           "region": {
             "bbox": [
@@ -426,7 +426,7 @@
           "format": "png",
           "year": 1940,
           "dateLabel": "1940",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:25000",
           "region": {
             "bbox": [
@@ -558,7 +558,7 @@
           "format": "png",
           "year": 1947,
           "dateLabel": "1947",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:20000",
           "region": {
             "bbox": [
@@ -612,7 +612,7 @@
           "format": "png",
           "year": 1948,
           "dateLabel": "1948",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:20000",
           "region": {
             "bbox": [
@@ -678,7 +678,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "—",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:22600",
           "region": {
             "bbox": [
