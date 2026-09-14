@@ -1612,6 +1612,17 @@
   .guide-acc-item.open .guide-acc-body{display:block;}
 
   /* -- 圖資來源狀態抽屜（共用 .guide-drawer* 殼，內容不一樣） -- */
+  .source-status-cache-section{margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--rule);}
+  .source-status-cache-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .source-status-clear-cache{
+    flex-shrink:0; padding:8px 12px; background:var(--paper-dim); border:1px solid var(--rule);
+    border-radius:var(--radius-sm); font-family:var(--sans); font-size:12.5px; font-weight:700;
+    color:var(--ink); cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+  }
+  .source-status-clear-cache:hover{background:var(--brass-dark); border-color:var(--brass-dark); color:var(--paper);}
+  .source-status-clear-cache:disabled{opacity:.6; cursor:default;}
+  .source-status-cache-usage{font-size:11.5px; color:var(--rule);}
+  .source-status-cache-intro{font-size:11.5px; line-height:1.6; color:var(--rule); margin:8px 0 0;}
   .source-status-intro{font-size:12.5px; line-height:1.6; color:var(--ink); margin:0 0 12px;}
   .source-status-recheck{
     width:100%; padding:8px; margin-bottom:12px; background:var(--paper-dim);
@@ -2068,7 +2079,11 @@
     .tour-btn-row{display:none;}
 
     /* ---------- 其餘地圖下方浮動列：一律讓到底部工作表 peek 區之上 ---------- */
-    .compare-float-item{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px);}
+    /* 這兩顆（#compareWrapA／#compareWrapB）只在左右比對模式顯示
+       （.show 只會在該模式被加上），比對模式下 #sidebar 整個藏起來
+       （見下方 body.mobile-mode-compare #sidebar 規則），不用再預留
+       peek 高度，否則會在浮動選單跟畫面底部之間空出一截用不到的空白。 */
+    .compare-float-item{bottom:calc(env(safe-area-inset-bottom) + 8px);}
     /* A 側選圖面板（#pickerPanelA）展開時比按鈕本身高出很多（可達 300+px），
        原本 left:0 貼齊按鈕左緣，會整片蓋到左下角固定位置的「地圖工具」
        按鈕（#mobileModeBtn，預設 x:10~58，見上方 #mobileModeBtn 區塊）
@@ -2125,6 +2140,40 @@
     }
     .sheet-handle:active{cursor:grabbing;}
     .sheet-handle-bar{width:40px; height:5px; border-radius:var(--radius-3); background:var(--rule); opacity:.6;}
+    /* 時間軸／左右比對模式下，#timelinePanel／#comparePanel 只剩一段
+       「選單已移到地圖下方」的提示文字（見 index.html），面板本身沒有
+       真正可互動的圖資選單，連同下面摺疊後留在畫面上的 peek 列（把手＋
+       標題列）一起藏起來，不只藏拖曳把手，避免使用者以為還有內容可看。
+       這兩個模式各自的圖層選擇（左右浮動選擇器／時間軸浮動列）都不靠
+       #sidebar，時間軸模式原本收合時會改用左下角浮動透明度控制
+       （ui/sidebarToggle.js），但那顆浮動控制本身在手機版時間軸模式已經
+       被下面的 .floating-opacity 規則藏起來（避免跟時間軸浮動列搶版位），
+       所以整個 #sidebar 藏掉並不會讓使用者少掉原本用得到的功能；左右
+       比對模式的透明度控制本來就不適用（見 modeManager.js opacityBlockEl
+       的顯示邏輯）。body class 由 src/ui/mobileLayout.js 的
+       initModeClassSync() 同步，兩個模式進入時也都會呼叫
+       collapseSidebar()（core/modeManager.js）先收合，這裡才是「藏起來」
+       而不是「還開著只是看不到」。 */
+    body.mobile-mode-timeline #sidebar,
+    body.mobile-mode-compare #sidebar{
+      display:none;
+    }
+    /* #mobileModeBtn／#mobileModePopover 的預設 bottom 是「peek 高度＋
+       安全區＋固定間距」（見下方 #mobileModeBtn 定義處），假設畫面底部
+       永遠留著 60px 的 Bottom Sheet peek 列。這兩個模式下 peek 列已經
+       整個不見了（上面那條規則），沿用原本公式會讓按鈕／選單懸在半空
+       中、跟下面已經下拉過的 #mapTimelineBar／.compare-float-item 之間
+       多一截用不到的空白，這裡扣掉 --mobile-sheet-peek 那一段跟著往下
+       拉，只有使用者手動拖曳過按鈕（改用 JS 內聯 top/left 定位）才不受
+       這裡影響。只在這兩個模式生效，其餘模式 peek 列還在，維持原公式。 */
+    body.mobile-mode-timeline #mobileModeBtn,
+    body.mobile-mode-compare #mobileModeBtn{
+      bottom:calc(env(safe-area-inset-bottom) + 56px);
+    }
+    body.mobile-mode-timeline #mobileModePopover,
+    body.mobile-mode-compare #mobileModePopover{
+      bottom:calc(env(safe-area-inset-bottom) + 112px);
+    }
 
     .sidebar-header{flex-shrink:0;}
     .sidebar-body{
@@ -2206,9 +2255,14 @@
        進一步壓縮高度與留白，讓地圖保留更多可視範圍。
        SonarQube css:S4666 複查：#mapTimelineBar 原本在上面「地圖下方浮動
        列」批次規則跟這裡各宣告一次（重複選擇器），已合併成同一個規則，
-       這裡順便帶上原本在批次規則裡的 bottom／width。 */
+       這裡順便帶上原本在批次規則裡的 bottom／width。
+       bottom 不再加 var(--mobile-sheet-peek)：這顆浮動列只在時間軸模式
+       顯示（.show 只會在該模式被加上），而時間軸模式下 #sidebar 整個
+       藏起來（見下方 body.mobile-mode-timeline #sidebar 規則），底下不再
+       留 peek 高度，這裡照樣預留就會在浮動列跟畫面底部之間空出一截
+       用不到的空白，因此往下拉、只留安全區＋小間距。 */
     #mapTimelineBar{
-      bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px);
+      bottom:calc(env(safe-area-inset-bottom) + 8px);
       width:calc(100% - 24px);
       max-height:min(160px, 26vh);
       padding:6px 10px 8px;

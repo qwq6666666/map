@@ -1,13 +1,21 @@
 /* ---------------------------------------------------------
-   ui/sourceStatusUI.js — 圖資來源狀態抽屜
+   ui/sourceStatusUI.js — 圖資來源狀態／快取抽屜
    ---------------------------------------------------------
    純介面渲染：真正的探測邏輯在 features/sourceStatus.js，這裡只負責
    畫抽屜、逐筆點亮結果。開合/覆蓋層架構直接比照 onboarding.js 的
    使用指南抽屜（buildGuideDrawer），共用同一組 .guide-drawer* CSS，
    只是內容換成主機清單，不是手風琴。
+
+   原本「清除快取」是「⋯ 更多」選單裡跟這個抽屜平行的獨立按鈕，兩者都
+   是網路／儲存相關的維護工具、使用頻率都低，合併成一個入口後選單少一
+   項。清除動作本身（postMessage 給 sw.js）刻意不抽成獨立 feature 模組
+   ——就是單純的瀏覽器 API 呼叫，比照這支檔案的其餘按鈕直接內聯處理。
+   放在抽屜最上方、獨立於下面的主機探測（不等 runCheck() 跑完就能點），
+   避免使用者「只是想清快取」卻要多等一輪 15 秒逾時等級的網路探測。
 --------------------------------------------------------- */
 import { checkAllSourceStatuses, buildSourceStatusTargets } from '../features/sourceStatus.js';
 import { getRecentTileFailures, clearRecentTileFailures } from '../core/tileLoadGuard.js';
+import { showLocateToast } from '../features/location.js';
 
 const STATUS_LABEL = {
   ok: { icon: '✅', text: '正常' },
@@ -107,6 +115,37 @@ function applyResultToRow(row, result){
   timeEl.textContent = result.status === 'down' ? info.text : `${info.text}．${result.ms}ms`;
 }
 
+// 透過 MessageChannel 請 sw.js 清掉三份 tile cache（見 public/sw.js 的
+// message handler）。開發模式或瀏覽器不支援 Service Worker 時沒有
+// controller，直接提示使用者無需清除。
+async function clearTileCaches(){
+  const controller = navigator.serviceWorker?.controller;
+  if(!controller){
+    showLocateToast('目前沒有離線圖磚快取，無需清除');
+    return;
+  }
+  const result = await new Promise(resolve => {
+    const channel = new MessageChannel();
+    channel.port1.onmessage = (e) => resolve(e.data);
+    controller.postMessage({ type: 'CLEAR_TILE_CACHES' }, [channel.port2]);
+  });
+  showLocateToast(result?.ok ? '圖磚快取已清除' : '清除失敗，請稍後再試');
+}
+
+// navigator.storage.estimate() 在較舊的 iOS Safari 上不存在，抓不到就
+// 整個用量文字維持空白，不硬擠一個猜測值出來誤導使用者。
+async function updateCacheUsageText(el){
+  if(!el || !navigator.storage?.estimate) return;
+  try{
+    const { usage } = await navigator.storage.estimate();
+    el.textContent = typeof usage === 'number'
+      ? (usage < 1024 * 1024 ? '目前用量：<1 MB' : `目前用量：約 ${Math.round(usage / (1024 * 1024))} MB`)
+      : '';
+  }catch{
+    el.textContent = '';
+  }
+}
+
 function buildDrawer(){
   const overlay = document.createElement('div');
   overlay.className = 'guide-drawer-overlay';
@@ -122,6 +161,13 @@ function buildDrawer(){
       <button type="button" class="guide-drawer-close" title="關閉" aria-label="關閉"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg></button>
     </div>
     <div class="guide-drawer-body">
+      <div class="source-status-cache-section">
+        <div class="source-status-cache-row">
+          <button type="button" class="source-status-clear-cache"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#clear-cache"></use></svg> 清除圖磚快取</button>
+          <span class="source-status-cache-usage" aria-live="polite"></span>
+        </div>
+        <p class="source-status-cache-intro">清除已下載的地圖圖磚（歷史地圖／現代地圖／衛星影像），釋放裝置儲存空間；圖層資料本身不受影響，下次瀏覽同區域會重新下載圖磚。</p>
+      </div>
       <p class="source-status-intro">對每個資料來源主機各發一次探測請求，確認目前讀取狀態——平常瀏覽時某個縣市的圖層「點了沒反應」，通常就是這裡顯示異常的主機。逾時／緩慢代表資料提供方那邊的問題，不是這個網站本身故障。</p>
       <button type="button" class="source-status-recheck">🔄 重新檢查</button>
       <div class="source-status-list"></div>
@@ -150,6 +196,8 @@ function buildDrawer(){
   const recheckBtn = drawer.querySelector('.source-status-recheck');
   const failuresListEl = drawer.querySelector('.source-status-failures-list');
   const failuresClearBtn = drawer.querySelector('.source-status-failures-clear');
+  const clearCacheBtn = drawer.querySelector('.source-status-clear-cache');
+  const cacheUsageEl = drawer.querySelector('.source-status-cache-usage');
 
   async function runCheck(){
     recheckBtn.disabled = true;
@@ -175,8 +223,15 @@ function buildDrawer(){
     clearRecentTileFailures();
     renderFailuresList(failuresListEl);
   });
+  clearCacheBtn.addEventListener('click', async () => {
+    clearCacheBtn.disabled = true;
+    await clearTileCaches();
+    await updateCacheUsageText(cacheUsageEl);
+    clearCacheBtn.disabled = false;
+  });
   runCheck();
   renderFailuresList(failuresListEl);
+  updateCacheUsageText(cacheUsageEl);
 
   return { overlay, drawer };
 }

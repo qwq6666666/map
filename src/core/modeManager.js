@@ -98,6 +98,7 @@ function applyModeTransition(prevState){
     comparePanel.style.display = 'block';
     timelinePanel.style.display = 'none';
     multiPanel.style.display = 'none';
+    collapseSidebar(); // 圖層改由地圖下方的左右浮動選擇器操作，側邊欄同時間軸模式自動收合讓出空間
     enterCompareMode();
   }
   updateFloatingOpacityVisibility();

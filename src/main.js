@@ -19,7 +19,6 @@ import { initOnboarding } from './ui/onboarding.js';
 import { initSourceStatusUI } from './ui/sourceStatusUI.js';
 import { initMobileLayout } from './ui/mobileLayout.js';
 import { applyShareStateFromURL } from './features/shareLink.js';
-import { showLocateToast } from './features/location.js';
 
 // 用頂層 await 取代原本包一層 async function main(){...} 再呼叫的寫法
 // （SonarQube javascript:S7785）；index.html 是 `<script type="module">`，
@@ -64,25 +63,5 @@ if(dataLoaded){
 if(import.meta.env?.PROD && 'serviceWorker' in navigator){
   navigator.serviceWorker.register('./sw.js').catch(err => {
     console.error('Service Worker 註冊失敗', err);
-  });
-}
-
-// 「清除圖磚快取」按鈕：透過 MessageChannel 請 sw.js 清掉三份 tile
-// cache（見 public/sw.js 的 message handler）。開發模式或瀏覽器不支援
-// Service Worker 時沒有 controller，直接提示使用者無需清除。
-const clearTileCacheBtn = document.getElementById('clearTileCacheBtn');
-if(clearTileCacheBtn){
-  clearTileCacheBtn.addEventListener('click', async () => {
-    const controller = navigator.serviceWorker?.controller;
-    if(!controller){
-      showLocateToast('目前沒有離線圖磚快取，無需清除');
-      return;
-    }
-    const result = await new Promise(resolve => {
-      const channel = new MessageChannel();
-      channel.port1.onmessage = (e) => resolve(e.data);
-      controller.postMessage({ type: 'CLEAR_TILE_CACHES' }, [channel.port2]);
-    });
-    showLocateToast(result?.ok ? '圖磚快取已清除' : '清除失敗，請稍後再試');
   });
 }
