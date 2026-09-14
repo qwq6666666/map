@@ -41,6 +41,7 @@ import {
   getRecentTileFailures,
   clearRecentTileFailures,
   RECENT_TILE_FAILURE_LIMIT,
+  TIMEOUT_RETRY_COOLDOWN_MS,
 } from '../../src/core/tileLoadGuard.js';
 import { lonLatToTileXY, tileXYToBbox } from '../../src/core/tileGeo.js';
 
@@ -401,7 +402,7 @@ test('throttle()：窗口內第一次呼叫立即執行（leading），窗口內
    跟前面 moveend 的案例對照：這裡改用 view 的 change:center 觸發，
    驗證不用等放開滑鼠的 moveend，互動過程中一樣能提早放棄過期請求。
 --------------------------------------------------------- */
-test('attachStaleTileAbort：拖曳中透過 change:center 節流清理，不用等 moveend 就能放棄過期請求', () => {
+test('attachStaleTileAbort：拖曳中透過 change:center 節流清理，不用等 moveend 就能放棄過期請求', async () => {
   const urlStale = 'http://tile-load-guard/drag-throttle-stale';
   const urlKeep = 'http://tile-load-guard/drag-throttle-keep';
   urlResults[urlStale] = 'timeout-always';
@@ -440,6 +441,17 @@ test('attachStaleTileAbort：拖曳中透過 change:center 節流清理，不用
   fakeMap._triggerView('change:center');
   assertEqual(tileStale.state, TILE_STATE.IDLE, '重複觸發不應該改變已經 abort 的狀態');
   assertEqual(tileKeep.state, null, '重複觸發不應該誤傷沒有過期的請求');
+
+  // throttle() 是 leading+trailing：上面第二次 change:center 落在節流窗口
+  // 內，會排一個約 STALE_TILE_SWEEP_THROTTLE_MS 後才觸發的真實 setTimeout
+  // 補跑一次 sweep（trailing）。若不在這裡主動等它消化掉，這個計時器會
+  // 遺留到測試結束後才觸發，屆時可能誤掃到其他測試當下正在跑的、完全不
+  // 相關的 in-flight 請求（用的是這個測試已經過期的 fakeMap 視角），造成
+  // 間歇性誤判 stale abort。在這裡等待讓它於本測試範圍內先觸發完，此時
+  // tileStale 已經被 abort 從 registry 移除、tileKeep 的 bbox 仍跟目前視角
+  // 相交，trailing sweep 對兩者都是無害的 no-op。
+  await sleep(STALE_TILE_SWEEP_THROTTLE_MS + 50);
+  assertEqual(tileKeep.state, null, 'trailing 節流補跑一次 sweep 不應該誤傷仍相交的請求');
 
   // 測試結束前主動清掉 tileKeep：它刻意用 999999ms 的 timeoutMs 模擬
   // 「請求還在進行中」，不清乾淨的話會留下一個真正的 setTimeout，讓
@@ -498,6 +510,162 @@ test('Bug 修正回歸：stale abort 後同一顆 tile 被重新呼叫 tileLoadF
   }), 5000, '重新載入後一直沒有進入 LOADED/ERROR（可能發生 deadlock）');
   assertEqual(state, TILE_STATE.LOADED, '重新進入可視範圍後應該能正常重新載入成功，不會因為之前被 stale abort 而卡住');
   assertEqual(urlAttempts[url], 2, '應該有真的重新發送第 2 次請求（第 1 次是被 stale abort 放棄的那次）');
+});
+
+/* ---------------------------------------------------------
+   Bug 修正回歸：逾時終局失敗的冷卻重試（timeoutFailedGuardedTiles）
+   ---------------------------------------------------------
+   背景：上面「stale-then-reload」修正的是「視角已經換過」這種情境，
+   但使用者回報「圖磚原地不動、不縮放的話永遠空白」的另一半成因是
+   loadWithTimeoutRetry() 自己判定的逾時終局失敗——這種情況下視角
+   根本沒換過，attachStaleTileAbort() 的 z／bbox 過期判斷永遠不會命中，
+   需要另一套「冷卻一段時間後給一次額外重試機會」的機制才能救回來。
+
+   以下測試透過 mock Date.now()（比照 wmts-import.test.mjs 既有手法）
+   模擬「時間經過」，不需要真的等待 TIMEOUT_RETRY_COOLDOWN_MS（8000ms）
+   那麼久；loadWithTimeoutRetry() 內部的逾時計時器本身用的是真正的
+   setTimeout（不受 Date.now() mock 影響，只影響雙方拿去算冷卻時間差
+   的時間戳記），所以搭配很短的 timeoutMs（20ms）可以讓終局失敗很快
+   發生，冷卻時間則靠 mock 的 now 變數直接快轉。
+--------------------------------------------------------- */
+test('逾時終局失敗、冷卻時間已過、tile 仍在目前可視範圍內 -> sweep 後應撥回 IDLE，且重新指定 src 後可以再次成功 LOADED', async () => {
+  const url = 'http://tile-load-guard/cooldown-retry-success';
+  urlResults[url] = 'timeout-always';
+  const tile = new FakeTile([TAIPEI_TILE.z, TAIPEI_TILE.x, TAIPEI_TILE.y]);
+
+  const originalDateNow = Date.now;
+  let now = 1_700_000_000_000;
+  Date.now = () => now;
+  try{
+    const loadFn = createGuardedTileLoadFunction({ regionBbox: TAIPEI_BBOX, timeoutMs: 20 });
+    loadFn(tile, url);
+    const state = await waitForState(tile);
+    assertEqual(state, TILE_STATE.ERROR, '前置條件：逾時重試一次後仍逾時，應該終局判定 ERROR');
+    assertEqual(urlAttempts[url], 2, '前置條件：終局失敗前應該已經重試過 1 次，共 2 次請求');
+
+    now += TIMEOUT_RETRY_COOLDOWN_MS + 1000; // 快轉到冷卻時間已過
+
+    const fakeMap = makeFakeMap({ zoom: TAIPEI_TILE.z, extent: TAIPEI_BBOX });
+    attachStaleTileAbort(fakeMap);
+    fakeMap._trigger('moveend');
+
+    assertEqual(tile.state, TILE_STATE.IDLE, '冷卻時間已過、bbox 仍與目前可視範圍相交，應該被 sweep 撥回 IDLE');
+
+    // 不是只有狀態變化：驗證撥回 IDLE 後，模擬 OL 重新呼叫
+    // tileLoadFunction（等同圖磚重新進入可視範圍）真的可以再次成功。
+    urlResults[url] = true;
+    loadFn(tile, url);
+    const finalState = await withTimeout(new Promise(resolve => {
+      const check = () => {
+        if(tile.state === TILE_STATE.LOADED || tile.state === TILE_STATE.ERROR) return resolve(tile.state);
+        setTimeout(check, 2);
+      };
+      check();
+    }), 5000, '撥回 IDLE 後重新載入一直沒有進入 LOADED/ERROR（可能發生 deadlock）');
+    assertEqual(finalState, TILE_STATE.LOADED, '撥回 IDLE 後重新載入應該能正常成功 LOADED');
+    assertEqual(urlAttempts[url], 3, '應該有真的發送第 3 次請求（前 2 次是終局失敗前的逾時嘗試，第 3 次才是冷卻重試後的重新載入）');
+  }finally{
+    Date.now = originalDateNow;
+  }
+});
+
+test('逾時終局失敗、冷卻時間還沒過 -> sweep 後應該維持 ERROR，不會被撥回', async () => {
+  const url = 'http://tile-load-guard/cooldown-retry-too-soon';
+  urlResults[url] = 'timeout-always';
+  const tile = new FakeTile([TAIPEI_TILE.z, TAIPEI_TILE.x, TAIPEI_TILE.y]);
+
+  const originalDateNow = Date.now;
+  let now = 1_700_000_100_000;
+  Date.now = () => now;
+  try{
+    const loadFn = createGuardedTileLoadFunction({ regionBbox: TAIPEI_BBOX, timeoutMs: 20 });
+    loadFn(tile, url);
+    const state = await waitForState(tile);
+    assertEqual(state, TILE_STATE.ERROR, '前置條件：逾時重試一次後仍逾時，應該終局判定 ERROR');
+
+    now += TIMEOUT_RETRY_COOLDOWN_MS - 1000; // 快轉到「還沒到」冷卻時間
+
+    const fakeMap = makeFakeMap({ zoom: TAIPEI_TILE.z, extent: TAIPEI_BBOX });
+    attachStaleTileAbort(fakeMap);
+    fakeMap._trigger('moveend');
+
+    assertEqual(tile.state, TILE_STATE.ERROR, '冷卻時間還沒到，不應該被撥回 IDLE，應該留著等下次 sweep');
+  }finally{
+    Date.now = originalDateNow;
+  }
+});
+
+test('明確 onerror 終局失敗，即使冷卻時間過了很久、tile 在目前可視範圍內 -> sweep 後仍應維持 ERROR，永遠不會被撥回', async () => {
+  const url = 'http://tile-load-guard/cooldown-retry-explicit-error-excluded';
+  urlResults[url] = false; // 明確 onerror，不是逾時
+  const tile = new FakeTile([TAIPEI_TILE.z, TAIPEI_TILE.x, TAIPEI_TILE.y]);
+
+  const originalDateNow = Date.now;
+  let now = 1_700_000_200_000;
+  Date.now = () => now;
+  try{
+    const loadFn = createGuardedTileLoadFunction({ regionBbox: TAIPEI_BBOX, timeoutMs: 500 });
+    loadFn(tile, url);
+    const state = await waitForState(tile);
+    assertEqual(state, TILE_STATE.ERROR, '前置條件：明確 onerror 應該直接終局判定 ERROR');
+    assertEqual(urlAttempts[url], 1, '前置條件：明確失敗不應該重試，只發送 1 次請求');
+
+    now += TIMEOUT_RETRY_COOLDOWN_MS * 100; // 遠超過冷卻時間，排除「其實只是還沒到」的可能
+
+    const fakeMap = makeFakeMap({ zoom: TAIPEI_TILE.z, extent: TAIPEI_BBOX });
+    attachStaleTileAbort(fakeMap);
+    fakeMap._trigger('moveend');
+
+    assertEqual(tile.state, TILE_STATE.ERROR, '明確 onerror 判定的失敗刻意不納入冷卻重試名單，不論冷卻多久都不應該被撥回 IDLE');
+  }finally{
+    Date.now = originalDateNow;
+  }
+});
+
+test('逾時終局失敗撥回 IDLE 一次後，若再次逾時終局失敗 -> 每顆 tile 只有一次額外機會，不會有第二次冷卻重試', async () => {
+  const url = 'http://tile-load-guard/cooldown-retry-once-only';
+  urlResults[url] = 'timeout-always';
+  const tile = new FakeTile([TAIPEI_TILE.z, TAIPEI_TILE.x, TAIPEI_TILE.y]);
+
+  const originalDateNow = Date.now;
+  let now = 1_700_000_300_000;
+  Date.now = () => now;
+  try{
+    const loadFn = createGuardedTileLoadFunction({ regionBbox: TAIPEI_BBOX, timeoutMs: 20 });
+    loadFn(tile, url);
+    let state = await waitForState(tile);
+    assertEqual(state, TILE_STATE.ERROR, '前置條件：第一次逾時重試一次後仍逾時，應該終局判定 ERROR');
+    assertEqual(urlAttempts[url], 2, '前置條件：第一次終局失敗前應該重試過 1 次，共 2 次請求');
+
+    now += TIMEOUT_RETRY_COOLDOWN_MS + 1000; // 第一次冷卻時間已過
+    const fakeMap1 = makeFakeMap({ zoom: TAIPEI_TILE.z, extent: TAIPEI_BBOX });
+    attachStaleTileAbort(fakeMap1);
+    fakeMap1._trigger('moveend');
+    assertEqual(tile.state, TILE_STATE.IDLE, '第一次冷卻重試機會：應該被撥回 IDLE');
+
+    // 模擬圖磚重新進入可視範圍、OL 重新呼叫 tileLoadFunction；這次同樣
+    // 持續逾時（urlResults[url] 仍是 'timeout-always'），驗證再次終局
+    // 失敗的行為。
+    loadFn(tile, url);
+    state = await withTimeout(new Promise(resolve => {
+      const check = () => {
+        if(tile.state === TILE_STATE.ERROR) return resolve(tile.state);
+        setTimeout(check, 2);
+      };
+      check();
+    }), 5000, '第二次逾時後一直沒有回到 ERROR（可能發生 deadlock）');
+    assertEqual(state, TILE_STATE.ERROR, '第二次逾時重試一次後仍逾時，應該再次終局判定 ERROR');
+    assertEqual(urlAttempts[url], 4, '第二次終局失敗前應該又重試過 1 次，累計共 4 次請求');
+
+    now += TIMEOUT_RETRY_COOLDOWN_MS + 1000; // 再快轉過一次完整冷卻時間
+    const fakeMap2 = makeFakeMap({ zoom: TAIPEI_TILE.z, extent: TAIPEI_BBOX });
+    attachStaleTileAbort(fakeMap2);
+    fakeMap2._trigger('moveend');
+
+    assertEqual(tile.state, TILE_STATE.ERROR, '每顆 tile 物件只有一次額外冷卻重試機會，第二次終局失敗不應該再被登記、不會再被撥回 IDLE');
+  }finally{
+    Date.now = originalDateNow;
+  }
 });
 
 /* ---------------------------------------------------------

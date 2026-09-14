@@ -43,7 +43,7 @@
    （見下方 TileRenderPool），避免引入這一個 tick 的延遲讓時序測試
    （tile-load-guard.test.mjs 既有的同步 abort 案例）失真。
 
-   本檔案另外還處理兩件跟「圖磚渲染」有關、彼此獨立的事：
+   本檔案另外還處理三件跟「圖磚渲染」有關、彼此獨立的事：
      - DEFAULT_TILE_CACHE_SIZE：每個 tile source 的快取上限（見下方
        說明），跟這裡的逾時／邊界保護無關，只是剛好也是「圖磚載入」
        範疇，統一放在這支檔案維護。
@@ -51,6 +51,17 @@
        請求可以提早放棄，釋放 OpenLayers 全域圖磚載入佇列的名額；
        連續拖曳／縮放互動期間也會用節流過的頻率主動清理一次，不用
        等放開滑鼠的 moveend 才清（見該函式上方的完整說明）。
+     - 逾時終局失敗的冷卻重試（timeoutFailedGuardedTiles，見
+       loadWithTimeoutRetry() 與 sweepStaleGuardedTiles() 下方說明）：
+       修正使用者回報「圖磚有時要放大縮小才會出現，原地不動卻一直
+       空白」——OL 的圖磚佇列只把 state===IDLE 的圖磚排入下次載入，
+       ERROR 狀態的圖磚就算重新進入可視範圍也不會自動重新呼叫
+       tileLoadFunction。逾時失敗大概率是暫時性伺服器壅塞（見上方
+       關於 sinica 高併發拖慢的說明），不是真的沒資料，所以跟
+       attachStaleTileAbort() 一樣需要有辦法把它撥回 IDLE；差別是
+       這裡要先等一段冷卻時間（TIMEOUT_RETRY_COOLDOWN_MS）才重試，
+       且每顆圖磚只有這一次額外機會，避免對真的持續故障的主機做
+       無限重試。明確 onerror 的失敗不適用，繼續維持永久 ERROR。
 --------------------------------------------------------- */
 import { tileXYToBbox, bboxIntersects } from './tileGeo.js';
 
@@ -185,6 +196,74 @@ export function getRecentTileFailures(){
 
 export function clearRecentTileFailures(){
   recentTileFailures.length = 0;
+}
+
+// ---------------------------------------------------------
+// timeoutFailedGuardedTiles — 逾時終局失敗圖磚的冷卻重試候選名單
+// ---------------------------------------------------------
+// 背景（使用者回報「歷史圖層圖磚有時要放大縮小才會出現，原地不動卻
+// 一直空白」）：OpenLayers 的圖磚佇列只會把 state===IDLE 的圖磚排入
+// 下次載入，state===ERROR 的圖磚即使重新進入可視範圍也不會被重新
+// 呼叫 tileLoadFunction（同一份反解結論見下方 entry.abort 的說明）。
+// loadWithTimeoutRetry() 逾時重試一次後仍逾時，會判定終局 ERROR——但
+// 檔頭已經記載 sinica 來源在高併發下，連「有資料」的正常圖磚回應都
+// 可能被拖慢到 ~1 秒、逼近 2000ms 逾時線，代表這種逾時很大機率是
+// 暫時性伺服器壅塞，不是真的沒資料，永久卡死在 ERROR 會被誤判成
+// 「這個座標沒有歷史圖資」。
+//
+// 這裡刻意只處理「逾時終局失敗」（reason==='timeout'），不處理
+// img.onerror 判定的明確失敗（reason==='error'）：後者絕大多數是
+// file-exists.php 對「真的沒有歷史圖資」座標回傳的 404，伺服器已經
+// 明確回應過，重試沒有意義，對大量真正無資料的圖磚做無謂重試只會
+// 浪費請求名額、排擠其他正常圖磚。
+//
+// 跟 attachStaleTileAbort() 的「視角過期」重置共用同一次 sweep（見
+// sweepStaleGuardedTiles()），但語意不同：那邊是「使用者根本還沒等到
+// 結果就已經換了視角」，這裡是「已經等到明確的逾時終局失敗」，需要
+// 額外一段冷卻時間（TIMEOUT_RETRY_COOLDOWN_MS）讓造成逾時的伺服器
+// 壅塞真的有機會消退，不能像 stale abort 那樣立刻重置；也因為這顆
+// 圖磚現在本來就已經是 ERROR，撥回 IDLE 不需要 stale abort 那套「先
+// setState(ERROR) 再 setState(IDLE)」的兩步走技巧——OL 的序列檢查
+// `state!==ERROR && state>t` 在 state 已經是 ERROR 時本來就會放行。
+export const TIMEOUT_RETRY_REGISTRY_LIMIT = 200;
+const timeoutFailedGuardedTiles = new Set();
+
+// 記錄「這顆 Tile 物件已經用過它唯一一次額外重試機會」。只在第一次
+// 因逾時終局失敗被加進 timeoutFailedGuardedTiles 時標記，之後不論這次
+// 冷卻重試最終有沒有真的被撥回 IDLE（也可能因為一直不在可視範圍內、
+// 或被 TIMEOUT_RETRY_REGISTRY_LIMIT 擠掉而從未被撥回），同一顆 Tile
+// 物件都不會再被加進候選名單第二次——保持「每顆圖磚只有一次額外重試
+// 機會」的簡單語意，避免對持續故障的主機做無限重試。用 WeakSet 是
+// 因為 Tile 物件本身的生命週期完全交給 OL 的 TileCache
+// （cacheSize:DEFAULT_TILE_CACHE_SIZE）管理，物件被 LRU 汰換、GC 回收
+// 時這裡的標記不需要、也無法手動清除，WeakSet 剛好不會阻止 GC、也
+// 不用另外維護上限。
+const cooldownRetriedTiles = new WeakSet();
+
+// 逾時終局失敗後，要冷卻多久才有機會被撥回 IDLE 重新嘗試。下限：明顯
+// 長於一次完整逾時＋重試的最差耗時（2000ms 逾時 + 重試一次再
+// 2000ms ≈ 4000ms），要留時間讓造成逾時的暫時性伺服器壅塞真的消退，
+// 不然冷卻一結束又立刻撞回同一個壅塞窗口、白白多打一次還是失敗。
+// 上限：不要久到使用者「離開又回來看」都感受不到差異——8000ms 是
+// 最差耗時的兩倍，多數使用者一次平移/縮放操作間隔不會超過這個量級，
+// 大部分情況下都能等於「回來看又好了」。
+export const TIMEOUT_RETRY_COOLDOWN_MS = 8000;
+
+// 供 loadWithTimeoutRetry() 在判定逾時終局失敗時呼叫，登記這顆圖磚
+// 進冷卻重試候選名單；已經用過額外重試機會的 Tile 物件（無論當初是
+// 否真的被撥回過 IDLE）直接略過，不重複登記。名單滿了（見
+// TIMEOUT_RETRY_REGISTRY_LIMIT）就捨棄最舊的一筆，避免使用者長時間
+// 平移到很遠的地方、大量逾時失敗的圖磚（可能再也不會被看到）永遠留在
+// 名單裡佔記憶體；捨棄的代價只是那筆圖磚少一次冷卻重試機會，等同
+// 退回「不會自動重試」的原始行為，不會更糟。
+function registerTimeoutRetryCandidate(tile, tileBbox, z){
+  if(cooldownRetriedTiles.has(tile)) return;
+  cooldownRetriedTiles.add(tile);
+  timeoutFailedGuardedTiles.add({ tile, bbox: tileBbox, z, failedAt: Date.now() });
+  if(timeoutFailedGuardedTiles.size > TIMEOUT_RETRY_REGISTRY_LIMIT){
+    const oldest = timeoutFailedGuardedTiles.values().next().value;
+    timeoutFailedGuardedTiles.delete(oldest);
+  }
 }
 
 /**
@@ -337,6 +416,11 @@ function loadWithTimeoutRetry(tile, src, timeoutMs, tileBbox, z, x, y, label){
         tile.setState(TILE_STATE.ERROR);
         unregister();
         recordTileFailure(label, 'timeout', z, x, y);
+        // 逾時重試一次後仍逾時＝終局失敗，登記進冷卻重試候選名單，
+        // 讓 sweepStaleGuardedTiles() 之後有機會撥回 IDLE 重新嘗試
+        // （見 timeoutFailedGuardedTiles 上方的完整說明）。明確 onerror
+        // 判定的失敗（上面 img.onerror）刻意不呼叫這個函式。
+        registerTimeoutRetryCandidate(tile, tileBbox, z);
       }, timeoutMs);
       img.src = src;
     }));
@@ -397,8 +481,16 @@ function loadWithTimeoutRetry(tile, src, timeoutMs, tileBbox, z, x, y, label){
    會把 tile 重置回 IDLE（細節見 loadWithTimeoutRetry() 裡 entry.abort
    的定義），讓它下次真的又進入可視範圍時可以被 OL 的 renderer 重新
    排入載入佇列、正常重新呼叫 tileLoadFunction，不會被誤判成永久空白
-   （不同於 loadWithTimeoutRetry() 自己判定的真正逾時／明確失敗，那些
+   （不同於 loadWithTimeoutRetry() 自己判定的明確 onerror 失敗，那些
    仍然維持原本「不會自動重試」的 ERROR 終態）。
+
+   sweepStaleGuardedTiles() 同一次掃描也順便處理逾時終局失敗的冷卻
+   重試（timeoutFailedGuardedTiles，見該常數上方的完整說明）：跟這裡
+   的「視角過期」立即重置不同，逾時終局失敗需要先冷卻
+   TIMEOUT_RETRY_COOLDOWN_MS 才會被撥回 IDLE，且每顆圖磚只有一次額外
+   機會；明確 onerror 判定的失敗完全不受這個機制影響，永遠維持
+   ERROR。attachStaleTileAbort() 掛的 moveend／節流版 change:center／
+   change:resolution 監聽器，同時是這兩套機制共用的觸發時機。
 --------------------------------------------------------- */
 
 // 節流版拖曳中清理的間隔：CLAUDE.md／上方註解要求連續觸發的視角事件
@@ -437,9 +529,12 @@ export function throttle(fn, waitMs){
 }
 
 // 實際的掃描＋放棄邏輯，抽成獨立函式讓 moveend（不節流）跟拖曳中的
-// 節流版清理（見 attachStaleTileAbort()）共用同一份實作。
+// 節流版清理（見 attachStaleTileAbort()）共用同一份實作。同一次掃描
+// 也順便處理 timeoutFailedGuardedTiles（逾時終局失敗的冷卻重試候選
+// 名單，見該常數上方的完整說明）：兩者都需要「目前視角」這個比對
+// 基準，共用同一次視角快照可以少算一次 extent 轉換。
 function sweepStaleGuardedTiles(map){
-  if(inFlightGuardedTiles.size === 0) return;
+  if(inFlightGuardedTiles.size === 0 && timeoutFailedGuardedTiles.size === 0) return;
   const view = map.getView();
   const size = map.getSize();
   const resolution = view.getResolution();
@@ -457,18 +552,39 @@ function sweepStaleGuardedTiles(map){
   // 換來的代價只是「動畫過程中極少數已經過期的請求晚一點點才被放棄」
   // （最差還是會被 loadWithTimeoutRetry() 的逾時機制收尾），遠比「誤殺
   // 仍相關的請求造成閃爍/重新載入」風險小。
-  const rawZoom = view.getZoom();
-  const zLow = Math.floor(rawZoom);
-  const zHigh = Math.ceil(rawZoom);
   const extent3857 = view.calculateExtent(size);
   const extent4326 = ol.proj.transformExtent(extent3857, view.getProjection(), 'EPSG:4326');
-  inFlightGuardedTiles.forEach(entry => {
-    // { stale: true }：只是視角過期而放棄，不是真正逾時/失敗，讓
-    // entry.abort() 把 tile 重置回 IDLE 而不是永久卡在 ERROR（見
-    // entry.abort 定義處的完整說明）。
-    const zStale = entry.z < zLow || entry.z > zHigh;
-    if(zStale || !bboxIntersects(entry.bbox, extent4326)) entry.abort({ stale: true });
-  });
+
+  if(inFlightGuardedTiles.size > 0){
+    const rawZoom = view.getZoom();
+    const zLow = Math.floor(rawZoom);
+    const zHigh = Math.ceil(rawZoom);
+    inFlightGuardedTiles.forEach(entry => {
+      // { stale: true }：只是視角過期而放棄，不是真正逾時/失敗，讓
+      // entry.abort() 把 tile 重置回 IDLE 而不是永久卡在 ERROR（見
+      // entry.abort 定義處的完整說明）。
+      const zStale = entry.z < zLow || entry.z > zHigh;
+      if(zStale || !bboxIntersects(entry.bbox, extent4326)) entry.abort({ stale: true });
+    });
+  }
+
+  if(timeoutFailedGuardedTiles.size > 0){
+    const now = Date.now();
+    // 這裡刻意不比對 z（跟上面 inFlightGuardedTiles 的 zLow/zHigh 容忍
+    // 範圍不同）：撥回 IDLE 本身不會立即觸發任何請求，只是讓 OL 的
+    // renderer 之後真的需要這顆圖磚時（在它實際對應的 z）可以重新排入
+    // 載入佇列，跟目前使用者正在看的 z 無關，不需要也不應該用目前 z
+    // 篩掉它。bbox 相交只是「這顆圖磚接下來很可能會被用到，值得現在
+    // 就花一次額外重試機會」的篩選門檻，不相交就留在名單裡等下次
+    // sweep（使用者平移回來、或名單滿了被擠掉），不會因為這次沒中選
+    // 就永久放棄。
+    timeoutFailedGuardedTiles.forEach(entry => {
+      if(now - entry.failedAt < TIMEOUT_RETRY_COOLDOWN_MS) return; // 冷卻還沒過，留著等下次 sweep
+      if(!bboxIntersects(entry.bbox, extent4326)) return; // 目前不在可視範圍，先不消耗這次機會
+      entry.tile.setState(TILE_STATE.IDLE);
+      timeoutFailedGuardedTiles.delete(entry);
+    });
+  }
 }
 
 export function attachStaleTileAbort(map){
