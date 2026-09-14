@@ -20,6 +20,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const specsDir = path.join(__dirname, 'specs');
 const files = readdirSync(specsDir).filter(f => f.endsWith('.test.mjs')).sort();
 
+// 單一測試檔案的逾時上限。目前全套測試檔案裡最重的（full-integration.test.mjs
+// 這類會 loadAppData()＋initMapCore() 走完整站初始化流程的檔案）在一般開發機
+// 上實測仍在數百毫秒等級，30 秒是遠高於正常執行時間、但足以攔住「未 resolve
+// 的 Promise／無窮迴圈」這類真正卡死案例的門檻值——目的是「卡死時不要無限期
+// 掛著」，不是精算出剛好貼齊平均執行時間的數字。
+const TEST_FILE_TIMEOUT_MS = 30000;
+
 console.log(`找到 ${files.length} 份測試檔案\n`);
 
 let totalPassed = 0;
@@ -49,17 +56,32 @@ for(const file of files){
   try{
     // 用 process.execPath（目前執行中 node 執行檔的絕對路徑）取代裸字串 'node'，
     // 避免透過 PATH 搜尋解析執行檔（PATH injection 風險）。
+    // timeout：任一測試檔案卡死（未 resolve 的 Promise、無窮迴圈）時，逾時後
+    // Node 會對子行程送出 killSignal（預設 SIGTERM）強制結束，避免整條測試
+    // 流程無限期掛著，讓後續檔案根本沒機會執行。
     const output = execFileSync(process.execPath, [path.join(specsDir, file)], {
       cwd: path.join(__dirname, '..'),
       encoding: 'utf-8',
+      timeout: TEST_FILE_TIMEOUT_MS,
     });
     console.log(output.trimEnd());
     accumulateCounts(output);
   }catch(err){
     anyFailed = true;
+    // execFileSync 逾時被強制中止時，err.stdout／err.stderr 通常是空的
+    // （測試還在跑到一半就被砍掉），err.signal 會是送出的 killSignal
+    // （預設 'SIGTERM'）、err.status 為 null——用這個組合判斷「是逾時
+    // 被砍掉」還是「行程自己以非 0 狀態碼結束」，印出明確指名是哪個
+    // 檔案逾時的訊息，不要讓 execFileSync 原始例外（一大串 stack trace）
+    // 把真正重要的資訊（是哪個檔案卡死）淹沒掉。
+    const timedOut = err.signal !== null && err.signal !== undefined && err.status === null;
+    if(timedOut){
+      console.log(`✗✗✗ 逾時（超過 ${TEST_FILE_TIMEOUT_MS}ms）：${file} 疑似卡死（未 resolve 的 Promise／無窮迴圈），已強制終止（訊號：${err.signal}）`);
+    }
     const output = err.stdout ? err.stdout.trimEnd() : '';
-    console.log(output || '（測試檔案執行時發生未預期的錯誤）');
-    if(err.stderr) console.log(err.stderr.trimEnd());
+    if(output) console.log(output);
+    else if(!timedOut) console.log('（測試檔案執行時發生未預期的錯誤）');
+    if(err.stderr && err.stderr.trim()) console.log(err.stderr.trimEnd());
     if(output) accumulateCounts(output);
   }
 }

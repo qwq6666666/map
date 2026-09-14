@@ -60,11 +60,8 @@ const sourceWraps = []; // [{ src, wrap }]，供國別篩選列（createCountryF
                          // 屬性查詢，不再依賴這份陣列（見下方說明）。
 
 // 手機版（<=768px）比照 sidebarUI.js／src/ui/mobileRegionBrowse.js 的既有寫法，
-// 「台灣」「中國」分頁改用大區域→地區→來源三段式瀏覽。typeof 防呆同理：
-// tests/env-stub.mjs 的假 window 沒有 matchMedia，沒防呆會讓既有測試直接噴例外。
-const mq = (typeof window.matchMedia === 'function')
-  ? window.matchMedia('(max-width:768px)')
-  : { matches: false, addEventListener(){}, addListener(){} };
+// 「台灣」「中國」分頁改用大區域→地區→來源三段式瀏覽。
+const mq = window.matchMedia('(max-width:768px)');
 
 // 單一來源的 checkbox 多選手風琴區塊：同時給扁平清單跟三段式瀏覽共用
 // （見 initMultiOverlayUI() 內兩處呼叫），比照 sidebarUI.js 的 buildSourceGroup()。

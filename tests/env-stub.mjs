@@ -265,7 +265,85 @@ globalThis.window = {
   },
   _dispatch(ev, e){ (windowListeners[ev] || []).forEach(fn => fn(e)); },
   innerWidth: 1000,
+  innerHeight: 800,
   devicePixelRatio: 1,
+};
+
+/* ---------------------------------------------------------
+   假 matchMedia：src/ui/mobileLayout.js／sidebarUI.js／compareMode.js／
+   multiOverlay.js／onboarding.js 都靠 window.matchMedia('(max-width:
+   768px)') 之類的查詢判斷是否進入手機版版面，部分模組（mobileLayout.js）
+   在模組頂層就直接呼叫、沒有 `typeof window.matchMedia === 'function'`
+   防呆，先前這裡完全沒提供，只要有測試 import 到就會在載入階段直接
+   噴例外。不需要完整實作 CSS 媒體查詢語法，只簡化支援專案裡實際會用
+   到的 `(max-width:NNNpx)` 語法：`matches` 依 `window.innerWidth` 是否
+   小於等於門檻值判斷，開頭沒抓到 max-width 的查詢一律回傳 matches:false
+   （目前沒有測試依賴其他語法）。
+--------------------------------------------------------- */
+const mediaQueryListRegistry = []; // 記錄所有曾經被 window.matchMedia() 建立過的 MQL，供 setStubViewportWidth() 事後統一重新計算/觸發 change
+
+function parseMaxWidth(query){
+  const m = String(query).match(/max-width:\s*(\d+)/);
+  return m ? Number(m[1]) : null;
+}
+
+class FakeMediaQueryList {
+  constructor(query){
+    this.media = query;
+    this._maxWidth = parseMaxWidth(query);
+    this._listeners = new Set();
+    this._matches = this._computeMatches();
+  }
+  _computeMatches(){
+    if(this._maxWidth === null) return false;
+    return globalThis.window.innerWidth <= this._maxWidth;
+  }
+  get matches(){ return this._matches; }
+  // 標準 API（現代瀏覽器）
+  addEventListener(ev, fn){ if(ev === 'change') this._listeners.add(fn); }
+  removeEventListener(ev, fn){ if(ev === 'change') this._listeners.delete(fn); }
+  // 舊版相容 API（ui/mobileLayout.js 有 `mq.addListener` fallback 分支）
+  addListener(fn){ this._listeners.add(fn); }
+  removeListener(fn){ this._listeners.delete(fn); }
+  _refresh(){
+    const next = this._computeMatches();
+    if(next === this._matches) return;
+    this._matches = next;
+    const event = { matches: next, media: this.media };
+    this._listeners.forEach(fn => fn(event));
+  }
+}
+
+globalThis.window.matchMedia = (query) => {
+  const mql = new FakeMediaQueryList(query);
+  mediaQueryListRegistry.push(mql);
+  return mql;
+};
+
+// 測試專用：手動模擬「視窗尺寸改變」（例如轉橫向、縮放瀏覽器）。更新
+// window.innerWidth，並讓所有已建立過的 MediaQueryList（含模組頂層
+// import 當下就呼叫過 window.matchMedia() 的情況，例如
+// ui/mobileLayout.js 的 `const mq = window.matchMedia(MOBILE_QUERY)`）
+// 重新計算 matches，數值真的改變時才觸發 change 監聽器（跟真實瀏覽器
+// 行為一致：沒跨過門檻不會觸發 change）。
+export function setStubViewportWidth(width){
+  globalThis.window.innerWidth = width;
+  mediaQueryListRegistry.forEach(mql => mql._refresh());
+}
+
+/* ---------------------------------------------------------
+   假 MutationObserver：目前只有 src/ui/mobileLayout.js 用到
+   `new MutationObserver(cb).observe(target, opts)`，監看 class 屬性
+   變化同步 body class／popover 顯示狀態。這裡刻意做成 inert stub
+  （observe/disconnect 皆為 no-op，永遠不會真的呼叫 callback）——這幾處
+   呼叫端在 observe() 之後都會立即手動呼叫一次對應的 sync() 函式取得
+   初始狀態，「classList 變化後自動重新觸發」目前沒有測試依賴，之後
+   若有測試需要驗證這類行為，再回來把這個 stub 做成真的會呼叫 callback。
+--------------------------------------------------------- */
+globalThis.MutationObserver = class {
+  constructor(cb){ this._cb = cb; }
+  observe(){}
+  disconnect(){}
 };
 
 if(globalThis.navigator){ globalThis.navigator.geolocation = null; }

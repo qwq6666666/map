@@ -272,11 +272,8 @@ function buildPickerPanel(panelEl, onSelect){
   // 手機版（<=768px）「台灣」「中國」分頁改用大區域→地區→來源三段式瀏覽，
   // 比照 multiOverlay.js／sidebarUI.js 的既有寫法。buildPickerPanel() 每次
   // 呼叫都會重建整個面板（A、B 兩側各自獨立呼叫一次），mq 在函式內部建立
-  // 即可，不是熱路徑，不用擔心重複建立的成本；typeof 防呆同理：
-  // tests/env-stub.mjs 的假 window 沒有 matchMedia。
-  const mq = (typeof window.matchMedia === 'function')
-    ? window.matchMedia('(max-width:768px)')
-    : { matches: false, addEventListener(){}, addListener(){} };
+  // 即可，不是熱路徑，不用擔心重複建立的成本。
+  const mq = window.matchMedia('(max-width:768px)');
 
   let mobileBrowse; // 見下方賦值；onChange 只在使用者「切換」分頁時才會被呼叫，屆時已指派完成
   const { bar: filterBar, refresh: refreshCountryFilter, getCurrent: getCurrentCountry } =
