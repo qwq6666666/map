@@ -303,6 +303,12 @@
   .floating-opacity .field-label{margin:0; white-space:nowrap; flex-shrink:0;}
   .floating-opacity input[type=range]{flex:1; accent-color:var(--brass-dark);}
   .floating-opacity .opacity-val{font-family:var(--serif); font-size:13px; color:var(--ink); width:34px; text-align:right; flex-shrink:0;}
+  /* 側邊欄收合時（桌面版）也能收藏目前圖層，不用先展開側邊欄。名稱／
+     清除鈕維持桌面版預設隱藏（.floating-layer-name／.floating-clear-btn，
+     見下方 Mobile Responsive Layout 區塊前的基準規則），只讓收藏星號
+     露出——外觀直接沿用 .current-layer-fav-btn（這顆按鈕本來就同時
+     帶兩個 class），這裡只需要覆蓋掉那條基準隱藏規則。 */
+  .floating-opacity.show .floating-layer-fav-btn{display:flex;}
 
   /* 繪製工具列：垂直放在右側，locate 按鈕跟縮放控制中間的空白區塊 */
   /* 收合按鈕：跟定位按鈕份量差不多大，不畫圖時不搶戲 */

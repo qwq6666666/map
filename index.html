@@ -105,11 +105,14 @@
 
 <div class="floating-opacity" id="floatingOpacity">
   <span class="floating-layer-name" id="floatingLayerName"></span>
-  <button type="button" id="floatingLayerFavBtn" class="current-layer-fav-btn floating-layer-fav-btn" title="收藏此圖層" hidden>☆</button>
   <button type="button" id="floatingClearBtn" class="current-layer-fav-btn floating-clear-btn" title="清除疊圖">✕</button>
   <span class="field-label">透明度</span>
   <input type="range" id="floatingOpacitySlider" min="0" max="100" value="100" aria-label="透明度">
   <span class="opacity-val" id="floatingOpacityVal">100%</span>
+  <!-- 桌面版側邊欄收合時也要能收藏目前圖層，不用再展開側邊欄；
+       名稱／清除鈕在桌面版維持隱藏（見 style.css），只讓收藏星號
+       在這裡額外露出，順序排在最後（視覺上「右側的圖示」）。 -->
+  <button type="button" id="floatingLayerFavBtn" class="current-layer-fav-btn floating-layer-fav-btn" title="收藏此圖層" hidden>☆</button>
 </div>
 
 <!-- 手機版「地圖工具」快速模式選單：只是 #modeSwitch 既有按鈕（與
@@ -134,13 +137,15 @@
   <button type="button" class="mobile-mode-option mobile-mode-toggle" id="mobileDrawToggle">繪圖工具</button>
   <div class="mobile-mode-popover-divider"></div>
   <div class="mobile-mode-popover-title">說明</div>
-  <!-- 轉呼叫側邊欄裡原本的 #tourStartBtn／#guideOpenBtn／#shareLinkBtn（已被
-       style.css 隱藏，不是從 DOM 移除），不重新實作導覽/指南/分享連結邏輯，
-       見 src/ui/onboarding.js -->
+  <!-- 轉呼叫側邊欄裡原本的 #tourStartBtn／#guideOpenBtn／#shareLinkBtn／
+       #clearTileCacheBtn／#sourceStatusBtn（.tour-btn-row 手機版整排隱藏，
+       不是從 DOM 移除），不重新實作導覽/指南/分享連結/來源狀態邏輯，
+       見 src/ui/onboarding.js／src/ui/sourceStatusUI.js -->
   <button type="button" class="mobile-mode-option" data-help-action="tour">🧭 新手導覽</button>
   <button type="button" class="mobile-mode-option" data-help-action="guide">❔ 使用指南</button>
   <button type="button" class="mobile-mode-option" data-help-action="share">🔗 分享連結</button>
   <button type="button" class="mobile-mode-option" data-help-action="clearCache">🗑️ 清除快取</button>
+  <button type="button" class="mobile-mode-option" data-help-action="sourceStatus">📡 來源狀態</button>
 </div>
 
 <div class="compare-float-item" id="compareWrapA">
@@ -289,16 +294,17 @@
   </div>
 
   <div class="sidebar-body">
-    <!-- 「目前圖層」改成單行精簡樣式（比照地圖左下角 #floatingOpacity）：
-         名稱＋收藏星號＋透明度滑桿＋清除鈕全部塞在一行，不再是摺疊區塊。
-         圖層名稱過長時由 .current-layer-name 的 CSS 截斷＋title 屬性
-         （src/sidebarUI.js 的 renderCurrentLayer()）顯示完整名稱。 -->
+    <!-- 「目前圖層」不顯示圖層名稱——名稱改由 title 屬性（見
+         src/sidebarUI.js 的 renderCurrentLayer()）掛在整個區塊上，滑鼠
+         移過去仍看得到完整名稱。#currentLayerName 保留在 DOM 裡（其他
+         程式碼仍會讀寫，例如手機版關閉時的復原邏輯），只用 CSS 隱藏，
+         不拿掉元素本身；透明度／收藏星號／清除疊圖三個控制項都保留顯示。 -->
     <div class="opacity-block current-layer-row" id="opacityBlock">
-      <span id="currentLayerName" class="current-layer-name">尚未選取圖層</span>
-      <button type="button" id="currentLayerFavBtn" class="current-layer-fav-btn" title="收藏此圖層" hidden>☆</button>
+      <span id="currentLayerName" class="current-layer-name" hidden>尚未選取圖層</span>
       <span class="field-label">透明度</span>
       <input type="range" id="opacitySlider" min="0" max="100" value="100" aria-label="透明度">
       <span class="opacity-val" id="opacityVal">100%</span>
+      <button type="button" id="currentLayerFavBtn" class="current-layer-fav-btn" title="收藏此圖層" hidden>☆</button>
       <button type="button" class="clear-btn" id="clearBtn" title="清除疊圖">✕</button>
     </div>
 

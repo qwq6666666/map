@@ -113,13 +113,16 @@ function initSidebarTabs(){
 function renderCurrentLayer(){
   const nameEl = document.getElementById('currentLayerName');
   const favBtn = document.getElementById('currentLayerFavBtn');
+  const opacityBlockEl = document.getElementById('opacityBlock');
   if(!nameEl || !favBtn) return;
   const key = store.activeOverlayKey;
   const title = key ? titleForKey(key) : '';
   nameEl.textContent = key ? title : '尚未選取圖層';
-  // 單行版 #opacityBlock（見 index.html／style.css .current-layer-row）
-  // 名稱過長時靠 CSS 截斷加「...」，title 屬性讓滑鼠移過去能看到完整名稱。
   nameEl.title = title;
+  // #opacityBlock 只顯示透明度／收藏星號（右側的圖示），不顯示圖層
+  // 名稱本身（.current-layer-name 已用 hidden 屬性隱藏），改把名稱掛在
+  // 整個區塊的 title 屬性上，滑鼠移過去仍看得到完整名稱。
+  if(opacityBlockEl) opacityBlockEl.title = title;
   favBtn.hidden = !key;
   const fav = key ? isFavoriteLayer(key) : false;
   favBtn.textContent = fav ? '★' : '☆';
@@ -135,7 +138,10 @@ function renderCurrentLayer(){
     floatingNameEl.textContent = title;
     floatingNameEl.title = title;
   }
-  if(floatingOpacityEl) floatingOpacityEl.classList.toggle('has-layer', !!key);
+  if(floatingOpacityEl){
+    floatingOpacityEl.classList.toggle('has-layer', !!key);
+    floatingOpacityEl.title = title; // 桌面版名稱隱藏，滑鼠移過去用 title 看完整名稱
+  }
 
   // 手機版 #opacityBlock 整條隱藏（見 style.css），收藏功能唯一入口
   // 改成浮動列裡的 #floatingLayerFavBtn，跟 #currentLayerFavBtn 同步同一份
