@@ -88,4 +88,25 @@ test('逾時保護：AbortController 觸發 abort 時，會被轉換成中文逾
   }
 });
 
+test('geocodeAddress：相同查詢字串快取命中時不重複呼叫 fetch', async () => {
+  let fetchCallCount = 0;
+  const fakeResults = [{ display_name: '快取測試地點' }];
+  globalThis.fetch = async () => { fetchCallCount++; return { ok: true, json: async () => fakeResults }; };
+  const first = await geocodeAddress('快取重複查詢測試');
+  const second = await geocodeAddress('快取重複查詢測試');
+  assertEqual(fetchCallCount, 1, '第二次呼叫應該直接命中快取，不應該再打一次 fetch');
+  assertEqual(JSON.stringify(second), JSON.stringify(first), '快取命中應回傳跟第一次相同的結果');
+});
+
+test('geocodeAddress：失敗的查詢不應該被快取，下次重試仍會呼叫 fetch', async () => {
+  let fetchCallCount = 0;
+  globalThis.fetch = async () => { fetchCallCount++; return { ok: false, json: async () => ({}) }; };
+  let caught = null;
+  try { await geocodeAddress('快取失敗重試測試'); } catch(err){ caught = err; }
+  assertTrue(caught !== null, '第一次應該拋出錯誤');
+  globalThis.fetch = async () => { fetchCallCount++; return { ok: true, json: async () => ([{ display_name: '重試成功' }]) }; };
+  await geocodeAddress('快取失敗重試測試');
+  assertEqual(fetchCallCount, 2, '失敗結果不應該被快取，重試應該再呼叫一次 fetch');
+});
+
 await run();

@@ -29,6 +29,10 @@ import { findPlaceNameCandidates, findNearbyPlaceNamesAsync, setActivePlaceNameM
 const SEARCH_PRELOAD_CAP = 20;
 // 地址輸入框自動建議清單的最短觸發字數（含地名今昔對照精確比對與一般地理編碼）。
 const ADDRESS_SUGGEST_MIN_QUERY_LENGTH = 2;
+// debounce 延遲：Nominatim 使用政策明文要求 search-as-you-type 情境要「妥善
+// 節流」，建議不超過約 1 req/秒，原本 550ms 太短，快速輸入/修改時容易在
+// 1~2 秒內連發超過一次請求；拉長到 1000ms 並搭配 geocode.js 的查詢快取。
+const ADDRESS_SUGGEST_DEBOUNCE_MS = 1000;
 
 let addressInput, addressSearchBtn, addressSuggestEl, addressInputClearBtn, locationResultEl, locationNameEl,
     layerAvailPanelEl, clearLocationBtn, addressMarkerEl, addressMarkerOverlay, locateSearchBtn,
@@ -959,7 +963,7 @@ export function initSearchUI(){
         console.warn('地址輸入自動建議的比對／地理編碼失敗：', e);
         if(!isSearchStale(myToken)) hideSuggest();
       }
-    }, 550);
+    }, ADDRESS_SUGGEST_DEBOUNCE_MS);
   });
 
   addressInputClearBtn?.addEventListener('click', ()=>{

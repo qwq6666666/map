@@ -226,11 +226,11 @@ test('#addressInput debounce：輸入未達門檻（1 字）不會建立 debounc
   });
 });
 
-test('#addressInput debounce：輸入達到門檻（2 字）會建立一個 550ms 的 debounce timer', () => {
+test('#addressInput debounce：輸入達到門檻（2 字）會建立一個 1000ms 的 debounce timer', () => {
   withFakeDebounceTimer((calls) => {
     typeAddress('中正');
     assertEqual(calls.length, 1, '長度 2 應該排入 1 個 debounce timer');
-    assertEqual(calls[0], 550, 'debounce 延遲應該是 550ms');
+    assertEqual(calls[0], 1000, 'debounce 延遲應該是 1000ms（Nominatim 節流要求，見 ADDRESS_SUGGEST_DEBOUNCE_MS）');
   });
 });
 
