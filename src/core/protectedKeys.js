@@ -20,8 +20,15 @@ export function getProtectedKeys(){
   const keys = new Set();
   if(store.activeOverlayKey) keys.add(store.activeOverlayKey);
   if(runtime.historyLayerKey) keys.add(runtime.historyLayerKey);
-  if(typeof store.compareA === 'string' && store.compareA.startsWith('hist:')) keys.add(store.compareA);
-  if(typeof store.compareB === 'string' && store.compareB.startsWith('hist:')) keys.add(store.compareB);
+  // 這裡刻意不判斷字首（例如只保護 'hist:' 開頭）：layerCache 的保護名單只是
+  // 「跳過淘汰」，對沒有對應 cache entry 的 key 完全無害（evictIfNeeded 只會
+  // 過濾實際存在於 cache 裡的項目）。若在這裡比照 compareMode.js 目前只對
+  // hist: 呼叫 getOrCreateSource() 的假設去加字首過濾，會變成兩個檔案分別
+  // 維護同一份「目前使用中」子集邏輯的其中一半，違反本檔案目的；一旦
+  // compareMode.js 之後改成連 custom: 圖層也走 getOrCreateSource()，這裡若忘記
+  // 同步就會讓比對模式正在用的圖層被 LRU 誤淘汰。無條件加入才是真正解耦。
+  if(typeof store.compareA === 'string') keys.add(store.compareA);
+  if(typeof store.compareB === 'string') keys.add(store.compareB);
   store.multiOverlayLayers.forEach(entry => keys.add(entry.key));
   return keys;
 }

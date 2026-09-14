@@ -73,14 +73,20 @@ test('getProtectedKeys 保護名單涵蓋 compareA/compareB/activeOverlayKey/mul
   selectOverlayLayer(null); // 先重設，避免 toggle 語意誤判
   selectOverlayLayer(overlayKey);
   setCompareSide('A', compareAKey);
-  setCompareSide('B', 'base:osm'); // 非 hist: 開頭，不應該被當成需要保護的歷史圖層 key
+  setCompareSide('B', 'base:osm'); // 非 hist: 開頭，但 compareB 仍應無條件被保護（見下方斷言說明）
   toggleMultiOverlayLayer(multiKey);
   runtime.historyLayerKey = historyKey;
 
   const keys = getProtectedKeys();
   assertTrue(keys.has(overlayKey), '應包含 activeOverlayKey');
   assertTrue(keys.has(compareAKey), '應包含 compareA（hist: 開頭）');
-  assertTrue(!keys.has('base:osm'), 'compareB 是 base:osm，非歷史圖層 key，不應該被視為需要保護');
+  // compareA/compareB 無條件加入保護名單，不判斷字首：layerCache 的保護名單只是
+  // 「跳過淘汰」，對沒有對應 cache entry 的 key（例如 base:/custom: 開頭，目前
+  // 不會進 layerCache）完全無害。若在 protectedKeys.js 這裡另外判斷字首，等於
+  // 跟 compareMode.js「只對 hist: 呼叫 getOrCreateSource()」的假設重複維護同一份
+  // 子集邏輯，一旦 compareMode.js 之後改變快取策略卻忘記同步，就會讓比對模式
+  // 正在用的圖層被誤淘汰——所以這裡刻意連 base:osm 也一併保護。
+  assertTrue(keys.has('base:osm'), 'compareB 即使非 hist: 開頭，也應該無條件被保護');
   assertTrue(keys.has(multiKey), '應包含 multiOverlayLayers 裡的 key');
   assertTrue(keys.has(historyKey), '應包含 runtime.historyLayerKey');
 
