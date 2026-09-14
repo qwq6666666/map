@@ -104,6 +104,33 @@ export class RequestPool {
 // 「時間軸模式」不會各自擁有一份獨立的請求名額、疊加出超過上限的總請求數。
 export const globalTileRequestPool = new RequestPool(TILE_REQUEST_MAX_CONCURRENCY);
 
+// 純粹的「發一張圖片請求、量測回應時間」原語，從 TileChecker._probe() 抽出來
+// 讓 features/sourceStatus.js（圖資來源狀態面板）也能重用同一套 Image+逾時
+// 邏輯，不用另外刻一份。回傳 { ok, timedOut, ms }：ok 是「有沒有收到正常大小
+// 的圖」，timedOut 是「有沒有在 timeoutMs 內完全沒收到任何回應」，ms 是
+// 從送出到收到回應（或逾時）經過的時間，供只在意「伺服器有多快回應」、
+// 不在意該座標實際有沒有資料的呼叫端使用（例如來源健康檢查）。
+export function probeImageOnce(url, timeoutMs){
+  return new Promise((resolve) => {
+    let done = false;
+    const img = new Image();
+    const startedAt = performance.now();
+    const finish = (ok, timedOut = false) => {
+      if(done) return;
+      done = true;
+      clearTimeout(timer);
+      img.onload = null;
+      img.onerror = null;
+      img.src = '';
+      resolve({ ok, timedOut, ms: performance.now() - startedAt });
+    };
+    img.onload = () => finish(img.naturalWidth > 2 && img.naturalHeight > 2);
+    img.onerror = () => finish(false);
+    const timer = setTimeout(() => finish(false, true), timeoutMs);
+    img.src = url;
+  });
+}
+
 export class TileChecker {
   // concurrency 是「同時處理幾個候選項目（worker/task concurrency）」，
   // 決定 checkBatch/checkBatchAny 同時有幾個 cursor worker 在跑；沒有
@@ -135,36 +162,13 @@ export class TileChecker {
     }
   }
 
-  // 回傳 { ok, timedOut }：ok 是探測結果；timedOut 代表這次是因為
+  // 回傳 { ok, timedOut, ms }：ok 是探測結果；timedOut 代表這次是因為
   // timeoutMs 內完全沒收到 onload/onerror 才判定失敗，不是伺服器給了
   // 明確答案。呼叫端只在 timedOut 時才考慮重試。
   // 真正的 Image 請求包在 this.pool.run(...) 裡送出，確保這一筆請求
   // 會先排隊等 pool 的 slot，slot 到手才真的建立 Image 物件發送請求。
   async _probe(url){
-    return this.pool.run(() => new Promise((resolve)=>{
-      let done = false;
-      const img = new Image();
-      const finish = (ok, timedOut = false)=>{
-        if(done) return;
-        done = true;
-        clearTimeout(timer);
-        // 明確中止這個 Image 的載入（尤其逾時情況）：先拔掉
-        // onload/onerror 避免中止動作觸發的事件又跑進來呼叫一次
-        // finish，再把 src 清空讓瀏覽器真的停止背景下載。一定要在
-        // resolve()、也就是 pool.run() 釋放 slot 之前完成，
-        // 這樣 retry 或下一個排隊請求拿到 slot 時，舊請求已經真的
-        // 停止，不會讓實際併發 HTTP 連線數超過 pool 上限。
-        img.onload = null;
-        img.onerror = null;
-        img.src = '';
-        resolve({ ok, timedOut });
-      };
-      // 載入失敗或回傳極小的空白圖，視為無資料——這是伺服器的明確回應。
-      img.onload = ()=> finish(img.naturalWidth > 2 && img.naturalHeight > 2);
-      img.onerror = ()=> finish(false);
-      const timer = setTimeout(()=> finish(false, true), this.timeoutMs);
-      img.src = url;
-    }));
+    return this.pool.run(() => probeImageOnce(url, this.timeoutMs));
   }
 
   // 只有「逾時」（沒收到伺服器任何回應）才重試一次；伺服器明確回應

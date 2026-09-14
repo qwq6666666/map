@@ -1525,6 +1525,32 @@
   }
   .guide-acc-item.open .guide-acc-body{display:block;}
 
+  /* -- 圖資來源狀態抽屜（共用 .guide-drawer* 殼，內容不一樣） -- */
+  .source-status-intro{font-size:12.5px; line-height:1.6; color:var(--ink); margin:0 0 12px;}
+  .source-status-recheck{
+    width:100%; padding:8px; margin-bottom:12px; background:var(--paper-dim);
+    border:1px solid var(--rule); border-radius:2px; font-family:var(--sans);
+    font-size:12.5px; font-weight:700; color:var(--ink); cursor:pointer;
+  }
+  .source-status-recheck:hover{background:var(--brass-dark); border-color:var(--brass-dark); color:var(--paper);}
+  .source-status-recheck:disabled{opacity:.6; cursor:default;}
+  .source-status-row{
+    display:flex; align-items:flex-start; gap:10px; padding:10px 2px;
+    border-bottom:1px dashed var(--paper-dim);
+  }
+  .source-status-row:last-child{border-bottom:none;}
+  .source-status-badge{
+    flex-shrink:0; width:20px; text-align:center; font-size:14px; line-height:1.4;
+  }
+  .source-status-badge.pending{opacity:.5;}
+  .source-status-row-text{flex:1; min-width:0;}
+  .source-status-host{font-family:var(--sans); font-weight:700; font-size:12.5px; color:var(--ink); word-break:break-all;}
+  .source-status-sources{font-size:11.5px; color:var(--rule); margin-top:2px; line-height:1.4;}
+  .source-status-time{flex-shrink:0; font-size:11.5px; color:var(--rule); white-space:nowrap; padding-top:1px;}
+  .source-status-row.is-ok .source-status-time{color:#2e7d32;}
+  .source-status-row.is-slow .source-status-time{color:#b8860b;}
+  .source-status-row.is-down .source-status-time{color:#b3261e;}
+
   @media (max-width:640px){
     .tour-tooltip{width:calc(100vw - 32px);}
     .guide-drawer{width:100vw; max-width:100vw;}

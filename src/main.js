@@ -16,6 +16,7 @@ import { initIdentifyPin } from './features/identifyPin.js';
 import { showLocationAndFindLayers, focusPlaceNameCard } from './ui/search.js';
 import { getActivePlaceNameMatchAt } from './features/placeNames.js';
 import { initOnboarding } from './ui/onboarding.js';
+import { initSourceStatusUI } from './ui/sourceStatusUI.js';
 import { initMobileLayout } from './ui/mobileLayout.js';
 import { applyShareStateFromURL } from './features/shareLink.js';
 import { showLocateToast } from './features/location.js';
@@ -44,6 +45,7 @@ if(dataLoaded){
     onViewPlaceNameCard: focusPlaceNameCard
   }); // 免開關地圖自由落點探針，含地名今昔對照卡的「查看地名沿革」連動
   initOnboarding(); // 新手導覽／使用指南（獨立疊加層，不依賴地圖或側欄初始化狀態）
+  initSourceStatusUI(); // 圖資來源狀態抽屜（一鍵探測各主機是否正常，跟 initOnboarding 一樣是獨立疊加層）
   initMobileLayout(); // 手機版 (<=768px) Bottom Sheet／頂部搜尋列協調，>768px 為 no-op
 
   // 分享連結：所有 UI 都掛好訂閱後才還原網址帶入的狀態，確保 setState()
