@@ -44,8 +44,13 @@ const SCRUB_DEBOUNCE_MS = 150;
 // 讓每一張圖至少有機會開始把圖磚載入完，畫面才看得出東西。
 const PLAY_INTERVAL_MS = 1800;
 
-// 加速播放：可循環切換的倍率選項，1x 為預設、不影響既有行為。
-const SPEED_LEVELS = [1, 2, 4];
+// 加速播放：可循環切換的倍率選項。跟 features/customTimelineUI.js
+// 共用同一組級距與循環順序（兩顆「切換速度」按鈕在使用者心智模型裡
+// 是同一種操作，級距不一致容易誤解），0.5x 為新增的減速選項、其餘
+// 維持原本的 1x/2x/4x 不變。DEFAULT_SPEED_INDEX 指向 1x，確保開啟時
+// 預設速度、既有的播放/暫停邏輯都不受影響。
+const SPEED_LEVELS = [0.5, 1, 2, 4];
+const DEFAULT_SPEED_INDEX = SPEED_LEVELS.indexOf(1);
 
 /**
  * 畫出時間軸並掛進 container。
@@ -111,7 +116,7 @@ export function buildTimeline(candidates, container, onSelect){
     // ---------------------------------------------------------
     let playTimer = null;
     let playing = false;
-    let speedIndex = 0; // SPEED_LEVELS 的索引，只影響自動播放的間隔，不影響拖曳/點擊挑選
+    let speedIndex = DEFAULT_SPEED_INDEX; // SPEED_LEVELS 的索引，只影響自動播放的間隔，不影響拖曳/點擊挑選
 
     function currentInterval(){
       return PLAY_INTERVAL_MS / SPEED_LEVELS[speedIndex];
@@ -229,16 +234,20 @@ export function buildTimeline(candidates, container, onSelect){
         selectIndex(Number.parseInt(sliderEl.value, 10) || 0, true); // 放開時不等 debounce，立刻套用
       });
 
-      // 加速播放：1x/2x/4x 循環切換，只改變自動播放的步進間隔，
-      // 對「拖曳/點擊挑選某一筆立即套用」的互動完全沒有影響。
+      // 加速播放：0.5x/1x/2x/4x 循環切換，只改變自動播放的步進間隔，
+      // 對「拖曳/點擊挑選某一筆立即套用」的互動完全沒有影響。title／
+      // aria-label 同步標示目前速度，避免使用者誤以為每一檔都是加速。
       speedBtn = document.createElement('button');
       speedBtn.type = 'button';
       speedBtn.className = 'timeline-speed-btn';
       speedBtn.textContent = `${SPEED_LEVELS[speedIndex]}x`;
-      speedBtn.setAttribute('aria-label', '切換自動播放速度');
+      speedBtn.title = `目前播放速度 ${SPEED_LEVELS[speedIndex]}x，點擊切換下一個速度`;
+      speedBtn.setAttribute('aria-label', speedBtn.title);
       speedBtn.addEventListener('click', () => {
         speedIndex = (speedIndex + 1) % SPEED_LEVELS.length;
         speedBtn.textContent = `${SPEED_LEVELS[speedIndex]}x`;
+        speedBtn.title = `目前播放速度 ${SPEED_LEVELS[speedIndex]}x，點擊切換下一個速度`;
+        speedBtn.setAttribute('aria-label', speedBtn.title);
         if(playing){ // 播放中立即套用新速度，不用等目前這一步走完
           if(playTimer){ clearTimeout(playTimer); }
           playTimer = setTimeout(stepPlay, currentInterval());

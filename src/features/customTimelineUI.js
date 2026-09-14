@@ -25,14 +25,19 @@ let sliderEl = null;
 // ---- 自動播放：跟 src/timelineUI.js 的播放邏輯精神一致，但完全獨立
 //      重新實作，不 import、不共用任何狀態或 timer。 ----
 const PLAY_INTERVAL_MS = 1800; // 自動播放時每一筆停留的時間（1x 速度）
-// 加速播放：可循環切換的倍率選項，1x 為預設、不影響既有行為，只改變
-// 自動播放的步進間隔，不影響刻度點點擊／滑桿拖曳「立即套用」的互動。
-const SPEED_LEVELS = [1, 2, 0.5];
+// 加速播放：可循環切換的倍率選項。跟 src/timelineUI.js 共用同一組級距
+// 與循環順序（兩顆「切換速度」按鈕在使用者心智模型裡是同一種操作，
+// 級距不一致容易誤解——原本這裡的 0.5 其實是減速，跟按鈕名稱「加速
+// 播放」矛盾），只改變自動播放的步進間隔，不影響刻度點點擊／滑桿拖曳
+// 「立即套用」的互動。DEFAULT_SPEED_INDEX 指向 1x，確保開啟 dock 時
+// 預設速度不受影響。
+const SPEED_LEVELS = [0.5, 1, 2, 4];
+const DEFAULT_SPEED_INDEX = SPEED_LEVELS.indexOf(1);
 let playTimer = null;
 let playing = false;
 let playBtn = null;
 let speedBtn = null;
-let speedIndex = 0;
+let speedIndex = DEFAULT_SPEED_INDEX;
 
 function currentInterval(){
   return PLAY_INTERVAL_MS / SPEED_LEVELS[speedIndex];
@@ -122,7 +127,7 @@ export function openCustomTimelineDock(candidates, callbacks){
   currentCallbacks = callbacks || {};
   currentIndex = 0;
   dotEls = [];
-  speedIndex = 0; // 每次開啟 dock 都從 1x 重新開始
+  speedIndex = DEFAULT_SPEED_INDEX; // 每次開啟 dock 都從 1x 重新開始
 
   const dock = document.createElement('div');
   dock.id = 'custom-timeline-dock';
@@ -191,16 +196,20 @@ export function openCustomTimelineDock(candidates, callbacks){
     playBtn.textContent = '▶ 播放';
     playBtn.addEventListener('click', () => { playing ? stopPlaying() : startPlaying(candidates); });
 
-    // 加速播放：1x/2x/0.5x 循環切換，只改變自動播放的步進間隔，
-    // 對刻度點點擊／滑桿拖曳「立即套用」的互動完全沒有影響。
+    // 加速播放：0.5x/1x/2x/4x 循環切換，只改變自動播放的步進間隔，
+    // 對刻度點點擊／滑桿拖曳「立即套用」的互動完全沒有影響。title／
+    // aria-label 同步標示目前速度，避免使用者誤以為每一檔都是加速。
     speedBtn = document.createElement('button');
     speedBtn.type = 'button';
     speedBtn.className = 'custom-timeline-speed-btn';
     speedBtn.textContent = `${SPEED_LEVELS[speedIndex]}x`;
-    speedBtn.setAttribute('aria-label', '切換自動播放速度');
+    speedBtn.title = `目前播放速度 ${SPEED_LEVELS[speedIndex]}x，點擊切換下一個速度`;
+    speedBtn.setAttribute('aria-label', speedBtn.title);
     speedBtn.addEventListener('click', () => {
       speedIndex = (speedIndex + 1) % SPEED_LEVELS.length;
       speedBtn.textContent = `${SPEED_LEVELS[speedIndex]}x`;
+      speedBtn.title = `目前播放速度 ${SPEED_LEVELS[speedIndex]}x，點擊切換下一個速度`;
+      speedBtn.setAttribute('aria-label', speedBtn.title);
       if(playing){ // 播放中立即套用新速度，不用等目前這一步走完
         if(playTimer){ clearTimeout(playTimer); }
         playTimer = setTimeout(() => stepPlay(candidates), currentInterval());
@@ -273,7 +282,7 @@ function teardown(){
   playing = false;
   playBtn = null;
   speedBtn = null;
-  speedIndex = 0;
+  speedIndex = DEFAULT_SPEED_INDEX;
   dockEl?.remove();
   dockEl = null;
   currentCallbacks = null;

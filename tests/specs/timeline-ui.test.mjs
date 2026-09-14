@@ -71,7 +71,7 @@ test('自動播放會依序觸發每一筆，播完自動停止', async () => {
   assertEqual(playBtn.textContent, '▶ 播放', '播完應該自動變回「播放」文字');
 });
 
-test('加速播放按鈕會依 1x→2x→4x→1x 循環切換', () => {
+test('加速播放按鈕會依 1x→2x→4x→0.5x→1x 循環切換（跟自訂時間軸共用同一組級距）', () => {
   const container = document.createElement('div');
   const candidates = [1897, 1904, 1944].map((y, i) => makeCandidate('id' + i, 't' + i, y));
   buildTimeline(candidates, container, () => {});
@@ -83,7 +83,9 @@ test('加速播放按鈕會依 1x→2x→4x→1x 循環切換', () => {
   speedBtn._listeners['click'][0]();
   assertEqual(speedBtn.textContent, '4x', '點兩次應該變 4x');
   speedBtn._listeners['click'][0]();
-  assertEqual(speedBtn.textContent, '1x', '點三次應該循環回 1x');
+  assertEqual(speedBtn.textContent, '0.5x', '點三次應該變 0.5x（新增的減速選項，不再誤標成加速）');
+  speedBtn._listeners['click'][0]();
+  assertEqual(speedBtn.textContent, '1x', '點四次應該循環回 1x');
 });
 
 test('沒有年份資料的圖層，收在「年代不明」清單，不會出現在時間軸上', () => {

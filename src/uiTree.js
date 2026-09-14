@@ -62,6 +62,15 @@ function showLegendModal(url){
   overlay.style.display = 'flex';
 }
 
+// 某個「來源」底下總共有幾筆圖層（含 cat.groups 巢狀次分類）。
+// sidebarUI.js 的 buildSourceGroup() 手風琴標題數字、mobileRegionBrowse.js
+// 的地區 chip 排序都需要同一套算法，抽在這個沒有任何 UI/功能模組依賴的
+// 共用檔案裡，兩邊都能安全 import、不會造成循環依賴。
+export function layerCountForSource(src){
+  return src.categories.reduce((s, c) =>
+    s + (c.groups ? c.groups.reduce((gs, g) => gs + g.layers.length, 0) : c.layers.length), 0);
+}
+
 export function buildLayerItem(layer, onLayerClick){
   const item = document.createElement('div');
   item.className = 'layer-item';

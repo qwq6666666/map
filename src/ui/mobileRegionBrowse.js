@@ -8,13 +8,19 @@
    各自檔案裡，用參數傳進來。
 --------------------------------------------------------- */
 
-// 跟 sidebarUI.js 的 buildSourceGroup() 內算來源總筆數同一套算法，
-// 這裡只是用來排序地區 chip，刻意不 import sidebarUI.js（避免循環依賴，
-// 這支檔案本來就是被 sidebarUI.js 間接 import）。
-export function layerCountForSource(src){
-  return src.categories.reduce((s, c) =>
-    s + (c.groups ? c.groups.reduce((gs, g) => gs + g.layers.length, 0) : c.layers.length), 0);
-}
+// 跟 sidebarUI.js 的 buildSourceGroup() 內算來源總筆數同一套算法，這裡
+// 只是用來排序地區 chip。這支檔案本來就是被 sidebarUI.js（經由
+// mobileTwBrowse.js／mobileCnBrowse.js／mobileOtherBrowse.js）間接
+// import，不能直接 import sidebarUI.js（會造成循環依賴）；改成雙方都
+// import 沒有任何 UI/功能模組依賴的 uiTree.js（見該檔案開頭註解，本來
+// 就是為了避免這類循環依賴而存在的共用模組）。這裡用一般 import（而非
+// `export ... from`）是刻意的：下面 computeAreasForMacro() 自己也要用
+// 到這個函式，`export { x } from 'y'` 這種純 re-export 語法不會在本檔案
+// 建立可用的區域繫結，只 import 才能兩者兼顧；再用 export 原樣轉出，
+// 維持 mobileOtherBrowse.js 等既有 `import { layerCountForSource } from
+// './mobileRegionBrowse.js'` 不用改。
+import { layerCountForSource } from '../uiTree.js';
+export { layerCountForSource };
 
 function sourcesForMacro(sources, macro, macroRegionForSource){
   return sources.filter(src => macroRegionForSource(src) === macro);

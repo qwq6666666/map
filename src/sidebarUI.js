@@ -3,7 +3,7 @@
    手風琴建置
 --------------------------------------------------------- */
 import { DATA, layerKey, titleForKey, resolveOverlayKey } from './data.js';
-import { buildCategoryList } from './uiTree.js';
+import { buildCategoryList, layerCountForSource } from './uiTree.js';
 import {
   selectOverlayLayer, state as store, subscribe,
   toggleFavoriteLayer, isFavoriteLayer, setMode, clearRecentLayers
@@ -234,7 +234,7 @@ function buildSourceGroup(src){
   const srcHead = document.createElement('button');
   srcHead.type = 'button';
   srcHead.className = 'source-head';
-  const total = src.categories.reduce((s,c)=> s + (c.groups ? c.groups.reduce((gs,g)=>gs+g.layers.length,0) : c.layers.length), 0);
+  const total = layerCountForSource(src);
   srcHead.innerHTML = `<span><span class="chevron">▸</span>${src.name}</span><span class="count">${total}</span>`;
   srcHead.addEventListener('click', ()=>{
     const opening = !srcWrap.classList.contains('open');
