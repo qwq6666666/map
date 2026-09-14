@@ -1,5 +1,5 @@
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, beforeEach, run, assertEqual, assertTrue } from '../assert.mjs';
 import {
   state as store,
   addCustomSource, removeCustomSource, clearCustomSources,
@@ -11,14 +11,15 @@ import { titleForKey, makeSourceForKey, setCustomSourcesProvider } from '../../s
 // 註冊「怎麼拿到目前自訂來源清單」給 data.js。
 setCustomSourcesProvider(() => store.customSources);
 
-function reset(){
+// 每個測試開始前重設乾淨狀態，改用 beforeEach 掛上去，
+// 不用在下面每個 test() 開頭都手動呼叫一次。
+beforeEach(() => {
   clearCustomSources();
   clearMultiOverlayLayers();
   localStorage.clear();
-}
+});
 
 test('addCustomSource 會產生唯一 id，並自動存進 localStorage', () => {
-  reset();
   const entry = addCustomSource({ name: '測試圖層', urlTemplate: 'https://example.com/{z}/{x}/{y}.png' });
   assertTrue(!!entry.id, '應該有自動產生的 id');
   assertEqual(store.customSources.length, 1, 'customSources 應該有 1 筆');
@@ -29,13 +30,11 @@ test('addCustomSource 會產生唯一 id，並自動存進 localStorage', () => 
 });
 
 test('沒填名稱時預設用「未命名圖層」，不會是空字串', () => {
-  reset();
   const entry = addCustomSource({ urlTemplate: 'https://example.com/{z}/{x}/{y}.png' });
   assertEqual(entry.name, '未命名圖層', '應該有預設名稱');
 });
 
 test('titleForKey／makeSourceForKey 對 custom: 開頭的 key 能正確查到自訂來源', () => {
-  reset();
   const entry = addCustomSource({ name: '日本 GSI 地形圖', urlTemplate: 'https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', attribution: '地理院タイル' });
   const key = `custom:${entry.id}`;
   assertEqual(titleForKey(key), '日本 GSI 地形圖', 'titleForKey 應該回傳自訂來源的名稱');
@@ -44,12 +43,10 @@ test('titleForKey／makeSourceForKey 對 custom: 開頭的 key 能正確查到�
 });
 
 test('titleForKey 對已刪除／不存在的 custom key 會退回顯示 key 本身，不拋例外', () => {
-  reset();
   assertEqual(titleForKey('custom:not-exist'), 'custom:not-exist', '找不到時應該退回 key 字串');
 });
 
 test('removeCustomSource 會一併把它從 multiOverlayLayers 移除', () => {
-  reset();
   const entry = addCustomSource({ name: 'A', urlTemplate: 'https://example.com/{z}/{x}/{y}.png' });
   const key = `custom:${entry.id}`;
   toggleMultiOverlayLayer(key); // 勾選加入複合疊圖
@@ -61,7 +58,6 @@ test('removeCustomSource 會一併把它從 multiOverlayLayers 移除', () => {
 });
 
 test('clearCustomSources 會清空所有自訂來源，並移除疊圖組合裡對應的項目，保留其他 hist: 圖層', () => {
-  reset();
   const a = addCustomSource({ name: 'A', urlTemplate: 'https://example.com/a/{z}/{x}/{y}.png' });
   const b = addCustomSource({ name: 'B', urlTemplate: 'https://example.com/b/{z}/{x}/{y}.png' });
   toggleMultiOverlayLayer(`custom:${a.id}`);
@@ -75,7 +71,6 @@ test('clearCustomSources 會清空所有自訂來源，並移除疊圖組合裡�
 });
 
 test('重新從 localStorage 讀取：模擬重新整理頁面後清單還在', () => {
-  reset();
   addCustomSource({ name: '重開機也要在', urlTemplate: 'https://example.com/{z}/{x}/{y}.png' });
   const raw = localStorage.getItem('hundredYearMap:customSources');
   const parsed = JSON.parse(raw);
