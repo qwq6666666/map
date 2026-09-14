@@ -184,7 +184,16 @@ export class TileChecker {
   // pool 之前就短路回傳，不會佔用 HTTP 併發名額。
   checkOne(url){
     if(!url) return Promise.resolve(false);
-    if(this.cache.has(url)) return Promise.resolve(this.cache.get(url));
+    if(this.cache.has(url)){
+      // cache hit 也要刷新順序，否則「近似 LRU」只是文件說法，實際上
+      // 只有新探測完成時才會插入/更新，越常被重複命中的紀錄反而因為
+      // 從來沒被移到尾端、越容易在快取滿了之後被當成「最舊」提早汰換
+      // ——變成 FIFO 而不是 LRU。_remember() 內部本來就會先 delete 再
+      // set，藉此把這筆紀錄移到 Map 迭代順序的尾端（最新使用）。
+      const ok = this.cache.get(url);
+      this._remember(url, ok);
+      return Promise.resolve(ok);
+    }
     if(this.pending.has(url)) return this.pending.get(url);
     const promise = this._probeWithRetry(url).then(ok=>{
       this._remember(url, ok);

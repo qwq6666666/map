@@ -124,6 +124,29 @@ export function getCachedSource(key){
   return entry ? entry.source : null;
 }
 
+/* ---------------------------------------------------------
+   getOrCreateLayer／getOrCreateSource 共用的核心邏輯：cache
+   hit/miss 判斷、touch()、log、建立新 entry、LRU 淘汰完全相同，
+   差別只在對外回傳整個 entry 的哪個欄位。抽出這個內部函式，
+   之後要調整 cache-hit/miss 邏輯（例如加上額外的統計、改變淘汰
+   時機）只需要改一處，不會有兩份邏輯不小心漂移不一致的風險。
+   @param {string} key 唯一圖資 key（例："hist:sinica:JM25K_1921:jpg"）
+   @param {Set<string>} [protectedKeys] 目前正在使用中、絕不能被 LRU 淘汰的 key 集合
+   @returns {{key:string, source:object, layer:object, metadata:object, createdAt:number, lastUsedAt:number}}
+--------------------------------------------------------- */
+function getOrCreateEntry(key, protectedKeys){
+  const cached = cache.get(key);
+  if(cached){
+    touch(cached);
+    log('CACHE HIT', key);
+    return cached;
+  }
+  log('CACHE MISS', key);
+  const entry = createEntry(key);
+  evictIfNeeded(protectedKeys);
+  return entry;
+}
+
 /**
  * 取得（或視需要建立）一張可以直接加進地圖顯示的 TileLayer。
  * 適用情境：疊圖模式／時間軸模式——只需要「一張圖層，切換時交叉
@@ -132,16 +155,7 @@ export function getCachedSource(key){
  * @param {Set<string>} [protectedKeys] 目前正在使用中、絕不能被 LRU 淘汰的 key 集合
  */
 export function getOrCreateLayer(key, protectedKeys){
-  const cached = cache.get(key);
-  if(cached){
-    touch(cached);
-    log('CACHE HIT', key);
-    return cached.layer;
-  }
-  log('CACHE MISS', key);
-  const entry = createEntry(key);
-  evictIfNeeded(protectedKeys);
-  return entry.layer;
+  return getOrCreateEntry(key, protectedKeys).layer;
 }
 
 /**
@@ -154,16 +168,7 @@ export function getOrCreateLayer(key, protectedKeys){
  * 同一張歷史圖」時，不會重新對 WMTS 服務發送請求。
  */
 export function getOrCreateSource(key, protectedKeys){
-  const cached = cache.get(key);
-  if(cached){
-    touch(cached);
-    log('CACHE HIT', key);
-    return cached.source;
-  }
-  log('CACHE MISS', key);
-  const entry = createEntry(key);
-  evictIfNeeded(protectedKeys);
-  return entry.source;
+  return getOrCreateEntry(key, protectedKeys).source;
 }
 
 /** 立即顯示（opacity 1），不做動畫；需要淡入淡出效果的地方請自行控制 opacity。 */

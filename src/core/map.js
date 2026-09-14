@@ -109,7 +109,16 @@ export function flyToCategoryExtent(cat){
    呼叫 applyBaseLayer() 處理。
 --------------------------------------------------------- */
 export function initBaseSwitch(){
-  document.getElementById('baseSwitch').addEventListener('click', (e)=>{
+  const el = document.getElementById('baseSwitch');
+  if(!el){
+    // 防呆：這個 id 理論上一定存在於 index.html，但如果之後改版
+    // 不慎移除／改名，這裡不應該直接對 null 呼叫 addEventListener
+    // 拋出 TypeError，讓呼叫端 initMapCore() 整串初始化中斷、連跟
+    // 這個按鈕無關的其他功能也一起起不來——記錄警告、優雅跳過即可。
+    console.warn('initBaseSwitch：找不到 #baseSwitch，底圖切換按鈕將無法作用');
+    return;
+  }
+  el.addEventListener('click', (e)=>{
     const btn = e.target.closest('button[data-base]');
     if(!btn) return;
     setBaseLayer(btn.dataset.base);

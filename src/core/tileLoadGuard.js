@@ -412,14 +412,29 @@ function sweepStaleGuardedTiles(map){
   const resolution = view.getResolution();
   const center = view.getCenter();
   if(!size || resolution == null || !center) return;
-  const currentZ = Math.round(view.getZoom());
+  // view.getZoom() 在平滑縮放動畫（滾輪動畫、觸控 pinch）過程中是連續
+  // 浮點值，不是使用者最終停下來的那個整數層級；原本直接
+  // Math.round() 取整數比對，縮放過渡瞬間（例如 14.5 附近）會把「這次
+  // moveend／節流掃描當下，OL 實際上仍在請求」的另一個整數 z 誤判為
+  // stale 而 abort，即使那顆圖磚幾乎確定馬上又會被用到。改成允許
+  // [floor, ceil] 的容忍範圍：只有 entry.z 落在這個範圍之外，才視為
+  // z 不相關；範圍內的兩個端點都視為「跟目前這一刻的連續縮放進度仍然
+  // 相關」，不會因為 z 不完全等於四捨五入值就被 abort（bbox 比對不受
+  // 影響，仍然是唯一/另一個判定 stale 的依據）。多留這一顆 z 的餘裕，
+  // 換來的代價只是「動畫過程中極少數已經過期的請求晚一點點才被放棄」
+  // （最差還是會被 loadWithTimeoutRetry() 的逾時機制收尾），遠比「誤殺
+  // 仍相關的請求造成閃爍/重新載入」風險小。
+  const rawZoom = view.getZoom();
+  const zLow = Math.floor(rawZoom);
+  const zHigh = Math.ceil(rawZoom);
   const extent3857 = view.calculateExtent(size);
   const extent4326 = ol.proj.transformExtent(extent3857, view.getProjection(), 'EPSG:4326');
   inFlightGuardedTiles.forEach(entry => {
     // { stale: true }：只是視角過期而放棄，不是真正逾時/失敗，讓
     // entry.abort() 把 tile 重置回 IDLE 而不是永久卡在 ERROR（見
     // entry.abort 定義處的完整說明）。
-    if(entry.z !== currentZ || !bboxIntersects(entry.bbox, extent4326)) entry.abort({ stale: true });
+    const zStale = entry.z < zLow || entry.z > zHigh;
+    if(zStale || !bboxIntersects(entry.bbox, extent4326)) entry.abort({ stale: true });
   });
 }
 

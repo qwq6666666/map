@@ -120,7 +120,15 @@ function initModeSwitch(){
   mapTimelineBarEl = document.getElementById('mapTimelineBar');
   multiOverlayBarEl = document.getElementById('multiOverlayBar');
 
-  document.getElementById('modeSwitch').addEventListener('click', (e)=>{
+  const modeSwitchEl = document.getElementById('modeSwitch');
+  if(!modeSwitchEl){
+    // 防呆：比照 core/map.js 的 initBaseSwitch()，找不到就記錄警告並跳過，
+    // 不要讓整個 initMapCore() 因為一個 TypeError 中斷、連帶拖垮跟模式
+    // 切換無關的其他初始化。
+    console.warn('initModeSwitch：找不到 #modeSwitch，模式切換按鈕將無法作用');
+    return;
+  }
+  modeSwitchEl.addEventListener('click', (e)=>{
     const btn = e.target.closest('button[data-mode]');
     if(!btn) return;
     setMode(btn.dataset.mode);
