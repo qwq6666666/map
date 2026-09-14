@@ -741,13 +741,19 @@
 
   /* 時間軸模式（timelineMode.js）專用樣式，搜尋結果面板已不再使用時間軸檢視。
      視覺語彙直接比照自訂時間軸浮動 dock（features/customTimelineUI.js／
-     .custom-timeline-*）抄一份數值：圓點刻度＋滑桿＋brass 強調色的深色
-     卡片語言，兩邊 class 前綴各自獨立（.timeline-* vs .custom-timeline-*）、
-     不共用同一條規則，只是看起來像同一套設計。 */
-  .timeline-dots{
-    display:flex; align-items:flex-start; gap:6px;
-    margin-bottom:6px; padding:2px 2px 4px;
-    overflow-x:auto; -webkit-overflow-scrolling:touch;
+     .custom-timeline-*）抄一份數值：圓點刻度＋brass 強調色的深色卡片語言，
+     兩邊 class 前綴各自獨立（.timeline-* vs .custom-timeline-*）、不共用
+     同一條規則，只是看起來像同一套設計。
+     播放鈕／刻度點／加速鈕合併成同一列（.timeline-row 內含
+     .timeline-play-btn、.timeline-ticks、.timeline-speed-btn），取代舊版
+     「刻度點一列＋播放/滑桿一列」——滑桿其實是刻度點列本身「選某個索引」
+     的重複功能，拿掉後改成直接在 .timeline-ticks 上拖曳 scrub（見
+     timelineUI.js 的 pointerdown/pointermove），省下一整列高度。 */
+  .timeline-row{display:flex; align-items:center; gap:8px; margin-bottom:4px;}
+  .timeline-ticks{
+    display:flex; align-items:flex-start; gap:6px; flex:1; min-width:0;
+    padding:2px 2px 4px;
+    overflow-x:auto; -webkit-overflow-scrolling:touch; touch-action:pan-x;
   }
   .timeline-dot-wrap{
     display:flex; flex-direction:column; align-items:center; gap:4px; flex-shrink:0;
@@ -756,11 +762,15 @@
   /* 圓點刻度：沿用 .layer-item 讓 syncActiveLayerItemClasses() 能正確同步
      「目前實際套疊中」高亮，這裡的規則要蓋掉 .layer-item 原本 display:flex
      ／padding／background 等 list-item 樣式（後宣告的同specificity規則
-     蓋掉先宣告的，見 .layer-item 定義處），改成一顆圓點。 */
+     蓋掉先宣告的，見 .layer-item 定義處），改成一顆圓點。touch-action:none
+     讓按住圓點拖曳時瀏覽器不會把手勢搶去做原生捲動，改由 JS 的
+     pointermove 接手（.timeline-ticks 上的 touch-action:pan-x 則是讓
+     「按在刻度點之間的空白處」時仍可正常橫向捲動看超出畫面的刻度點）。 */
   .timeline-dot{
     display:block; width:11px; height:11px; padding:0; border-radius:50%;
     background:rgba(255,255,255,.3); border:1px solid rgba(255,255,255,.5);
     cursor:pointer; transition:background .15s ease, border-color .15s ease;
+    touch-action:none;
   }
   .timeline-dot:hover{background:rgba(255,255,255,.5);}
   .timeline-dot.passed{background:var(--brass); border-color:var(--brass-dark);}
@@ -780,11 +790,8 @@
   .timeline-undated-chip:hover{background:rgba(255,255,255,.18);}
   .timeline-undated-chip.active{background:var(--stamp); color:var(--paper); border-color:var(--stamp);}
 
-  /* 時間軸：播放列（播放/暫停鈕＋加速播放鈕＋橫向滑桿），數值直接比照
-     .custom-timeline-slider-row／.custom-timeline-play-btn／
+  /* 時間軸：播放鈕／加速鈕，數值直接比照 .custom-timeline-play-btn／
      .custom-timeline-speed-btn 抄一份。 */
-  .timeline-slider-row{margin:2px 0 4px; display:flex; align-items:center; gap:8px;}
-  .timeline-slider{flex:1; min-width:0; accent-color:var(--brass-dark);}
   .timeline-play-btn, .timeline-speed-btn{
     flex-shrink:0; font-size:11px; padding:3px 10px; background:transparent; color:var(--paper);
     border:1px solid rgba(255,255,255,.4); border-radius:12px; cursor:pointer;
@@ -927,7 +934,10 @@
   #mapTimelineBar{
     position:absolute; left:50%; bottom:16px; z-index:9;
     transform:translateX(-50%);
-    width:min(560px, calc(100% - 32px)); /* 固定寬度、置中，兩側留出地圖可視空間；小螢幕才會頂到邊界 */
+    /* 固定寬度、置中，兩側留出地圖可視空間；小螢幕才會頂到邊界。640px（原本
+       560px）是把播放/加速鈕併進刻度點列同一行後，補回讓常見筆數（十幾個
+       年份）不用橫向捲動就能看完整排所需的寬度。 */
+    width:min(640px, calc(100% - 32px));
     display:none;
     background:rgba(23,33,29,.92); backdrop-filter:blur(6px);
     color:var(--paper); border:1px solid var(--brass); border-radius:12px;
@@ -2161,11 +2171,16 @@
     #mapTimelineBar .map-timeline-scale-switch button,
     #mapTimelineBar .map-timeline-source-switch button{padding:2px 6px; font-size:10px;}
     #mapTimelineBar .map-timeline-refresh-btn{padding:2px 7px; font-size:10px;}
-    #mapTimelineBar .timeline-dots{padding:2px 2px 2px; gap:4px;}
+    #mapTimelineBar .timeline-ticks{padding:2px 2px 2px; gap:4px;}
     #mapTimelineBar .timeline-dot-wrap{min-width:22px;}
-    #mapTimelineBar .timeline-dot{width:9px; height:9px;}
+    /* min-height:0／padding:0 蓋掉上面「觸控友善」區塊對 .layer-item
+       通用設的 min-height:44px、padding-top/bottom:9px——刻度點沿用
+       .layer-item 只是為了借用 syncActiveLayerItemClasses() 的高亮
+       同步，不是清單項目，這兩條規則疊加會把 9px 圓點撐成一整條直立
+       藥丸狀（已用手機版實機寬度實測確認，兩條都要蓋掉才會是正圓）。 */
+    #mapTimelineBar .timeline-dot{width:9px; height:9px; min-height:0; padding:0;}
     #mapTimelineBar .timeline-dot-label{font-size:9px;}
-    #mapTimelineBar .timeline-slider-row{margin:0 0 2px;}
+    #mapTimelineBar .timeline-row{margin:0 0 2px;}
     #mapTimelineBar .timeline-play-btn,
     #mapTimelineBar .timeline-speed-btn{padding:2px 8px; font-size:10px;}
 

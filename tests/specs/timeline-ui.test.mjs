@@ -60,23 +60,23 @@ test('自動播放會依序觸發每一筆，播完自動停止', async () => {
   const container = document.createElement('div');
   const candidates = [1897, 1904, 1944].map((y, i) => makeCandidate('id' + i, 't' + i, y));
   buildTimeline(candidates, container, (s, l) => fired.push(l.id));
-  const sliderRow = container.children.find(c => c.className === 'timeline-slider-row');
-  const playBtn = sliderRow.children[0];
+  const timelineRow = container.children.find(c => c.className === 'timeline-row');
+  const playBtn = timelineRow.children[0];
   playBtn._listeners['click'][0]();
   assertEqual(fired.length, 1, '按下播放應該立即觸發第一筆');
   await sleep(2000);
   assertEqual(fired.length, 2, '等待一輪應該推進到第二筆');
   await sleep(2000);
   assertEqual(fired.length, 3, '應該播完全部 3 筆');
-  assertEqual(playBtn.textContent, '▶ 播放', '播完應該自動變回「播放」文字');
+  assertEqual(playBtn.textContent, '▶', '播完應該自動變回「播放」圖示');
 });
 
 test('加速播放按鈕會依 1x→2x→4x→0.5x→1x 循環切換（跟自訂時間軸共用同一組級距）', () => {
   const container = document.createElement('div');
   const candidates = [1897, 1904, 1944].map((y, i) => makeCandidate('id' + i, 't' + i, y));
   buildTimeline(candidates, container, () => {});
-  const sliderRow = container.children.find(c => c.className === 'timeline-slider-row');
-  const speedBtn = sliderRow.children[2];
+  const timelineRow = container.children.find(c => c.className === 'timeline-row');
+  const speedBtn = timelineRow.children[2];
   assertEqual(speedBtn.textContent, '1x', '初始應該是 1x');
   speedBtn._listeners['click'][0]();
   assertEqual(speedBtn.textContent, '2x', '點一次應該變 2x');

@@ -1,12 +1,19 @@
 /* ---------------------------------------------------------
    timelineUI.js — 時間軸模式（timelineMode.js）專用的時間軸內容渲染
    ---------------------------------------------------------
-   把「目前地圖位置可套疊的歷史圖層」畫成一列刻度點＋橫向滑桿，跟
-   features/customTimelineUI.js 的自訂時間軸浮動 dock 走同一套視覺／
-   互動語彙（圓點刻度＋滑桿＋播放／加速播放），但完全獨立實作、不
-   import、不共用容器或狀態——這裡唯一的呼叫端是 src/timelineMode.js
-   （buildTimeline()），跟自訂時間軸 dock 純屬「風格一致」不是
-   「共用元件」。
+   把「目前地圖位置可套疊的歷史圖層」畫成一列可點擊／可拖曳 scrub 的
+   刻度點，搭配播放／加速播放鈕，跟 features/customTimelineUI.js 的
+   自訂時間軸浮動 dock 走同一套視覺語彙（圓點刻度＋播放／加速播放），
+   但完全獨立實作、不 import、不共用容器或狀態——這裡唯一的呼叫端是
+   src/timelineMode.js（buildTimeline()），跟自訂時間軸 dock 純屬
+   「風格一致」不是「共用元件」。
+
+   播放鈕／刻度點／加速鈕合併成同一列（.timeline-row），不像
+   customTimelineUI.js 的 dock 分成「刻度點一列＋播放/滑桿一列」兩層：
+   原本額外有一條 <input type=range> 滑桿負責拖曳，但滑桿做的事其實
+   跟刻度點列本身「選某個索引」完全重複，只是多佔一整列版面，因此改
+   成直接在刻度點列（.timeline-ticks）上用 pointerdown/pointermove
+   支援按住拖曳 scrub，拿掉滑桿後省下一整列高度。
 
    每一筆候選圖層各自一個刻度點（同年份會連續出現好幾個點，不合併
    分組，跟 customTimelineUI.js 的 dock 行為一致），刻度點與底下的
@@ -69,7 +76,6 @@ export function buildTimeline(candidates, container, onSelect){
     const items = [...dated].sort((a, b) => a.layer.yearNum - b.layer.yearNum);
 
     const dotList = []; // { el, layer, src }，依左到右順序，供播放／拖曳／鍵盤操作使用
-    let sliderEl = null;
     let playBtn = null;
     let speedBtn = null;
 
@@ -89,7 +95,6 @@ export function buildTimeline(candidates, container, onSelect){
         if(i === idx) item.el.setAttribute('aria-current', 'step');
         else item.el.removeAttribute('aria-current');
       });
-      if(sliderEl) sliderEl.value = String(Math.max(0, idx));
     }
 
     function selectIndex(idx, immediate){
@@ -127,7 +132,9 @@ export function buildTimeline(candidates, container, onSelect){
       playing = false;
       if(playTimer){ clearTimeout(playTimer); playTimer = null; }
       if(playBtn){
-        playBtn.textContent = '▶ 播放';
+        playBtn.textContent = '▶';
+        playBtn.title = '播放';
+        playBtn.setAttribute('aria-label', '播放');
         playBtn.classList.remove('playing');
       }
     }
@@ -150,7 +157,9 @@ export function buildTimeline(candidates, container, onSelect){
       if(dotList.length < 2) return; // 只有一筆沒什麼好播放的
       playing = true;
       if(playBtn){
-        playBtn.textContent = '❚❚ 暫停';
+        playBtn.textContent = '❚❚';
+        playBtn.title = '暫停';
+        playBtn.setAttribute('aria-label', '暫停');
         playBtn.classList.add('playing');
       }
       const startIdx = currentIndex >= dotList.length - 1 ? 0 : Math.max(0, currentIndex);
@@ -159,15 +168,21 @@ export function buildTimeline(candidates, container, onSelect){
     }
 
     // ---------------------------------------------------------
-    // 刻度點列：每一筆候選圖層各自一個圓點按鈕＋底下年份文字，兩者都能
-    // 點擊直接跳轉。圓點沿用 layer-item + data-layer-id，讓
-    // syncActiveLayerItemClasses() 能正確同步「目前實際套疊中」的高亮。
+    // 單一列（.timeline-row）：播放鈕＋刻度點列（.timeline-ticks）＋
+    // 加速鈕。刻度點沿用 layer-item + data-layer-id，讓
+    // syncActiveLayerItemClasses() 能正確同步「目前實際套疊中」的高亮；
+    // 每個圓點下方的年份文字一樣可以直接點擊跳轉。
     // ---------------------------------------------------------
-    const dotsRow = document.createElement('div');
-    dotsRow.className = 'timeline-dots';
+    const ticks = document.createElement('div');
+    ticks.className = 'timeline-ticks';
     // role="group" 讓 aria-label 對純 div 也生效。
-    dotsRow.setAttribute('role', 'group');
-    dotsRow.setAttribute('aria-label', '依年代排列的時間軸');
+    ticks.setAttribute('role', 'group');
+    ticks.setAttribute('aria-label', '依年代排列的時間軸');
+
+    function focusDot(idx){
+      const item = dotList[idx];
+      if(item && item.el.focus) item.el.focus();
+    }
 
     items.forEach((c, i) => {
       const dotWrap = document.createElement('div');
@@ -189,50 +204,80 @@ export function buildTimeline(candidates, container, onSelect){
       dot.addEventListener('click', handleActivate);
       label.addEventListener('click', handleActivate);
       dot.addEventListener('keydown', (e) => {
-        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); handleActivate(); }
+        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); handleActivate(); return; }
+        // 拿掉獨立滑桿後，左右方向鍵改在刻度點本身補上「移到上/下一筆」，
+        // 維持鍵盤使用者原本靠滑桿方向鍵逐筆瀏覽的能力。
+        if(e.key === 'ArrowRight' || e.key === 'ArrowLeft'){
+          const nextIdx = e.key === 'ArrowRight' ? i + 1 : i - 1;
+          if(nextIdx < 0 || nextIdx >= dotList.length) return;
+          e.preventDefault();
+          stopPlaying();
+          selectIndex(nextIdx, true);
+          focusDot(nextIdx);
+        }
       });
 
       dotWrap.appendChild(dot);
       dotWrap.appendChild(label);
-      dotsRow.appendChild(dotWrap);
+      ticks.appendChild(dotWrap);
       dotList.push({ el: dot, layer: c.layer, src: c.src });
     });
 
-    container.appendChild(dotsRow);
+    // ---------------------------------------------------------
+    // 拖曳 scrub：取代原本獨立的 <input type=range> 滑桿。只有從刻度點
+    // 本身按下才會啟動（e.target.closest('.timeline-dot')），刻意不讓
+    // 刻度點之間的空白也能拖，避免跟手機上「橫向捲動看超出畫面的刻度
+    // 點」的原生滑動手勢打架。用 ticks.setPointerCapture 讓按住後手指/
+    // 滑鼠移出刻度點範圍一樣能持續收到 pointermove。移動中跟原本拖曳
+    // pointermove 一樣走 SCRUB_DEBOUNCE_MS 節流；放開（pointerup/
+    // cancel）時比照原本滑桿的 change 事件，立即套用不等 debounce。
+    // ---------------------------------------------------------
+    let dragPointerId = null;
 
-    // ---------------------------------------------------------
-    // 播放列：播放/暫停鈕＋加速播放鈕＋橫向滑桿，只有一筆以上才需要
-    // （只有一筆沒什麼好播放/拖曳的）。滑桿的 input 事件跟原本拖曳
-    // pointermove 一樣密集，一樣要走 SCRUB_DEBOUNCE_MS 節流；change
-    // 事件（放開滑桿，涵蓋滑鼠/觸控放開與鍵盤放開方向鍵）等同原本
-    // pointerup，立即套用不等 debounce。
-    // ---------------------------------------------------------
+    function nearestIndexForClientX(clientX){
+      let bestIdx = currentIndex < 0 ? 0 : currentIndex;
+      let bestDist = Infinity;
+      dotList.forEach((item, i) => {
+        const rect = item.el.getBoundingClientRect();
+        const dist = Math.abs((rect.left + rect.width / 2) - clientX);
+        if(dist < bestDist){ bestDist = dist; bestIdx = i; }
+      });
+      return bestIdx;
+    }
+
+    ticks.addEventListener('pointerdown', (e) => {
+      if(!e.target.closest || !e.target.closest('.timeline-dot')) return;
+      dragPointerId = e.pointerId;
+      if(ticks.setPointerCapture) ticks.setPointerCapture(e.pointerId);
+      stopPlaying();
+      selectIndex(nearestIndexForClientX(e.clientX), true);
+    });
+    ticks.addEventListener('pointermove', (e) => {
+      if(dragPointerId === null || e.pointerId !== dragPointerId) return;
+      selectIndex(nearestIndexForClientX(e.clientX), false);
+    });
+    function endDrag(e){
+      if(dragPointerId === null || e.pointerId !== dragPointerId) return;
+      dragPointerId = null;
+      if(pendingTimer){ clearTimeout(pendingTimer); pendingTimer = null; }
+      selectIndex(currentIndex, true);
+    }
+    ticks.addEventListener('pointerup', endDrag);
+    ticks.addEventListener('pointercancel', endDrag);
+
+    const timelineRow = document.createElement('div');
+    timelineRow.className = 'timeline-row';
+
+    // 播放/暫停鈕＋加速播放鈕只有一筆以上才需要（只有一筆沒什麼好播放/
+    // 拖曳的），這種情況下 timelineRow 只包刻度點列本身。
     if(dotList.length > 1){
-      const sliderRow = document.createElement('div');
-      sliderRow.className = 'timeline-slider-row';
-
       playBtn = document.createElement('button');
       playBtn.type = 'button';
       playBtn.className = 'timeline-play-btn';
-      playBtn.textContent = '▶ 播放';
+      playBtn.textContent = '▶';
+      playBtn.title = '播放';
+      playBtn.setAttribute('aria-label', '播放');
       playBtn.addEventListener('click', () => { playing ? stopPlaying() : startPlaying(); });
-
-      sliderEl = document.createElement('input');
-      sliderEl.type = 'range';
-      sliderEl.className = 'timeline-slider';
-      sliderEl.min = '0';
-      sliderEl.max = String(dotList.length - 1);
-      sliderEl.step = '1';
-      sliderEl.value = '0';
-      sliderEl.setAttribute('aria-label', '年代進度');
-      sliderEl.addEventListener('input', () => {
-        stopPlaying(); // 使用者自己動手拖，代表想自己控制，先停掉自動播放
-        selectIndex(Number.parseInt(sliderEl.value, 10) || 0, false);
-      });
-      sliderEl.addEventListener('change', () => {
-        if(pendingTimer){ clearTimeout(pendingTimer); pendingTimer = null; }
-        selectIndex(Number.parseInt(sliderEl.value, 10) || 0, true); // 放開時不等 debounce，立刻套用
-      });
 
       // 加速播放：0.5x/1x/2x/4x 循環切換，只改變自動播放的步進間隔，
       // 對「拖曳/點擊挑選某一筆立即套用」的互動完全沒有影響。title／
@@ -254,11 +299,13 @@ export function buildTimeline(candidates, container, onSelect){
         }
       });
 
-      sliderRow.appendChild(playBtn);
-      sliderRow.appendChild(sliderEl);
-      sliderRow.appendChild(speedBtn);
-      container.appendChild(sliderRow);
+      timelineRow.appendChild(playBtn);
+      timelineRow.appendChild(ticks);
+      timelineRow.appendChild(speedBtn);
+    } else {
+      timelineRow.appendChild(ticks);
     }
+    container.appendChild(timelineRow);
   }
 
   if(undated.length > 0){
