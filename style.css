@@ -314,6 +314,26 @@
   }
   .clear-btn:hover{border-color:var(--stamp); color:var(--stamp);}
 
+  /* ---------- 浮動底圖切換：跟 .floating-opacity 同一個左下角，固定疊在
+     它上面一排（不管當下有沒有疊圖層都顯示，跟透明度控制的顯示條件
+     互相獨立），讓「現代地圖／衛星影像」這種高頻操作不必展開側邊欄
+     切到圖層分頁才能按到。桉鈕點擊與按鈕高亮同步邏輯見 core/map.js
+     的 initBaseSwitch()／applyBaseLayer()，跟側邊欄 #baseSwitch 共用
+     同一份 setBaseLayer() 狀態，兩邊的按鈕高亮永遠一致。 ---------- */
+  .floating-base-switch{
+    position:absolute; left:16px; bottom:62px; z-index:9;
+    display:flex; border:1px solid var(--ink); border-radius:var(--radius-sm); overflow:hidden;
+    background:var(--paper);
+    box-shadow:0 4px 12px rgba(0,0,0,.3);
+  }
+  .floating-base-switch button{
+    border:none; background:var(--paper); color:var(--ink);
+    font-family:var(--sans); font-size:12.5px; font-weight:600;
+    padding:7px 11px; cursor:pointer; border-right:1px solid var(--rule);
+  }
+  .floating-base-switch button:last-child{border-right:none;}
+  .floating-base-switch button.active{background:var(--ink); color:var(--paper);}
+
   /* ---------- 浮動透明度控制：側邊欄收合後（透明疊圖模式）顯示於左下角，
      讓使用者不必展開整個側邊欄也能調整歷史圖層透明度 ---------- */
   .floating-opacity{
@@ -1964,6 +1984,19 @@
        .floating-opacity／[hidden] 已經在用的手法。 */
     #opacityBlock{display:none !important;}
 
+    /* ---------- 手機浮動底圖切換：跟桌面版一樣不受「有沒有疊圖層」
+       影響、永遠顯示，固定疊在 .floating-opacity 那排上面一層（比照
+       #mobileModeBtn／#stamp 已經在用的 bottom +56px 這個「第二排」
+       慣例）。已知邊界狀況：使用者點開 .floating-opacity 展開透明度
+       拉桿（見下方 .floating-opacity 區塊）時，展開後的高度會逼近
+       這裡的下緣，視覺上可能貼得有點近；先沿用既有 +56px 慣例上線，
+       之後如果實機回饋真的會疊到，再回來調高或改成動態量測高度。 ---------- */
+    .floating-base-switch{
+      left:calc(68px + env(safe-area-inset-left));
+      bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 56px);
+      z-index:22;
+    }
+
     /* ---------- 手機「目前圖層」浮動列：取代桌面版左下角浮動透明度，
        改成貼齊底部工作表 peek 區上緣的橫幅，預設只顯示一行「圖名＋
        收藏星號＋清除鈕＋百分比」，點一下展開透明度拉桿。存在歷史圖層時
@@ -2224,16 +2257,27 @@
          確實蓋過去。 */
       display:none !important;
     }
+    /* .floating-base-switch 沒有 .show／.has-layer 這種額外 gating class，
+       固定只有 1 個 class，不會遇到上面那條的 specificity 問題，但同樣
+       z-index:22 高於 #sidebar 的 20，Sheet 展開時一樣會浮在已經拉起的
+       選單內容上面，跟 .floating-opacity 同理隱藏。 */
+    body.mobile-sheet-open .floating-base-switch{display:none !important;}
 
     /* 時間軸／複合疊圖模式的浮動列（#mapTimelineBar／#multiOverlayBar）
        會拉到接近全寬、高度也可能偏高，跟右下角日期印章、「目前圖層」
        浮動列搶同一塊位置（實機回報「圖資名稱遮擋時間軸」）。印章純
        裝飾用途、「目前圖層」摘要在時間軸模式下本來就能從年份刻度看出
-       目前套疊哪一張，兩者在這兩個模式下都先藏起來，非操作入口，不
-       影響功能完整性。body class 由 src/ui/mobileLayout.js 的
-       initModeClassSync() 同步。 */
+       目前套疊哪一張，這兩者在這兩個模式下都先藏起來，非操作入口，不
+       影響功能完整性。.floating-base-switch（底圖切換）不受「有沒有
+       疊圖層」條件限制、兩個模式下都會渲染，同樣跟這兩條浮動列搶位置，
+       一併加入隱藏；.floating-opacity 只在 timeline 模式列進來，是因為
+       multi 模式下它本來就幾乎不會帶上 .has-layer（多重疊加沒有單一
+       「目前圖層」概念），不是遺漏。body class 由 src/ui/mobileLayout.js
+       的 initModeClassSync() 同步。 */
     body.mobile-mode-timeline #stamp,
     body.mobile-mode-multi #stamp,
+    body.mobile-mode-timeline .floating-base-switch,
+    body.mobile-mode-multi .floating-base-switch,
     body.mobile-mode-timeline .floating-opacity.show.has-layer{
       /* 這裡的 .floating-opacity 要蓋掉的是 .floating-opacity.show.has-layer
          那條 3 個 class 的 !important 規則（see 上方定義），選擇器裡多補

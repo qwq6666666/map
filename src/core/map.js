@@ -107,27 +107,35 @@ export function flyToCategoryExtent(cat){
    setBaseLayer()，真正切換 osmLayer/satLayer 可見度、同步按鈕
    高亮，統一由 store 訂閱者（core/modeManager.js 的 render()）
    呼叫 applyBaseLayer() 處理。
+
+   側邊欄 #baseSwitch 跟地圖左下角常駐浮動列 #floatingBaseSwitch
+   （見 index.html／style.css .floating-base-switch）是同一份
+   setBaseLayer() 狀態的兩個入口，BASE_SWITCH_IDS 兩個都掛同一支
+   click handler、applyBaseLayer() 也兩邊都同步高亮，不會有一邊按了
+   另一邊沒跟上的情況。
 --------------------------------------------------------- */
+const BASE_SWITCH_IDS = ['baseSwitch', 'floatingBaseSwitch'];
+
 export function initBaseSwitch(){
-  const el = document.getElementById('baseSwitch');
-  if(!el){
-    // 防呆：這個 id 理論上一定存在於 index.html，但如果之後改版
+  const els = BASE_SWITCH_IDS.map(id => document.getElementById(id)).filter(Boolean);
+  if(els.length === 0){
+    // 防呆：這兩個 id 理論上一定存在於 index.html，但如果之後改版
     // 不慎移除／改名，這裡不應該直接對 null 呼叫 addEventListener
     // 拋出 TypeError，讓呼叫端 initMapCore() 整串初始化中斷、連跟
     // 這個按鈕無關的其他功能也一起起不來——記錄警告、優雅跳過即可。
-    console.warn('initBaseSwitch：找不到 #baseSwitch，底圖切換按鈕將無法作用');
+    console.warn('initBaseSwitch：找不到 #baseSwitch／#floatingBaseSwitch，底圖切換按鈕將無法作用');
     return;
   }
-  el.addEventListener('click', (e)=>{
+  els.forEach(el => el.addEventListener('click', (e)=>{
     const btn = e.target.closest('button[data-base]');
     if(!btn) return;
     setBaseLayer(btn.dataset.base);
-  });
+  }));
 }
 
 export function applyBaseLayer(){
   osmLayer.setVisible(store.baseLayer === 'osm');
   satLayer.setVisible(store.baseLayer === 'sat');
-  document.querySelectorAll('#baseSwitch button').forEach(b=>
+  document.querySelectorAll(BASE_SWITCH_IDS.map(id => `#${id} button`).join(', ')).forEach(b=>
     b.classList.toggle('active', b.dataset.base === store.baseLayer));
 }
