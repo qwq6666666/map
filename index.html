@@ -103,21 +103,29 @@
   <button type="button" id="identifyPinMarker" class="identify-pin-marker" aria-label="開啟座標資訊"></button>
 </div>
 
-<div class="floating-base-switch" id="floatingBaseSwitch">
-  <button type="button" class="active" data-base="osm">現代地圖</button>
-  <button type="button" data-base="sat">衛星影像</button>
-</div>
+<!-- .floating-stack：#floatingBaseSwitch／#floatingOpacity 共用一個絕對
+     定位的容器，用 flex column 疊排，不各自寫 position/left/bottom——
+     這樣 #floatingOpacity 沒有作用中歷史圖層而隱藏時，#floatingBaseSwitch
+     會自然貼齊容器下緣（跟緊鄰的 Bottom Sheet／桌面版左下角對齊），
+     不會留下一段看起來像放錯地方的空白。詳見 style.css .floating-stack
+     區塊註解。 -->
+<div class="floating-stack" id="floatingStack">
+  <div class="floating-base-switch" id="floatingBaseSwitch">
+    <button type="button" class="active" data-base="osm">現代地圖</button>
+    <button type="button" data-base="sat">衛星影像</button>
+  </div>
 
-<div class="floating-opacity" id="floatingOpacity">
-  <span class="floating-layer-name" id="floatingLayerName"></span>
-  <button type="button" id="floatingClearBtn" class="current-layer-fav-btn floating-clear-btn" title="清除疊圖" aria-label="清除疊圖"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg></button>
-  <span class="field-label">透明度</span>
-  <input type="range" id="floatingOpacitySlider" min="0" max="100" value="100" aria-label="透明度">
-  <span class="opacity-val" id="floatingOpacityVal">100%</span>
-  <!-- 桌面版側邊欄收合時也要能收藏目前圖層，不用再展開側邊欄；
-       名稱／清除鈕在桌面版維持隱藏（見 style.css），只讓收藏星號
-       在這裡額外露出，順序排在最後（視覺上「右側的圖示」）。 -->
-  <button type="button" id="floatingLayerFavBtn" class="current-layer-fav-btn floating-layer-fav-btn" title="收藏此圖層" hidden>☆</button>
+  <div class="floating-opacity" id="floatingOpacity">
+    <span class="floating-layer-name" id="floatingLayerName"></span>
+    <button type="button" id="floatingClearBtn" class="current-layer-fav-btn floating-clear-btn" title="清除疊圖" aria-label="清除疊圖"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg></button>
+    <span class="field-label">透明度</span>
+    <input type="range" id="floatingOpacitySlider" min="0" max="100" value="100" aria-label="透明度">
+    <span class="opacity-val" id="floatingOpacityVal">100%</span>
+    <!-- 桌面版側邊欄收合時也要能收藏目前圖層，不用再展開側邊欄；
+         名稱／清除鈕在桌面版維持隱藏（見 style.css），只讓收藏星號
+         在這裡額外露出，順序排在最後（視覺上「右側的圖示」）。 -->
+    <button type="button" id="floatingLayerFavBtn" class="current-layer-fav-btn floating-layer-fav-btn" title="收藏此圖層" hidden>☆</button>
+  </div>
 </div>
 
 <!-- 手機版「地圖工具」快速模式選單：只是 #modeSwitch 既有按鈕（與
