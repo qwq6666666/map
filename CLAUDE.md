@@ -21,7 +21,7 @@
 搜尋流程已從「大量 WMTS file-exists probe 猜測圖層是否存在」改為「先用 bbox 本地篩選、只對少量候選圖層 probe」：
 - `tools/fetch-wmts-bbox.js`：建置階段解析各來源 WMTS Capabilities，寫入 `data/layers/<id>.json` 的 `region.bbox`（`[minLon,minLat,maxLon,maxLat]`）。全站 33 個來源中 32 個已 100% 覆蓋（見 `spatial-index.test.mjs`），只有 `udd`（都市地籍圖）沒有對應端點，維持 `region: null`。新增來源只需在 `AUTO_IDS` 加 id（前提是網址符合 `https://gis.sinica.edu.tw/<id>/wmts/1.0.0/WMTSCapabilities.xml`），並同步在 `data/source-map.json` 登記候選規則（`alwaysInclude`／`rules`），否則地址搜尋不會用到新來源（`ls`、`korea` 曾漏改）。
 - `pointInBbox(lon, lat, bbox)`（`src/core/tileGeo.js`）：純幾何比對，bbox 缺失／格式錯誤一律 `return true`（fallback，不可誤排除）。
-- `filterCandidatesByBbox(candidates, lon, lat)`（`src/features/search.js`，已 export）：接在文字比對之後、`tileChecker.checkBatch()` 之前，篩掉有合法 bbox 且確定不涵蓋座標的候選；無索引的圖層一律保留。
+- `filterCandidatesByBbox(candidates, tileBbox)`（`src/features/search.js`，已 export）：接在文字比對之後、`tileChecker.checkBatch()` 之前，用 `bboxIntersects()` 比對「實際要探測的那顆 `SEARCH_ZOOM` 圖磚範圍」（`tileXYToBbox()`，而非使用者座標單點——圖磚有面積，座標剛好落在圖層 bbox 外緣一點點時，圖磚範圍可能仍與 bbox 重疊，用點對點比對會誤篩掉這種候選），篩掉有合法 bbox 且確定不相交的候選；無索引的圖層一律保留。
 - `TileChecker`（`src/tileChecker.js`）的 `_probe()` 一律包在 `RequestPool.run()` 裡才送出 `Image` 請求，確保巢狀 fallback／timeout retry 不會讓併發數超上限。未傳入 `pool` 時各 instance 自建專屬 pool；`search.js`／`timelineMode.js` 明確共用 `globalTileRequestPool`（上限 `TILE_REQUEST_MAX_CONCURRENCY = 8`）。
 - 測試：`tests/specs/spatial-index.test.mjs`（bbox 覆蓋率回歸＋全站總圖層數斷言，增刪來源時同步更新）、`tests/specs/tile-request-pool.test.mjs`（併發上限、cache/in-flight dedup、timeout 釋放 slot、retry 不繞過 pool）。
 

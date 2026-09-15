@@ -188,8 +188,10 @@ test('tile URL 生成：比照 search.js urlOf 的組法（c.src.tileUrl(c.layer
 /* ---------------------------------------------------------
    9：filterCandidatesByBbox 確實可以減少 candidate layers
 --------------------------------------------------------- */
-test('filterCandidatesByBbox：篩掉座標落在 bbox 外的候選，保留範圍內的與沒有 bbox 的', () => {
+test('filterCandidatesByBbox：篩掉跟探測圖磚範圍不相交的候選，保留有重疊的與沒有 bbox 的', () => {
   const lon = 121.5654, lat = 25.0330; // 台北
+  const tile = lonLatToTileXY(lon, lat, SEARCH_ZOOM);
+  const tileBbox = tileXYToBbox(tile.x, tile.y, tile.z);
 
   const insideCandidate = { src: { id: 'srcA' }, layer: { id: 'inside', region: { bbox: [119, 21, 123, 26] } } };
   const outsideCandidate1 = { src: { id: 'srcB' }, layer: { id: 'outside1', region: { bbox: [110, 30, 112, 32] } } }; // 明顯不涵蓋台北
@@ -197,7 +199,7 @@ test('filterCandidatesByBbox：篩掉座標落在 bbox 外的候選，保留範�
   const noBboxCandidate = { src: { id: 'srcD' }, layer: { id: 'no-bbox', region: null } };
 
   const candidates = [insideCandidate, outsideCandidate1, outsideCandidate2, noBboxCandidate];
-  const filtered = filterCandidatesByBbox(candidates, lon, lat);
+  const filtered = filterCandidatesByBbox(candidates, tileBbox);
 
   assertTrue(filtered.length < candidates.length, '篩選後的陣列長度應該比輸入短，證明有起到篩選效果');
   assertEqual(filtered.length, 2, '應該只剩下範圍內的 1 筆 + 沒有 bbox 的 1 筆，共 2 筆');
@@ -275,29 +277,32 @@ test('pointInBbox：thm.json 讀出 hsinchu_tj7a0510 實際 bbox 應與預期一
 });
 
 test('filterCandidatesByBbox：thm 來源新埔街候選應被保留，範圍明顯不涵蓋的候選應被排除', () => {
+  const tile = lonLatToTileXY(TEST_LON, TEST_LAT, SEARCH_ZOOM);
+  const tileBbox = tileXYToBbox(tile.x, tile.y, tile.z);
+
   const insideCandidate = {
     src: { id: 'thm' },
     layer: { id: 'hsinchu_tj7a0510', region: { bbox: HSINCHU_BBOX } }
   };
-  // 找一筆 thm.json 裡明顯離新竹很遠、bbox 不涵蓋測試座標的圖層當作對照組
+  // 找一筆 thm.json 裡明顯離新竹很遠、bbox 跟探測圖磚範圍不相交的圖層當作對照組
   let farLayer = null;
   (thm.categories || []).forEach(cat => {
     const layersArr = cat.groups ? cat.groups.flatMap(g => g.layers) : cat.layers;
     (layersArr || []).forEach(layer => {
       if(farLayer) return;
       const bbox = layer.region && layer.region.bbox;
-      if(Array.isArray(bbox) && bbox.length === 4 && !pointInBbox(TEST_LON, TEST_LAT, bbox)){
+      if(Array.isArray(bbox) && bbox.length === 4 && !bboxIntersects(tileBbox, bbox)){
         farLayer = layer;
       }
     });
   });
-  assertTrue(!!farLayer, '應該能在 thm.json 裡找到至少一筆 bbox 不涵蓋測試座標的圖層當對照組');
+  assertTrue(!!farLayer, '應該能在 thm.json 裡找到至少一筆 bbox 跟探測圖磚範圍不相交的圖層當對照組');
 
   const outsideCandidate = { src: { id: 'thm' }, layer: farLayer };
   const fakeOutsideCandidate = { src: { id: 'thm' }, layer: { id: 'fake-far-away', region: { bbox: [110, 30, 112, 32] } } };
 
   const candidates = [insideCandidate, outsideCandidate, fakeOutsideCandidate];
-  const filtered = filterCandidatesByBbox(candidates, TEST_LON, TEST_LAT);
+  const filtered = filterCandidatesByBbox(candidates, tileBbox);
 
   const filteredIds = filtered.map(c => c.layer.id);
   assertTrue(filteredIds.includes('hsinchu_tj7a0510'), '篩選結果應該包含 hsinchu_tj7a0510');

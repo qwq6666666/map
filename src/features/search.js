@@ -13,9 +13,10 @@
       thm）：用地址元件的地名核心字跟圖層標題做子字串比對，命中的
       優先檢查，沒命中的留著當備援，確保新舊地名對不上時不會漏掉。
    2.5 圖層層級 bbox 篩選：對每筆候選圖層各自的 WGS84 bbox（layer.
-      region.bbox，見 tileGeo.js 的 pointInBbox()）做座標範圍比對，
-      確定不在圖層範圍內的候選直接排除，減少下一步要送出的圖磚請求
-      數量；沒有 bbox 索引資料的圖層一律保留、不受影響。
+      region.bbox，見 tileGeo.js 的 bboxIntersects()）跟「實際要探測
+      的那顆圖磚範圍」（tileXYToBbox()，非使用者座標單點）做比對，
+      確定不相交的候選直接排除，減少下一步要送出的圖磚請求數量；
+      沒有 bbox 索引資料的圖層一律保留、不受影響。
    3. 逐筆資料驗證：候選圖層各自對該地點座標實際發送一次圖磚請求，
       只列出真的成功回傳影像的圖層。
 
@@ -38,7 +39,7 @@ import {
 } from '../data.js';
 import { TileChecker, globalTileRequestPool } from '../tileChecker.js';
 import { state as store, setMode, selectOverlayLayer } from '../store.js';
-import { lonLatToTileXY, pointInBbox } from '../core/tileGeo.js';
+import { lonLatToTileXY, tileXYToBbox, bboxIntersects } from '../core/tileGeo.js';
 // buildCoordInfoElement 已抽到共用模組 coordCopy.js（location.js 也會用到），
 // 這裡單純 re-export，維持既有呼叫端（ui/search.js、identifyPin.js）的
 // import 路徑不變。
@@ -74,12 +75,16 @@ function isPointNearExtent(lon, lat, ext){
 }
 
 // 圖層層級的 bbox 篩選：candidates 是 { src, layer } 的陣列，只保留
-// pointInBbox(lon, lat, layer.region?.bbox) 為 true 的項目——也就是
-// 「沒有 bbox 索引資料」或「座標確實落在 bbox 範圍內」的候選都會保留，
-// 只有「有合法 bbox、且座標確定在範圍外」的候選才會被排除。純函式，
-// 不 mutate 傳入的 candidates 陣列，方便獨立測試。
-export function filterCandidatesByBbox(candidates, lon, lat){
-  return candidates.filter(c => pointInBbox(lon, lat, c.layer.region?.bbox));
+// bboxIntersects(tileBbox, layer.region?.bbox) 為 true 的項目——也就是
+// 「沒有 bbox 索引資料」或「實際要探測的那顆圖磚範圍確實跟 bbox 有重疊」
+// 的候選都會保留，只有「有合法 bbox、且確定不相交」的候選才會被排除。
+// tileBbox 用實際會探測的那顆圖磚範圍（而非使用者座標這個單點）比對，
+// 跟 tileLoadGuard.js 圖磚渲染邊界保護的判定基準一致：座標剛好落在圖層
+// bbox 外緣一點點時，那顆圖磚範圍仍可能跟 bbox 重疊，用點對點比對會
+// 誤篩掉這種其實會命中的候選。純函式，不 mutate 傳入的 candidates 陣列，
+// 方便獨立測試。
+export function filterCandidatesByBbox(candidates, tileBbox){
+  return candidates.filter(c => bboxIntersects(tileBbox, c.layer.region?.bbox));
 }
 
 /* ---------------------------------------------------------
@@ -152,15 +157,19 @@ export async function findAvailableLayersAt(lon, lat, addr, { onProgress, isStal
   });
 
   // 圖層層級 bbox 篩選：priority、fallbackBySource 都套用，只排除「有
-  // 合法 bbox、且這個座標確定不在範圍內」的候選，沒有 bbox 索引資料的
-  // 圖層一律保留（pointInBbox 內建的 fallback 行為已經處理好這件事）。
+  // 合法 bbox、且確定跟實際要探測的那顆圖磚範圍不相交」的候選，沒有
+  // bbox 索引資料的圖層一律保留（bboxIntersects 內建的 fallback 行為
+  // 已經處理好這件事）。tile 提前算好，下面組探測網址時繼續共用同一個值。
+  const tile = lonLatToTileXY(lon, lat, SEARCH_ZOOM);
+  const tileBbox = tileXYToBbox(tile.x, tile.y, tile.z);
+
   const priorityBeforeBbox = priority.length;
-  priority = filterCandidatesByBbox(priority, lon, lat);
+  priority = filterCandidatesByBbox(priority, tileBbox);
   let bboxFilteredCount = priorityBeforeBbox - priority.length;
 
   fallbackBySource.forEach((layers, srcId) => {
     const beforeCount = layers.length;
-    const filtered = filterCandidatesByBbox(layers, lon, lat);
+    const filtered = filterCandidatesByBbox(layers, tileBbox);
     bboxFilteredCount += beforeCount - filtered.length;
     fallbackBySource.set(srcId, filtered);
   });
@@ -177,7 +186,6 @@ export async function findAvailableLayersAt(lon, lat, addr, { onProgress, isStal
 
   onProgress?.(`正在確認 0 / ${priority.length} 筆圖層是否有資料…${filterNote}`);
 
-  const tile = lonLatToTileXY(lon, lat, SEARCH_ZOOM);
   const urlOf = (c) => c.src.tileUrl(c.layer).replace('{z}', tile.z).replace('{x}', tile.x).replace('{y}', tile.y);
 
   let available = await tileChecker.checkBatch(
