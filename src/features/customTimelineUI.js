@@ -77,6 +77,12 @@ function selectIndex(idx, candidates){
   currentCallbacks?.onSelectIndex?.(idx, candidates[idx]);
 }
 
+// 播放鈕內容：symbol（'play'／'pause'）+ 保留原本的中文字樣，不能用
+// textContent 賦值（會把 <svg> 節點一起清空)。
+function setPlayBtnContent(btn, symbol, label){
+  btn.innerHTML = `<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#${symbol}"></use></svg> ${label}`;
+}
+
 // 停止自動播放：清掉 timer、還原播放鈕文字與樣式。重複呼叫或本來就
 // 沒在播放時都必須是安全的 no-op。
 function stopPlaying(){
@@ -84,7 +90,7 @@ function stopPlaying(){
   playing = false;
   if(playTimer){ clearTimeout(playTimer); playTimer = null; }
   if(playBtn){
-    playBtn.textContent = '▶ 播放';
+    setPlayBtnContent(playBtn, 'play', '播放');
     playBtn.classList.remove('playing');
   }
 }
@@ -104,7 +110,7 @@ function startPlaying(candidates){
   if(candidates.length < 2) return;
   playing = true;
   if(playBtn){
-    playBtn.textContent = '❚❚ 暫停';
+    setPlayBtnContent(playBtn, 'pause', '暫停');
     playBtn.classList.add('playing');
   }
   const startIdx = currentIndex >= candidates.length - 1 ? 0 : Math.max(0, currentIndex);
@@ -193,7 +199,7 @@ export function openCustomTimelineDock(candidates, callbacks){
     playBtn = document.createElement('button');
     playBtn.type = 'button';
     playBtn.className = 'custom-timeline-play-btn';
-    playBtn.textContent = '▶ 播放';
+    setPlayBtnContent(playBtn, 'play', '播放');
     playBtn.addEventListener('click', () => { playing ? stopPlaying() : startPlaying(candidates); });
 
     // 加速播放：0.5x/1x/2x/4x 循環切換，只改變自動播放的步進間隔，

@@ -40,18 +40,18 @@ function buildTourSteps() {
       {
         selector: '#addressInput',
         fallbackSelector: '.mobile-search-bar',
-        title: '📍 找一個地方',
+        title: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> 找一個地方',
         desc: '在頂部欄位輸入現在的地址或地標，系統會帶您定焦至該地點。',
       },
       {
         selector: '#mobileSearchModeBtn',
         fallbackSelector: '.address-search-row',
-        title: '🗺️ 切換成圖資搜尋',
+        title: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#map"></use></svg> 切換成圖資搜尋',
         desc: '點這顆切換鈕會變成搜尋歷史地圖圖層（年代、圖層名稱、來源或分類），跟地址搜尋是各自獨立的搜尋通道，切換不會清掉任何一邊已經搜出來的結果。',
       },
       {
         selector: '#mobileModeBtn',
-        title: '🗺️ 地圖工具',
+        title: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#map"></use></svg> 地圖工具',
         desc: '點這顆浮動按鈕開啟選單：切換「歷史疊圖／左右比對／時間軸／複合疊圖」四種瀏覽模式，開關繪圖工具，或找到新手導覽、使用指南、分享連結。按鈕本身也能拖曳到您喜歡的位置。',
         extra: '現在輸入一個您熟悉的地點開始探索吧！',
         finalStep: true,
@@ -62,43 +62,43 @@ function buildTourSteps() {
     {
       selector: '#addressInput',
       fallbackSelector: '.search-block',
-      title: '📍 找一個地方',
+      title: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> 找一個地方',
       desc: '輸入現在的地址或地標，系統會帶您定焦至該地點。',
     },
     {
       selector: '#layerSearchInput',
       fallbackSelector: '.layer-search-block',
-      title: '🗺️ 找歷史地圖',
+      title: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#map"></use></svg> 找歷史地圖',
       desc: '想看特定歷史圖資？在這裡搜尋年代、圖層名稱或來源（與上方地址搜尋不同）。',
     },
     {
       selector: '#modeSwitch button[data-mode="overlay"]',
-      title: '🪟 透明疊圖',
+      title: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#overlay"></use></svg> 透明疊圖',
       desc: '將歷史地圖疊加在現代圖資上，滑動透明度拉桿透視百年變遷。',
     },
     {
       selector: '#modeSwitch button[data-mode="compare"]',
-      title: '↔️ 左右比對',
+      title: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#compare"></use></svg> 左右比對',
       desc: '左右拖曳滑動分割線，直接比對兩張地圖的地景差異。',
     },
     {
       selector: '#modeSwitch button[data-mode="timeline"]',
-      title: '🕰️ 時空時間軸',
+      title: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#timeline"></use></svg> 時空時間軸',
       desc: '依年代順序穿梭同一地點的歷史地圖，拖曳滑桿或點年份圓點切換。',
     },
     {
       selector: '#modeSwitch button[data-mode="multi"]',
-      title: '🧩 複合疊圖',
+      title: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#layers"></use></svg> 複合疊圖',
       desc: '一次勾選多張歷史圖層疊在一起比較，可各自調整透明度、疊放順序或移除。',
     },
     {
       selector: '#map',
-      title: '📌 點地圖看座標',
+      title: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> 點地圖看座標',
       desc: '一般瀏覽模式下，直接點地圖任意處會釘上一枚標記，顯示座標、反查地址，還能一鍵搜尋涵蓋這個點的歷史圖層。',
     },
     {
       selector: '#shareLinkBtn',
-      title: '🔗 分享連結',
+      title: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 分享連結',
       desc: '把目前的模式、圖層、地圖位置打包成一個網址，複製後傳給朋友，對方打開就能還原跟您一樣的畫面。',
       extra: '現在輸入一個您熟悉的地點開始探索吧！',
       finalStep: true,
@@ -111,37 +111,37 @@ let activeTourSteps = buildTourSteps();
 /** 使用指南手風琴內容。 */
 const GUIDE_SECTIONS = [
   {
-    icon: '🔍',
+    icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#search"></use></svg>',
     title: '搜尋定位',
     body: '「地址／位置搜尋」輸入現在的地名或地標，打字時下方會出現建議清單，點一下即可定焦；旁邊的定位圖示（使用目前位置尋找圖層）能直接用您目前的座標找可用圖資，不用自己打地址。定焦後側邊欄會列出「此地點可用圖層」，可切換「全部／依類型／依年代」三種排序方式檢視。「圖資搜尋」則是完全獨立的另一個搜尋框，用圖層名稱、年份、來源或分類找歷史地圖本身，不會做地理定位，找不到地點時可以改試這裡看看有沒有對應年代的圖層。兩者互不影響，各自保留自己的搜尋結果。',
   },
   {
-    icon: '🗺️',
+    icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#map"></use></svg>',
     title: '基礎比對',
     body: '「透明疊圖」會把歷史地圖蓋在現代底圖（或衛星影像）上，用「目前圖層」欄的透明度拉桿慢慢滑動即可看出地景變化，喜歡的圖層可以按☆收藏起來。「左右比對」則是用一條可拖曳的分割線，左右兩側各顯示一張地圖（左右圖層各自用浮動的圖層選單挑選，任何底圖或歷史圖層都能自由搭配），適合並排觀察差異較大的區域。',
   },
   {
-    icon: '🕰️',
+    icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#timeline"></use></svg>',
     title: '時間軸切換指南',
     body: '切到「時間軸」模式後，畫面下方會出現年代刻度（可切換 1:25,000／1:50,000／混合兩種比例尺），依目前地圖畫面中心點列出可用年份：拖曳滑桿、點選年份圓點，或按「播放」自動依序播放；地圖移動後不會自動重新整理，要按浮動列上的「重新整理」才會依新的位置重新列年份。\n\n另外還有一種完全獨立的「自訂時間軸」：在地址搜尋出來的「可用圖層」清單裡按「＋ 自訂時間軸 (多選)」進入多選模式，勾選想比較的圖層後按「確認建立自訂時間軸」，就會依年代排序打開一個獨立的浮動小面板，用自己的刻度點／滑桿／透明度拉桿切換自選的圖層清單。這跟上面的全站時間軸模式是兩套互不影響的東西，可以同時各自操作。',
   },
   {
-    icon: '🧩',
+    icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#layers"></use></svg>',
     title: '進階功能說明',
     body: '「複合疊圖」模式可一次勾選多張歷史圖層疊在一起，清單在地圖下方，能各自調整透明度、拖曳調整疊放順序或移除；也能在這個模式加入自訂 WMTS／XYZ 圖層（見下方說明）。\n\n繪圖標記工具（點畫筆圖示開關）可以：標「點」（能附加文字說明）、畫「線」（自動算出長度）、畫「面」（自動算出面積），六種色票或自訂顏色可選；畫好的圖形可以用「選取」工具點開重新改名／改色／刪除。整批操作還有「刪除」（刪目前選取的）、「清空」（全部清掉）、「匯出 GeoJSON」（下載成檔案，可匯入 QGIS／ArcGIS 等 GIS 軟體）、「匯入 GeoJSON」（讀回之前匯出的檔案，顏色樣式會保留）、「地圖截圖」（把目前畫面含底圖與繪製內容存成 PNG 圖片）。繪製內容不受目前模式影響，切換疊圖／比對／時間軸／複合疊圖都還在。\n\n若中研院以外的圖資來源也有提供圖磚服務，可以在複合疊圖模式的「自訂 WMTS／XYZ 圖層」區塊加入：「手動貼網址」適合已知圖磚網址樣板（需含 {z}/{x}/{y}）的單張圖層；「從 WMTS 服務匯入」則貼上該服務的 GetCapabilities 網址，讀取後可一次勾選多張圖層加入（只會列出跟本站座標系統 EPSG:3857 相容的圖層），如果該服務沒開放跨網域讀取會顯示錯誤，改用「手動貼網址」通常還是能顯示圖磚。',
   },
   {
-    icon: '📌',
+    icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg>',
     title: '落點探針',
     body: '在「歷史疊圖」這個一般瀏覽模式下（其他模式不會觸發），直接點地圖上任意一處即可釘上一枚標記並跳出資訊視窗，顯示該點的座標（WGS84／TWD97）與反查出來的地址；視窗裡還有一顆「搜尋涵蓋此點之歷史圖層」按鈕，點下去會直接切換成地址搜尋、列出涵蓋這個座標的歷史圖資，不用再手動輸入地址。標記放好後，點空白處只會關掉資訊視窗、標記不會消失，要重看資訊點標記本身即可重開；真的要換點或清除，用視窗裡的「清除點位」按鈕（桌面版也可以在標記上按右鍵：視窗開著先關視窗，視窗已經關著的第二次右鍵才會真的清除）。',
   },
   {
-    icon: '🔗',
+    icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg>',
     title: '分享連結',
     body: '側邊欄 header 的「🔗 分享連結」按鈕會把目前畫面狀態（瀏覽模式、底圖、目前疊圖／左右比對的左右圖層與分割線位置、複合疊圖清單，以及地圖中心點與縮放層級）打包編碼進網址，並自動複製到剪貼簿，直接貼給朋友即可。對方打開連結會自動還原成同一個畫面；請留意複合疊圖清單裡的自訂 WMTS／XYZ 圖層只存在您自己瀏覽器的紀錄裡，分享連結不會帶到對方那邊，對方看到的複合疊圖清單會略過這些自訂圖層。',
   },
   {
-    icon: '⭐',
+    icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#favorite"></use></svg>',
     title: '收藏與最近使用圖層',
     body: '側邊欄「目前圖層」欄位旁的☆按鈕可以收藏正在檢視的歷史圖層，收藏後的清單會另外顯示在側邊欄的「⭐ 收藏」手風琴裡，點清單項目可以直接套用該圖層，不用重新搜尋一次；再按一次☆（或清單裡的★取消收藏）即可移除。「🕘 最近使用」則會自動記錄最近選過的圖層，不用手動操作，旁邊有「清除紀錄」按鈕可以一次清空。兩份清單都存在瀏覽器的 localStorage，換裝置或清瀏覽器資料不會保留。',
   },
@@ -151,7 +151,7 @@ const GUIDE_SECTIONS = [
     body: '手機（寬度 768px 以下）畫面以地圖為主，側邊欄變成可拖曳的下方面板（Bottom Sheet）：面板頂端的把手可以點一下或上下拖曳，在「收合（只露出一小角）」與「展開（約螢幕 3/4 高）」兩態間切換。搜尋框移到畫面最上方一條合併輸入框，預設是地址搜尋，按旁邊的📍/🗺切換鈕可改成圖資搜尋，兩邊搜尋結果各自保留互不影響；閒置 15 秒沒有互動會自動收成一個圓形按鈕，點一下就會展開回來。畫面右下角的浮動按鈕「地圖工具」點下去會彈出選單，可以切換四種瀏覽模式、開關繪圖工具，或找到新手導覽、使用指南、分享連結（取代電腦版側邊欄裡對應的那排按鈕），這顆按鈕本身也能拖到您喜歡的位置。國家篩選列選到「台灣」或「中國」分頁時，圖層清單會改成手機專屬的三段式瀏覽：先選大區域（例如台灣的北部／中部／南部／東部／離島），再選地區（同縣市的來源會合併，例如台北的兩個來源算同一個地區），最後展開該地區的來源手風琴挑選實際圖層；選「其他」分頁則維持跟電腦版一樣的「來源→分類→次分類→圖層」手風琴。',
   },
   {
-    icon: '📚',
+    icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#library"></use></svg>',
     title: '資料來源與坐標系統',
     body: '圖資主要來自中央研究院人文社會科學研究中心 GIS 專題中心與各地方文史單位的 WMTS 服務，地圖座標統一採用 EPSG:3857（Web Mercator）顯示。若做學術引用，請以各圖層詳細資訊中標示的原始來源與版權聲明為準。',
   },
@@ -199,7 +199,7 @@ function buildWelcomeModal() {
   overlay.setAttribute('aria-modal', 'true');
   overlay.innerHTML = `
     <div class="onboarding-modal-card">
-      <h2 class="onboarding-modal-title">🗺️ 歡迎來到百年歷史地圖</h2>
+      <h2 class="onboarding-modal-title"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#map"></use></svg> 歡迎來到百年歷史地圖</h2>
       <ul class="onboarding-modal-list">
         <li>搜尋現代地點，快速定焦至您感興趣的地區</li>
         <li>尋找該地區的百年歷史地圖圖資</li>

@@ -59,6 +59,12 @@ const PLAY_INTERVAL_MS = 1800;
 const SPEED_LEVELS = [0.5, 1, 2, 4];
 const DEFAULT_SPEED_INDEX = SPEED_LEVELS.indexOf(1);
 
+// 播放/暫停鈕圖示：symbol 為 'play' 或 'pause'，切換 <use> 的 href
+// （不能用 textContent，會把整個 <svg> 節點清空)。
+function setPlayBtnIcon(btn, symbol){
+  btn.innerHTML = `<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#${symbol}"></use></svg>`;
+}
+
 /**
  * 畫出時間軸並掛進 container。
  * @param {Array<{src, layer}>} candidates 要畫上時間軸的候選圖層
@@ -132,7 +138,7 @@ export function buildTimeline(candidates, container, onSelect){
       playing = false;
       if(playTimer){ clearTimeout(playTimer); playTimer = null; }
       if(playBtn){
-        playBtn.textContent = '▶';
+        setPlayBtnIcon(playBtn, 'play');
         playBtn.title = '播放';
         playBtn.setAttribute('aria-label', '播放');
         playBtn.classList.remove('playing');
@@ -157,7 +163,7 @@ export function buildTimeline(candidates, container, onSelect){
       if(dotList.length < 2) return; // 只有一筆沒什麼好播放的
       playing = true;
       if(playBtn){
-        playBtn.textContent = '❚❚';
+        setPlayBtnIcon(playBtn, 'pause');
         playBtn.title = '暫停';
         playBtn.setAttribute('aria-label', '暫停');
         playBtn.classList.add('playing');
@@ -274,7 +280,7 @@ export function buildTimeline(candidates, container, onSelect){
       playBtn = document.createElement('button');
       playBtn.type = 'button';
       playBtn.className = 'timeline-play-btn';
-      playBtn.textContent = '▶';
+      setPlayBtnIcon(playBtn, 'play');
       playBtn.title = '播放';
       playBtn.setAttribute('aria-label', '播放');
       playBtn.addEventListener('click', () => { playing ? stopPlaying() : startPlaying(); });

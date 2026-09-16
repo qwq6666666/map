@@ -125,7 +125,7 @@ function renderCurrentLayer(){
   if(opacityBlockEl) opacityBlockEl.title = title;
   favBtn.hidden = !key;
   const fav = key ? isFavoriteLayer(key) : false;
-  favBtn.textContent = fav ? '★' : '☆';
+  setFavIconState(favBtn, fav);
   favBtn.classList.toggle('active', fav);
 
   // 手機版「目前圖層」浮動列（#floatingOpacity 內的 .floating-layer-name，
@@ -149,9 +149,19 @@ function renderCurrentLayer(){
   const floatingFavBtn = document.getElementById('floatingLayerFavBtn');
   if(floatingFavBtn){
     floatingFavBtn.hidden = !key;
-    floatingFavBtn.textContent = fav ? '★' : '☆';
+    setFavIconState(floatingFavBtn, fav);
     floatingFavBtn.classList.toggle('active', fav);
   }
+}
+
+// 收藏星號按鈕內是 <svg class="ui-icon"><use href="...#favorite-outline"></use></svg>，
+// 切換收藏狀態改成切換 <use> 的 href（實心 #favorite／空心 #favorite-outline），
+// 不能再用 textContent 賦值（會把整個 <svg> 節點清空)。
+function setFavIconState(btn, fav){
+  const use = btn.querySelector('use');
+  if(!use) return;
+  const symbol = fav ? 'favorite' : 'favorite-outline';
+  use.setAttribute('href', `./assets/map-emoji-style-a-icons.svg#${symbol}`);
 }
 
 function initCurrentLayerFavButton(){
@@ -217,7 +227,7 @@ function renderFavoritesList(){
     removeBtn.type = 'button';
     removeBtn.className = 'favorites-item-remove';
     removeBtn.title = '取消收藏';
-    removeBtn.textContent = '★';
+    removeBtn.innerHTML = '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#favorite"></use></svg>';
     removeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       toggleFavoriteLayer(key);

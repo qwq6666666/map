@@ -82,7 +82,7 @@ export function buildLayerItem(layer, onLayerClick){
     legendBtn.className = 'layer-legend-btn';
     legendBtn.title = '圖例';
     legendBtn.setAttribute('aria-label', '圖例');
-    legendBtn.textContent = '🛈';
+    legendBtn.innerHTML = '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#info"></use></svg>';
     legendBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       showLegendModal(layer.legend);

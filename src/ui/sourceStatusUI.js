@@ -17,16 +17,23 @@ import { checkAllSourceStatuses, buildSourceStatusTargets } from '../features/so
 import { getRecentTileFailures, clearRecentTileFailures } from '../core/tileLoadGuard.js';
 import { showLocateToast } from '../features/location.js';
 
+// icon 存 sprite symbol id（見 public/assets/map-emoji-style-a-icons.svg），
+// 消費端一律用 iconSvg() 組成 <svg><use> 字串，不能再用 textContent 賦值
+// （會把子節點清空)。
 const STATUS_LABEL = {
-  ok: { icon: '✅', text: '正常' },
-  slow: { icon: '⚠️', text: '緩慢' },
-  down: { icon: '❌', text: '無回應（逾時）' }
+  ok: { icon: 'status-ok', text: '正常' },
+  slow: { icon: 'status-slow', text: '緩慢' },
+  down: { icon: 'status-down', text: '無回應（逾時）' }
 };
 
 const FAILURE_REASON_LABEL = {
   timeout: '⏱️ 逾時（伺服器過慢）',
-  error: '🚫 明確錯誤（伺服器拒絕）'
+  error: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#status-error"></use></svg> 明確錯誤（伺服器拒絕）'
 };
+
+function iconSvg(symbol){
+  return `<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#${symbol}"></use></svg>`;
+}
 
 function formatRelativeTime(time){
   const diffMs = Date.now() - time;
@@ -46,7 +53,12 @@ function renderFailureRow(f){
 
   const reason = document.createElement('span');
   reason.className = 'source-status-failure-reason';
-  reason.textContent = FAILURE_REASON_LABEL[f.reason] || f.reason;
+  // FAILURE_REASON_LABEL 是本站固定字串（含內嵌 <svg> icon markup），
+  // f.reason 只是查表用的 key，不是使用者輸入內容，可信任用 innerHTML；
+  // 查無對應時退回 f.reason 原始字串，一樣用 textContent 賦值避免 XSS。
+  const reasonLabel = FAILURE_REASON_LABEL[f.reason];
+  if(reasonLabel) reason.innerHTML = reasonLabel;
+  else reason.textContent = f.reason;
 
   const text = document.createElement('div');
   text.className = 'source-status-failure-text';
@@ -108,7 +120,7 @@ function applyResultToRow(row, result){
   const info = STATUS_LABEL[result.status];
   row.classList.add(`is-${result.status}`);
   const badge = row.querySelector('.source-status-badge');
-  badge.textContent = info.icon;
+  badge.innerHTML = iconSvg(info.icon);
   badge.classList.remove('pending');
   badge.classList.add(result.status);
   const timeEl = row.querySelector('.source-status-time');
@@ -169,7 +181,7 @@ function buildDrawer(){
         <p class="source-status-cache-intro">清除已下載的地圖圖磚（歷史地圖／現代地圖／衛星影像），釋放裝置儲存空間；圖層資料本身不受影響，下次瀏覽同區域會重新下載圖磚。</p>
       </div>
       <p class="source-status-intro">對每個資料來源主機各發一次探測請求，確認目前讀取狀態——平常瀏覽時某個縣市的圖層「點了沒反應」，通常就是這裡顯示異常的主機。逾時／緩慢代表資料提供方那邊的問題，不是這個網站本身故障。</p>
-      <button type="button" class="source-status-recheck">🔄 重新檢查</button>
+      <button type="button" class="source-status-recheck"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#refresh"></use></svg> 重新檢查</button>
       <div class="source-status-list"></div>
       <div class="source-status-failures-section">
         <div class="source-status-failures-header">

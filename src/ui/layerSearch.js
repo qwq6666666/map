@@ -64,7 +64,9 @@ export function initLayerSearchUI(){
 
       const title = document.createElement('div');
       title.className = 'layer-search-item-title';
-      title.textContent = `🗺 ${layer.title}`;
+      // layer.title 是動態資料，用 textNode 附加而非拼進 innerHTML，避免 XSS。
+      title.innerHTML = '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#map"></use></svg> ';
+      title.appendChild(document.createTextNode(layer.title));
 
       const meta = document.createElement('div');
       meta.className = 'layer-search-item-meta';

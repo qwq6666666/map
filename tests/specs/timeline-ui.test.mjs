@@ -68,7 +68,10 @@ test('自動播放會依序觸發每一筆，播完自動停止', async () => {
   assertEqual(fired.length, 2, '等待一輪應該推進到第二筆');
   await sleep(2000);
   assertEqual(fired.length, 3, '應該播完全部 3 筆');
-  assertEqual(playBtn.textContent, '▶', '播完應該自動變回「播放」圖示');
+  // 播放/暫停鈕改成 <svg><use href="...#play/#pause">（見 timelineUI.js 的
+  // setPlayBtnIcon()），不再是文字字元；env-stub 的 innerHTML setter 不會
+  // 真的解析出子節點，改直接比對存進去的 markup 字串裡有沒有指到 #play。
+  assertTrue(playBtn.innerHTML.includes('#play'), '播完應該自動變回「播放」圖示');
 });
 
 test('加速播放按鈕會依 1x→2x→4x→0.5x→1x 循環切換（跟自訂時間軸共用同一組級距）', () => {

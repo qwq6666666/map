@@ -11,6 +11,7 @@ model: sonnet
 # 負責範圍與權責檔案
 你僅能檢視與修改前端結構、樣式及 UI 呈現邏輯檔案：
 - 頁面骨架與樣式：`index.html`、`style.css`
+- 線性圖示 sprite：`public/assets/map-emoji-style-a-icons.svg`（全站共用 `<svg class="ui-icon"><use href="./assets/map-emoji-style-a-icons.svg#..."></use></svg>` 圖示集，新增/修改 symbol 需維持既有配色 token：paper `#E9D7B5`／navy `#17324D`／rust `#D9785B`／teal `#1C8C8C`，stroke-width 約 1.6~1.8）
 - 側邊欄控制：`src/sidebarUI.js`、`src/ui/sidebarToggle.js`
 - 時間軸介面：`src/timelineUI.js`
 - 搜尋互動介面：`src/searchUI.js`、`src/ui/search.js`（地址／位置搜尋；地理編碼／圖磚驗證等核心搜尋邏輯維持不動，但地名今昔對照卡的候選清單渲染、卡片顯示/收合、與 `src/features/placeNames.js` 的串接屬於這支檔案的權責，可以修改）、`src/ui/layerSearch.js`（圖資搜尋，獨立輸入框與結果渲染，只呼叫 `src/features/layerSearch.js` 的 metadata 搜尋函式，不呼叫任何地理編碼 API）

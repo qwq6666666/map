@@ -182,8 +182,10 @@ function applyMobileSearchMode(){
   document.body.classList.toggle('mobile-search-mode-layer', mobileSearchMode === 'layer');
   relocateModeToggleBtn();
   const btn = document.getElementById('mobileSearchModeBtn');
-  const icon = btn?.querySelector('.mobile-search-mode-icon');
-  if(icon) icon.textContent = mobileSearchMode === 'address' ? '📍' : '🗺';
+  const icon = btn?.querySelector('.mobile-search-mode-icon use');
+  if(icon) icon.setAttribute('href', mobileSearchMode === 'address'
+    ? './assets/map-emoji-style-a-icons.svg#pin'
+    : './assets/map-emoji-style-a-icons.svg#map');
   if(btn) btn.title = mobileSearchMode === 'address' ? '切換成圖資搜尋' : '切換成地址／位置搜尋';
 }
 
