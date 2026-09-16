@@ -50,8 +50,8 @@
 <link rel="icon" type="image/svg+xml" href="./icon.svg">
 <meta name="theme-color" content="#8A6A2E">
 
-  <script type="module" crossorigin src="./assets/index-C8WPFp5b.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-Bz8KnEcq.css">
+  <script type="module" crossorigin src="./assets/index-CrC830W_.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-CpHOhxsc.css">
 </head>
 <body>
 
@@ -82,7 +82,7 @@
   <div class="locate-marker-dot"></div>
   <div id="locatePopup" class="identify-popup locate-popup" hidden>
     <div class="identify-popup-header">
-      <span class="identify-popup-title">📍 目前位置</span>
+      <span class="identify-popup-title"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> 目前位置</span>
       <button type="button" id="locatePopupClose" class="identify-popup-close" aria-label="關閉"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg></button>
     </div>
     <div id="locatePopupBody" class="identify-popup-body"></div>
@@ -93,7 +93,7 @@
 <div id="identifyPin" class="identify-pin">
   <div id="identifyPopup" class="identify-popup" hidden>
     <div class="identify-popup-header">
-      <span class="identify-popup-title">📍 點位資訊</span>
+      <span class="identify-popup-title"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> 點位資訊</span>
       <div class="identify-popup-actions">
         <button type="button" id="identifyPopupClear" class="identify-popup-clear">清除點位</button>
         <button type="button" id="identifyPopupClose" class="identify-popup-close" aria-label="關閉"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg></button>
@@ -125,7 +125,7 @@
     <!-- 桌面版側邊欄收合時也要能收藏目前圖層，不用再展開側邊欄；
          名稱／清除鈕在桌面版維持隱藏（見 style.css），只讓收藏星號
          在這裡額外露出，順序排在最後（視覺上「右側的圖示」）。 -->
-    <button type="button" id="floatingLayerFavBtn" class="current-layer-fav-btn floating-layer-fav-btn" title="收藏此圖層" hidden>☆</button>
+    <button type="button" id="floatingLayerFavBtn" class="current-layer-fav-btn floating-layer-fav-btn" title="收藏此圖層" hidden><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#favorite-outline"></use></svg></button>
   </div>
 </div>
 
@@ -184,7 +184,7 @@
 </div>
 <div id="swipeDivider">
   <div id="swipeLine"></div>
-  <div id="swipeHandle">⇔</div>
+  <div id="swipeHandle"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#grip"></use></svg></div>
 </div>
 
 <button type="button" id="drawToggleBtn" class="draw-toggle-btn" title="繪圖工具">
@@ -317,12 +317,12 @@
       <span class="field-label">透明度</span>
       <input type="range" id="opacitySlider" min="0" max="100" value="100" aria-label="透明度">
       <span class="opacity-val" id="opacityVal">100%</span>
-      <button type="button" id="currentLayerFavBtn" class="current-layer-fav-btn" title="收藏此圖層" hidden>☆</button>
+      <button type="button" id="currentLayerFavBtn" class="current-layer-fav-btn" title="收藏此圖層" hidden><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#favorite-outline"></use></svg></button>
       <button type="button" class="clear-btn" id="clearBtn" title="清除疊圖" aria-label="清除疊圖"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg></button>
     </div>
 
     <div class="search-block">
-      <div class="field-label">🔎 地址／位置搜尋</div>
+      <div class="field-label"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#search"></use></svg> 地址／位置搜尋</div>
       <div class="search-row address-search-row">
         <input type="text" id="addressInput" class="address-input" placeholder="請輸入地址或地點…" autocomplete="off" aria-label="地址或地點">
         <!-- 手機版專屬：快速清除輸入框文字（不連帶清除已完成的搜尋結果，
@@ -336,7 +336,7 @@
              <=768px 才會顯示；行為見 src/ui/mobileLayout.js 的
              initMobileSearchModeToggle()／applyMobileSearchMode()。 -->
         <button type="button" id="mobileSearchModeBtn" class="address-search-btn mobile-search-mode-btn" title="切換成圖資搜尋">
-          <span class="mobile-search-mode-icon" aria-hidden="true">📍</span>
+          <span class="mobile-search-mode-icon" aria-hidden="true"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg></span>
         </button>
         <button type="button" id="locateSearchBtn" class="address-search-btn locate-search-btn" title="使用目前位置尋找圖層">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -359,7 +359,7 @@
         </div>
         <div id="placeNameCard" class="place-name-card" hidden>
           <div class="place-name-card-head">
-            <span class="place-name-card-title">📜 地名今昔對照</span>
+            <span class="place-name-card-title"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#scroll"></use></svg> 地名今昔對照</span>
             <button type="button" id="placeNameCardToggle" class="place-name-card-toggle" aria-expanded="true" aria-label="收合／展開地名今昔對照">▾</button>
           </div>
           <div id="placeNameCardBody" class="place-name-card-body"></div>
@@ -369,7 +369,7 @@
     </div>
 
     <div class="search-block layer-search-block">
-      <div class="field-label">🗺 圖資搜尋</div>
+      <div class="field-label"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#map"></use></svg> 圖資搜尋</div>
       <div class="search-row layer-search-row">
         <input type="text" id="layerSearchInput" class="address-input" placeholder="搜尋圖層名稱、年份、來源或分類…" autocomplete="off" aria-label="搜尋圖層名稱、年份、來源或分類">
         <button type="button" id="layerSearchClearBtn" class="address-search-btn" title="清除圖資搜尋" hidden>
@@ -386,7 +386,7 @@
     </div>
 
     <div class="side-section open" id="modeSection">
-      <button type="button" class="side-section-head">🗺 地圖模式</button>
+      <button type="button" class="side-section-head"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#map"></use></svg> 地圖模式</button>
       <div class="side-section-body">
         <div class="mode-switch" id="modeSwitch">
           <button data-mode="overlay" class="active" title="將歷史地圖疊加在現代底圖上，用透明度拉桿比較古今差異"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#overlay"></use></svg> 透明疊圖</button>
