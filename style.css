@@ -2013,6 +2013,12 @@
       bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px);
       z-index:22;
     }
+    /* 底圖切換維持父層 .floating-stack 的 flex column 疊排（跟
+       .floating-opacity 隱藏時自然貼齊容器下緣的邏輯一致，見上方
+       .floating-stack 定義處註解），但水平對齊改成 flex-end，貼齊容器
+       右緣（= 螢幕右下角），不繼承父層 align-items:flex-start 預設的
+       左側貼齊。 */
+    .floating-base-switch{align-self:flex-end;}
 
     /* ---------- 手機「目前圖層」浮動列：取代桌面版左下角浮動透明度，
        改成貼齊底部工作表 peek 區上緣的橫幅，預設只顯示一行「圖名＋
