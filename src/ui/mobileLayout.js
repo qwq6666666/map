@@ -182,10 +182,11 @@ function applyMobileSearchMode(){
   document.body.classList.toggle('mobile-search-mode-layer', mobileSearchMode === 'layer');
   relocateModeToggleBtn();
   const btn = document.getElementById('mobileSearchModeBtn');
-  const icon = btn?.querySelector('.mobile-search-mode-icon use');
-  if(icon) icon.setAttribute('href', mobileSearchMode === 'address'
-    ? './assets/map-emoji-style-a-icons.svg#pin'
-    : './assets/map-emoji-style-a-icons.svg#map');
+  // 圖示固定用中性的「切換」符號（sprite #refresh，雙箭頭循環），不再
+  // 隨模式切換成 search／map／pin：試過用圖示本身代表「目前是哪個模式」
+  // 兩次都被誤讀（pin 像另一顆定位鈕、search/map 又跟其他功能的圖示語意
+  // 混淆），目前模式已經由輸入框 placeholder 文字表達，圖示只需要傳達
+  // 「這裡可以切換」，不用重新代表模式本身。
   if(btn) btn.title = mobileSearchMode === 'address' ? '切換成圖資搜尋' : '切換成地址／位置搜尋';
 }
 

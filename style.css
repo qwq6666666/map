@@ -548,17 +548,17 @@
   @keyframes locate-spin{ to{ transform:rotate(360deg); } }
 
   .locate-toast{
-    position:absolute; top:64px; right:16px; z-index:9;
+    position:absolute; bottom:16px; left:50%; transform:translateX(-50%); z-index:9;
     max-width:260px; background:rgba(23,33,29,.92); color:var(--paper);
     font-family:var(--sans); font-size:var(--fs-sm); line-height:1.5; padding:9px 12px; border-radius:var(--radius-3);
     box-shadow:0 4px 12px rgba(0,0,0,.3);
+    text-align:center;
     display:none;
   }
   .locate-toast.show{display:block;}
 
-  .draw-storage-toast{
-    top:auto; bottom:16px; right:16px;
-  }
+  /* .draw-storage-toast 不再另外改位置，沿用 .locate-toast 的中下置中，
+     兩顆提示視覺統一（見 index.html：class="locate-toast draw-storage-toast"）。 */
 
   .locate-marker{
     position:absolute; z-index:8; width:0; height:0; display:none; pointer-events:none;
@@ -573,8 +573,7 @@
   .locate-popup{pointer-events:auto;}
 
   @media (max-width:640px){
-    .locate-toast{right:10px; max-width:70vw;}
-    .draw-storage-toast{right:10px;}
+    .locate-toast{max-width:70vw;}
   }
 
   /* ---------- 地址搜尋 ---------- */
@@ -591,8 +590,19 @@
     display:flex; align-items:center; justify-content:center;
   }
   .address-search-btn:hover{background:var(--brass-dark); border-color:var(--brass-dark);}
-  .address-search-btn svg{width:15px; height:15px;}
+  /* 15px 在手機版 36~40px 圓鈕裡佔比太低（尤其 #locateSearchBtn 的
+     十字準心，本體線條細小），縮圖比對照片壓縮後容易被誤認成「圖示
+     消失」，拉大到 18px 加大視覺重量，不影響最小的桌面版 32px 按鈕
+     置中排版。 */
+  .address-search-btn svg{width:18px; height:18px;}
   .address-search-btn.loading svg{animation:locate-spin 1s linear infinite;}
+  /* #mobileSearchModeBtn 的圖示外面多包一層 <span>（見 index.html，方便
+     之後若要疊 badge），span 預設 display:inline，內部 svg 吃預設
+     vertical-align:baseline 會在下方留一截字型 descender 空隙，讓 span
+     自己的方框比 svg 實際高度高一點，即使外層按鈕靠 flex 置中，這層
+     不對稱空隙仍會讓圖示看起來偏上、沒有真正置中。改成 inline-flex
+     自己置中內部 svg，消除這層空隙。 */
+  .mobile-search-mode-icon{display:inline-flex; align-items:center; justify-content:center;}
 
   /* 用目前位置搜尋圖層：外觀比照地址搜尋按鈕，改用琥珀色以區隔「用定位」與「用文字」兩種搜尋入口 */
   .locate-search-btn{background:var(--brass-dark); border-color:var(--brass-dark);}
@@ -1812,6 +1822,18 @@
          優先用它算 px，JS 還沒跑到之前才退回 svh（小可視高度，比一般
          vh 更接近工具列展開時的實際高度）當保險。 */
       --mobile-sheet-full:calc(var(--vvh, 100svh) * 0.75);
+      /* 手機專屬字級尺度覆寫：桌面版 5 級尺度全落在 10~14px（見上方
+         Tier 1 註解），級距只有 1px，手機螢幕上主次分不出來、幾乎只能
+         靠字重（400/600/700）撐視覺層級。這裡只在 <=768px 重新定義同一組
+         --fs-* 變數（不新增獨立 mobile token，維持全站共用同一套語意），
+         級距拉開到 1~2px，讓「預設內文」(fs-sm) 更貼近手機建議閱讀字級、
+         「強調/標題」(fs-base／fs-md) 明顯大一階。桌面版 :root（檔案開頭）
+         的原始值不受影響。 */
+      --fs-2xs:11px;
+      --fs-xs:12px;
+      --fs-sm:14px;
+      --fs-base:16px;
+      --fs-md:18px;
     }
 
     /* ---------- 頂部固定搜尋列 ---------- */
@@ -1994,7 +2016,7 @@
       overflow-y:auto; -webkit-overflow-scrolling:touch;
     }
 
-    .locate-toast{top:calc(env(safe-area-inset-top) + var(--mobile-topbar-h) + 10px); right:10px;}
+    .locate-toast{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 10px); max-width:80vw;}
 
     /* ---------- 日期印章：縮小並疊到左右比對浮動選單（#compareWrapB）
        正上方，維持跟桌面版一樣在右下角，但避開同一欄的其他控制項。 ---------- */
@@ -2170,7 +2192,6 @@
     #multiOverlayBar{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px); width:calc(100% - 24px); max-height:32vh;}
     .search-batch-bar{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px); max-width:calc(100% - 24px);}
     #custom-timeline-dock{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px); width:calc(100% - 24px);}
-    .draw-storage-toast{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 8px); right:10px;}
 
     /* ---------- Bottom Sheet 本體：#sidebar 從桌面左側浮動面板
        改成貼齊底部、可拖曳二態（縮小/展開）的工作表。
