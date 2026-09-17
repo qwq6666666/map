@@ -435,6 +435,25 @@ export function resolveOverlayKey(key){
   return { src, layer };
 }
 
+// 純函式、不建立任何 OL 物件：判斷這個 key 目前是否真的能解析出圖資
+// 來源（涵蓋底圖／自訂圖層／歷史圖層三種命名空間）。供 core/layerCache.js
+// 在呼叫 makeSourceForKey() 建立 Source 之前先驗證用——key 指向「已被
+// 使用者刪除的自訂來源」或「已從 data/layers/*.json 下架的歷史圖層」
+// 時（例如 shareLink 分享連結帶入的舊 key、或圖資更新後殘留在 store
+// 裡的舊選擇）回傳 false，makeSourceForKey() 本身在這些情況會退回
+// url:'' 的佔位 source（永遠空白、不會真的發送請求），呼叫端可以用
+// 這個函式在建立前先發現並記錄明確警告，而不是讓使用者看到一張沒有
+// 任何錯誤訊息、原因不明的空白圖層。
+export function hasResolvableSource(key){
+  if(typeof key !== 'string') return false;
+  if(key === 'base:osm' || key === 'base:sat') return true;
+  if(key.startsWith('custom:')){
+    const id = key.slice('custom:'.length);
+    return customSourcesProvider().some(s => s.id === id);
+  }
+  return !!resolveOverlayKey(key);
+}
+
 /* ---------------------------------------------------------
    依 Nominatim 回傳的地址元件，比對出地理範圍相關的圖資來源 id。
    規則資料放在 data/source-map.json（SOURCE_MAP_RULES），這裡只是

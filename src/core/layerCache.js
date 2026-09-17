@@ -29,7 +29,7 @@
    hasCachedLayer／removeCachedLayer／clearCache／getCacheStats。
 --------------------------------------------------------- */
 import { map } from './map.js';
-import { makeSourceForKey } from '../data.js';
+import { makeSourceForKey, hasResolvableSource } from '../data.js';
 
 let DEBUG_CACHE = false; // 開發時可在 console 呼叫 window.__layerCacheDebug(true) 開啟
 
@@ -58,6 +58,17 @@ function touch(entry){
    分開（見檔頭說明）。
 --------------------------------------------------------- */
 function createEntry(key){
+  // key 已經解析不出任何真正的圖資來源（自訂圖層已被刪除，或圖層已
+  // 從資料中下架，常見於 shareLink 分享連結帶入的舊 key、圖資更新後
+  // store 裡殘留的舊選擇）：makeSourceForKey() 仍會照舊退回 url:'' 的
+  // 佔位 source、正常包成 layer 存進快取（維持既有 contract，呼叫端
+  // 一律假設拿得到可用物件），這裡只負責留下清楚可見的警告，讓這種
+  // 「選了卻永遠空白」的殭屍圖層不再無聲無息。刻意用 console.warn 而
+  // 非 log()/DEBUG_CACHE：這是資料一致性問題，應該永遠可見，不能被
+  // 預設關閉的除錯開關擋掉。
+  if(!hasResolvableSource(key)){
+    console.warn(`[layerCache] 無法解析圖資來源，key="${key}"（自訂圖層已被刪除，或圖層已從資料中下架），將建立空白佔位圖層`);
+  }
   const source = makeSourceForKey(key);
   const layer = new ol.layer.Tile({ source, preload: 0 });
   bindAttributionSync(layer, source);
