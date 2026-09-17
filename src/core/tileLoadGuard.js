@@ -278,9 +278,13 @@ function registerTimeoutRetryCandidate(tile, tileBbox, z){
  * @param {number} [options.timeoutMs] 逾時毫秒數，預設 DEFAULT_TILE_LOAD_TIMEOUT_MS。
  * @param {string} [options.label] 供失敗紀錄顯示用的人類可讀圖層名稱
  *   （例如「台灣百年歷史地圖／日治臺灣堡圖」），不影響載入邏輯本身。
+ * @param {string} [options.sourceKey] core/layerCache.js 用的圖層 key
+ *   （例如 "custom:xxx"、"hist:sinica:JM25K_1921:jpg"）。只用來讓
+ *   abortInFlightForKey() 能在 layerCache 淘汰／移除這個 key 時，找到
+ *   哪些還在 inFlightGuardedTiles 裡的請求屬於它，不影響載入邏輯本身。
  * @returns {function(tile, string): void}
  */
-export function createGuardedTileLoadFunction({ regionBbox, timeoutMs = DEFAULT_TILE_LOAD_TIMEOUT_MS, label } = {}){
+export function createGuardedTileLoadFunction({ regionBbox, timeoutMs = DEFAULT_TILE_LOAD_TIMEOUT_MS, label, sourceKey } = {}){
   return function guardedTileLoadFunction(tile, src){
     // tile.getTileCoord()（OL API）回傳 [z, x, y]，跟 tileXYToBbox()
     // 的 (x, y, z) 參數順序不同，這裡要重新排列，不能直接展開傳入。
@@ -290,23 +294,41 @@ export function createGuardedTileLoadFunction({ regionBbox, timeoutMs = DEFAULT_
       tile.setState(TILE_STATE.EMPTY);
       return;
     }
-    loadWithTimeoutRetry(tile, src, timeoutMs, tileBbox, z, x, y, label);
+    loadWithTimeoutRetry(tile, src, timeoutMs, tileBbox, z, x, y, label, sourceKey);
   };
 }
 
 // 目前所有「已經送出 <img src>、還沒 resolve」的 guarded 請求，供
-// attachStaleTileAbort() 掃描；每個 entry 是 { bbox, z, abort }。只有
-// 真正發送了網路請求的圖磚才會在這裡登記——被邊界保護擋下、直接
+// attachStaleTileAbort() 掃描；每個 entry 是 { bbox, z, sourceKey, abort }。
+// 只有真正發送了網路請求的圖磚才會在這裡登記——被邊界保護擋下、直接
 // EMPTY 的圖磚從來不會進來，本來就沒有佔用載入名額，不需要放棄。
 const inFlightGuardedTiles = new Set();
 
-function loadWithTimeoutRetry(tile, src, timeoutMs, tileBbox, z, x, y, label){
+// 供 core/layerCache.js 在 removeCachedLayer()／evictIfNeeded()／
+// clearCache() 真的把某個 key 的圖層從地圖上移除前呼叫：那幾支函式
+// 只會 map.removeLayer() 並把 entry 從 cache 刪掉，不會主動中止這個
+// key 底下還在 tileRenderRequestPool 排隊或已經送出 <img src> 的
+// guarded 請求——這些請求會繼續佔用 slot 直到自然 resolve 或最差等滿
+// ~4 秒逾時，而 attachStaleTileAbort() 只比對「視角」，圖層被淘汰當下
+// 使用者通常還停留在附近（正是因為還在看才會觸發 LRU），不會被判定
+// stale。用跟 attachStaleTileAbort() 一樣的 { stale: true } 語意呼叫
+// entry.abort()：圖層物件本身接下來就要被丟棄，重置成 IDLE 或維持
+// ERROR 對已經沒人參照的 Tile 物件沒有差別，重用既有邏輯不用另外開一條
+// 分支。
+export function abortInFlightForKey(key){
+  if(!key) return;
+  inFlightGuardedTiles.forEach(entry => {
+    if(entry.sourceKey === key) entry.abort({ stale: true });
+  });
+}
+
+function loadWithTimeoutRetry(tile, src, timeoutMs, tileBbox, z, x, y, label, sourceKey){
   const img = tile.getImage();
 
   // attempt() 執行到底（不論成功、失敗、逾時判定 ERROR）都會呼叫這個
   // 把自己從 registry 移除；attempt(true) 重試時沿用同一筆 registry
   // entry（只是換掉 entry.abort 指向新的一次嘗試），不會重複註冊。
-  const entry = { bbox: tileBbox, z, abort: null };
+  const entry = { bbox: tileBbox, z, sourceKey, abort: null };
   inFlightGuardedTiles.add(entry);
   const unregister = () => inFlightGuardedTiles.delete(entry);
 

@@ -263,7 +263,7 @@ export function findLayerById(src, id){
 // 「畫面截圖」（drawTool.js 的 exportImage()）這種要用 JS 讀出 canvas
 // 像素資料的操作，才會因為瀏覽器的安全限制而失敗——那支函式本來就有
 // 包 try/catch 顯示對應的錯誤訊息，不會整個當掉。
-function makeWmtsSourceFromEntry(entry){
+function makeWmtsSourceFromEntry(entry, sourceKey){
   const w = entry.wmts;
   if(!w || !Array.isArray(w.resolutions) || !Array.isArray(w.matrixIds)){
     console.warn('自訂 WMTS 圖層缺少必要的 tileGrid 資料，無法建立', entry);
@@ -290,7 +290,7 @@ function makeWmtsSourceFromEntry(entry){
       // 使用者自訂服務沒有可靠的 WGS84 bbox 資料來源，不傳 regionBbox——
       // createGuardedTileLoadFunction() 內建的防呆會自動略過邊界檢查，
       // 只保留逾時保護（見 core/tileLoadGuard.js）。
-      tileLoadFunction: createGuardedTileLoadFunction({ label: entry.name || '自訂 WMTS 圖層' }),
+      tileLoadFunction: createGuardedTileLoadFunction({ label: entry.name || '自訂 WMTS 圖層', sourceKey }),
       // 不帶這個選項 OL 會當成 0（不是退回預設 2048），LRU 過期機制
       // 形同虛設——見 DEFAULT_TILE_CACHE_SIZE 的說明。
       cacheSize: DEFAULT_TILE_CACHE_SIZE
@@ -318,11 +318,11 @@ export function makeSourceForKey(key){
     // 的註解：這樣即使該服務沒開放 CORS，圖磚一樣能正常顯示，只有
     // 「截圖匯出」這個要讀 canvas 像素的操作在那個當下會失敗（已有
     // 對應的錯誤訊息與 try/catch，不影響一般瀏覽）。
-    if(entry.type === 'wmts') return makeWmtsSourceFromEntry(entry);
+    if(entry.type === 'wmts') return makeWmtsSourceFromEntry(entry, key);
     return new ol.source.XYZ({
       url: entry.urlTemplate,
       attributions: entry.attribution || '',
-      tileLoadFunction: createGuardedTileLoadFunction({ label: entry.name || '自訂圖層' }), // 同上，沒有可靠 bbox，只做逾時保護
+      tileLoadFunction: createGuardedTileLoadFunction({ label: entry.name || '自訂圖層', sourceKey: key }), // 同上，沒有可靠 bbox，只做逾時保護
       cacheSize: DEFAULT_TILE_CACHE_SIZE
     });
   }
@@ -340,7 +340,7 @@ export function makeSourceForKey(key){
     url: src.tileUrl(layer),
     attributions: src.attribution,
     crossOrigin: 'anonymous',
-    tileLoadFunction: createGuardedTileLoadFunction({ regionBbox, label: `${src.name}／${layer.title}` }),
+    tileLoadFunction: createGuardedTileLoadFunction({ regionBbox, label: `${src.name}／${layer.title}`, sourceKey: key }),
     cacheSize: DEFAULT_TILE_CACHE_SIZE
   });
 }

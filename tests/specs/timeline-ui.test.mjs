@@ -91,6 +91,30 @@ test('加速播放按鈕會依 1x→2x→4x→0.5x→1x 循環切換（跟自訂
   assertEqual(speedBtn.textContent, '1x', '點四次應該循環回 1x');
 });
 
+test('自動播放中若被重新呼叫 buildTimeline()（比照 timelineMode.js 的 refreshNow() 在地圖移動時重建時間軸），舊一輪的 playTimer 不應該在之後還觸發舊的 onSelect（回歸：兩輪呼叫共用模組層級計時器變數，見 timelineUI.js 檔頭說明）', async () => {
+  const firedA = [];
+  const firedB = [];
+  const containerA = document.createElement('div');
+  const candidatesA = [1897, 1904, 1944].map((y, i) => makeCandidate('a' + i, 'tA' + i, y));
+  buildTimeline(candidatesA, containerA, (s, l) => firedA.push(l.id));
+
+  const timelineRowA = containerA.children.find(c => c.className === 'timeline-row');
+  const playBtnA = timelineRowA.children[0];
+  playBtnA._listeners['click'][0](); // 立即觸發第一筆，並排定 ~1800ms 後的下一步
+
+  // 還沒等到 A 的下一步計時器到期，模擬地圖移動觸發重新整理：對另一個
+  // container 重新呼叫 buildTimeline()。
+  const containerB = document.createElement('div');
+  const candidatesB = [1950, 1960].map((y, i) => makeCandidate('b' + i, 'tB' + i, y));
+  buildTimeline(candidatesB, containerB, (s, l) => firedB.push(l.id));
+
+  assertEqual(firedA.length, 1, 'A 應該只有開始播放當下立即觸發的那一筆');
+
+  await sleep(2000); // 超過 PLAY_INTERVAL_MS，若舊計時器沒被清掉，這裡 firedA 會多出一筆
+  assertEqual(firedA.length, 1, 'A 的自動播放計時器應該已經被下一輪 buildTimeline() 清掉，不會再觸發');
+  assertEqual(firedB.length, 0, 'B 沒有按播放，不應該自己觸發任何一筆');
+});
+
 test('沒有年份資料的圖層，收在「年代不明」清單，不會出現在時間軸上', () => {
   const container = document.createElement('div');
   const candidates = [

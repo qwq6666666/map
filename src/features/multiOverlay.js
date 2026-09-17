@@ -49,7 +49,7 @@ import { buildMobileTwBrowseUI } from '../ui/mobileTwBrowse.js';
 import { buildMobileCnBrowseUI } from '../ui/mobileCnBrowse.js';
 import { buildMobileOtherBrowseUI } from '../ui/mobileOtherBrowse.js';
 import { initMobileCountryBrowse } from '../ui/mobileRegionBrowse.js';
-import { setLayerOpacity } from '../core/layerCache.js';
+import { setLayerOpacity, removeCachedLayer } from '../core/layerCache.js';
 import { map } from '../core/map.js';
 import { fetchCapabilities, listLayers, buildWmtsEntryConfig, annotateLayersWithCompatibility } from './wmtsImport.js';
 
@@ -184,7 +184,11 @@ function initCustomSourcesUI(){
   document.getElementById('customSourceClearAllBtn').addEventListener('click', ()=>{
     if(store.customSources.length === 0) return;
     if(!confirm('清除全部自訂圖層？這會一併從目前的疊圖組合移除，且無法復原。')) return;
+    // 清空前先記下 id，clearCustomSources() 執行後 store.customSources
+    // 就是空陣列了，之後才呼叫 removeCachedLayer() 會找不到要清誰。
+    const idsToRemove = store.customSources.map(s => s.id);
     clearCustomSources();
+    idsToRemove.forEach(id => removeCachedLayer(`custom:${id}`));
   });
   initCustomSourceTabs();
   initWmtsImportUI();
@@ -393,7 +397,16 @@ function buildCustomSourceRow(entry){
   removeBtn.title = '刪除這筆自訂圖層';
   removeBtn.setAttribute('aria-label', '刪除這筆自訂圖層');
   removeBtn.innerHTML = '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg>';
-  removeBtn.addEventListener('click', ()=> removeCustomSource(entry.id));
+  removeBtn.addEventListener('click', ()=> {
+    removeCustomSource(entry.id);
+    // store.js 刻意不 import core/layerCache.js（狀態層不依賴渲染層，見
+    // store.js removeCustomSource() 註解），所以「圖層真的從地圖上／
+    // 快取裡移除」要由這裡的呼叫端補上：不然被刪除的自訂來源如果曾經
+    // 被勾選過，layerCache 裡的 TileLayer 只會被隱藏（opacity 0）、
+    // 不會真的移除，會持續依 viewport 背景下載已刪除來源的圖磚，直到
+    // 快取數量超過 hardLimit 觸發 LRU 淘汰才會停止。
+    removeCachedLayer(`custom:${entry.id}`);
+  });
 
   row.appendChild(label);
   row.appendChild(removeBtn);

@@ -42,6 +42,7 @@ import {
   clearRecentTileFailures,
   RECENT_TILE_FAILURE_LIMIT,
   TIMEOUT_RETRY_COOLDOWN_MS,
+  abortInFlightForKey,
 } from '../../src/core/tileLoadGuard.js';
 import { lonLatToTileXY, tileXYToBbox } from '../../src/core/tileGeo.js';
 
@@ -312,6 +313,35 @@ test('attachStaleTileAbort：z／bbox 跟目前視角對不上的在途請求同
   attachStaleTileAbort(fakeMap2);
   fakeMap2._trigger('moveend');
   assertEqual(tileKeep.state, TILE_STATE.IDLE, '視角再次改變、涵蓋範圍已不相關時，應該同樣被 abort 成 IDLE');
+});
+
+test('abortInFlightForKey：只中止指定 sourceKey 的在途請求，不影響其他 key（供 core/layerCache.js 淘汰／移除圖層時呼叫，見該檔案的說明）', () => {
+  const urlA = 'http://tile-load-guard/abort-by-key-a';
+  const urlB = 'http://tile-load-guard/abort-by-key-b';
+  urlResults[urlA] = 'timeout-always'; // 模擬「請求已送出、還沒 resolve」
+  urlResults[urlB] = 'timeout-always';
+
+  const tileA = new FakeTile([TAIPEI_TILE.z, TAIPEI_TILE.x, TAIPEI_TILE.y]);
+  const tileB = new FakeTile([TAIPEI_TILE.z, TAIPEI_TILE.x, TAIPEI_TILE.y]);
+
+  const loadFnA = createGuardedTileLoadFunction({ timeoutMs: 999999, sourceKey: 'hist:test:layerA:jpg' });
+  const loadFnB = createGuardedTileLoadFunction({ timeoutMs: 999999, sourceKey: 'hist:test:layerB:jpg' });
+  loadFnA(tileA, urlA);
+  loadFnB(tileB, urlB);
+
+  assertEqual(tileA.state, null, '送出請求後應該還在等待中');
+  assertEqual(tileB.state, null, '送出請求後應該還在等待中');
+
+  abortInFlightForKey('not-a-real-key'); // 不存在的 key 應該安全地什麼都不做
+  assertEqual(tileA.state, null, '不相關的 key 不應該影響 A');
+  assertEqual(tileB.state, null, '不相關的 key 不應該影響 B');
+
+  abortInFlightForKey('hist:test:layerA:jpg');
+  assertEqual(tileA.state, TILE_STATE.IDLE, 'A 對應的 key 被中止後，圖磚應該被 abort 成 IDLE（比照 stale abort，不是永久 ERROR）');
+  assertEqual(tileB.state, null, 'B 的 sourceKey 不同，不應該被連帶中止');
+
+  abortInFlightForKey('hist:test:layerB:jpg'); // 收尾，避免遺留逾時計時器影響其他測試
+  assertEqual(tileB.state, TILE_STATE.IDLE, '測試結束前主動清理 B');
 });
 
 test('attachStaleTileAbort：已經 resolve（LOADED）的圖磚，moveend 觸發時不應該被重複處理或拋例外', async () => {

@@ -8,8 +8,9 @@ import {
   state as store, setMode,
   toggleMultiOverlayLayer, removeMultiOverlayLayer,
   setMultiOverlayOpacity, moveMultiOverlayLayer, clearMultiOverlayLayers,
-  selectOverlayLayer
+  selectOverlayLayer, addCustomSource, clearCustomSources
 } from '../../src/store.js';
+import { hasCachedLayer } from '../../src/core/layerCache.js';
 
 await loadAppData();
 initMapCore();
@@ -132,6 +133,26 @@ test('syncMultiLayerCheckedClasses：不同來源剛好有相同 layer.id 時，
 
   setMode('overlay');
   clearMultiOverlayLayers();
+});
+
+test('自訂圖層在側邊欄面板按「刪除」後，layerCache 對應的地圖圖層也要一併移除（不是只從清單移除，見 store.js removeCustomSource() 的職責邊界說明）', () => {
+  clearMultiOverlayLayers();
+  clearCustomSources();
+  setMode('multi');
+
+  const entry = addCustomSource({ name: '刪除測試圖層', urlTemplate: 'https://example.com/{z}/{x}/{y}.png' });
+  const key = `custom:${entry.id}`;
+  toggleMultiOverlayLayer(key); // 勾選讓 applyMultiOverlayLayers() 真的透過 layerCache 建立圖層
+  assertTrue(hasCachedLayer(key), '勾選後應該已經在 layerCache 裡建立對應圖層');
+
+  const removeBtn = document.getElementById('customSourceList').querySelector('.custom-source-remove');
+  assertTrue(!!removeBtn, '應該找得到這筆自訂圖層的刪除按鈕');
+  removeBtn.click();
+
+  assertEqual(store.customSources.length, 0, '自訂來源應該已經從 store 移除');
+  assertTrue(!hasCachedLayer(key), '刪除後 layerCache 也要一併移除，不能留下孤兒圖層持續背景下載圖磚');
+
+  setMode('overlay');
 });
 
 test('四種模式可以互相切換，不會拋出例外', async () => {

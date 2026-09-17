@@ -1,6 +1,6 @@
 import '../env-stub.mjs';
 import { test, run, assertTrue, assertEqual } from '../assert.mjs';
-import { toTWD97, formatWGS84, formatTWD97, tileXYToBbox, lonLatToTileXY, pointInBbox } from '../../src/core/tileGeo.js';
+import { toTWD97, formatWGS84, formatTWD97, tileXYToBbox, lonLatToTileXY, pointInBbox, bboxIntersects } from '../../src/core/tileGeo.js';
 import { buildCoordInfoElement } from '../../src/features/search.js';
 
 // 誤差容許：1 公尺以內（依任務需求的精度基準）
@@ -119,6 +119,50 @@ test('tileXYToBbox：z=0 唯一一顆圖磚應涵蓋全世界經度範圍 -180~1
   const bbox = tileXYToBbox(0, 0, 0);
   assertNear(bbox[0], -180, 1e-9, 'minLon 應為 -180');
   assertNear(bbox[2], 180, 1e-9, 'maxLon 應為 180');
+});
+
+test('lonLatToTileXY：緯度超出 Web Mercator 有效範圍（接近或超過 ±90 度）不應出現 NaN，會被夾回合法範圍計算', () => {
+  const nearNorthPole = lonLatToTileXY(121, 89.9, 5);
+  const northPole = lonLatToTileXY(121, 90, 5);
+  const southPole = lonLatToTileXY(121, -90, 5);
+  [nearNorthPole, northPole, southPole].forEach(t => {
+    assertTrue(Number.isFinite(t.x) && Number.isFinite(t.y), `x/y 應為有限數字，實際 ${JSON.stringify(t)}`);
+  });
+  // 超過 Web Mercator 上限（85.05112878）的緯度應該被夾回上限計算，
+  // 所以「剛好在上限附近」跟「明顯超過上限（含剛好 90 度）」應該算出
+  // 同一顆圖磚，不會因為夾值前的原始緯度不同而得到不同結果。
+  const atLimit = lonLatToTileXY(121, 85.05112878, 5);
+  assertEqual(`${northPole.x},${northPole.y}`, `${atLimit.x},${atLimit.y}`, '超過 Mercator 緯度上限應該被夾回上限，等同直接算上限緯度');
+});
+
+test('lonLatToTileXY：非有限數字輸入（NaN/Infinity）不應出現 NaN，會退回安全預設值', () => {
+  const cases = [
+    lonLatToTileXY(NaN, 25, 10),
+    lonLatToTileXY(121, NaN, 10),
+    lonLatToTileXY(Infinity, 25, 10),
+    lonLatToTileXY(121, -Infinity, 10),
+  ];
+  cases.forEach(t => {
+    assertTrue(Number.isFinite(t.x) && Number.isFinite(t.y), `x/y 應為有限數字，實際 ${JSON.stringify(t)}`);
+  });
+});
+
+test('pointInBbox／bboxIntersects：minLon>maxLon 代表跨越國際換日線的合法範圍，不是方向顛倒的錯誤資料', () => {
+  const antimeridianBbox = [170, -10, -170, 10]; // 橫跨 180 度經線，涵蓋東經 170~180 與西經 180~170
+  assertTrue(pointInBbox(175, 0, antimeridianBbox), '東經 175 應落在跨換日線 bbox 內');
+  assertTrue(pointInBbox(-175, 0, antimeridianBbox), '西經 175（即 -175）應落在跨換日線 bbox 內');
+  assertTrue(!pointInBbox(0, 0, antimeridianBbox), '經度 0 明顯不在跨換日線 bbox 的涵蓋範圍內，應為 false');
+
+  const overlapping = [175, -5, 179, 5]; // 完全落在東經那一段子區間內
+  const nonOverlapping = [0, -5, 10, 5]; // 完全落在涵蓋範圍外
+  assertTrue(bboxIntersects(antimeridianBbox, overlapping), '跟東經那一段子區間重疊，應該回傳 true');
+  assertTrue(!bboxIntersects(antimeridianBbox, nonOverlapping), '完全落在涵蓋範圍外，應該回傳 false');
+});
+
+test('pointInBbox／bboxIntersects：minLat>maxLat 是緯度方向顛倒的錯誤資料（緯度沒有跨界的合法情況），一律 fallback true 不排除', () => {
+  const invertedLatBbox = [119, 26, 123, 21]; // minLat(26) > maxLat(21)，緯度上下界顛倒
+  assertTrue(pointInBbox(121, 23, invertedLatBbox), 'minLat>maxLat 視為格式不合法，應該 fallback 為 true');
+  assertTrue(bboxIntersects(invertedLatBbox, [119, 21, 123, 26]), 'minLat>maxLat 視為格式不合法，應該 fallback 為 true');
 });
 
 await run();

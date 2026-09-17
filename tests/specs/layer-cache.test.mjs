@@ -27,6 +27,8 @@ import {
   clearCache,
   getCacheStats,
 } from '../../src/core/layerCache.js';
+import { TILE_STATE } from '../../src/core/tileLoadGuard.js';
+import { lonLatToTileXY } from '../../src/core/tileGeo.js';
 
 await loadAppData();
 
@@ -147,6 +149,32 @@ test('removeCachedLayer：移除後 hasCachedLayer 回傳 false，且下次呼�
   assertEqual(hasCachedLayer(keyA), true);
   removeCachedLayer(keyA);
   assertEqual(hasCachedLayer(keyA), false, '移除後不應再存在於快取');
+  clearCache();
+});
+
+test('removeCachedLayer：圖層被移除時，也要一併中止這個 key 底下還在 tileLoadGuard 進行中的請求（回歸：曾經只移除圖層物件，遺留的請求會繼續佔用 tileRenderRequestPool 的 slot，直到自然逾時）', () => {
+  clearCache();
+  getOrCreateLayer(keyA);
+  const source = getCachedSource(keyA);
+  const tileLoadFn = source.opts.tileLoadFunction;
+  assertTrue(typeof tileLoadFn === 'function', '前置條件：應該有 tileLoadFunction 可以呼叫');
+
+  // 一顆確定落在 keyA（sinica 圖層）bbox 內的圖磚座標，避免邊界保護
+  // 直接判 EMPTY、根本沒有真的送出請求。用一個永遠不會呼叫
+  // onload/onerror 的假 Image，模擬「請求已送出、還沒 resolve」。
+  const taipei15 = lonLatToTileXY(121.5654, 25.0330, 15);
+  const fakeImage = { onload: null, onerror: null, set src(v){ this._src = v; } };
+  let finalState = null;
+  const fakeTile = {
+    getTileCoord(){ return [taipei15.z, taipei15.x, taipei15.y]; },
+    getImage(){ return fakeImage; },
+    setState(s){ finalState = s; },
+  };
+  tileLoadFn(fakeTile, 'http://layer-cache-test/in-flight.png');
+  assertEqual(finalState, null, '前置條件：送出請求後應該還在等待中，不應該是 EMPTY（代表邊界保護誤判）');
+
+  removeCachedLayer(keyA);
+  assertEqual(finalState, TILE_STATE.IDLE, '移除圖層後，這個 key 底下進行中的請求應該被主動中止（比照 stale abort，不是永久 ERROR）');
   clearCache();
 });
 

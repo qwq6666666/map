@@ -59,6 +59,17 @@ const PLAY_INTERVAL_MS = 1800;
 const SPEED_LEVELS = [0.5, 1, 2, 4];
 const DEFAULT_SPEED_INDEX = SPEED_LEVELS.indexOf(1);
 
+// 跨呼叫共用（不是 buildTimeline() 內部區域變數）：timelineMode.js 的
+// refreshNow() 每次地圖移動／切換系列都會重新呼叫 buildTimeline()，
+// container.innerHTML='' 只清得掉舊一輪的 DOM，清不掉舊一輪 closure
+// 裡還沒觸發的 setTimeout（拖曳中的 scrub debounce、自動播放中的下一步）。
+// 若不主動清掉，使用者在自動播放/拖曳途中恰好觸發重新整理，舊計時器
+// 到期時仍會呼叫舊一輪的 onSelect()，把已經不相關的圖層套用到目前地圖。
+// 比照 features/customTimelineUI.js 的 teardown() 做法，改成模組層級
+// 變數，讓下一輪呼叫能先清掉上一輪殘留的計時器。
+let pendingTimer = null;
+let playTimer = null;
+
 // 播放/暫停鈕圖示：symbol 為 'play' 或 'pause'，切換 <use> 的 href
 // （不能用 textContent，會把整個 <svg> 節點清空)。
 function setPlayBtnIcon(btn, symbol){
@@ -72,6 +83,12 @@ function setPlayBtnIcon(btn, symbol){
  * @param {(src, layer) => void} onSelect 點擊圖層時呼叫
  */
 export function buildTimeline(candidates, container, onSelect){
+  // 清掉上一輪可能還沒觸發的計時器（見上方模組層級變數的說明），
+  // 一定要在清空／重建 DOM 之前做，避免舊計時器到期時操作到新一輪
+  // 已經不存在的節點或呼叫已經過期的 onSelect。
+  if(pendingTimer){ clearTimeout(pendingTimer); pendingTimer = null; }
+  if(playTimer){ clearTimeout(playTimer); playTimer = null; }
+
   container.innerHTML = '';
 
   const dated = candidates.filter(c => typeof c.layer.yearNum === 'number');
@@ -91,7 +108,6 @@ export function buildTimeline(candidates, container, onSelect){
     // 維持預設的半透明外框。
     // ---------------------------------------------------------
     let currentIndex = -1; // 還沒選過任何一筆之前是 -1，全部維持預設外觀
-    let pendingTimer = null;
     let lastFiredLayerId = null;
 
     function paintProgress(idx){
@@ -125,7 +141,6 @@ export function buildTimeline(candidates, container, onSelect){
     // 播放」的一部分，所以直接套用（不像手動拖曳快速滑過要 debounce
     // 掉中間路過的）。
     // ---------------------------------------------------------
-    let playTimer = null;
     let playing = false;
     let speedIndex = DEFAULT_SPEED_INDEX; // SPEED_LEVELS 的索引，只影響自動播放的間隔，不影響拖曳/點擊挑選
 

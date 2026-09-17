@@ -30,6 +30,7 @@
 --------------------------------------------------------- */
 import { map } from './map.js';
 import { makeSourceForKey, hasResolvableSource } from '../data.js';
+import { abortInFlightForKey } from './tileLoadGuard.js';
 
 let DEBUG_CACHE = false; // 開發時可在 console 呼叫 window.__layerCacheDebug(true) 開啟
 
@@ -117,6 +118,10 @@ function evictIfNeeded(protectedKeys){
     const entry = candidates[i++];
     map.removeLayer(entry.layer);
     cache.delete(entry.key);
+    // 圖層物件被移除後，這個 key 底下還在 tileLoadGuard 排隊／進行中的
+    // guarded 請求不會自己停止（見 abortInFlightForKey() 的說明），
+    // 主動中止釋放 tileRenderRequestPool 的 slot，不用乾等逾時。
+    abortInFlightForKey(entry.key);
     log('CACHE EVICT', entry.key);
   }
 }
@@ -208,10 +213,14 @@ export function removeCachedLayer(key){
   if(!entry) return;
   map.removeLayer(entry.layer);
   cache.delete(key);
+  abortInFlightForKey(key); // 理由同 evictIfNeeded()：圖層已經移除，不用讓進行中的請求繼續佔用 slot
 }
 
 export function clearCache(){
-  cache.forEach(entry => map.removeLayer(entry.layer));
+  cache.forEach(entry => {
+    map.removeLayer(entry.layer);
+    abortInFlightForKey(entry.key);
+  });
   cache.clear();
 }
 

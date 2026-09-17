@@ -193,8 +193,12 @@ export async function showLocationAndFindLayers(lon, lat, label, addr){
   // （見 src/geocode.js 的 countrycodes=tw）卻被拿去誤判成其他國家的地區。
   locationResultEl.dataset.countryCode = (addr && addr.country_code) ? String(addr.country_code).toLowerCase() : '';
   // 每次重新搜尋都要先移除舊的座標資訊區塊，避免重複搜尋時在卡片內堆疊。
+  // 用 insertBefore 而非 appendChild：#layerAvailPanel 是寫死在 index.html
+  // 裡的固定節點，appendChild 只會把座標資訊排到它後面，跟
+  // renderNearbyPlaceNames() 註解宣稱的「座標資訊之後、可用圖層清單之前」
+  // 順序不符（座標資訊會被擠到附近地名清單之後）。
   locationResultEl.querySelector('.coord-info')?.remove();
-  locationResultEl.appendChild(buildCoordInfoElement(lat, lon));
+  locationResultEl.insertBefore(buildCoordInfoElement(lat, lon), layerAvailPanelEl);
   await findAndRenderAvailableLayers(lon, lat, addr || {});
 }
 

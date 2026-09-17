@@ -355,9 +355,18 @@ test('WMTS URL 生成：比照 resolveTileUrl 組法，組出 hsinchu_tj7a0510 �
    15~：全站 bbox 覆蓋率回歸測試——防止未來改動 data/layers/*.json
    或 tools/fetch-wmts-bbox.js 時，某個來源的 bbox 資料整批消失卻沒被發現
 --------------------------------------------------------- */
+// 跟 src/core/tileGeo.js 的 isValidBbox() 保持同一套規則（含 minLat<=maxLat
+// 方向性檢查）：曾經發生上游 WMTS Capabilities 的 LowerCorner/UpperCorner
+// 順序異常、被 tools/fetch-wmts-bbox.js 原封不動寫入 data/layers/*.json
+// 的案例（緯度上下界顛倒，導致 pointInBbox() 永遠回傳 false、圖層被
+// 誤判為不相交而完全消失），這裡只檢查「4 個有限數字」的舊版本測不出來。
+// 只檢查緯度、不檢查經度：經度 minLon>maxLon 是跨越國際換日線的合法
+// 表示法（見 tileGeo.js 的 lonSubRanges()），不能當成方向顛倒的錯誤。
 function isValidBbox(bbox){
-  return Array.isArray(bbox) && bbox.length === 4 &&
-    bbox.every(n => typeof n === 'number' && Number.isFinite(n));
+  if(!Array.isArray(bbox) || bbox.length !== 4) return false;
+  if(!bbox.every(n => typeof n === 'number' && Number.isFinite(n))) return false;
+  const [, minLat, , maxLat] = bbox;
+  return minLat <= maxLat;
 }
 
 function countBboxCoverage(src){
@@ -405,6 +414,25 @@ test('全站 bbox 覆蓋率：有合法 bbox 的圖層總數應 >= 1885 筆（�
   let totalWithBbox = 0;
   (bundle.sources || []).forEach(src => { totalWithBbox += countBboxCoverage(src).withBbox; });
   assertTrue(totalWithBbox >= 1885, `全站有 bbox 的圖層數應該 >= 1885，實際 ${totalWithBbox}（可能是某個來源的 bbox 資料整批消失了）`);
+});
+
+test('全站 bbox 方向性：所有 region.bbox 都應該 minLat<=maxLat（曾發生上游 WMTS Capabilities 座標順序異常、緯度上下界顛倒導致圖層永遠不相交的真實案例，見 ccts/newtaipei/taipei/taoyuan 四筆修正）——經度不檢查方向性，minLon>maxLon 是跨越國際換日線的合法表示法，見 src/core/tileGeo.js 的 lonSubRanges()', () => {
+  const inverted = [];
+  (bundle.sources || []).forEach(src => {
+    (src.categories || []).forEach(cat => {
+      const layersArr = cat.groups ? cat.groups.flatMap(g => g.layers) : cat.layers;
+      (layersArr || []).forEach(layer => {
+        const bbox = layer.region && layer.region.bbox;
+        if(!Array.isArray(bbox) || bbox.length !== 4) return; // 缺失/格式不合法交給覆蓋率測試處理
+        if(!bbox.every(n => typeof n === 'number' && Number.isFinite(n))) return;
+        const [, minLat, , maxLat] = bbox;
+        if(minLat > maxLat){
+          inverted.push(`${src.id}/${layer.id}: ${JSON.stringify(bbox)}`);
+        }
+      });
+    });
+  });
+  assertEqual(inverted.length, 0, `發現緯度 min/max 方向顛倒的 bbox：\n${inverted.join('\n')}`);
 });
 
 await run();

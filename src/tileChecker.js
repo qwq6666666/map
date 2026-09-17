@@ -203,6 +203,16 @@ export class TileChecker {
       this._remember(url, ok);
       this.pending.delete(url);
       return ok;
+    }, err=>{
+      // _probeWithRetry() 目前的實作保證只會 resolve、不會 reject，這裡
+      // 只是防禦性寫法：一旦之後改動讓它意外 reject，若不清 pending，
+      // 這個 url 會永久卡住——checkOne() 每次都會直接回傳同一個已經
+      // reject 的 promise，造成永久負向結果＋重複的未捕捉 rejection。
+      // 比照探測失敗的既有慣例（onerror 不重試、視為無資料）回傳
+      // false，維持這支函式「永遠回傳 Promise<boolean>」的既有介面。
+      console.warn(`[tileChecker] 探測 ${url} 發生非預期例外`, err);
+      this.pending.delete(url);
+      return false;
     });
     this.pending.set(url, promise);
     return promise;

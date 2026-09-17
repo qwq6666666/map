@@ -92,10 +92,22 @@ function parseLayerBBoxMap(xml){
     const upperMatch = /<ows:UpperCorner>\s*([-\d.]+)\s+([-\d.]+)\s*<\/ows:UpperCorner>/.exec(bboxBlock);
     if(!lowerMatch || !upperMatch) continue;
 
-    const minLon = Number.parseFloat(lowerMatch[1]);
-    const minLat = Number.parseFloat(lowerMatch[2]);
-    const maxLon = Number.parseFloat(upperMatch[1]);
-    const maxLat = Number.parseFloat(upperMatch[2]);
+    let minLon = Number.parseFloat(lowerMatch[1]);
+    let minLat = Number.parseFloat(lowerMatch[2]);
+    let maxLon = Number.parseFloat(upperMatch[1]);
+    let maxLat = Number.parseFloat(upperMatch[2]);
+
+    // 曾經發生過中研院 WMTS Capabilities 對特定圖層回傳的 LowerCorner/
+    // UpperCorner 順序異常（緯度上下界顛倒），照原樣寫入會讓
+    // src/core/tileGeo.js 的 pointInBbox() 判定成永遠不相交的空區間、
+    // 圖層在地圖上完全消失（見 ccts/China_Map_1938、newtaipei/
+    // Linko_3K_1969、taipei/Taipei_aerialphoto_1963、taoyuan/
+    // Taoyuan_aerialphoto_1978 四筆真實案例）。這裡自動交換回正確方向
+    // 並印出警告，而不是直接跳過整筆——跳過會被誤判成「這來源沒有
+    // WMTS Capabilities 端點」，交給前端 fallback 當成無索引處理，
+    // 反而讓地址搜尋的 bbox 篩選對這個 key 完全失效，不如自動修正。
+    if(minLon > maxLon){ console.warn(`  [警告] ${id} 的經度上下界顛倒（${minLon} > ${maxLon}），已自動交換`); [minLon, maxLon] = [maxLon, minLon]; }
+    if(minLat > maxLat){ console.warn(`  [警告] ${id} 的緯度上下界顛倒（${minLat} > ${maxLat}），已自動交換`); [minLat, maxLat] = [maxLat, minLat]; }
 
     map[id] = [minLon, minLat, maxLon, maxLat];
   }

@@ -9,11 +9,26 @@
    timelineMode.js 互相依賴的循環問題。
 --------------------------------------------------------- */
 
-// 將經緯度換算成標準 Web Mercator（EPSG:3857）Slippy Map 圖磚座標
+// Web Mercator 座標系的緯度上限：超過這個範圍 Math.tan()／Math.log() 會
+// 在數學上發散（|lat| 趨近 90 度時正切趨近無限大，log(負數) 更直接是
+// NaN），業界慣例統一在這裡截斷（例如 OpenLayers／Leaflet 的 EPSG:3857
+// 投影範圍都是這個值）——超出這個範圍的緯度本來就無法對應到有限的
+// Mercator Y 座標。
+const MAX_MERCATOR_LAT = 85.05112878;
+
+// 將經緯度換算成標準 Web Mercator（EPSG:3857）Slippy Map 圖磚座標。
+// 對非有限數字（NaN／Infinity，例如上游傳入了尚未就緒的座標）與超出
+// Mercator 有效範圍的緯度做防呆：不這樣做的話 Math.log() 可能吃到
+// 負數或 0 而回傳 NaN，讓整組 {x,y,z} 變成不成立的座標，之後任何用它
+// 組出來的 tile key／bbox 比對都會跟著壞掉且難以追查源頭。
 export function lonLatToTileXY(lon, lat, z){
   const n = Math.pow(2, z);
-  const x = Math.floor((lon + 180) / 360 * n);
-  const latRad = lat * Math.PI / 180;
+  const safeLon = Number.isFinite(lon) ? lon : 0;
+  const safeLat = Number.isFinite(lat)
+    ? Math.max(-MAX_MERCATOR_LAT, Math.min(MAX_MERCATOR_LAT, lat))
+    : 0;
+  const x = Math.floor((safeLon + 180) / 360 * n);
+  const latRad = safeLat * Math.PI / 180;
   const y = Math.floor((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n);
   return {
     x: Math.max(0, Math.min(n - 1, x)),
@@ -56,11 +71,46 @@ export function neighborTiles(tile){
 }
 
 // pointInBbox()／bboxIntersects() 共用的 bbox 格式驗證：必須是長度 4
-// 的陣列，且每個值都是有限數字。抽成獨立函式避免兩處重複寫同一段
-// 檢查邏輯（原本 pointInBbox() 內聯一份，新增 bboxIntersects() 時
-// 會需要再寫一份一模一樣的）。
+// 的陣列，且每個值都是有限數字，minLat <= maxLat（[minLon,minLat,
+// maxLon,maxLat]）。抽成獨立函式避免兩處重複寫同一段檢查邏輯（原本
+// pointInBbox() 內聯一份，新增 bboxIntersects() 時會需要再寫一份
+// 一模一樣的）。
+//
+// 只檢查緯度方向性、不檢查 minLon<=maxLon：緯度沒有「跨界」這回事
+// （地表南北有極限、不會像經度一樣繞一圈接回去），minLat>maxLat 永遠
+// 是資料錯誤——這個檢查是事後補的：tools/fetch-wmts-bbox.js 曾經原封
+// 不動把上游 WMTS Capabilities 的 LowerCorner/UpperCorner 寫進
+// data/layers/*.json，遇到上游座標順序異常（緯度上下界顛倒）時沒有
+// 察覺，導致 pointInBbox() 的 lat>=minLat && lat<=maxLat 變成永遠為
+// false 的空集合，圖層被永久誤判為「不相交」而完全不出現（實際修正
+// 案例見 data/layers/ccts.json 等 4 筆）。
+// 經度則反過來：minLon>maxLon 是「跨越國際換日線」的合法表示法
+// （例如 [170, ..., -170, ...] 代表橫跨 180 度經線的範圍），下面
+// lonInRange()／lonRangesOverlap() 會正確處理這種情形，不能簡單套用
+// min<=max 判斷、也不能直接當成不合法。
 function isValidBbox(bbox){
-  return Array.isArray(bbox) && bbox.length === 4 && bbox.every(Number.isFinite);
+  if(!Array.isArray(bbox) || bbox.length !== 4 || !bbox.every(Number.isFinite)) return false;
+  const [, minLat, , maxLat] = bbox;
+  return minLat <= maxLat;
+}
+
+// 把可能跨越國際換日線的經度範圍（minLon>maxLon）拆成 1~2 段不跨界的
+// 子區間，方便沿用一般線性區間比對邏輯，不用另外寫模數（mod 360）
+// 運算。例如 [170, -170] 代表橫跨 180 度、涵蓋東經 170~180 與
+// 西經 180~-170 兩段，拆成 [[170,180],[-180,-170]]。
+function lonSubRanges(minLon, maxLon){
+  if(minLon <= maxLon) return [[minLon, maxLon]];
+  return [[minLon, 180], [-180, maxLon]];
+}
+
+function lonInRange(lon, minLon, maxLon){
+  return lonSubRanges(minLon, maxLon).some(([lo, hi]) => lon >= lo && lon <= hi);
+}
+
+function lonRangesOverlap(aMinLon, aMaxLon, bMinLon, bMaxLon){
+  const aRanges = lonSubRanges(aMinLon, aMaxLon);
+  const bRanges = lonSubRanges(bMinLon, bMaxLon);
+  return aRanges.some(([aLo, aHi]) => bRanges.some(([bLo, bHi]) => aLo <= bHi && aHi >= bLo));
 }
 
 /**
@@ -77,13 +127,14 @@ function isValidBbox(bbox){
  *
  * @param {number} lon 經度（十進位度）
  * @param {number} lat 緯度（十進位度）
- * @param {[number, number, number, number]} bbox [minLon, minLat, maxLon, maxLat]，EPSG:4326
+ * @param {[number, number, number, number]} bbox [minLon, minLat, maxLon, maxLat]，EPSG:4326；
+ *   minLon>maxLon 代表跨越國際換日線的範圍，見 lonSubRanges()
  * @returns {boolean} 點是否落在 bbox 範圍內（邊界視為在範圍內）；bbox 格式不合法時一律回傳 true
  */
 export function pointInBbox(lon, lat, bbox){
   if(!isValidBbox(bbox)) return true;
   const [minLon, minLat, maxLon, maxLat] = bbox;
-  return lon >= minLon && lon <= maxLon && lat >= minLat && lat <= maxLat;
+  return lonInRange(lon, minLon, maxLon) && lat >= minLat && lat <= maxLat;
 }
 
 /**
@@ -132,7 +183,7 @@ export function bboxIntersects(bboxA, bboxB){
   if(!isValidBbox(bboxA) || !isValidBbox(bboxB)) return true;
   const [aMinLon, aMinLat, aMaxLon, aMaxLat] = bboxA;
   const [bMinLon, bMinLat, bMaxLon, bMaxLat] = bboxB;
-  return aMinLon <= bMaxLon && aMaxLon >= bMinLon && aMinLat <= bMaxLat && aMaxLat >= bMinLat;
+  return lonRangesOverlap(aMinLon, aMaxLon, bMinLon, bMaxLon) && aMinLat <= bMaxLat && aMaxLat >= bMinLat;
 }
 
 /* ---------------------------------------------------------
