@@ -13,6 +13,7 @@ model: sonnet
 - 測試主程式與執行器：`tests/run-all.mjs`、`tests/assert.mjs`
 - 測試環境模擬 Stub：`tests/env-stub.mjs`
 - 整合與各模組規格測試：`tests/specs/*.test.mjs`
+- vitest 版測試（評估中，跟上面兩套框架並存，詳見 CLAUDE.md「測試框架雙軌並存」）：`tests/specs-vitest/*.test.mjs`、`vitest.config.js`
 - 開發規範文檔：`DEVELOPMENT.md`
 
 # 核心工作準則
@@ -27,3 +28,4 @@ model: sonnet
 # 驗證規範
 - 執行全套測試流程以驗證程式碼健全度：
   `node tests/run-all.mjs`
+- 若改動同時牽涉到 `tests/specs-vitest/` 對應檔案，額外跑 `npm run test:vitest-pilot`（等同 `vitest run`）確認兩套框架案例數與結果一致。

@@ -1,0 +1,327 @@
+import '../env-stub.mjs';
+import { test, expect } from 'vitest';
+import { sleep } from '../assert.mjs';
+
+/* ---------------------------------------------------------
+   env-stub.mjs 的假 ol.Map 只實作了 on('moveend', ...)（見
+   tests/env-stub.mjs 的 FakeMap.on()），沒有一般化到任意事件，
+   而 identifyPin.js 用的是 map.on('singleclick', ...)。
+
+   這裡在「匯入任何會建立 map 單例的模組之前」，先把
+   ol.Map.prototype.on 補成通用版本（同時保留原本行為，讓
+   moveend 監聽依舊照舊被存進 _moveendHandlers，不影響其他測試檔
+   案已經驗證過的行為），額外把每個事件的監聽函式都存進
+   map._handlers[事件名稱]，讓測試可以之後手動觸發
+   map._handlers.singleclick 裡註冊的 handler，等同「模擬使用者
+   點擊地圖」。這只是這份測試檔內的區域性補強，並未更動
+   tests/env-stub.mjs 檔案本身，也沒有改動 src/ 任何一行程式碼。
+
+   之所以要用 dynamic import() 而不是一般的 import 語句：ESM 的
+   import 宣告會在模組求值最前面就先跑完，如果用一般 import 去載入
+   drawTool.js／identifyPin.js（兩者都會連帶匯入 core/map.js、
+   在匯入當下就 new 出唯一一顆 map 實例），會搶在下面這段補丁套用
+   之前就先建立好 map，屆時再補丁就來不及了。
+--------------------------------------------------------- */
+const originalOn = globalThis.ol.Map.prototype.on;
+globalThis.ol.Map.prototype.on = function(ev, fn){
+  this._handlers = this._handlers || {};
+  (this._handlers[ev] = this._handlers[ev] || []).push(fn);
+  return originalOn.call(this, ev, fn);
+};
+
+const { state: store, setMode } = await import('../../src/store.js');
+const { runtime } = await import('../../src/runtime.js');
+const { isDrawToolActive, initDrawTool } = await import('../../src/drawTool.js');
+const { initIdentifyPin } = await import('../../src/features/identifyPin.js');
+const { map } = await import('../../src/core/map.js');
+
+// 模擬 index.html 裡 #drawToolbar 底下「點」工具的按鈕結構，跟
+// tests/specs/draw-tool.test.mjs 用同一套手法。
+const toolbar = document.getElementById('drawToolbar');
+const pointBtn = document.createElement('button');
+pointBtn.className = 'draw-tool-btn';
+pointBtn.dataset.tool = 'point';
+toolbar.appendChild(pointBtn);
+initDrawTool();
+
+function clickPointTool(){
+  pointBtn._listeners['click'][0]();
+}
+
+const searchCalls = [];
+// 「歷史地名」小卡測試用：placeNameMatchToReturn 預設 null（等同沒有命中
+// 任何地名今昔對照結果），大部分既有測試都在這個狀態下執行，維持原本
+// 「沒有歷史地名區塊」的行為；只有新增的地名小卡測試會在觸發前暫時
+// 指定成一個 place 物件，驗證完立刻還原成 null，不影響後面的測試。
+let placeNameMatchToReturn = null;
+let onViewPlaceNameCardCalls = 0;
+initIdentifyPin({
+  onSearchLayers: (lon, lat, label, addr) => searchCalls.push({ lon, lat, label, addr }),
+  getPlaceNameMatch: () => placeNameMatchToReturn,
+  onViewPlaceNameCard: () => { onViewPlaceNameCardCalls++; }
+});
+
+// 走訪 DOM 樹找出第一個帶有指定 class 的節點：identifyPopupBody 內的
+// .identify-history-name／.identify-history-view-btn 不屬於 DEVELOPMENT.md
+// 列出的既有選擇器支援範圍以外的組合寫法，這裡沿用假 querySelector 就能
+// 支援的純 class 選擇器，不需要另外實作走訪邏輯。
+function findHistoryNameBlock(){
+  return identifyPopupBody.querySelector('.identify-history-name');
+}
+function findHistoryViewBtn(){
+  return identifyPopupBody.querySelector('.identify-history-view-btn');
+}
+
+const identifyPinEl = document.getElementById('identifyPin');
+const identifyPopupBody = document.getElementById('identifyPopupBody');
+const identifyPopupCloseBtn = document.getElementById('identifyPopupClose');
+const identifyPopupEl = document.getElementById('identifyPopup');
+const identifyPinMarkerBtn = document.getElementById('identifyPinMarker');
+const identifyPopupClearBtn = document.getElementById('identifyPopupClear');
+
+// 包一層 fetch 呼叫次數計數器，用來驗證「重開彈窗時沿用快取，不重打
+// reverseGeocode（地址反查）API」——env-stub.mjs 的 fetch 對非本機檔案
+// 的網址（Nominatim 那種 https:// 網址）一定會擲出例外變成 rejected
+// promise，identifyPin.js 內部會 catch 起來變成「地址查詢失敗」的快取
+// 文字，不影響這裡只在意「呼叫次數有沒有增加」的檢查。
+let fetchCallCount = 0;
+const originalFetch = globalThis.fetch;
+globalThis.fetch = (...args) => {
+  fetchCallCount++;
+  return originalFetch(...args);
+};
+
+const COORD = [121.5, 25.05]; // ol.proj.toLonLat 在假環境裡是原樣傳回，等同 [lon, lat]
+
+function triggerSingleClick(coordinate = COORD){
+  (map._handlers.singleclick || []).forEach(fn => fn({ coordinate }));
+}
+
+function triggerContextMenu(){
+  const evt = { defaultPrevented: false, preventDefault(){ evt.defaultPrevented = true; } };
+  (map.getViewport()._listeners.contextmenu || []).forEach(fn => fn(evt));
+  return evt;
+}
+
+test('isDrawToolActive()：預設沒有選任何繪圖工具時回傳 false', () => {
+  expect(isDrawToolActive(), '預設不應有啟用中的繪圖工具').toBe(false);
+});
+
+test('isDrawToolActive()：點擊「點」工具啟用後回傳 true', () => {
+  clickPointTool();
+  expect(isDrawToolActive(), '啟用點工具後應回傳 true').toBe(true);
+  clickPointTool(); // 再點一次取消，恢復成單純瀏覽狀態，避免影響後面的測試
+  expect(isDrawToolActive(), '再點一次應取消選取').toBe(false);
+});
+
+test('非疊圖模式（store.mode !== "overlay"）時，點擊地圖不會顯示 Pin', () => {
+  setMode('compare');
+  triggerSingleClick();
+  expect(!identifyPinEl.classList.contains('show'), '非一般瀏覽模式不應顯示 Pin').toBeTruthy();
+  setMode('overlay'); // 還原
+});
+
+test('繪圖工具啟用中時，點擊地圖不會顯示 Pin', () => {
+  clickPointTool();
+  expect(isDrawToolActive(), '前置條件：點工具應為啟用中').toBe(true);
+  triggerSingleClick();
+  expect(!identifyPinEl.classList.contains('show'), '繪圖工具啟用中不應顯示 Pin').toBeTruthy();
+  clickPointTool(); // 還原
+  expect(isDrawToolActive(), '還原：點工具應已取消').toBe(false);
+});
+
+test('比對模式分隔線拖曳中（runtime.dragging）時，點擊地圖不會顯示 Pin', () => {
+  runtime.dragging = true;
+  triggerSingleClick();
+  expect(!identifyPinEl.classList.contains('show'), '拖曳分隔線中不應顯示 Pin').toBeTruthy();
+  runtime.dragging = false; // 還原
+});
+
+test('一般瀏覽模式、無繪圖工具、無拖曳時，點擊地圖會顯示 Pin 並帶出座標資訊與搜尋按鈕', () => {
+  expect(store.mode, '前置條件：應為一般瀏覽模式').toBe('overlay');
+  expect(isDrawToolActive(), '前置條件：不應有啟用中的繪圖工具').toBe(false);
+  expect(runtime.dragging, '前置條件：不應在拖曳中').toBe(false);
+
+  triggerSingleClick();
+
+  expect(identifyPinEl.classList.contains('show'), '應該顯示 Pin').toBeTruthy();
+  const coordInfo = identifyPopupBody.querySelector('.coord-info');
+  expect(!!coordInfo, 'Popup 內應該有座標資訊區塊（.coord-info）').toBeTruthy();
+  const searchBtn = identifyPopupBody.querySelector('.identify-search-btn');
+  expect(!!searchBtn, 'Popup 內應該有「搜尋涵蓋此點之歷史圖層」按鈕').toBeTruthy();
+});
+
+test('點擊關閉按鈕（×）：只關閉彈窗，Pin 本體與內容維持不變（狀態一 -> 狀態二）', () => {
+  expect(identifyPopupEl.hidden, '前置條件：Popup 應該是開啟中').toBe(false);
+  const bodyHTMLBefore = identifyPopupBody.innerHTML;
+
+  identifyPopupCloseBtn.click();
+
+  expect(identifyPopupEl.hidden, '關閉按鈕應該讓 Popup 隱藏').toBe(true);
+  expect(identifyPinEl.classList.contains('show'), '關閉彈窗後 Pin 本體應該維持顯示，不會被移除').toBeTruthy();
+  expect(identifyPopupBody.innerHTML, '關閉彈窗不應該清空或改變 Popup 內容').toBe(bodyHTMLBefore);
+});
+
+test('彈窗關閉、Pin 存在時，點擊 Pin 本體會重開彈窗，且沿用快取不重打地址反查 API（狀態二 -> 狀態一）', async () => {
+  expect(identifyPopupEl.hidden, '前置條件：Popup 應該是關閉中').toBe(true);
+  await sleep(50); // 讓上一輪必定失敗的地址反查先落定成快取文字，方便比對
+
+  const addressElBefore = identifyPopupBody.querySelector('.identify-address');
+  const cachedAddressText = addressElBefore ? addressElBefore.textContent : null;
+  const fetchCountBefore = fetchCallCount;
+
+  identifyPinMarkerBtn.click();
+
+  expect(identifyPopupEl.hidden, '點擊 Pin 本體應該重新開啟彈窗').toBe(false);
+  expect(fetchCallCount, '重開彈窗不應該重新呼叫地址反查 API').toBe(fetchCountBefore);
+  const addressElAfter = identifyPopupBody.querySelector('.identify-address');
+  expect(!!addressElAfter, '重開後應該仍有地址資訊區塊').toBeTruthy();
+  expect(addressElAfter.textContent, '重開彈窗應該沿用快取的地址文字').toBe(cachedAddressText);
+});
+
+test('Pin 存在、彈窗開啟時，點擊地圖空白處只關閉彈窗，Pin 不受影響（狀態一 -> 狀態二）', () => {
+  expect(identifyPopupEl.hidden, '前置條件：Popup 應該是開啟中').toBe(false);
+  const bodyHTMLBefore = identifyPopupBody.innerHTML;
+
+  triggerSingleClick([121.6, 25.1]); // 模擬點擊地圖上的別處空白處
+
+  expect(identifyPopupEl.hidden, '點擊地圖空白處應該關閉彈窗').toBe(true);
+  expect(identifyPinEl.classList.contains('show'), 'Pin 本體不應該被移除').toBeTruthy();
+  expect(identifyPopupBody.innerHTML, 'Pin 的內容不應該被重建（沒有重新反查地址）').toBe(bodyHTMLBefore);
+});
+
+test('彈窗關閉、Pin 存在時，再次點擊地圖空白處什麼都不會發生（狀態二 -> 狀態二）', () => {
+  expect(identifyPopupEl.hidden, '前置條件：Popup 應該是關閉中').toBe(true);
+  const bodyHTMLBefore = identifyPopupBody.innerHTML;
+
+  triggerSingleClick([121.7, 25.2]); // 再次模擬點擊別處空白地圖
+
+  expect(identifyPinEl.classList.contains('show'), 'Pin 應該完全不受影響，維持顯示').toBeTruthy();
+  expect(identifyPopupEl.hidden, 'Popup 應該維持關閉狀態').toBe(true);
+  expect(identifyPopupBody.innerHTML, 'Popup 內容不應該被改變').toBe(bodyHTMLBefore);
+});
+
+test('點擊彈窗內「清除點位」按鈕會真正清除 Pin（狀態二 -> 狀態三）', () => {
+  const clearBtn = identifyPopupClearBtn;
+  expect(!!clearBtn, '前置條件：Popup header 內應該要有清除點位按鈕').toBeTruthy();
+
+  clearBtn.click();
+
+  expect(!identifyPinEl.classList.contains('show'), '點擊清除標記後 Pin 應該消失').toBeTruthy();
+  expect(identifyPopupBody.children.length, '點擊清除標記後 Popup 內容應該被清空').toBe(0);
+  expect(identifyPopupEl.hidden, '點擊清除標記後 Popup 應該回到關閉狀態').toBe(true);
+});
+
+test('沒有 Pin 時，右鍵點擊地圖不會有任何效果（僅阻止瀏覽器預設選單）', () => {
+  expect(!identifyPinEl.classList.contains('show'), '前置條件：目前不應該有 Pin').toBeTruthy();
+  expect(identifyPopupEl.hidden, '前置條件：Popup 應該是關閉中').toBe(true);
+
+  const evt = triggerContextMenu();
+
+  expect(evt.defaultPrevented, '右鍵點擊應該阻止瀏覽器預設選單').toBeTruthy();
+  expect(!identifyPinEl.classList.contains('show'), '沒有 Pin 時右鍵不應該憑空建立 Pin').toBeTruthy();
+  expect(identifyPopupEl.hidden, '沒有 Pin 時右鍵不應該打開 Popup').toBe(true);
+});
+
+test('狀態三 -> 狀態一：清除後點地圖應該要能重新建立 Pin', () => {
+  triggerSingleClick(COORD);
+
+  expect(identifyPinEl.classList.contains('show'), '清除後再點地圖應該要能重新建立 Pin').toBeTruthy();
+  expect(identifyPopupEl.hidden, '重新建立的 Pin 應該會自動開啟彈窗').toBe(false);
+});
+
+test('getPlaceNameMatch 回傳 falsy 時，彈窗裡不會出現 .identify-history-name（維持原本行為）', () => {
+  expect(placeNameMatchToReturn, '前置條件：目前應該還沒有命中任何地名今昔對照結果').toBe(null);
+  expect(!findHistoryNameBlock(), 'getPlaceNameMatch 回傳 null 時不應該有歷史地名區塊').toBeTruthy();
+});
+
+test('getPlaceNameMatch 回傳 place 物件時，重開彈窗後會多出 .identify-history-name 與 .identify-history-view-btn', () => {
+  placeNameMatchToReturn = {
+    name: '德化社', aliases: ['卜吉', '化番社'], county: '南投縣', town: '魚池鄉',
+    sourceType: 'settlement', longitude: COORD[0], latitude: COORD[1]
+  };
+  identifyPinMarkerBtn.click(); // 重開彈窗，強制用目前的 placeNameMatchToReturn 重新渲染內容
+
+  const historyBlock = findHistoryNameBlock();
+  expect(!!historyBlock, '應該出現歷史地名區塊').toBeTruthy();
+  // env-stub.mjs 的 FakeNode.textContent 只是單純屬性，不會像真的瀏覽器
+  // DOM 那樣自動彙總子節點文字，這裡改成直接讀該區塊內第一個 <p> 子節點
+  // （identifyPin.js 的 buildPlaceNameBlock() 把文字放在 wrapper 底下的
+  // <p> 子節點）的 textContent 來驗證內容。
+  const nameText = historyBlock.children[0].textContent;
+  expect(nameText.includes('歷史地名'), '文字內容應該包含「歷史地名」').toBeTruthy();
+  expect(nameText.includes('卜吉') && nameText.includes('化番社'), '應該顯示 aliases 內容（卜吉、化番社）').toBeTruthy();
+
+  const viewBtn = findHistoryViewBtn();
+  expect(!!viewBtn, '應該出現「查看地名沿革」按鈕').toBeTruthy();
+});
+
+test('aliases 為空陣列時，歷史地名文字退回顯示現名本身', () => {
+  placeNameMatchToReturn = {
+    name: '社寮', aliases: [], county: '南投縣', town: '竹山鎮',
+    sourceType: 'settlement', longitude: COORD[0], latitude: COORD[1]
+  };
+  identifyPinMarkerBtn.click();
+
+  const historyBlock = findHistoryNameBlock();
+  expect(!!historyBlock, '應該出現歷史地名區塊').toBeTruthy();
+  expect(historyBlock.children[0].textContent.includes('社寮'), 'aliases 為空時應該退回顯示現名').toBeTruthy();
+});
+
+test('點擊 .identify-history-view-btn 會呼叫 onViewPlaceNameCard', () => {
+  const before = onViewPlaceNameCardCalls;
+  const viewBtn = findHistoryViewBtn();
+  expect(!!viewBtn, '前置條件：應該要有「查看地名沿革」按鈕').toBeTruthy();
+
+  viewBtn.click();
+
+  expect(onViewPlaceNameCardCalls, '點擊按鈕應該呼叫一次 onViewPlaceNameCard').toBe(before + 1);
+
+  // 還原成預設狀態，避免影響後面的測試（後面的測試都是在
+  // 「沒有地名今昔對照命中」的前提下驗證彈窗其他部分的行為）。
+  placeNameMatchToReturn = null;
+  identifyPinMarkerBtn.click();
+  expect(!findHistoryNameBlock(), '還原後不應該再出現歷史地名區塊').toBeTruthy();
+});
+
+test('點擊「搜尋涵蓋此點之歷史圖層」按鈕會呼叫 onSearchLayers，並帶入正確的經緯度', () => {
+  const searchBtn = identifyPopupBody.querySelector('.identify-search-btn');
+  expect(!!searchBtn, '前置條件：應該有搜尋按鈕可以點擊').toBeTruthy();
+
+  searchBtn.click();
+
+  expect(searchCalls.length, '應該呼叫過一次 onSearchLayers').toBe(1);
+  const [lon, lat] = COORD;
+  expect(searchCalls[0].lon, 'onSearchLayers 帶入的經度').toBe(lon);
+  expect(searchCalls[0].lat, 'onSearchLayers 帶入的緯度').toBe(lat);
+});
+
+test('有 Pin、Popup 開啟中時，右鍵只關閉 Popup，Pin 本體維持存在（狀態一 -> 狀態二）', () => {
+  expect(identifyPinEl.classList.contains('show'), '前置條件：Pin 應該存在').toBeTruthy();
+  expect(identifyPopupEl.hidden, '前置條件：Popup 應該是開啟中').toBe(false);
+
+  const evt = triggerContextMenu();
+
+  expect(evt.defaultPrevented, '右鍵點擊應該阻止瀏覽器預設選單').toBeTruthy();
+  expect(identifyPopupEl.hidden, 'Popup 開啟中時右鍵應該只關閉 Popup').toBe(true);
+  expect(identifyPinEl.classList.contains('show'), 'Popup 開啟中時右鍵不應該連帶清除 Pin').toBeTruthy();
+});
+
+test('有 Pin、Popup 已關閉時，再右鍵一次會真的清除 Pin（狀態二 -> 狀態三）', () => {
+  expect(identifyPinEl.classList.contains('show'), '前置條件：Pin 應該存在').toBeTruthy();
+  expect(identifyPopupEl.hidden, '前置條件：Popup 應該是關閉中').toBe(true);
+
+  const evt = triggerContextMenu();
+
+  expect(evt.defaultPrevented, '右鍵點擊應該阻止瀏覽器預設選單').toBeTruthy();
+  expect(!identifyPinEl.classList.contains('show'), 'Popup 已關閉時再右鍵一次應該清除 Pin').toBeTruthy();
+  expect(identifyPopupEl.hidden, '清除 Pin 後 Popup 應該維持關閉狀態').toBe(true);
+});
+
+test('右鍵清除 Pin 後，左鍵仍能重新建立 Pin（兩者互不干擾）', () => {
+  expect(!identifyPinEl.classList.contains('show'), '前置條件：Pin 應已被清除').toBeTruthy();
+
+  triggerSingleClick(COORD);
+
+  expect(identifyPinEl.classList.contains('show'), '右鍵清除後，左鍵點擊地圖應該能重新建立 Pin').toBeTruthy();
+});

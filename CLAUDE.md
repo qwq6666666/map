@@ -11,6 +11,7 @@
 - 預覽建置結果：`npm run preview`
 - 免建置純靜態啟動（備用，不經過 Vite）：`.\start-website.bat` 或 `npx serve`
 - 全域測試：`node tests/run-all.mjs`（或 `npm test`）；單一測試：`node tests/run-all.mjs tests/specs/<test-file>.mjs`
+- vitest 版全域測試（見下方「測試框架雙軌並存」）：`npm run test:vitest-pilot`（等同 `vitest run`）
 - 圖資打包：`node tools/build-layers-bundle.js`
 - 圖層類型自動打標：`node tools/tag-layer-types.js`（以 title/keywords/階層繼承判定 type，新增圖層後、打包 bundle 前執行）
 - WMTS bbox 空間索引重新產生：`node tools/fetch-wmts-bbox.js`（解析中研院各來源 WMTS Capabilities，寫入 `data/layers/<id>.json` 的 `layer.region.bbox`；只在建置階段執行，前端不重新下載解析）
@@ -64,6 +65,15 @@
 - **已知限制**：別名取自 `AnotherName` 欄位＋`PlaceMean` 沿革文字的保守前導語句抽取（見上），不是完整的舊名反推，仍可能有漏抓／誤抓（見上一點）；代表點是資料庫座標點，非歷史行政界線；總共約 1.1 萬筆無座標、不會出現在搜尋結果，其中行政區域類佔大宗（8,589 筆裡僅 2,629 筆有座標，覆蓋率約 3 成，遠低於聚落類的 86.6%）。
 - 測試：`place-names-data.test.mjs`（CSV 解析）、`place-names-matching.test.mjs`（比對邏輯）、`place-name-card-ui.test.mjs`（卡片渲染／收合／候選清單）、`identify-pin.test.mjs`（「歷史地名」小區塊案例）、`place-names-nearby.test.mjs`（`findNearbyPlaceNames` 距離/半徑/排序/邊界）、`nearby-place-names-ui.test.mjs`（附近地名清單渲染／點擊展開／清空／精確比對路徑不觸發）。
 
+## 測試框架雙軌並存（評估中，尚未汰換舊框架）
+原本 `tests/run-all.mjs` + `tests/assert.mjs` + `tests/env-stub.mjs` 是完全手刻的測試框架（不依賴任何套件）。目前正在評估遷移到 vitest，**兩套框架刻意並存觀察，還沒有拆掉舊的**，改動測試時要注意：
+- `tests/specs/*.test.mjs`（舊框架，52 支，`test()`/`assertEqual()`/`assertTrue()` 來自 `tests/assert.mjs`）與 `tests/specs-vitest/*.test.mjs`（vitest 版，52 支，一一對應同名檔案，`test()`/`expect()` 來自 `vitest`）**內容邏輯完全對應、案例數一致（603/603）**，目前是刻意重複維護的過渡狀態——修 bug／加測試案例時，如果兩邊都存在對應檔案，理論上要兩邊同步改，但這只是評估期間的暫時負擔，不是長期要維持的規範。
+- `vitest.config.js` 的 `test.include` 只掃描 `tests/specs-vitest/`，不會碰到 `tests/specs/`；`tests/run-all.mjs` 只掃描 `tests/specs/`，兩者互不干擾，可以各自獨立執行（`node tests/run-all.mjs` vs `npm run test:vitest-pilot`）。
+- `tests/env-stub.mjs` 已修正過一個關鍵相容性問題：原本 `globalThis.URL = { createObjectURL, revokeObjectURL }` 會整個覆蓋掉 Node 原生 `URL` 建構子，這在舊框架（純 Node ESM，import 在任何程式碼執行前就已解析完畢）下不會出事，但 vitest 的模組載入器（vite-node）解析每個後續 `import` 都需要真正的 `URL` 建構子，會直接拋 `TypeError: URL is not a constructor`。現在改成保留原生 `URL`、只在上面附加這兩個靜態方法（這其實也更貼近真實瀏覽器的 API 形狀）。**這個修正對兩套框架都是安全的**，`src/features/sourceStatus.js`／`tests/specs/spatial-index.test.mjs` 裡原本因為這個限制而寫的「不能用 `new URL()`」迴避寫法，現在其實可以移除了，但目前尚未動手（不在遷移任務範圍內，留給之後決定）。
+- vitest 版 `test()` 是「先收集全部呼叫、模組載入完才統一執行」，不是舊框架的「同步依序執行」，**任何寫在模組頂層（不在 `test()`/`beforeEach()`/`afterEach()`/`afterAll()` 裡）、假設『在測試案例執行完之後才跑』的清理程式碼，原封不動搬過去語意會跑掉**（已踩過一次坑：`location-button.test.mjs` 清理 `runtime.locateToastTimer` 的程式碼，照搬到模組頂層會在測試真正執行前就跑、清理失效，讓一顆 4.5 秒的真實計時器每次都拖到自然到期；修法是用 vitest 的 `afterAll()` 包起來）。之後如果繼續手動遷移其他檔案，遇到類似「檔案結尾的收尾程式碼」要留意這點。
+- 效能參考：`node tests/run-all.mjs`（52 個 process 各自啟動）約 26 秒；`npm run test:vitest-pilot`（vitest 預設 `pool: threads`，每個測試檔案仍各自隔離 worker，已驗證跨檔案無汙染）約 6.5 秒，快約 4 倍。
+- 何時決定要不要整個汰換掉舊框架、拆掉 `tests/specs/` 或 `tests/assert.mjs`：由使用者決定，這裡不預設時程。
+
 ## 子代理分工與路由 (Subagents Routing)
 遇到具體模組需求時，主代理即刻將任務派發給對應 Subagent，勿在主階段載入過多非權責程式碼：
 
@@ -81,6 +91,6 @@
 3. **驗證先行：** 所有邏輯或狀態修改，結束前必須執行對應測試檔確認通過，嚴禁留下未驗證的 breaking changes。
 4. **`src/data.js` 資料存取：** `LAYER_SOURCES`／`REGION_EXTENTS`／`SOURCE_MAP_RULES`／`HISTORICAL_NAMES`／`PLACE_NAME_SUFFIXES` 已合併成單一 `export const DATA = { LAYER_SOURCES, ... }` 物件（原本各自 `export let` 會被 SonarQube 標記為可變匯出），消費端一律 `import { DATA } from './data.js'` 後讀 `DATA.LAYER_SOURCES`，不要再寫裸變數。
 5. **Subagent 權責清單同步：** 上表是概略路由，各 subagent 實際遵守的是 `.claude/agents/<name>.md` 逐檔列舉的白名單——比本表嚴格，且不會因新檔案落在負責目錄下就自動視為已授權。新增 `src/features/`、`src/core/` 等目錄下的檔案時，主代理當下就要把路徑加進對應白名單，不要留到下一輪。若某 subagent 以「不在白名單」拒絕明明屬於其目錄的檔案（即使是自己前幾輪建立的），代表清單漏列而非任務指派錯誤：主代理應先補清單，而非重複口頭說服 subagent 擴權；急迫時可由主代理直接 `Edit` 完成，事後仍要補寫清單。
-6. **不劃給任何 subagent、由主代理直接 `Edit` 維護：** `src/main.js`（進入點／組合層，橫跨三個代理的初始化呼叫）；`package.json`、`vite.config.js`、`public/sw.js`、`public/manifest.webmanifest`（橫跨全站的建置／PWA 設定）。
+6. **不劃給任何 subagent、由主代理直接 `Edit` 維護：** `src/main.js`（進入點／組合層，橫跨三個代理的初始化呼叫）；`package.json`、`vite.config.js`、`vitest.config.js`、`public/sw.js`、`public/manifest.webmanifest`（橫跨全站的建置／PWA／測試工具設定）。
    - `vite.config.js` 用內建 plugin 讓 `/data/*` 在 dev／build 都對應專案根目錄的 `data/`（Vite `publicDir` 只能設一個，設為預設 `public/` 放 `sw.js`／manifest），異動 `data/` 目錄結構前留意此對應。
    - `public/sw.js` 走三種快取、版本號互相脫鉤（`CACHE_VERSION` 管 App Shell／Data，`TILE_CACHE_VERSION` 管圖磚）：`tile-cache-*` Cache-First+LRU；`data/*.json` 的 `data-*` Network-First（有網路拿新版並更新快取，離線才退回舊版）；App Shell `app-shell-*` 拆兩種——HTML（navigate）Network-First，JS/CSS（含 hash 檔名）Cache-First。`activate` 只清 `MANAGED_CACHE_PREFIXES`（`app-shell-`/`data-`，含舊命名）前綴且非目前版本的快取，`tile-cache-` 不在清單內，改版不會清掉使用者已下載的圖磚。只在 `import.meta.env.PROD` 才被 `src/main.js` 註冊，`npm run dev` 不啟用。測試：`tests/specs/service-worker.test.mjs`（`node:vm` 獨立假 SW 環境）。

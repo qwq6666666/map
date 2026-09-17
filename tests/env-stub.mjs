@@ -385,7 +385,10 @@ globalThis.localStorage = {
   removeItem(key){ delete this._data[key]; },
   clear(){ this._data = {}; }
 };
-globalThis.URL = { createObjectURL: () => 'blob:fake', revokeObjectURL: () => {} };
+// 保留 Node 原生 URL 建構子（vite-node／vitest 的模組載入器解析 import 時
+// 內部需要用到真正的 URL class），只附加瀏覽器才有的靜態方法，不整個換掉。
+globalThis.URL.createObjectURL = () => 'blob:fake';
+globalThis.URL.revokeObjectURL = () => {};
 
 globalThis.Image = class {
   constructor(){
