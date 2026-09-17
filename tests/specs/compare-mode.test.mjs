@@ -15,6 +15,7 @@ import {
 } from '../../src/store.js';
 import { runtime } from '../../src/runtime.js';
 import { getProtectedKeys } from '../../src/core/protectedKeys.js';
+import { resolveSourceForCompareKey } from '../../src/features/compareMode.js';
 
 await loadAppData();
 initMapCore();
@@ -81,11 +82,11 @@ test('getProtectedKeys 保護名單涵蓋 compareA/compareB/activeOverlayKey/mul
   assertTrue(keys.has(overlayKey), '應包含 activeOverlayKey');
   assertTrue(keys.has(compareAKey), '應包含 compareA（hist: 開頭）');
   // compareA/compareB 無條件加入保護名單，不判斷字首：layerCache 的保護名單只是
-  // 「跳過淘汰」，對沒有對應 cache entry 的 key（例如 base:/custom: 開頭，目前
-  // 不會進 layerCache）完全無害。若在 protectedKeys.js 這裡另外判斷字首，等於
-  // 跟 compareMode.js「只對 hist: 呼叫 getOrCreateSource()」的假設重複維護同一份
-  // 子集邏輯，一旦 compareMode.js 之後改變快取策略卻忘記同步，就會讓比對模式
-  // 正在用的圖層被誤淘汰——所以這裡刻意連 base:osm 也一併保護。
+  // 「跳過淘汰」，對沒有對應 cache entry 的 key（例如 base: 開頭，不會進
+  // layerCache）完全無害。若在 protectedKeys.js 這裡另外判斷字首，等於跟
+  // compareMode.js「只對 hist:/custom: 呼叫 getOrCreateSource()」的假設重複維護
+  // 同一份子集邏輯，一旦 compareMode.js 之後改變快取策略卻忘記同步，就會讓比對
+  // 模式正在用的圖層被誤淘汰——所以這裡刻意連 base:osm 也一併保護。
   assertTrue(keys.has('base:osm'), 'compareB 即使非 hist: 開頭，也應該無條件被保護');
   assertTrue(keys.has(multiKey), '應包含 multiOverlayLayers 裡的 key');
   assertTrue(keys.has(historyKey), '應包含 runtime.historyLayerKey');
@@ -94,6 +95,17 @@ test('getProtectedKeys 保護名單涵蓋 compareA/compareB/activeOverlayKey/mul
   selectOverlayLayer(null);
   clearMultiOverlayLayers();
   runtime.historyLayerKey = null;
+});
+
+test('resolveSourceForCompareKey：custom: 開頭的 key 跟 hist: 一樣走共用 layerCache（同一個 key 兩次呼叫拿到同一個 source）', () => {
+  // 目前 UI 沒有入口讓自訂圖層被選進 compareA/compareB（見 CLAUDE.md「必須修正
+  // 網站檔案.docx」第 31 項），這裡直接呼叫內部函式驗證快取行為本身一致，不需要
+  // 真的存在對應的 customSources 項目——makeSourceForKey() 對解析不出來的 custom:
+  // key 本來就會 fallback 成空白佔位 source（見 data.js），不會拋例外。
+  const key = 'custom:not-a-real-id';
+  const sourceA = resolveSourceForCompareKey(key);
+  const sourceB = resolveSourceForCompareKey(key);
+  assertTrue(sourceA === sourceB, 'custom: key 應該走 getOrCreateSource() 共用快取，兩次呼叫拿到同一個 source 物件');
 });
 
 await run();

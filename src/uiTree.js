@@ -71,11 +71,43 @@ export function layerCountForSource(src){
     s + (c.groups ? c.groups.reduce((gs, g) => gs + g.layers.length, 0) : c.layers.length), 0);
 }
 
+// 建立手風琴標題列的內容（chevron + 標題文字 + 數量徽章），append 進呼叫端
+// 傳入的 headEl（通常是一個 <button class="xxx-head">）。三個呼叫端
+// （uiTree.js 自己的 buildCategoryList() 分類/次分類標題、sidebarUI.js
+// 的 buildSourceGroup() 來源標題、ui/search.js 的 buildAccordionBlock()
+// 搜尋結果分組標題）原本各自重複實作幾乎相同的 DOM 樣板，抽成這個共用
+// 函式後，之後要調整無障礙屬性（例如補 aria-expanded）等共通行為只需
+// 要改這裡一處。只負責建立內容並 append 進 headEl，不建立 headEl 本身
+// （className／click handler 等仍由各呼叫端自行決定，因為三邊的行為
+// 不完全相同，例如展開時是否要「先收合其他已展開項目」）。
+export function buildAccordionHeadContent(headEl, label, count){
+  const labelEl = document.createElement('span');
+  const chevronEl = document.createElement('span');
+  chevronEl.className = 'chevron';
+  chevronEl.textContent = '▸';
+  const labelTextEl = document.createElement('span');
+  labelTextEl.textContent = label;
+  labelEl.appendChild(chevronEl);
+  labelEl.appendChild(labelTextEl);
+  const countEl = document.createElement('span');
+  countEl.className = 'count';
+  countEl.textContent = String(count);
+  headEl.appendChild(labelEl);
+  headEl.appendChild(countEl);
+}
+
 export function buildLayerItem(layer, onLayerClick){
   const item = document.createElement('div');
   item.className = 'layer-item';
   item.dataset.layerId = layer.id;
-  item.innerHTML = `<span class="layer-year">${layer.year}</span><span class="layer-title">${layer.title}</span>`;
+  const yearEl = document.createElement('span');
+  yearEl.className = 'layer-year';
+  yearEl.textContent = layer.year;
+  const titleEl = document.createElement('span');
+  titleEl.className = 'layer-title';
+  titleEl.textContent = layer.title;
+  item.appendChild(yearEl);
+  item.appendChild(titleEl);
   if (layer.legend) {
     const legendBtn = document.createElement('button');
     legendBtn.type = 'button';
@@ -128,7 +160,7 @@ export function buildCategoryList(categories, container, onLayerClick, openFirst
     head.type = 'button';
     head.className = 'category-head';
     const catCount = cat.groups ? cat.groups.reduce((s,g)=>s+g.layers.length, 0) : cat.layers.length;
-    head.innerHTML = `<span><span class="chevron">▸</span>${cat.category}</span><span class="count">${catCount}</span>`;
+    buildAccordionHeadContent(head, cat.category, catCount);
     head.addEventListener('click', ()=>{
       const opening = !wrap.classList.contains('open');
       if(opening && singleOpen){
@@ -163,7 +195,7 @@ export function buildCategoryList(categories, container, onLayerClick, openFirst
         const gHead = document.createElement('button');
         gHead.type = 'button';
         gHead.className = 'subcategory-head';
-        gHead.innerHTML = `<span><span class="chevron">▸</span>${group.name}</span><span class="count">${group.layers.length}</span>`;
+        buildAccordionHeadContent(gHead, group.name, group.layers.length);
         gHead.addEventListener('click', ()=>{
           const opening = !gWrap.classList.contains('open');
           if(opening && singleOpen){

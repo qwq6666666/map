@@ -19,9 +19,14 @@ import { state as store, toggleMultiOverlayLayer } from '../store.js';
 import { activateFromSearch } from './search.js';
 
 // 走訪一次 LAYER_SOURCES，攤平成 { src, layer, category, group } 的陣列。
-// group 沒有次分類時為 null。資料量約 1500 筆，純字串比對即可，不需要
-// 快取；每次呼叫 searchLayers() 都重新走訪一次即可。
+// group 沒有次分類時為 null。第一次呼叫後快取結果——DATA.LAYER_SOURCES
+// 在 data.js 的 loadAppData() 完成後就不會再變動（不是 export let，整批
+// 重新賦值只會發生一次），所以快取沒有失效問題；資料量已成長到 2425+
+// 筆，每次輸入都重新走訪全部圖層不再是可忽略的成本。
+let cachedIndex = null;
+
 function buildIndex(){
+  if(cachedIndex) return cachedIndex;
   const index = [];
   DATA.LAYER_SOURCES.forEach(src => {
     src.categories.forEach(cat => {
@@ -38,6 +43,7 @@ function buildIndex(){
       }
     });
   });
+  cachedIndex = index;
   return index;
 }
 

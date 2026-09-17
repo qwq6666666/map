@@ -11,6 +11,7 @@ const {
   yearInfoForLuimap,
   yearInfoForTerrainAnalysis,
   yearInfoForAdmin,
+  formatFromMime,
 } = require('../../tools/build-nlsc-layers.js');
 
 // SonarQube javascript:S8786 修正：把 \d+ 改成 \d{1,4}／\d{1,2} 之後，
@@ -79,6 +80,47 @@ test('yearInfoForAdmin：title 沒有「年」「月」格式時回傳「現代�
   const info = yearInfoForAdmin('行政區界線圖');
   assertEqual(info.year, null);
   assertEqual(info.dateLabel, '現代');
+});
+
+test('formatFromMime：已知 MIME type 正確轉換，不印警告', () => {
+  const originalWarn = console.warn;
+  let warnCalled = false;
+  console.warn = () => { warnCalled = true; };
+  try {
+    assertEqual(formatFromMime('image/jpeg', 'SOME_LAYER'), 'jpg');
+    assertEqual(formatFromMime('image/png', 'SOME_LAYER'), 'png');
+  } finally {
+    console.warn = originalWarn;
+  }
+  assertEqual(warnCalled, false, '已知 MIME type 不應該印警告');
+});
+
+test('formatFromMime：未知 MIME type 回傳 null 並印出警告', () => {
+  const originalWarn = console.warn;
+  let warnCalled = false;
+  console.warn = () => { warnCalled = true; };
+  let result;
+  try {
+    result = formatFromMime('image/gif', 'UNKNOWN_LAYER');
+  } finally {
+    console.warn = originalWarn;
+  }
+  assertEqual(result, null);
+  assertEqual(warnCalled, true, '未知 MIME type 應該印警告');
+});
+
+test('formatFromMime：mimeFormat 為 null 時回傳 null 並印出警告', () => {
+  const originalWarn = console.warn;
+  let warnCalled = false;
+  console.warn = () => { warnCalled = true; };
+  let result;
+  try {
+    result = formatFromMime(null, 'NO_FORMAT_LAYER');
+  } finally {
+    console.warn = originalWarn;
+  }
+  assertEqual(result, null);
+  assertEqual(warnCalled, true, 'mimeFormat 為 null 也應該印警告');
 });
 
 await run();

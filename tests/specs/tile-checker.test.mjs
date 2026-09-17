@@ -1,22 +1,14 @@
 import '../env-stub.mjs';
 import { test, run, assertEqual, assertTrue } from '../assert.mjs';
 import { TileChecker } from '../../src/tileChecker.js';
+import { createTileImageStub } from '../tileImageStub.mjs';
 
 // 這份測試需要精準計算「Image 建構了幾次」（等於真的送出幾次探測），
-// 用一個會計數的假 Image 覆蓋掉 env-stub 提供的版本。
+// 用共用的 createTileImageStub() 覆蓋掉 env-stub 提供的版本，疊加自己
+// 的計數邏輯（見 tests/tileImageStub.mjs 檔頭說明）。
 let imageCount = 0;
 const urlResults = {};
-globalThis.Image = class {
-  constructor(){
-    imageCount++;
-    setTimeout(() => {
-      const ok = urlResults[this._url] !== false;
-      if(ok){ this.naturalWidth = 10; this.naturalHeight = 10; if(this.onload) this.onload(); }
-      else if(this.onerror) this.onerror();
-    }, 1);
-  }
-  set src(v){ this._url = v; }
-};
+globalThis.Image = createTileImageStub({ urlResults, onConstruct: () => { imageCount++; } });
 
 test('相同網址第二次查詢會命中快取，不會重新發送請求', async () => {
   const checker = new TileChecker({ concurrency: 4, timeoutMs: 500 });

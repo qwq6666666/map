@@ -36,6 +36,8 @@ layer: { id, title, format, year(number|null), dateLabel(string), type, scale, r
 
 ### 預設歷史主題圖資（`data/presets/`）
 
+**目前狀態：規劃中、尚未實作**——`data/presets/` 目錄目前是空的，沒有任何實際的 GeoJSON 檔案，`src/` 底下也還沒有任何程式碼會去 `fetch()` 它。以下是這個功能未來實作時要遵守的設計慣例，先寫在這裡避免之後忘記：
+
 存放車站、河道之類的預設主題 GeoJSON，供使用者在繪圖工具裡按需疊加，跟 `data/layers/*.json` 那套「curated WMTS 來源」完全是兩回事，不會被打包進 `layers.bundle.json`。**一律用 `fetch('./data/presets/xxx.geojson')` 在使用者實際點選時才載入，禁止在 JS 模組頂層 `import`**——這批檔案未來可能會累積不少筆，static import 會讓每個檔案都變成 `main.js` 初始化路徑上的必要相依，拖慢首次載入；GeoJSON 又不像 `.js` 模組需要打包最佳化，`fetch()` 讀字串自己 `JSON.parse()` 就夠用，沒有理由讓它綁進 bundle。
 
 ## 使用者本地持久化（`src/features/storage.js`）

@@ -308,6 +308,7 @@ function initSheetHandle(){
   function snapTo(target){
     sidebar.classList.remove('dragging');
     sidebar.style.transform = '';
+    searchResultAutoOpened = false; // 使用者手動觸發的切換，不再是「自動展開」狀態
     if(target === 'collapsed'){
       collapseSidebar();
     } else { // expanded
@@ -366,6 +367,12 @@ function initSheetHandle(){
 --------------------------------------------------------- */
 const MODE_BTN_POS_KEY = 'mobile_mode_btn_pos';
 let dragJustHappened = false;
+// 「Bottom Sheet 是不是因為地址搜尋結果自動展開」的旗標。跟 dragJustHappened／
+// mobileSearchMode 一樣是跨函式協調用的旗標，不是 initSearchResultAutoExpand()
+// 私有——initSheetHandle() 的 snapTo() 需要在使用者手動拖曳/點擊切換 Sheet
+// 狀態時清掉它，避免「自動展開→手動收合→手動再展開→清除搜尋」這種邊界情境
+// 被誤判成還是自動展開的狀態、清除搜尋時把使用者自己手動展開的狀態誤收合。
+let searchResultAutoOpened = false;
 // 拖曳 #mobileModeBtn 過程中，若 #mobileModePopover 剛好開著，讓它即時
 // 跟著按鈕移動（而不是拖完放開才跳一次位置）；由 initModePopover() 覆寫
 // 成真正的重新定位邏輯，initDraggableModeButton() 只管呼叫、不管實作。
@@ -569,16 +576,15 @@ function initSearchResultAutoExpand(){
   const sidebar = document.getElementById('sidebar');
   if(!locationResultEl || !sidebar) return;
 
-  let autoOpened = false;
   const observer = new MutationObserver(()=>{
     if(!mq.matches) return;
     const visible = locationResultEl.style.display !== 'none';
     if(visible && sidebar.classList.contains('collapsed')){
       expandSidebar();
-      autoOpened = true;
-    } else if(!visible && autoOpened){
+      searchResultAutoOpened = true;
+    } else if(!visible && searchResultAutoOpened){
       collapseSidebar();
-      autoOpened = false;
+      searchResultAutoOpened = false;
     }
   });
   observer.observe(locationResultEl, { attributes:true, attributeFilter:['style'] });

@@ -3,10 +3,11 @@
    手風琴建置
 --------------------------------------------------------- */
 import { DATA, layerKey, titleForKey, resolveOverlayKey } from './data.js';
-import { buildCategoryList, layerCountForSource } from './uiTree.js';
+import { buildCategoryList, layerCountForSource, buildAccordionHeadContent } from './uiTree.js';
 import {
   selectOverlayLayer, state as store, subscribe,
-  toggleFavoriteLayer, isFavoriteLayer, setMode, clearRecentLayers
+  toggleFavoriteLayer, isFavoriteLayer, setMode, clearRecentLayers,
+  pruneFavoriteLayers
 } from './store.js';
 import { flyToSourceExtent, flyToCategoryExtent } from './mapCore.js';
 
@@ -18,6 +19,7 @@ import { createCountryFilterBar } from './ui/countryFilter.js';
 import { buildMobileTwBrowseUI, macroRegionForSource, MACRO_REGION_ORDER } from './ui/mobileTwBrowse.js';
 import { buildMobileCnBrowseUI } from './ui/mobileCnBrowse.js';
 import { buildMobileOtherBrowseUI } from './ui/mobileOtherBrowse.js';
+import { initMobileCountryBrowse } from './ui/mobileRegionBrowse.js';
 
 // 手機版（<=768px）「台灣」「中國」分頁改用大區域→地區→來源手風琴
 // 瀏覽（分別是 src/ui/mobileTwBrowse.js／src/ui/mobileCnBrowse.js），
@@ -189,24 +191,39 @@ function applyLayerFromList(key){
 function renderFavoritesList(){
   const listEl = document.getElementById('favoritesList');
   if(!listEl) return;
+
+  // resolveOverlayKey() 失敗代表對應圖資已下架/更名，這種「殭屍收藏」
+  // 除了跳過渲染，也要把它從收藏清單本身清掉，讓分頁徽章數字跟實際
+  // 看得到的項目數保持一致。清除動作延到 queueMicrotask 才觸發，避免
+  // 在目前這次 favoriteLayers 變更的 listener 執行中就重入觸發新一輪
+  // setState 廣播（見 store.js 的 setState() 是同步呼叫所有 listener）。
+  const resolvedEntries = [];
+  const staleKeys = [];
+  store.favoriteLayers.forEach(key => {
+    const resolved = resolveOverlayKey(key);
+    if(resolved) resolvedEntries.push({ key, resolved });
+    else staleKeys.push(key);
+  });
+  if(staleKeys.length > 0){
+    queueMicrotask(() => pruneFavoriteLayers(staleKeys));
+  }
+
   // 分頁標籤上的收藏數量小圓點徽章（「最近使用」分頁不需要對應徽章）。
   const badge = document.getElementById('favoritesTabBadge');
   if(badge){
-    const count = store.favoriteLayers.length;
+    const count = resolvedEntries.length;
     badge.textContent = String(count);
     badge.hidden = count === 0;
   }
   listEl.innerHTML = '';
-  if(store.favoriteLayers.length === 0){
+  if(resolvedEntries.length === 0){
     const empty = document.createElement('div');
     empty.className = 'favorites-empty';
     empty.textContent = '尚未收藏任何圖資';
     listEl.appendChild(empty);
     return;
   }
-  store.favoriteLayers.forEach(key => {
-    const resolved = resolveOverlayKey(key);
-    if(!resolved) return; // 圖資後續被移除，直接跳過不渲染
+  resolvedEntries.forEach(({ key, resolved }) => {
     const { src, layer } = resolved;
     const item = document.createElement('div');
     item.className = 'favorites-item';
@@ -291,7 +308,7 @@ function buildSourceGroup(src){
   srcHead.type = 'button';
   srcHead.className = 'source-head';
   const total = layerCountForSource(src);
-  srcHead.innerHTML = `<span><span class="chevron">▸</span>${src.name}</span><span class="count">${total}</span>`;
+  buildAccordionHeadContent(srcHead, src.name, total);
   srcHead.addEventListener('click', ()=>{
     const opening = !srcWrap.classList.contains('open');
     if(opening){
@@ -377,45 +394,36 @@ export function initSidebar(){
 
   const sourceWraps = []; // [{ src, wrap }]，篩選列用來知道要顯示／隱藏哪些來源
 
-  // syncMobileBrowseView() 要在 createCountryFilterBar() 的 onChange 裡呼叫，
-  // 但 mobileBrowseEntries 要等 renderSourceAccordion() 之後、MOBILE_BROWSE_CONFIGS
-  // 逐一建立完才會填入內容，用可以延後填入的陣列承接，避免跟
-  // createCountryFilterBar() 互相依賴的宣告順序問題。
-  const mobileBrowseEntries = []; // [{ country, el }]
-  function syncMobileBrowseView(){
-    if(mobileBrowseEntries.length === 0) return;
-    const current = getCurrentCountry();
-    mobileBrowseEntries.forEach(({ country, el }) => {
-      const show = mq.matches && current === country;
-      el.hidden = !show;
-      sourceWraps.forEach(({ src, wrap }) => {
-        if(src.country === country) wrap.classList.toggle('mobile-tw-accordion-hidden', show);
-      });
-    });
-  }
-
+  // mobileBrowse（initMobileCountryBrowse() 回傳值）要在 createCountryFilterBar()
+  // 的 onChange 裡呼叫 .sync()，比照 features/multiOverlay.js／
+  // features/compareMode.js 既有寫法：onChange 只在使用者「切換」分頁時才會
+  // 被呼叫，屆時 mobileBrowse 一定已經指派完成。
+  let mobileBrowse;
   const { bar: filterBar, refresh: refreshCountryFilter, getCurrent: getCurrentCountry } =
-    createCountryFilterBar(() => sourceWraps, () => syncMobileBrowseView());
+    createCountryFilterBar(() => sourceWraps, () => mobileBrowse.sync());
   categoriesEl.appendChild(filterBar);
 
   renderSourceAccordion(categoriesEl, sourceWraps);
 
-  MOBILE_BROWSE_CONFIGS.forEach(({ country, build }) => {
-    const sources = DATA.LAYER_SOURCES.filter(s => s.country === country);
-    const el = build(sources, buildSourceGroup);
-    categoriesEl.appendChild(el);
-    mobileBrowseEntries.push({ country, el });
+  mobileBrowse = initMobileCountryBrowse({
+    containerEl: categoriesEl,
+    sources: DATA.LAYER_SOURCES,
+    buildSourceGroup,
+    sourceWraps,
+    configs: MOBILE_BROWSE_CONFIGS,
+    mq,
+    getCurrentCountry
   });
 
   refreshCountryFilter();
   updateStickyOffset();
-  syncMobileBrowseView(); // 初始化同步：onChange 只在使用者「切換」分頁時觸發，這裡補一次
+  mobileBrowse.sync(); // 初始化同步：onChange 只在使用者「切換」分頁時觸發，這裡補一次
 
   // 跨越 768px 門檻時（即使沒有切換國家分頁）也要重新同步顯示狀態，
   // 比照 src/ui/mobileLayout.js 監聽 matchMedia 變化的既有寫法。
   // mq.addListener 是刻意保留給不支援 addEventListener 的舊版 Safari 的 fallback，SonarQube 的棄用警告可以忽略
-  if(mq.addEventListener) mq.addEventListener('change', syncMobileBrowseView);
-  else mq.addListener(syncMobileBrowseView);
+  if(mq.addEventListener) mq.addEventListener('change', () => mobileBrowse.sync());
+  else mq.addListener(() => mobileBrowse.sync());
 
   initCollapsibleSections();
   initSidebarTabs();

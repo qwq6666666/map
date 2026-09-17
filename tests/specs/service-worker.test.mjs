@@ -191,6 +191,13 @@ function createSWEnv(){
     getFetchCallCount(){ return fetchCallCount; },
     isSkipWaitingCalled(){ return skipWaitingCalled; },
     isClientsClaimed(){ return clientsClaimed; },
+    // touchTileLRU／readTileLRU／writeTileLRU 都是 sw.js 模組頂層用
+    // `async function` 宣告（不是 const），vm.runInContext(swCode, context)
+    // 執行後這些函式會變成 context 物件上可以直接呼叫的屬性（頂層
+    // function 宣告在 vm 的 script 模式下等同 sloppy-mode 全域屬性）。
+    // 這裡把 context 開放出去，讓測試可以直接呼叫 touchTileLRU() 驗證
+    // LRU 淘汰邏輯，不用真的透過 fetch 事件跑滿一輪假圖磚請求。
+    getContext(){ return context; },
   };
 }
 
@@ -478,6 +485,44 @@ test('message：非 CLEAR_TILE_CACHES 的訊息完全不處理，不呼叫 waitU
   assertTrue(!waitUntilPromise, '不認得的訊息類型不應該呼叫 event.waitUntil()');
   assertEqual(received.length, 0, '不認得的訊息類型不應該透過 port 回覆任何內容');
   assertEqual(env.getCacheSize(TILE_CACHE), 1, 'TILE_CACHE 內容應該完全不受影響');
+});
+
+/* ---------------------------------------------------------
+   8. touchTileLRU()：超過上限時逐出最舊項目、重複 touch 同一 url 只移動
+      位置不佔用額外名額。直接呼叫 vm context 上的頂層函式，不透過
+      fetch 事件跑滿滿一輪假圖磚請求。
+--------------------------------------------------------- */
+test('touchTileLRU()：超過上限時，最舊的項目會被逐出快取並從索引移除', async () => {
+  const env = createSWEnv();
+  const ctx = env.getContext();
+  const cache = await ctx.caches.open(TILE_CACHE);
+  const lruKey = 'https://tile-lru.local/__test_index__';
+  ['url-a', 'url-b', 'url-c', 'url-d'].forEach(u => env.presetCache(TILE_CACHE, u, new FakeResponse('x')));
+
+  await ctx.touchTileLRU(cache, lruKey, 'url-a', 3);
+  await ctx.touchTileLRU(cache, lruKey, 'url-b', 3);
+  await ctx.touchTileLRU(cache, lruKey, 'url-c', 3);
+  await ctx.touchTileLRU(cache, lruKey, 'url-d', 3); // 超過上限 3
+
+  const list = await env.getCacheEntry(TILE_CACHE, lruKey).json();
+  assertEqual(list.length, 3, 'LRU 索引長度應該維持在上限');
+  assertTrue(!list.includes('url-a'), '最舊的 url-a 應該已經被移出索引');
+  assertTrue(!env.getCacheEntry(TILE_CACHE, 'url-a'), 'url-a 對應的圖磚快取本體也應該被真的 cache.delete() 移除');
+});
+
+test('touchTileLRU()：重複 touch 同一個 url 只會移到最新位置，不會佔用額外名額', async () => {
+  const env = createSWEnv();
+  const ctx = env.getContext();
+  const cache = await ctx.caches.open(TILE_CACHE);
+  const lruKey = 'https://tile-lru.local/__test_index2__';
+
+  await ctx.touchTileLRU(cache, lruKey, 'url-a', 3);
+  await ctx.touchTileLRU(cache, lruKey, 'url-b', 3);
+  await ctx.touchTileLRU(cache, lruKey, 'url-a', 3);
+
+  const list = await env.getCacheEntry(TILE_CACHE, lruKey).json();
+  assertEqual(list.length, 2, '同一個 url 重複 touch 不應該讓索引長度增加');
+  assertEqual(list[list.length - 1], 'url-a', '重複 touch 的 url 應該被移到最新（陣列尾端）位置');
 });
 
 await run();

@@ -261,7 +261,7 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
-// 頁面端「清除圖磚快取」按鈕觸發（見 src/main.js），透過 MessageChannel
+// 頁面端「清除圖磚快取」按鈕觸發（見 src/ui/sourceStatusUI.js），透過 MessageChannel
 // 拿回執行結果。只清三份 tile cache（歷史 WMTS／OSM／衛星影像），刻意
 // 不動 APP_CACHE／DATA_CACHE——那兩份本來就有版本號機制自動汰換，清掉
 // 反而會讓使用者短暫離線時失去 fallback。

@@ -49,6 +49,13 @@ const urlResults = {}; // url -> true(正常載入) | false(明確 onerror) | 't
 const urlAttempts = {};
 const DELAY_MS = 5;
 
+// 跟其他 4 個檔案的 FakeImage（tile-checker.test.mjs／
+// neighbor-tile-fallback.test.mjs／tile-request-pool.test.mjs／
+// spatial-index.test.mjs，已抽成共用的 tests/tileImageStub.mjs）刻意
+// 分開維護，不套用同一個 createTileImageStub() factory：這裡的觸發
+// 時機是 `set src(v)`（配合 tileLoadGuard.js 逾時後清空 `src=''` 中止
+// 載入的語意，空字串不算一次新的嘗試），跟其他 4 個檔案「constructor
+// 就觸發」的語意不同；硬套同一個 factory 只會讓 API 變得彆扭難懂。
 class FakeImage {
   set src(v){
     if(v === '') return; // guard 逾時後會清空 src 中止載入，不算一次新的嘗試
@@ -377,8 +384,13 @@ test('tileRenderRequestPool：節流池併發上限，超過 TILE_RENDER_MAX_CON
    throttle()：通用節流器
 --------------------------------------------------------- */
 test('throttle()：窗口內第一次呼叫立即執行（leading），窗口內其餘呼叫合併成窗口結束後最多補跑一次（trailing）', async () => {
+  // 這裡是真的在等 throttle() 內部一個沒有掛任何回呼／勾子的
+  // setTimeout(窗口 THROTTLE_WINDOW_MS 到期才會觸發 trailing 呼叫，
+  // 沒有同步可觀察的訊號可以拿來輪詢，維持固定 sleep() 是合理的；
+  // 等待時間抓窗口的 2 倍當緩衝，避免計時器誤差導致偶發失敗。
+  const THROTTLE_WINDOW_MS = 30;
   const calls = [];
-  const throttled = throttle((label) => calls.push(label), 30);
+  const throttled = throttle((label) => calls.push(label), THROTTLE_WINDOW_MS);
 
   throttled('a');
   assertEqual(calls.length, 1, '第一次呼叫應該立即執行');
@@ -388,11 +400,11 @@ test('throttle()：窗口內第一次呼叫立即執行（leading），窗口內
   throttled('c');
   assertEqual(calls.length, 1, '窗口內的後續呼叫不應該立即執行');
 
-  await sleep(60);
+  await sleep(THROTTLE_WINDOW_MS * 2);
   assertEqual(calls.length, 2, '窗口結束後應該補跑一次');
   assertEqual(calls[1], 'c', 'trailing 呼叫應該帶最後一次呼叫的參數，不是被吃掉的中間那次');
 
-  await sleep(60);
+  await sleep(THROTTLE_WINDOW_MS * 2);
   assertEqual(calls.length, 2, '窗口結束後如果沒有新呼叫，不應該無中生有再多跑一次');
 });
 

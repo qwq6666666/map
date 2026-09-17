@@ -44,6 +44,29 @@ export function sleep(ms){
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// 輪詢直到 conditionFn() 回傳 truthy，或超過 timeoutMs 逾時。比照
+// tests/specs/tile-load-guard.test.mjs 原本就有的 waitForState() 模式，
+// 抽成這裡的共用版本：優先用「輪詢某個可觀察條件」取代「固定 sleep()
+// 賭一個經驗值夠不夠長」，逾時時間到了才真的算失敗，條件提早成立就
+// 提早繼續，不用像 sleep() 一樣每次都乾等固定時間。conditionFn 拋出
+// 例外會直接 reject（視為條件檢查本身出錯，不是「條件還沒成立」）。
+export function waitFor(conditionFn, { timeoutMs = 5000, intervalMs = 5, message } = {}){
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+    const check = () => {
+      let ok;
+      try{ ok = conditionFn(); }catch(err){ reject(err); return; }
+      if(ok) { resolve(); return; }
+      if(Date.now() - start >= timeoutMs){
+        reject(new Error(message || `等待條件成立逾時（超過 ${timeoutMs}ms）`));
+        return;
+      }
+      setTimeout(check, intervalMs);
+    };
+    check();
+  });
+}
+
 export function assertEqual(actual, expected, msg){
   if(actual !== expected){
     throw new Error(`${msg || '斷言失敗'}：預期 ${JSON.stringify(expected)}，實際 ${JSON.stringify(actual)}`);

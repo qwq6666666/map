@@ -4,7 +4,9 @@ import { loadAppData, DATA, layerKey } from '../../src/data.js';
 import { searchLayers, activateLayerSearchResult } from '../../src/features/layerSearch.js';
 import {
   state as store, setMode, selectOverlayLayer, clearOverlayLayer,
-  toggleFavoriteLayer, isFavoriteLayer
+  toggleFavoriteLayer, isFavoriteLayer, pruneFavoriteLayers,
+  toggleMultiOverlayLayer, removeMultiOverlayLayer, setMultiOverlayOpacity,
+  clearMultiOverlayLayers
 } from '../../src/store.js';
 
 await loadAppData();
@@ -235,6 +237,101 @@ test('selectOverlayLayer：會自動寫入 localStorage（hundredYearMap:recentL
   assertTrue(!!raw, '應該已經寫入 localStorage');
   const parsed = JSON.parse(raw);
   assertTrue(Array.isArray(parsed) && parsed[0] === key, 'localStorage 內容應該跟 store 一致');
+});
+
+// ---------------------------------------------------------
+// store.js — pruneFavoriteLayers
+// ---------------------------------------------------------
+
+test('pruneFavoriteLayers：批次移除多筆收藏，只留下沒被移除的那筆', () => {
+  reset();
+  const keyA = 'hist:sinica:JM20K_1921:jpg';
+  const keyB = 'hist:sinica:JM25K_1921:jpg';
+  const keyC = 'hist:sinica:JM25K_1944:jpg';
+  toggleFavoriteLayer(keyA);
+  toggleFavoriteLayer(keyB);
+  toggleFavoriteLayer(keyC);
+  assertEqual(store.favoriteLayers.length, 3, '前置狀態：應該有 3 筆收藏');
+
+  pruneFavoriteLayers([keyA, keyB]);
+  assertEqual(store.favoriteLayers.length, 1, '移除 2 筆後應該只剩 1 筆');
+  assertEqual(store.favoriteLayers[0], keyC, '剩下的應該是沒被移除的那筆');
+});
+
+test('pruneFavoriteLayers：傳入完全不存在的 key 不會改變陣列內容也不會拋錯', () => {
+  reset();
+  const keyA = 'hist:sinica:JM20K_1921:jpg';
+  toggleFavoriteLayer(keyA);
+  const before = store.favoriteLayers;
+  pruneFavoriteLayers(['hist:not:exist:jpg']);
+  assertEqual(store.favoriteLayers, before, '陣列引用應該不變（沒有真的移除任何東西，提早 return）');
+  assertEqual(store.favoriteLayers.length, 1, '內容也應該不變');
+});
+
+// ---------------------------------------------------------
+// store.js — toggleMultiOverlayLayer／removeMultiOverlayLayer 記住透明度
+// ---------------------------------------------------------
+
+test('toggleMultiOverlayLayer：移除再重新勾選同一個 key 會沿用上次調整過的透明度，而不是重置為 100', () => {
+  reset();
+  clearMultiOverlayLayers();
+  const sinica = DATA.LAYER_SOURCES.find(s => s.id === 'sinica');
+  const layer = sinica.categories[0].layers[0];
+  const key = layerKey(sinica, layer);
+
+  toggleMultiOverlayLayer(key); // 加入，預設 opacity 100
+  setMultiOverlayOpacity(key, 42);
+  toggleMultiOverlayLayer(key); // 移除
+  assertEqual(store.multiOverlayLayers.length, 0, '移除後清單應該是空的');
+
+  toggleMultiOverlayLayer(key); // 重新加入
+  assertEqual(store.multiOverlayLayers.length, 1, '重新加入後應該有一筆');
+  assertEqual(store.multiOverlayLayers[0].opacity, 42, '應該沿用移除前調整過的透明度，而不是重置為 100');
+
+  clearMultiOverlayLayers();
+});
+
+test('removeMultiOverlayLayer：移除後重新用 toggleMultiOverlayLayer 加入同一個 key，同樣沿用上次的透明度', () => {
+  reset();
+  clearMultiOverlayLayers();
+  const sinica = DATA.LAYER_SOURCES.find(s => s.id === 'sinica');
+  const layer = sinica.categories[0].layers[0];
+  const key = layerKey(sinica, layer);
+
+  toggleMultiOverlayLayer(key);
+  setMultiOverlayOpacity(key, 77);
+  removeMultiOverlayLayer(key);
+  assertEqual(store.multiOverlayLayers.length, 0, '移除後清單應該是空的');
+
+  toggleMultiOverlayLayer(key);
+  assertEqual(store.multiOverlayLayers[0].opacity, 77, '透過 removeMultiOverlayLayer 移除的也應該被記住');
+
+  clearMultiOverlayLayers();
+});
+
+// ---------------------------------------------------------
+// features/layerSearch.js — buildIndex() 快取行為
+// ---------------------------------------------------------
+
+test('searchLayers：buildIndex() 有快取，新增到 DATA.LAYER_SOURCES 的圖層在快取建立後查不到', () => {
+  // 先觸發一次 searchLayers() 建立快取
+  searchLayers('地形圖');
+
+  const fakeSrc = {
+    id: '__fake_cache_test_src__',
+    name: '快取測試假來源',
+    categories: [{
+      category: '假分類',
+      layers: [{ id: '__fake_layer__', title: '快取測試專用超罕見關鍵字XYZ999', type: 'hist' }]
+    }]
+  };
+  DATA.LAYER_SOURCES.push(fakeSrc);
+  try{
+    const result = searchLayers('快取測試專用超罕見關鍵字xyz999');
+    assertEqual(result.length, 0, '快取建立後才加入的圖層不應該被搜尋到，證明有快取生效');
+  } finally {
+    DATA.LAYER_SOURCES.pop();
+  }
 });
 
 await run();

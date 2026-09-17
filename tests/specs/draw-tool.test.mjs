@@ -4,7 +4,8 @@ import { loadAppData } from '../../src/data.js';
 import { initMapCore, map } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
 import { initSearchUI } from '../../src/searchUI.js';
-import { initDrawTool, exportGeoJSON } from '../../src/drawTool.js';
+import { initDrawTool, exportGeoJSON, exportImage } from '../../src/drawTool.js';
+import { setRendercompleteAutoFire } from '../env-stub.mjs';
 
 await loadAppData();
 initMapCore();
@@ -118,6 +119,33 @@ test('沒有選取任何圖形時點擊「刪除」，會顯示提示 toast 而�
   document.getElementById('drawDeleteBtn').click();
   assertTrue(toast.classList.contains('show'), '應該顯示提示 toast');
   assertTrue(toast.textContent.length > 0, '提示文字不應該是空字串');
+});
+
+test('exportImage()：rendercomplete 事件沒有觸發時，400ms 逾時保險仍會擷取畫面', async () => {
+  const originalCreateObjectURL = globalThis.URL.createObjectURL;
+  let createObjectURLCalled = false;
+  globalThis.URL.createObjectURL = (...args) => { createObjectURLCalled = true; return originalCreateObjectURL(...args); };
+  setRendercompleteAutoFire(false);
+  try{
+    exportImage();
+    await new Promise(r => setTimeout(r, 450)); // 等超過 400ms 逾時保險觸發
+    assertTrue(createObjectURLCalled, '逾時保險應該還是有觸發 doCapture()，走到下載流程呼叫 URL.createObjectURL');
+  } finally {
+    setRendercompleteAutoFire(true);
+    globalThis.URL.createObjectURL = originalCreateObjectURL;
+  }
+});
+
+test('exportImage()：rendercomplete 事件正常觸發時，會立即擷取畫面（不用等逾時保險）', async () => {
+  const originalCreateObjectURL = globalThis.URL.createObjectURL;
+  let createObjectURLCalled = false;
+  globalThis.URL.createObjectURL = (...args) => { createObjectURLCalled = true; return originalCreateObjectURL(...args); };
+  try{
+    exportImage(); // FakeMap.once('rendercomplete', fn) 預設同步立即觸發
+    assertTrue(createObjectURLCalled, 'rendercomplete 同步觸發時應該立刻呼叫 doCapture()，不用等 setTimeout');
+  } finally {
+    globalThis.URL.createObjectURL = originalCreateObjectURL;
+  }
 });
 
 await run();

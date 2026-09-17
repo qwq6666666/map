@@ -147,4 +147,44 @@ test('fetchCapabilities 對同一網址的快取有 TTL：期限內重複讀取�
   }
 });
 
+/* ---------------------------------------------------------
+   fetchCapabilities()：直接 fetch 失敗時的代理伺服器 fallback 分支。
+   env-stub.mjs 的假 ol.format.WMTSCapabilities 直接把文字內容當 JSON
+   parse 回來（見該檔案），所以這裡的「假 XML」實際上是符合
+   buildFakeCapabilities() 形狀的 JSON 字串。
+--------------------------------------------------------- */
+test('fetchCapabilities()：直接 fetch 失敗時會自動改用代理伺服器重試，成功後回傳解析結果', async () => {
+  const url = 'https://example.com/direct-fail-proxy-ok/WMTSCapabilities.xml';
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (reqUrl) => {
+    if(String(reqUrl) === url) throw new Error('模擬 CORS 被擋');
+    // 其餘視為打去代理伺服器的請求
+    return { ok: true, text: async () => JSON.stringify({ Contents: { Layer: [{ Identifier: 'x', Title: 'X' }] } }) };
+  };
+  try{
+    const caps = await fetchCapabilities(url);
+    assertTrue(!!caps, '應該透過代理成功拿到解析結果');
+    assertEqual(caps.Contents.Layer[0].Identifier, 'x', '解析結果應該來自代理伺服器回傳的內容');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('fetchCapabilities()：直接 fetch 與代理伺服器都失敗時，錯誤訊息包含代理伺服器回傳的失敗原因', async () => {
+  const url = 'https://example.com/both-fail/WMTSCapabilities.xml';
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (reqUrl) => {
+    if(String(reqUrl) === url) throw new Error('直接失敗原因');
+    return { ok: false, status: 502, json: async () => ({ error: '代理失敗原因' }) };
+  };
+  try{
+    let thrown = null;
+    try{ await fetchCapabilities(url); }catch(e){ thrown = e; }
+    assertTrue(!!thrown, '應該拋出例外');
+    assertTrue(thrown.message.includes('代理失敗原因'), '錯誤訊息應該包含代理伺服器回傳的失敗原因');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 await run();

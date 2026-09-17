@@ -180,20 +180,29 @@ export function setSwipePercent(percent){
    語意是「加入/移出目前的疊圖組合」而不是「取代目前顯示的圖層」。
 --------------------------------------------------------- */
 
+// 記住「上次移除前的透明度」，重新勾選同一張圖層時優先沿用，避免使用者
+// 調好透明度→暫時取消→重新勾選被重置為預設 100。純模組內記憶體快取，
+// 不用永久化（重新整理頁面本來就會重置疊圖組合，跟其餘複合疊圖狀態一致）。
+const lastOpacityByKey = new Map();
+
 // 勾選/取消勾選一張圖層：不在清單裡就加到最上層（陣列尾端）、
 // 已經在清單裡就移除，是側邊欄 checkbox 點擊的核心邏輯。
 export function toggleMultiOverlayLayer(key){
   const idx = state.multiOverlayLayers.findIndex(e => e.key === key);
-  const next = idx === -1
-    ? [...state.multiOverlayLayers, { key, opacity: 100 }]
-    : state.multiOverlayLayers.filter(e => e.key !== key);
-  setState({ multiOverlayLayers: next });
+  if(idx === -1){
+    const opacity = lastOpacityByKey.has(key) ? lastOpacityByKey.get(key) : 100;
+    setState({ multiOverlayLayers: [...state.multiOverlayLayers, { key, opacity }] });
+    return;
+  }
+  lastOpacityByKey.set(key, state.multiOverlayLayers[idx].opacity);
+  setState({ multiOverlayLayers: state.multiOverlayLayers.filter(e => e.key !== key) });
 }
 
 export function removeMultiOverlayLayer(key){
-  const next = state.multiOverlayLayers.filter(e => e.key !== key);
-  if(next.length === state.multiOverlayLayers.length) return; // 沒有這個 key，不用觸發廣播
-  setState({ multiOverlayLayers: next });
+  const idx = state.multiOverlayLayers.findIndex(e => e.key === key);
+  if(idx === -1) return; // 沒有這個 key，不用觸發廣播
+  lastOpacityByKey.set(key, state.multiOverlayLayers[idx].opacity);
+  setState({ multiOverlayLayers: state.multiOverlayLayers.filter(e => e.key !== key) });
 }
 
 export function setMultiOverlayOpacity(key, opacity){
@@ -293,4 +302,17 @@ export function toggleFavoriteLayer(key){
 // 純函式查詢，方便 UI 端不用直接戳 state.favoriteLayers。
 export function isFavoriteLayer(key){
   return state.favoriteLayers.includes(key);
+}
+
+// 批次移除多筆收藏（例如圖資下架/更名後的「殭屍收藏」清理）。刻意設計
+// 成一次 setState 處理多個 key，而不是讓呼叫端在渲染迴圈內對每個殭屍
+// key 各自呼叫一次 toggleFavoriteLayer——後者會導致同一個 tick 內連續
+// 觸發多次 store 廣播，容易在 UI 端的 render listener 裡造成重入。
+export function pruneFavoriteLayers(keys){
+  if(!keys || keys.length === 0) return;
+  const toRemove = new Set(keys);
+  const next = state.favoriteLayers.filter(k => !toRemove.has(k));
+  if(next.length === state.favoriteLayers.length) return; // 沒有真的移除任何東西，不用觸發廣播
+  setState({ favoriteLayers: next });
+  persistFavoriteLayers();
 }

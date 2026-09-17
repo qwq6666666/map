@@ -16,7 +16,7 @@
 --------------------------------------------------------- */
 import { runtime } from '../runtime.js';
 import { geocodeAddress, reverseGeocode } from '../geocode.js';
-import { buildCategoryList, appendLayerList } from '../uiTree.js';
+import { buildCategoryList, appendLayerList, buildAccordionHeadContent } from '../uiTree.js';
 import { map } from '../core/map.js';
 import { showLocateToast } from '../features/location.js';
 import { syncActiveLayerItemClasses, preloadOverlayKeys } from '../core/layerManager.js';
@@ -666,7 +666,7 @@ function renderAvailableLayers(available, totalChecked){
     const head = document.createElement('button');
     head.type = 'button';
     head.className = 'source-head';
-    head.innerHTML = `<span><span class="chevron">▸</span>${label}</span><span class="count">${count}</span>`;
+    buildAccordionHeadContent(head, label, count);
     head.addEventListener('click', ()=> wrap.classList.toggle('open'));
 
     const body = document.createElement('div');
@@ -962,18 +962,29 @@ export function initSearchUI(){
         // 同時查地名今昔對照精確比對與一般地址地理編碼，合併渲染進同一個
         // 建議清單（地名項目在上、地址項目在下），讓使用者直接點建議清單
         // 裡的地名項目也能觸發地名今昔對照卡，不再只有 Enter／按搜尋鈕
-        // 走的 runImmediateSearch() 才有這個效果。
-        const [placeCandidates, geocodeResults] = await Promise.all([
+        // 走的 runImmediateSearch() 才有這個效果。改用 Promise.allSettled
+        // 而非 Promise.all：地理編碼逾時/失敗只會讓 geocodeResults 這一路
+        // 落空，不會連帶把不依賴網路、已經成功解析的地名候選也一起丟掉
+        // （Promise.all 任一個 reject 就整體 reject 的既有問題，Nominatim
+        // 逾時/離線時打對精確古地名也看不到建議清單）。
+        const [placeSettled, geocodeSettled] = await Promise.allSettled([
           findPlaceNameCandidates(q),
           geocodeAddress(q)
         ]);
         if(isSearchStale(myToken)) return;
+        if(placeSettled.status === 'rejected'){
+          console.warn('地名今昔對照比對失敗：', placeSettled.reason);
+        }
+        if(geocodeSettled.status === 'rejected'){
+          console.warn('地址地理編碼失敗：', geocodeSettled.reason);
+        }
+        const placeCandidates = placeSettled.status === 'fulfilled' ? placeSettled.value : [];
+        const geocodeResults = geocodeSettled.status === 'fulfilled' ? geocodeSettled.value : [];
         renderMergedSuggestList(placeCandidates, geocodeResults);
       }catch(e){
-        // 同上（see selectGeocodeResult 附近的說明）：地名比對／地理編碼
-        // 請求失敗時靜默隱藏建議清單即可，使用者輸入過程中不需要跳錯誤
-        // 訊息打斷；仍記錄到 console 方便除錯。
-        console.warn('地址輸入自動建議的比對／地理編碼失敗：', e);
+        // Promise.allSettled 本身不會 reject，這裡保留只是為了涵蓋
+        // renderMergedSuggestList() 或其他同步程式碼萬一拋錯的情況。
+        console.warn('地址輸入自動建議清單渲染失敗：', e);
         if(!isSearchStale(myToken)) hideSuggest();
       }
     }, ADDRESS_SUGGEST_DEBOUNCE_MS);

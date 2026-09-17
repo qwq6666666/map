@@ -17,6 +17,12 @@ import { layerKey } from '../data.js';
 // 清單最上方加一行提示文字，避免極端情況下使用者誤以為卡住。
 const RESULT_WARN_THRESHOLD = 200;
 
+// 純 UI 節流，跟 features/layerSearch.js 的 buildIndex() 結果快取分別
+// 解決「重建成本」與「按鍵密度」兩個不同問題。數字遠小於地址搜尋的
+// ADDRESS_SUGGEST_DEBOUNCE_MS（1000ms，src/ui/search.js），因為圖資
+// 搜尋比對的是本地已快取的 metadata 索引，不牽涉網路請求。
+const LAYER_SEARCH_DEBOUNCE_MS = 120;
+
 export function initLayerSearchUI(){
   const input = document.getElementById('layerSearchInput');
   const clearBtn = document.getElementById('layerSearchClearBtn');
@@ -27,6 +33,7 @@ export function initLayerSearchUI(){
   if(!input || !clearBtn || !panel || !countEl || !collapseBtn || !listEl) return;
 
   let currentResults = [];
+  let debounceTimer = null;
 
   // 改為浮動下拉卡片後不再分批載入：直接把 currentResults 全部渲染，
   // 交給 CSS 的 .layer-search-list{max-height;overflow-y:auto} 處理捲動。
@@ -85,17 +92,30 @@ export function initLayerSearchUI(){
     currentResults = [];
   }
 
+  // 單向收合：只加 .collapsed，不清空 currentResults／listEl，讓使用者
+  // 點外面收合面板後、再點 collapseBtn 展開仍能看到先前的搜尋結果，
+  // 保留原本「可連續點多筆」的設計，跟 clearResults() 語意不同。
+  function collapsePanel(){
+    if(panel.hidden || panel.classList.contains('collapsed')) return;
+    panel.classList.add('collapsed');
+    collapseBtn.textContent = '▸';
+  }
+
   input.addEventListener('input', () => {
     const query = input.value.trim();
     clearBtn.hidden = query.length === 0;
+
+    if(debounceTimer) clearTimeout(debounceTimer);
 
     if(query.length === 0){
       clearResults();
       return;
     }
 
-    currentResults = searchLayers(query);
-    renderResults();
+    debounceTimer = setTimeout(() => {
+      currentResults = searchLayers(query);
+      renderResults();
+    }, LAYER_SEARCH_DEBOUNCE_MS);
   });
 
   collapseBtn.addEventListener('click', () => {
@@ -104,9 +124,22 @@ export function initLayerSearchUI(){
   });
 
   clearBtn.addEventListener('click', () => {
+    if(debounceTimer) clearTimeout(debounceTimer);
     input.value = '';
     clearResults();
     clearBtn.hidden = true;
     input.focus();
+  });
+
+  // 比照 ui/search.js 對 #addressSuggest 的 outside-click 判斷邏輯：手機版
+  // 時 .layer-search-row／#layerSearchPanel 會被 relocateLayerSearchRow()
+  // 搬出 .layer-search-block、移進 #mobileSearchBar，兩個容器都要檢查，
+  // 缺一個會在對應版型下把點擊面板本身誤判為「點擊外部」。跟地址建議
+  // 清單不同的是這裡只收合、不清空 currentResults，保留使用者收合後
+  // 展開仍能看到先前搜尋結果、可連續點多筆的設計。
+  document.addEventListener('click', (e) => {
+    if(e.target.closest('.layer-search-block')) return;
+    if(e.target.closest('#mobileSearchBar')) return;
+    collapsePanel();
   });
 }

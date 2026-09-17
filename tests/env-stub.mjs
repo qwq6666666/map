@@ -489,6 +489,22 @@ class FakeSelectInteraction {
   getFeatures(){ return this._features; }
 }
 
+// FakeMap.once('rendercomplete', fn) 預設同步立即觸發，絕大多數測試不
+// 關心這個事件的真實非同步時序，同步觸發最省事。少數測試案例
+// （drawTool.exportImage() 的 400ms 逾時保險等）需要驗證「事件真的
+// 沒有觸發」的情境，開放個別測試案例用 setRendercompleteAutoFire(false)
+// 關掉自動觸發，callback 會被存起來但不會被呼叫，模擬「rendercomplete
+// 真的沒有發生」；測試完記得呼叫 setRendercompleteAutoFire(true) 還原，
+// 避免影響同一個測試進程裡後續其他測試案例（這個模組是整個測試進程
+// 共用的單例）。
+let rendercompleteAutoFire = true;
+let pendingRendercompleteCallbacks = [];
+
+export function setRendercompleteAutoFire(auto){
+  rendercompleteAutoFire = auto;
+  if(auto) pendingRendercompleteCallbacks = [];
+}
+
 class FakeMap {
   constructor(opts){
     this.opts = opts;
@@ -521,7 +537,11 @@ class FakeMap {
   getViewport(){ return this._viewport; }
   render(){}
   renderSync(){}
-  once(ev, fn){ if(ev === 'rendercomplete') fn(); }
+  once(ev, fn){
+    if(ev !== 'rendercomplete') return;
+    if(rendercompleteAutoFire) fn();
+    else pendingRendercompleteCallbacks.push(fn);
+  }
   on(ev, fn){ if(ev === 'moveend') this._moveendHandlers.push(fn); }
   _triggerMoveEnd(){ this._moveendHandlers.forEach(fn => fn()); }
 }
@@ -585,7 +605,19 @@ const originalCreateElement = globalThis.document.createElement;
 globalThis.document.createElement = function(tag){
   const el = originalCreateElement(tag);
   if(tag === 'canvas'){
-    el.getContext = () => ({ setTransform(){}, drawImage(){}, globalAlpha: 1 });
+    // canvas: el 讓 drawTool.js 的 drawAttributionAndStamp()／
+    // drawAttributionText()／drawLayerStamp() 這類會讀 ctx.canvas.width/height
+    // 或呼叫 ctx.measureText()／save()／restore() 等完整 Canvas 2D API 的
+    // 程式碼在測試環境下不會噴例外（真的瀏覽器 CanvasRenderingContext2D
+    // 一定有 .canvas 指回自己所屬的 canvas 元素）；measureText 用字元數
+    // 概估寬度即可，不需要真的排版引擎算出精確像素寬度。
+    el.getContext = () => ({
+      canvas: el,
+      setTransform(){}, drawImage(){}, globalAlpha: 1,
+      save(){}, restore(){}, translate(){}, rotate(){},
+      beginPath(){}, arc(){}, fill(){}, stroke(){}, fillRect(){}, fillText(){},
+      measureText: (text) => ({ width: String(text || '').length * 8 }),
+    });
     el.toBlob = (cb) => cb({ fake: true, size: el.width * el.height });
   }
   return el;

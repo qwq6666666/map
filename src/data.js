@@ -41,6 +41,7 @@
 // import data.js 的循環風險，所以不需要比照 setCustomSourcesProvider()
 // 那套依賴注入，直接 import 即可。
 import { createGuardedTileLoadFunction, DEFAULT_TILE_CACHE_SIZE } from './core/tileLoadGuard.js';
+import { assertShape, validateLayersBundle } from './layersBundleSchema.js';
 
 // 用單一 const 物件裝載這 5 個「載入完成後才有值」的模組狀態，取代原本
 // 個別 export let 逐一重新賦值的寫法（SonarQube javascript:S6861：不要
@@ -137,44 +138,6 @@ function sortAllLayers(){
    驗證失敗時直接 throw，交由呼叫端（main.js 的 try/catch）統一
    顯示「圖層資料載入失敗」提示，不個別 catch。
 --------------------------------------------------------- */
-function assertShape(cond, message){
-  if(!cond) throw new Error(`[資料格式錯誤] ${message}`);
-}
-
-function validateLayersBundle(layersData){
-  assertShape(layersData && typeof layersData === 'object', 'layers.bundle.json 不是有效的物件');
-  assertShape(Array.isArray(layersData.sources), 'layers.bundle.json 缺少 sources 陣列');
-  layersData.sources.forEach((src, i) => {
-    const tag = `layers.bundle.json：sources[${i}]`;
-    assertShape(src && typeof src === 'object', `${tag} 不是有效的物件`);
-    assertShape(typeof src.id === 'string' && src.id, `${tag} 缺少 id`);
-    assertShape(typeof src.name === 'string' && src.name, `${tag}（id=${src.id}） 缺少 name`);
-    assertShape(src.provider && typeof src.provider === 'object', `${tag}（id=${src.id}） 缺少 provider`);
-    assertShape(src.region && Array.isArray(src.region.bbox) && src.region.bbox.length === 4,
-      `${tag}（id=${src.id}） 缺少合法的 region.bbox（需為 [minLon,minLat,maxLon,maxLat]）`);
-    assertShape(Array.isArray(src.categories), `${tag}（id=${src.id}） 缺少 categories 陣列`);
-    src.categories.forEach((cat, ci) => {
-      const ctag = `${tag}（id=${src.id}）categories[${ci}]`;
-      assertShape(cat && typeof cat.name === 'string', `${ctag} 缺少 name`);
-      assertShape(Array.isArray(cat.layers) || Array.isArray(cat.groups),
-        `${ctag} 需要有 layers 或 groups 其中一個陣列`);
-      const layerLists = cat.groups
-        ? cat.groups.map(g => g.layers)
-        : [cat.layers];
-      layerLists.forEach((layers, gi) => {
-        const groupSuffix = cat.groups ? ` groups[${gi}]` : '';
-        assertShape(Array.isArray(layers), `${ctag}${groupSuffix} 缺少 layers 陣列`);
-        layers.forEach((l, li) => {
-          const ltag = `${ctag} layers[${li}]`;
-          assertShape(typeof l.id === 'string' && l.id, `${ltag} 缺少 id`);
-          assertShape(typeof l.title === 'string', `${ltag}（id=${l.id}） 缺少 title`);
-          assertShape(typeof l.format === 'string', `${ltag}（id=${l.id}） 缺少 format`);
-        });
-      });
-    });
-  });
-}
-
 function validateSourceMap(sourceMapData){
   assertShape(sourceMapData && typeof sourceMapData === 'object', 'source-map.json 不是有效的物件');
   assertShape(Array.isArray(sourceMapData.alwaysInclude), 'source-map.json 缺少 alwaysInclude 陣列');

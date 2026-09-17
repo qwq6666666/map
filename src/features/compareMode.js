@@ -92,19 +92,25 @@ export function applyCompareSide(side){
   rebuildSwipeLayer(side, key);
 }
 
-// 歷史圖層 key（"hist:..."）透過共用的 WMTS Layer Cache 取得 Source——
-// 這樣切到「時間軸模式已經看過」的同一張歷史圖時，Source（也就是真正
-// 持有圖磚快取、花網路成本的東西）直接沿用，不會重新對 WMTS 服務發送
-// 請求。底圖 key（"base:osm"/"base:sat"）不算歷史圖資，不經過快取，
-// 沿用原本的 makeSourceForKey()。
+// 歷史圖層 key（"hist:..."）／自訂匯入圖層 key（"custom:..."）都透過
+// 共用的 WMTS Layer Cache 取得 Source——這樣切到「時間軸模式／複合
+// 疊圖模式已經看過」的同一張圖時，Source（也就是真正持有圖磚快取、
+// 花網路成本的東西）直接沿用，不會重新對服務端發送請求。core/layerCache.js
+// 的 getOrCreateSource()／makeSourceForKey() 本來就是字首無關的通用快取
+// （custom: 跟 hist: 對它而言沒有分別，見 multiOverlay.js 對應註解），
+// 這裡兩者統一走同一個條件式，避免只快取 hist: 造成跟複合疊圖模式的
+// 架構承諾不一致（目前 UI 沒有入口能選到 custom: 進比對模式，但快取
+// 邏輯本身要先保持一致，之後開放入口才不會又要回來補這段）。
+// 底圖 key（"base:osm"/"base:sat"）不算歷史/自訂圖資，是 core/map.js
+// 管理的單例，不經過這份快取，沿用原本的 makeSourceForKey()。
 //
 // 注意：TileLayer 包裝物件本身這裡還是每次重新 new——因為左右比對的
 // 裁切效果是用 layer.on('prerender'/'postrender', ...) 直接掛在這個
 // TileLayer 實例上的，沒辦法跟疊圖／時間軸模式共用同一個 Layer 物件
 // （共用會導致該圖層之後被拿去別的地方顯示時，也被誤裁切一半畫面）。
 // 這個包裝物件不含任何網路成本，重新建立很便宜，不會造成重複請求。
-function resolveSourceForCompareKey(key){
-  if(typeof key === 'string' && key.startsWith('hist:')){
+export function resolveSourceForCompareKey(key){
+  if(typeof key === 'string' && (key.startsWith('hist:') || key.startsWith('custom:'))){
     return getOrCreateSource(key, getCompareProtectedKeys());
   }
   return makeSourceForKey(key);

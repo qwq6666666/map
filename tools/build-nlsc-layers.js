@@ -92,9 +92,11 @@ function parseLayers(xml){
   return rows;
 }
 
-function formatFromMime(mimeFormat){
+function formatFromMime(mimeFormat, layerId){
   if(mimeFormat === 'image/jpeg') return 'jpg';
   if(mimeFormat === 'image/png') return 'png';
+  console.warn(`[build-nlsc-layers] 圖層 "${layerId}" 的 mimeFormat "${mimeFormat}" 無法辨識，` +
+    '將寫入 format:null——之後會被 build-layers-bundle.js 的結構驗證或瀏覽器 loadAppData() 擋下，請確認是否需要新增此 MIME type 的對應規則。');
   return null;
 }
 
@@ -293,7 +295,7 @@ function sortLayersByYear(layers){
 
 function buildLayer(row, category){
   const { id, title, mimeFormat } = row;
-  const format = formatFromMime(mimeFormat);
+  const format = formatFromMime(mimeFormat, id);
   const { year, dateLabel } = computeYearInfo(category, id, title);
   const scale = computeScale(category, id);
   return {
@@ -427,4 +429,5 @@ module.exports = {
   yearInfoForTerrainAnalysis,
   yearInfoForAdmin,
   yearInfoForAsrs,
+  formatFromMime,
 };

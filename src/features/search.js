@@ -54,7 +54,7 @@ export const SEARCH_ZOOM = 15;
 // pool 明確指定共用 globalTileRequestPool，讓這裡跟 timelineMode.js
 // 的 TileChecker 共用同一份「真正 HTTP 請求」名額，兩邊同時運作時
 // 加總的併發請求數也不會超過 TILE_REQUEST_MAX_CONCURRENCY。
-const tileChecker = new TileChecker({ concurrency: 10, timeoutMs: 6000, pool: globalTileRequestPool });
+export const tileChecker = new TileChecker({ concurrency: 10, timeoutMs: 6000, pool: globalTileRequestPool });
 
 // 用搜尋到的經緯度，跟每個來源的概略 bounding box（REGION_EXTENTS）比對，
 // 完全落在範圍外的來源可以直接跳過。這是純數學運算、沒有任何網路請求，

@@ -69,6 +69,16 @@ function jsonError(message, status){
 // 的跳板（SSRF）。這是字串層級的檢查，不是完整解析 DNS 後比對真實
 // IP，防禦力有限，但足以擋掉隨手亂打的請求；這支 Worker 的設計用途
 // 本來就只是讀公開的 WMTS GetCapabilities，不是通用代理。
+//
+// 已知仍未涵蓋、之後如果這支 Worker 被賦予更敏感的用途才需要處理的
+// 繞過手法：
+//   - IPv6 的其他等價寫法（例如 IPv4-mapped 位址 [::ffff:127.0.0.1]、
+//     壓縮寫法的各種變化）沒有逐一列舉比對，只擋了最常見的 `::1`。
+//   - 八進位表示法（例如 0177.0.0.1）目前沒有涵蓋。
+//   - DNS rebinding：這裡只檢查 URL 裡的 hostname 字串本身，`fetch()`
+//     實際連線時的 DNS 解析結果可能跟這裡檢查當下不同（先解析到公開
+//     IP 通過檢查，實際連線時 DNS 已經改指向內網位址），字串層級的
+//     檢查天生擋不住這種攻擊。
 function isBlockedHost(hostname){
   const h = hostname.toLowerCase();
   if(h === 'localhost' || h === '0.0.0.0' || h === '::1') return true;
@@ -77,10 +87,17 @@ function isBlockedHost(hostname){
   if(h.startsWith('192.168.')) return true;
   if(/^172\.(1[6-9]|2\d|3[0-1])\./.test(h)) return true;
   if(h.startsWith('169.254.')) return true;
+  // 數字型 IP（純十進位整數，或 0x 開頭十六進位）一律擋掉：合法的
+  // WMTS GetCapabilities 主機名稱不會是純數字或十六進位字串，但部分
+  // URL parser／HTTP client 會把這類字串解析成 IP（例如整數
+  // 2130706433 等價於 127.0.0.1、0x7f000001 等價於 127.0.0.1），可以
+  // 繞過上面逐段字串比對的私有位址檢查。
+  if(/^0x[0-9a-f]+$/.test(h)) return true;
+  if(/^\d+$/.test(h)) return true;
   return false;
 }
 
-async function handleRequest(request){
+async function handleRequest(request, ctx){
   if(request.method === 'OPTIONS'){
     return new Response(null, { headers: corsHeaders() });
   }
@@ -135,13 +152,17 @@ async function handleRequest(request){
     }
   });
 
-  // 非同步寫入邊緣快取，不擋住這次回應給使用者。
-  cache.put(cacheKey, response.clone());
+  // 用 ctx.waitUntil() 讓 Cloudflare Workers 保證執行環境會等這個
+  // Promise resolve 才真正結束；原本 fire-and-forget 的寫法在回應已經
+  // 送出給使用者後，Worker 執行環境可能被提前終止，cache.put() 還沒
+  // 真的寫入邊緣快取就被中斷，導致 CACHE_TTL_SECONDS 這個 600 秒防
+  // 重複打源站的機制隨機性失效。
+  ctx.waitUntil(cache.put(cacheKey, response.clone()));
   return response;
 }
 
 export default {
-  async fetch(request){
-    return handleRequest(request);
+  async fetch(request, env, ctx){
+    return handleRequest(request, ctx);
   }
 };

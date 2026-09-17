@@ -9,46 +9,46 @@
 --------------------------------------------------------- */
 import '../env-stub.mjs';
 import { test, run, assertEqual, assertTrue } from '../assert.mjs';
-import { TileChecker, RequestPool } from '../../src/tileChecker.js';
+import { TileChecker, RequestPool, globalTileRequestPool } from '../../src/tileChecker.js';
+import { tileChecker as searchTileChecker } from '../../src/features/search.js';
+import { tileChecker as timelineTileChecker } from '../../src/timelineMode.js';
+import { createTileImageStub } from '../tileImageStub.mjs';
 
 // 手動再獨立追蹤一次「目前存活中的 Image（等於真正進行中的請求）」，
 // 跟 pool.getStats().maxObserved 互相印證，避免測試只是在驗證實作
-// 本身有沒有正確更新自己的計數。
+// 本身有沒有正確更新自己的計數。用共用的 createTileImageStub()（見
+// tests/tileImageStub.mjs）疊加 onConstruct／onSettle 兩個 hook 做這份
+// 併發追蹤，取代原本整份手刻的 Image class。
 let liveImages = 0;
 let maxLiveImages = 0;
 const urlResults = {}; // url -> true｜false｜'timeout-always'｜'timeout-once'
+// 外部再獨立追蹤一次「每個網址真的被送出過幾次探測」，供 Test 3／4
+// 驗證 cache hit／in-flight dedup 沒有讓 Image 被重新建構（工廠內部
+// 自己也維護一份 attempts 計數來判斷 'timeout-once' 行為，但那份是
+// 內部實作細節不對外開放，這裡透過 onSettle hook 另外累計一份）。
 const urlAttempts = {};
 const DELAY_MS = 15;
 
 function makeImageClass(){
-  return class {
-    constructor(){
+  return createTileImageStub({
+    urlResults,
+    delayMs: DELAY_MS,
+    onConstruct: () => {
       liveImages++;
       if(liveImages > maxLiveImages) maxLiveImages = liveImages;
-      const self = this;
-      setTimeout(() => {
-        // 這裡的 liveImages-- 只代表「模擬網路層在 DELAY_MS 後给出結果」，
-        // 不代表 pool slot 何時真的釋放（timeout 情境下 pool 要等
-        // TileChecker 自己的 timeoutMs 逾時機制判定失敗才會釋放，比
-        // DELAY_MS 晚很多）——所以 maxLiveImages 只當作下限的輔助佐證，
-        // 真正判斷 pool 上限有沒有被突破，以 pool.getStats().maxObserved
-        // 為準（在 pool.run() 內部、slot 真正 acquire/release 時同步更新）。
-        liveImages--;
-        const url = self._url;
-        urlAttempts[url] = (urlAttempts[url] || 0) + 1;
-        const spec = urlResults[url];
-        const isTimeoutAttempt = spec === 'timeout-always' ||
-          (spec === 'timeout-once' && urlAttempts[url] === 1);
-        if(isTimeoutAttempt) return; // 完全不呼叫 onload/onerror，模擬逾時
-        if(spec === false){ if(self.onerror) self.onerror(); return; }
-        const size = spec === 'tiny' ? 1 : 10;
-        self.naturalWidth = size;
-        self.naturalHeight = size;
-        if(self.onload) self.onload();
-      }, DELAY_MS);
-    }
-    set src(v){ this._url = v; }
-  };
+    },
+    // 這裡的 liveImages-- 只代表「模擬網路層在 DELAY_MS 後给出結果」，
+    // 不代表 pool slot 何時真的釋放（timeout 情境下 pool 要等
+    // TileChecker 自己的 timeoutMs 逾時機制判定失敗才會釋放，比
+    // DELAY_MS 晚很多）——所以 maxLiveImages 只當作下限的輔助佐證，
+    // 真正判斷 pool 上限有沒有被突破，以 pool.getStats().maxObserved
+    // 為準（在 pool.run() 內部、slot 真正 acquire/release 時同步更新）。
+    onSettle: (self) => {
+      liveImages--;
+      const url = self._url;
+      urlAttempts[url] = (urlAttempts[url] || 0) + 1;
+    },
+  });
 }
 globalThis.Image = makeImageClass();
 
@@ -168,6 +168,12 @@ test('Test 6：center timeout + retry + neighbor fallback 全部經過同一個 
   assertEqual(available.length, 1, 'neighbor 裡有一顆成功，這個候選項目應該算有資料');
   assertTrue(maxLiveImages <= 3, `手動追蹤的 maxLiveImages (${maxLiveImages}) 不應該超過上限 3`);
   assertTrue(pool.getStats().maxObserved <= 3, `pool.getStats().maxObserved (${pool.getStats().maxObserved}) 不應該超過上限 3`);
+});
+
+test('features/search.js 與 timelineMode.js 的 TileChecker 真的共用同一個 globalTileRequestPool（不是各自獨立的 pool）', () => {
+  assertTrue(searchTileChecker.pool === globalTileRequestPool, 'search.js 的 tileChecker 應該用 globalTileRequestPool');
+  assertTrue(timelineTileChecker.pool === globalTileRequestPool, 'timelineMode.js 的 tileChecker 應該用 globalTileRequestPool');
+  assertTrue(searchTileChecker.pool === timelineTileChecker.pool, '兩邊的 tileChecker 應該共用同一個 pool 物件');
 });
 
 await run();

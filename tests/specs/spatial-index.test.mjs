@@ -5,6 +5,7 @@ import path from 'path';
 import { lonLatToTileXY, pointInBbox, bboxIntersects, tileXYToBbox } from '../../src/core/tileGeo.js';
 import { TileChecker } from '../../src/tileChecker.js';
 import { filterCandidatesByBbox, SEARCH_ZOOM } from '../../src/features/search.js';
+import { createTileImageStub } from '../tileImageStub.mjs';
 
 /* ---------------------------------------------------------
    1~3：pointInBbox 正常情況、邊界、明顯超出範圍
@@ -216,20 +217,14 @@ test('filterCandidatesByBbox：篩掉跟探測圖磚範圍不相交的候選，�
 --------------------------------------------------------- */
 let aliveCount = 0;
 let maxAlive = 0;
-globalThis.Image = class {
-  constructor(){
-    aliveCount++;
-    if(aliveCount > maxAlive) maxAlive = aliveCount;
-    const self = this;
-    setTimeout(() => {
-      aliveCount--;
-      self.naturalWidth = 10;
-      self.naturalHeight = 10;
-      if(self.onload) self.onload();
-    }, 5);
-  }
-  set src(v){ this._url = v; }
-};
+// 這裡的候選一律模擬成功（不需要 false/'tiny'/'timeout-*' 這些 spec），
+// 用共用的 createTileImageStub()（見 tests/tileImageStub.mjs）疊加
+// aliveCount／maxAlive 併發追蹤即可。
+globalThis.Image = createTileImageStub({
+  delayMs: 5,
+  onConstruct: () => { aliveCount++; if(aliveCount > maxAlive) maxAlive = aliveCount; },
+  onSettle: () => { aliveCount--; },
+});
 
 test('全域 tile concurrency 不超過上限：checkBatchAny 巢狀 Promise.all 探測鄰近圖磚時，同時存活的請求數仍受 request pool 限制', async () => {
   const N = 4;

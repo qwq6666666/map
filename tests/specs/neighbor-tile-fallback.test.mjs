@@ -2,6 +2,7 @@ import '../env-stub.mjs';
 import { test, run, assertEqual, assertTrue } from '../assert.mjs';
 import { lonLatToTileXY, neighborTiles } from '../../src/core/tileGeo.js';
 import { TileChecker } from '../../src/tileChecker.js';
+import { createTileImageStub } from '../tileImageStub.mjs';
 
 test('neighborTiles 一般情況下回傳 8 顆鄰近圖磚，不含自己', () => {
   const tile = { x: 100, y: 100, z: 15 };
@@ -28,48 +29,19 @@ test('lonLatToTileXY 換算出的座標會被夾在合法範圍內（不會出�
   assertTrue(tile.y >= 0 && tile.y < n, 'y 應該在合法範圍內');
 });
 
-// 這份測試需要精準計算「Image 建構了幾次」，用一個會計數、且可以模擬
-// 「逾時（完全不觸發 onload/onerror，讓 TileChecker 自己的 timeoutMs
-// 逾時機制接手）」與「伺服器明確回應（onload 小圖／onerror）」兩種不同
-// 失敗情境的假 Image，覆蓋掉 env-stub 提供的版本。
-// urlResults 支援的值：
-//   true              — 成功（onload，正常大小的圖）
-//   false             — 伺服器明確回應沒有資料（onerror），不應該被重試
-//   'tiny'            — 伺服器明確回應了，但圖太小（onload 但視為無資料），不應該被重試
-//   'timeout-once'    — 第一次探測完全不回應、觸發逾時；第二次探測成功
-//   'timeout-always'  — 每一次探測都完全不回應、一律觸發逾時
+// 這份測試需要精準計算「Image 建構了幾次」與「每個網址被探測過幾次」
+// （用來驗證只有逾時才重試、明確失敗不重試），用共用的
+// createTileImageStub()（見 tests/tileImageStub.mjs 檔頭說明，支援
+// true/false/'tiny'/'timeout-once'/'timeout-always' 五種 spec）覆蓋掉
+// env-stub 提供的版本，疊加自己的計數邏輯。
 let imageCount = 0;
-const urlAttempts = {}; // url -> 已經被探測過幾次
 const urlResults = {};
-globalThis.Image = class {
-  constructor(){
-    imageCount++;
-    const self = this;
-    setTimeout(() => {
-      const url = self._url;
-      urlAttempts[url] = (urlAttempts[url] || 0) + 1;
-      const spec = urlResults[url];
-      const isTimeoutAttempt =
-        spec === 'timeout-always' ||
-        (spec === 'timeout-once' && urlAttempts[url] === 1);
-      if(isTimeoutAttempt){
-        // 完全不呼叫 onload/onerror，模擬伺服器沒有任何回應，讓
-        // TileChecker 內部自己的 setTimeout(timeoutMs) 接手判定逾時。
-        return;
-      }
-      if(spec === false){
-        if(self.onerror) self.onerror();
-        return;
-      }
-      // 'tiny'：伺服器明確回應了，但圖太小（視為空白／無資料）。
-      const size = spec === 'tiny' ? 1 : 10;
-      self.naturalWidth = size;
-      self.naturalHeight = size;
-      if(self.onload) self.onload();
-    }, 1);
-  }
-  set src(v){ this._url = v; }
-};
+const urlAttempts = {}; // url -> 已經被探測過幾次，供下面測試案例斷言用
+globalThis.Image = createTileImageStub({
+  urlResults,
+  onConstruct: () => { imageCount++; },
+  onSettle: (self) => { urlAttempts[self._url] = (urlAttempts[self._url] || 0) + 1; },
+});
 
 test('只有「逾時」才會自動重試一次：第一次逾時、第二次成功，最終視為有資料', async () => {
   const checker = new TileChecker({ concurrency: 4, timeoutMs: 50 });
