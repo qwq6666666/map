@@ -12,7 +12,7 @@ model: sonnet
 你僅能檢視與修改下列底層地圖核心檔案：
 - 地圖核心主體：`src/mapCore.js`、`src/core/map.js`
 - 圖層管理與快取：`src/core/layerManager.js`、`src/core/layerCache.js`、`src/core/protectedKeys.js`（統一計算 layerCache LRU 保護名單，跟 layerCache.js 綁在一起維護）
-- 圖磚幾何與容錯：`src/core/tileGeo.js`、`src/tileChecker.js`、`src/core/tileLoadGuard.js`（一般瀏覽/平移時圖磚渲染的逾時＋邊界保護，跟 tileChecker.js 的地址搜尋探測用途刻意分開、不共用 RequestPool）
+- 圖磚幾何與容錯：`src/core/tileGeo.js`、`src/tileChecker.js`、`src/core/tileLoadGuard.js`（組合層，一般瀏覽/平移時圖磚渲染的逾時＋邊界保護，跟 tileChecker.js 的地址搜尋探測用途刻意分開、不共用 RequestPool）、`src/core/tileBoundaryGuard.js`（邊界保護）、`src/core/tileTimeoutRetry.js`（逾時重試）、`src/core/tileRenderPool.js`（渲染節流池）——後三者是從 `tileLoadGuard.js` 拆出的獨立職責模組
 - 座標與地理編碼：`src/geocode.js`
 - 底圖服務集中配置：`src/config/baseLayers.js`（現代地圖／衛星影像等底圖之 URL 樣板、縮放範圍、attribution 元資料）
 
