@@ -86,7 +86,7 @@ async function fetchLayersXml(tc){
   try {
     res = await fetch(url);
   } catch (err) {
-    throw new Error(`下載圖層清單 API 失敗（網路錯誤，tc=${tc}）：${err.message}`);
+    throw new Error(`下載圖層清單 API 失敗（網路錯誤，tc=${tc}）：${err.message}`, { cause: err });
   }
   if(!res.ok){
     throw new Error(`下載圖層清單 API 失敗，HTTP 狀態碼 ${res.status} ${res.statusText}（tc=${tc}）`);

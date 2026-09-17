@@ -349,7 +349,7 @@ globalThis.MutationObserver = class {
 if(globalThis.navigator){ globalThis.navigator.geolocation = null; }
 else { globalThis.navigator = { geolocation: null }; }
 
-globalThis.alert = (msg) => {};
+globalThis.alert = () => {};
 globalThis.confirm = () => true;
 globalThis.prompt = () => '';
 
@@ -580,7 +580,7 @@ globalThis.ol = {
       // 假的「文字/物件 -> feature 陣列」轉換，給 drawTool.js 的
       // importGeoJSON() 使用；opts 目前用不到（真的 OL 會拿來做座標轉換），
       // 這裡單純忽略，測試不需要驗證投影轉換邏輯。
-      readFeatures(input, opts){
+      readFeatures(input){
         const obj = typeof input === 'string' ? JSON.parse(input) : input;
         return (obj.features || []).map(f => {
           const geometry = { getType: () => f.geometry?.type };
@@ -594,7 +594,7 @@ globalThis.ol = {
     // ol.format.WMTSCapabilities.read() 一樣是「文字 → capabilities 物件」。
     WMTSCapabilities: class {
       read(text){
-        try{ return JSON.parse(text); }catch(err){ return null; }
+        try{ return JSON.parse(text); }catch{ return null; }
       }
     }
   },

@@ -8,7 +8,7 @@ import { runtime } from '../../src/runtime.js';
 let getCurrentPositionCalls = 0;
 let pendingSuccessCallbacks = [];
 globalThis.navigator.geolocation = {
-  getCurrentPosition(success, error){
+  getCurrentPosition(success){
     getCurrentPositionCalls++;
     pendingSuccessCallbacks.push(success);
   }

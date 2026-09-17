@@ -128,7 +128,7 @@ test('邊界情況：lon/lat 不合法（非數字）不拋例外，回傳空陣
   let threw = false;
   try {
     results = findNearbyPlaceNames(places, 'not-a-number', BASE_LAT);
-  } catch(e) {
+  } catch {
     threw = true;
   }
   assertTrue(!threw, '不應該拋出例外');
@@ -137,7 +137,7 @@ test('邊界情況：lon/lat 不合法（非數字）不拋例外，回傳空陣
   threw = false;
   try {
     results = findNearbyPlaceNames(places, BASE_LON, undefined);
-  } catch(e) {
+  } catch {
     threw = true;
   }
   assertTrue(!threw, '不應該拋出例外');

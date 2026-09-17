@@ -69,7 +69,7 @@ async function fetchTextViaProxy(targetUrl){
     try{
       const errBody = await res.json();
       if(errBody?.error) message = errBody.error;
-    }catch(err){ /* 代理沒有回傳 JSON 錯誤內容時，就用上面的預設訊息 */ }
+    }catch{ /* 代理沒有回傳 JSON 錯誤內容時，就用上面的預設訊息 */ }
     throw new Error(message);
   }
   return res.text();
@@ -99,14 +99,14 @@ export async function fetchCapabilities(url){
       // 擋下，看不到真正的 HTTP 狀態碼。純前端沒有後端可以代為轉發，
       // 遇到這種情況沒有辦法繞過——請使用者改用「手動貼網址」分頁
       // （圖磚本身用 <img> 載入，不受 CORS 影響，見 data.js 的說明）。
-      throw new Error('無法讀取這個網址（可能是網路問題，或該服務沒有開放跨網域讀取 CORS，前端沒有辦法繞過這個限制）。如果你已經知道這個服務的圖磚網址規則，可以改用「手動貼網址」分頁直接加入。');
+      throw new Error('無法讀取這個網址（可能是網路問題，或該服務沒有開放跨網域讀取 CORS，前端沒有辦法繞過這個限制）。如果你已經知道這個服務的圖磚網址規則，可以改用「手動貼網址」分頁直接加入。', { cause: directErr });
     }
     // 有設定代理：直接 fetch 失敗（十之八九是 CORS）時，自動改用代理
     // 伺服器再試一次，使用者不需要知道背後發生了什麼。
     try{
       text = await fetchTextViaProxy(trimmed);
     }catch(proxyErr){
-      throw new Error(`直接讀取失敗，透過代理伺服器讀取也失敗：${proxyErr.message}`);
+      throw new Error(`直接讀取失敗，透過代理伺服器讀取也失敗：${proxyErr.message}`, { cause: proxyErr });
     }
   }
 
@@ -114,7 +114,7 @@ export async function fetchCapabilities(url){
   let capabilities;
   try{
     capabilities = parser.read(text);
-  }catch(err){
+  }catch{
     // 解析失敗（XML 格式不對、不是 WMTS Capabilities 等）在這裡不特別處理，
     // 直接讓 capabilities 維持 null，交給緊接在下面的 if 檢查統一轉成
     // 使用者看得懂的錯誤訊息（「讀不到任何圖層…」），不需要重複的錯誤處理。
@@ -145,7 +145,7 @@ export function buildWmtsEntryConfig(capabilities, identifier){
   let options;
   try{
     options = ol.source.WMTS.optionsFromCapabilities(capabilities, { layer: identifier });
-  }catch(err){
+  }catch{
     return null;
   }
   if(!options?.tileGrid) return null;

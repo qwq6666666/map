@@ -85,7 +85,7 @@ export async function run(){
       try{
         for(const hook of beforeEachHooks) await hook();
       }catch(err){
-        throw new Error(`beforeEach 出錯，未執行測試本體：${err.message}`);
+        throw new Error(`beforeEach 出錯，未執行測試本體：${err.message}`, { cause: err });
       }
       await fn();
       passed++;

@@ -63,7 +63,7 @@ async function fetchCapabilitiesXml(capabilitiesUrl){
   try {
     res = await fetch(capabilitiesUrl);
   } catch (err) {
-    throw new Error(`下載 WMTS Capabilities 失敗（網路錯誤）：${err.message}`);
+    throw new Error(`下載 WMTS Capabilities 失敗（網路錯誤）：${err.message}`, { cause: err });
   }
   if(!res.ok){
     throw new Error(`下載 WMTS Capabilities 失敗，HTTP 狀態碼 ${res.status} ${res.statusText}`);

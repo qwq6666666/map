@@ -28,7 +28,7 @@
         到 onload/onerror 任何回應時，才視為可能的單純網路波動或伺服器
         暫時性緩慢，重試一次；重試後一樣逾時或失敗，才真的判定沒
         資料。
-        　　注意：純前端 <img> 載入沒有辦法讀到 HTTP 狀態碼，所以無法
+        注意：純前端 <img> 載入沒有辦法讀到 HTTP 狀態碼，所以無法
         真的區分「伺服器回 404」跟「連線被拒絕」這兩種 onerror 情況；
         但兩者都代表伺服器（或網路層）已經明確回應、不是逾時，所以
         都不重試，跟「逾時」這種沒收到任何回應的情況分開處理。
@@ -233,8 +233,8 @@ export class TileChecker {
       while(cursor < items.length){
         const idx = cursor++;
         const item = items[idx];
-        let url = null;
-        try{ url = urlOf(item); }catch(e){ url = null; }
+        let url;
+        try{ url = urlOf(item); }catch{ url = null; }
         const ok = await this.checkOne(url);
         checked++;
         if(onProgress) onProgress(checked, total);
@@ -267,8 +267,8 @@ export class TileChecker {
       while(cursor < items.length){
         const idx = cursor++;
         const item = items[idx];
-        let urls = [];
-        try{ urls = urlsOf(item) || []; }catch(e){ urls = []; }
+        let urls;
+        try{ urls = urlsOf(item) || []; }catch{ urls = []; }
         const results = await Promise.all(urls.map(u => this.checkOne(u)));
         checked++;
         if(onProgress) onProgress(checked, total);

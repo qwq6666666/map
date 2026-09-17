@@ -489,7 +489,7 @@ async function handleLocateSuccess(pos, myToken){
     if(isSearchStale(myToken)) return;
     if(rev?.display_name) label = rev.display_name;
     addr = rev?.address || {};
-  }catch(e){
+  }catch{
     // 反向地理編碼失敗（例如離線）時，退回用座標當標籤；
     // 圖層來源篩選會因為沒有縣市／鄉鎮資訊而保守地不排除，
     // 交由 findAvailableLayersAt 內建的逐筆圖磚確認機制去判斷有沒有資料。

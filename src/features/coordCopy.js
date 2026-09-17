@@ -35,7 +35,7 @@ export function copyCoordText(text, btn){
     document.execCommand('copy');
     ta.remove();
     flash();
-  }catch(e){ /* 略過 */ }
+  }catch{ /* 略過 */ }
 }
 
 // 一列座標資訊（label + 值 + 複製按鈕），純 DOM 工廠函式，呼叫端決定

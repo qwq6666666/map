@@ -9,10 +9,14 @@
     "preview": "vite preview",
     "test": "node tests/run-all.mjs",
     "test:vitest-pilot": "vitest run",
+    "lint": "eslint .",
     "build:data": "node tools/fetch-wmts-bbox.js && node tools/tag-layer-types.js && node tools/build-layers-bundle.js",
     "build:place-names": "node tools/build-place-names.js"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.10.0",
+    "globals": "^17.12.0",
     "vite": "^6.0.0",
     "vitest": "^5.0.1"
   }

@@ -48,11 +48,6 @@ class FakeResponse {
   async text(){ return typeof this.body === 'string' ? this.body : JSON.stringify(this.body); }
 }
 
-class FakeHeaders {
-  constructor(map = {}){ this.map = new Map(Object.entries(map)); }
-  get(key){ return this.map.get(key) ?? null; }
-}
-
 function createWorkerEnv({ fetchImpl, cacheImpl } = {}){
   const context = {
     console,
@@ -108,7 +103,7 @@ test('handleRequest：邊緣快取寫入透過 ctx.waitUntil() 保護，不是 f
   let putPromise = null;
   const fakeCache = {
     async match(){ return undefined; },
-    put(key, response){
+    put(){
       putCalled = true;
       // 回傳一個 Promise，模擬真實 cache.put() 的非同步行為；重點是
       // handleRequest 呼叫 cache.put() 之後，要把「這個 Promise 本身」

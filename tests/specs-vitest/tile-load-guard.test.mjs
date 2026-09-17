@@ -153,7 +153,6 @@ function waitForState(tile, timeoutMs = 5000){
 
 // 台北市中心一顆有效的 tile 座標，供不需要特別測邊界的案例共用
 const TAIPEI_TILE = lonLatToTileXY(121.5654, 25.0330, 15);
-const TAIPEI_BBOX = [119, 21, 123, 26]; // 概略涵蓋台灣本島
 
 test('DEFAULT_TILE_CACHE_SIZE 應該是正數，且不會小到讓 LRU 過期機制形同虛設', () => {
   expect(Number.isInteger(DEFAULT_TILE_CACHE_SIZE), 'cacheSize 應該是整數').toBeTruthy();

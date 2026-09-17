@@ -34,12 +34,10 @@ test('lonLatToTileXY 換算出的座標會被夾在合法範圍內（不會出�
 // createTileImageStub()（見 tests/tileImageStub.mjs 檔頭說明，支援
 // true/false/'tiny'/'timeout-once'/'timeout-always' 五種 spec）覆蓋掉
 // env-stub 提供的版本，疊加自己的計數邏輯。
-let imageCount = 0;
 const urlResults = {};
 const urlAttempts = {}; // url -> 已經被探測過幾次，供下面測試案例斷言用
 globalThis.Image = createTileImageStub({
   urlResults,
-  onConstruct: () => { imageCount++; },
   onSettle: (self) => { urlAttempts[self._url] = (urlAttempts[self._url] || 0) + 1; },
 });
 

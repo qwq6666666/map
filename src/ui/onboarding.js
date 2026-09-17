@@ -275,7 +275,7 @@ function positionTourStep() {
   const target = resolveStepTarget(step);
   if (!target) {
     // 找不到目標元素就跳到下一步，避免導覽卡住
-    goToStep(tourIndex + 1, 1);
+    goToStep(tourIndex + 1);
     return;
   }
 
@@ -331,16 +331,16 @@ function renderTourStep() {
 
   tourEls.tooltip.querySelector('[data-tour-action="skip"]').addEventListener('click', endTour);
   const prevBtn = tourEls.tooltip.querySelector('[data-tour-action="prev"]');
-  if (prevBtn) prevBtn.addEventListener('click', () => goToStep(tourIndex - 1, -1));
+  if (prevBtn) prevBtn.addEventListener('click', () => goToStep(tourIndex - 1));
   tourEls.tooltip.querySelector('[data-tour-action="next"]').addEventListener('click', () => {
     if (isLast) endTour();
-    else goToStep(tourIndex + 1, 1);
+    else goToStep(tourIndex + 1);
   });
 
   positionTourStep();
 }
 
-function goToStep(index, direction) {
+function goToStep(index) {
   if (index < 0) return endTour();
   if (index >= activeTourSteps.length) return endTour();
   tourIndex = index;

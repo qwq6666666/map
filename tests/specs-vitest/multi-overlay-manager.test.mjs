@@ -12,7 +12,7 @@
 import { test, expect } from 'vitest';
 import '../env-stub.mjs';
 import { loadAppData, DATA } from '../../src/data.js';
-import { state as store, toggleMultiOverlayLayer, clearMultiOverlayLayers } from '../../src/store.js';
+import { toggleMultiOverlayLayer, clearMultiOverlayLayers } from '../../src/store.js';
 import { applyMultiOverlayLayers, hideMultiOverlayLayers } from '../../src/core/multiOverlayManager.js';
 import { getCachedLayer, hasCachedLayer } from '../../src/core/layerCache.js';
 

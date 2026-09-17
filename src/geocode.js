@@ -37,7 +37,7 @@ async function fetchWithTimeout(url, options){
   try {
     return await fetch(url, { ...options, signal: controller.signal });
   } catch (err) {
-    if (err.name === 'AbortError') throw new Error('地理編碼服務逾時，請稍後再試');
+    if (err.name === 'AbortError') throw new Error('地理編碼服務逾時，請稍後再試', { cause: err });
     throw err;
   } finally {
     clearTimeout(timer);
