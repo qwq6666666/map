@@ -2270,6 +2270,23 @@
       bottom:calc(env(safe-area-inset-bottom) + 112px);
     }
 
+    /* Bottom Sheet 展開至 --mobile-sheet-full（75vh）時，上面 #mobileModeBtn
+       預設公式仍只按 peek(60px) 高度計算 bottom，導致按鈕實際垂直位置落在
+       展開後的面板內容區域裡（實機 375x812 截圖確認蓋住圖層清單文字，已
+       回報為 bug）。這裡改用 --mobile-sheet-full 取代 peek 高度，把按鈕
+       移到 Sheet 上緣之上一小段還看得到地圖的區域。跟上面
+       body.mobile-mode-timeline/compare #mobileModeBtn 那條規則 CSS
+       specificity 相同（都是 body 一個 class＋ID），但兩者不會同時命中：
+       這兩個模式進入時 core/modeManager.js 會先呼叫 collapseSidebar()
+       把 #sidebar 加上 .collapsed，而 initSheetOpenStateSync()
+       （src/ui/mobileLayout.js）只在「#sidebar 沒有 .collapsed」時才加
+       mobile-sheet-open，所以 body 不會同時帶 mobile-mode-timeline／
+       mobile-mode-compare 又帶 mobile-sheet-open，宣告順序互不影響。
+       只處理使用者從未拖曳過按鈕的預設位置，同既有慣例。 */
+    body.mobile-sheet-open #mobileModeBtn{
+      bottom:calc(var(--mobile-sheet-full) + env(safe-area-inset-bottom) + 8px);
+    }
+
     .sidebar-header{flex-shrink:0;}
     .sidebar-body{
       touch-action:pan-y; overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
