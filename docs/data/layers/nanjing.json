@@ -48,7 +48,7 @@
           "format": "png",
           "year": 1910,
           "dateLabel": "1910",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -66,7 +66,7 @@
           "format": "png",
           "year": 1909,
           "dateLabel": "1909",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:10000",
           "region": {
             "bbox": [
@@ -84,7 +84,7 @@
           "format": "png",
           "year": 1903,
           "dateLabel": "1903",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:10000",
           "region": {
             "bbox": [
@@ -102,7 +102,7 @@
           "format": "png",
           "year": 1903,
           "dateLabel": "1903",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:10000",
           "region": {
             "bbox": [
@@ -126,7 +126,7 @@
           "format": "png",
           "year": 1927,
           "dateLabel": "1927",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:10000",
           "region": {
             "bbox": [
@@ -144,7 +144,7 @@
           "format": "png",
           "year": 1928,
           "dateLabel": "1928",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -162,7 +162,7 @@
           "format": "png",
           "year": 1930,
           "dateLabel": "1930",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:10000",
           "region": {
             "bbox": [
@@ -276,7 +276,7 @@
           "format": "png",
           "year": 1935,
           "dateLabel": "1935",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:14500",
           "region": {
             "bbox": [
@@ -504,7 +504,7 @@
           "format": "png",
           "year": 1946,
           "dateLabel": "1946",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:10000",
           "region": {
             "bbox": [
@@ -696,7 +696,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "—",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:50000",
           "region": {
             "bbox": [

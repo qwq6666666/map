@@ -162,7 +162,7 @@
           "format": "png",
           "year": 1933,
           "dateLabel": "1933",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:20000",
           "region": {
             "bbox": [

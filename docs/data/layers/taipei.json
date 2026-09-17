@@ -1866,7 +1866,7 @@
           "format": "png",
           "year": 1895,
           "dateLabel": "1895",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -1939,7 +1939,7 @@
           "format": "png",
           "year": 1903,
           "dateLabel": "1903",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2176,7 +2176,7 @@
           "format": "png",
           "year": 1928,
           "dateLabel": "1928",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2392,7 +2392,7 @@
           "format": "png",
           "year": 1936,
           "dateLabel": "1936",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2410,7 +2410,7 @@
           "format": "png",
           "year": 1942,
           "dateLabel": "1942",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2452,7 +2452,7 @@
           "format": "png",
           "year": 1947,
           "dateLabel": "1947",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2506,7 +2506,7 @@
           "format": "png",
           "year": 1956,
           "dateLabel": "1956",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2578,7 +2578,7 @@
           "format": "png",
           "year": 1960,
           "dateLabel": "1960",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -2650,7 +2650,7 @@
           "format": "png",
           "year": 1966,
           "dateLabel": "1966",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [

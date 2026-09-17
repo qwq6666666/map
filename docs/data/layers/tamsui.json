@@ -42,7 +42,7 @@
           "format": "png",
           "year": 1893,
           "dateLabel": "1893",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -78,7 +78,7 @@
           "format": "png",
           "year": 1896,
           "dateLabel": "1896",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -150,7 +150,7 @@
           "format": "png",
           "year": 1939,
           "dateLabel": "1939",
-          "type": null,
+          "type": "海圖",
           "scale": null,
           "region": {
             "bbox": [

@@ -297,7 +297,7 @@
           "format": "png",
           "year": 1924,
           "dateLabel": "1924",
-          "type": "地形圖",
+          "type": "行政區劃圖",
           "scale": "1:300000",
           "region": {
             "bbox": [
@@ -316,7 +316,7 @@
           "format": "jpg",
           "year": 1934,
           "dateLabel": "1934",
-          "type": "地形圖",
+          "type": "行政區劃圖",
           "scale": "1:300000",
           "region": {
             "bbox": [
@@ -334,7 +334,7 @@
           "format": "png",
           "year": 1939,
           "dateLabel": "1939",
-          "type": "地形圖",
+          "type": "行政區劃圖",
           "scale": "1:300000",
           "region": {
             "bbox": [
@@ -352,7 +352,7 @@
           "format": "png",
           "year": 1899,
           "dateLabel": "1899",
-          "type": "地形圖",
+          "type": "行政區劃圖",
           "scale": "1:400000",
           "region": {
             "bbox": [

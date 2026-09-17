@@ -60,7 +60,7 @@
           "format": "png",
           "year": 1929,
           "dateLabel": "1929",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:15000",
           "region": {
             "bbox": [
@@ -186,7 +186,7 @@
           "format": "png",
           "year": 1947,
           "dateLabel": "1947",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:40000",
           "region": {
             "bbox": [
