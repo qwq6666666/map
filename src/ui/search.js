@@ -121,6 +121,10 @@ function renderSuggestList(results){
 async function runImmediateSearch(){
   const q = addressInput.value.trim();
   if(!q) return;
+  // 比照 locateSearchBtn：防止同一顆按鈕在前一次查詢還沒完成時被重複觸發
+  // （快速按兩次 Enter／點兩次搜尋鈕），避免兩輪流程共用同一個 loading
+  // 狀態卻互相干擾。
+  if(addressSearchBtn.classList.contains('loading')) return;
   if(runtime.addressDebounceTimer) clearTimeout(runtime.addressDebounceTimer);
   const myToken = bumpSearchToken();
   addressSearchBtn.classList.add('loading');
@@ -151,7 +155,15 @@ async function runImmediateSearch(){
     console.warn('地址搜尋（Enter／按鈕觸發）地理編碼失敗：', e);
     if(!isSearchStale(myToken)) hideSuggest();
   }finally{
-    if(!isSearchStale(myToken)) addressSearchBtn.classList.remove('loading');
+    // 不能用 isSearchStale(myToken) 判斷要不要清 loading：這次流程往下走的
+    // showLocationAndFindLayers()/findAndRenderAvailableLayers()/
+    // selectGeocodeResult() 內部都會各自再呼叫一次 bumpSearchToken()（是
+    // 同一輪流程自己的巢狀呼叫，不是被別的搜尋取代），跑到這裡時
+    // myToken 幾乎必定已經被自己的巢狀呼叫比過去，導致 isSearchStale()
+    // 恆為 true、.loading 永遠不會被移除（已修正的 bug：成功搜尋到單筆
+    // 結果時放大鏡圖示卡死轉圈）。比照 locateSearchBtn 的寫法，這裡直接
+    // 無條件移除，靠函式開頭的 loading class 重入防護擋掉真正重疊的情況。
+    addressSearchBtn.classList.remove('loading');
   }
 }
 
@@ -695,9 +707,10 @@ function renderAvailableLayers(available, totalChecked){
     });
   }
 
-  // 【類型】頁籤：依類型分成固定 4 組（地形圖／地籍圖／行政區劃圖／其他），
-  // 跳過空群組，每組攤平列出圖層（不再依來源／分類巢狀，因為使用者是
-  // 依類型瀏覽，不是依來源瀏覽），第一個非空群組預設展開。
+  // 【類型】頁籤：依 SEARCH_RESULT_TYPES 分組（地形圖／地籍圖／海圖／
+  // 行政區劃圖／其他，見 features/search.js），跳過空群組，每組攤平列出
+  // 圖層（不再依來源／分類巢狀，因為使用者是依類型瀏覽，不是依來源瀏覽），
+  // 第一個非空群組預設展開。
   function renderTypeView(){
     const groups = groupAvailableByType(available).filter(g => g.items.length > 0);
     groups.forEach((g, idx)=>{
@@ -981,7 +994,16 @@ export function initSearchUI(){
     else if(e.key === 'Escape'){ hideSuggest(); }
   });
   document.addEventListener('click', (e)=>{
-    if(!e.target.closest('.search-block')) hideSuggest();
+    // 手機版 (<=768px) 時 mobileLayout.js 的 relocateSearchBar() 會把
+    // .address-search-row／#addressSuggest 真的搬出 .search-block、移進
+    // #mobileSearchBar（不是複製一份），所以 e.target.closest('.search-block')
+    // 在手機版對輸入框本身、#addressSuggest 等元素恆為 null——會被誤判成
+    //「點擊外部」，導致建議清單顯示中只要點回輸入框本身就立即被收起。
+    // 加上 #mobileSearchBar 這個容器一併判斷，桌面版沒有這個元素或元素
+    // 是空的，不影響原本行為。
+    if(e.target.closest('.search-block')) return;
+    if(e.target.closest('#mobileSearchBar')) return;
+    hideSuggest();
   });
 
   locateSearchBtn = document.getElementById('locateSearchBtn');
