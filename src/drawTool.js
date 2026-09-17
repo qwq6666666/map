@@ -20,6 +20,7 @@ import { map } from './mapCore.js';
 import { saveUserFeatures, loadUserFeatures, clearUserFeatures } from './features/storage.js';
 import { state as store } from './store.js';
 import { resolveOverlayKey, attributionForKey } from './data.js';
+import { runtime } from './runtime.js';
 
 let vectorSource = null;
 let vectorLayer = null;
@@ -261,7 +262,11 @@ function showStorageToast(msg){
   if(!el) return;
   el.textContent = msg;
   el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2500);
+  // 存 handle 到 runtime（比照 features/location.js 的 locateToastTimer）：
+  // 連續觸發時取消上一顆，也讓測試收尾時能主動 clearTimeout，不用乾等
+  // 這顆計時器自然到期才能讓 Node process 結束。
+  if(runtime.drawStorageToastTimer) clearTimeout(runtime.drawStorageToastTimer);
+  runtime.drawStorageToastTimer = setTimeout(() => el.classList.remove('show'), 2500);
 }
 
 // 把目前 vectorSource 裡的圖形整批寫進 localStorage，供重新整理頁面

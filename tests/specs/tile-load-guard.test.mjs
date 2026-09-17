@@ -611,6 +611,36 @@ test('逾時終局失敗、冷卻時間已過、tile 仍在目前可視範圍內
   }
 });
 
+test('abortInFlightForKey：圖層被移除時，也要清掉 timeoutFailedGuardedTiles 裡屬於這個 key 的冷卻重試候選（回歸：曾經只清 inFlightGuardedTiles，孤兒 entry 會留到冷卻時間到或名單滿了才消失）', async () => {
+  const url = 'http://tile-load-guard/abort-by-key-cooldown';
+  urlResults[url] = 'timeout-always';
+  const tile = new FakeTile([TAIPEI_TILE.z, TAIPEI_TILE.x, TAIPEI_TILE.y]);
+  const sourceKey = 'hist:test:abort-cooldown-layer:jpg';
+
+  const originalDateNow = Date.now;
+  let now = 1_700_000_200_000;
+  Date.now = () => now;
+  try{
+    const loadFn = createGuardedTileLoadFunction({ regionBbox: TAIPEI_BBOX, timeoutMs: 20, sourceKey });
+    loadFn(tile, url);
+    const state = await waitForState(tile);
+    assertEqual(state, TILE_STATE.ERROR, '前置條件：逾時重試一次後仍逾時，應該終局判定 ERROR，並登記進冷卻重試候選名單');
+
+    // 圖層被移除（比照 core/layerCache.js 的 removeCachedLayer()）：這個
+    // key 底下的冷卻重試候選應該被一併清掉。
+    abortInFlightForKey(sourceKey);
+
+    now += TIMEOUT_RETRY_COOLDOWN_MS + 1000; // 快轉到冷卻時間已過
+    const fakeMap = makeFakeMap({ zoom: TAIPEI_TILE.z, extent: TAIPEI_BBOX });
+    attachStaleTileAbort(fakeMap);
+    fakeMap._trigger('moveend');
+
+    assertEqual(tile.state, TILE_STATE.ERROR, '候選已經被 abortInFlightForKey 清掉，之後的 sweep 不應該再把它撥回 IDLE');
+  }finally{
+    Date.now = originalDateNow;
+  }
+});
+
 test('逾時終局失敗、冷卻時間還沒過 -> sweep 後應該維持 ERROR，不會被撥回', async () => {
   const url = 'http://tile-load-guard/cooldown-retry-too-soon';
   urlResults[url] = 'timeout-always';

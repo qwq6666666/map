@@ -256,10 +256,10 @@ export const TIMEOUT_RETRY_COOLDOWN_MS = 8000;
 // 平移到很遠的地方、大量逾時失敗的圖磚（可能再也不會被看到）永遠留在
 // 名單裡佔記憶體；捨棄的代價只是那筆圖磚少一次冷卻重試機會，等同
 // 退回「不會自動重試」的原始行為，不會更糟。
-function registerTimeoutRetryCandidate(tile, tileBbox, z){
+function registerTimeoutRetryCandidate(tile, tileBbox, z, sourceKey){
   if(cooldownRetriedTiles.has(tile)) return;
   cooldownRetriedTiles.add(tile);
-  timeoutFailedGuardedTiles.add({ tile, bbox: tileBbox, z, failedAt: Date.now() });
+  timeoutFailedGuardedTiles.add({ tile, bbox: tileBbox, z, sourceKey, failedAt: Date.now() });
   if(timeoutFailedGuardedTiles.size > TIMEOUT_RETRY_REGISTRY_LIMIT){
     const oldest = timeoutFailedGuardedTiles.values().next().value;
     timeoutFailedGuardedTiles.delete(oldest);
@@ -315,10 +315,18 @@ const inFlightGuardedTiles = new Set();
 // entry.abort()：圖層物件本身接下來就要被丟棄，重置成 IDLE 或維持
 // ERROR 對已經沒人參照的 Tile 物件沒有差別，重用既有邏輯不用另外開一條
 // 分支。
+// 一併清掉 timeoutFailedGuardedTiles（逾時終局失敗的冷卻重試候選名單，
+// 見該常數上方的完整說明）裡屬於這個 key 的 entry：圖層已經被移除，
+// 這些 entry 手上的 Tile 物件不會再被 OL 的 renderer 用到，繼續留著
+// 只是佔用全域 Set 的名額，且之後 sweepStaleGuardedTiles() 對它們
+// 呼叫 tile.setState(IDLE) 也毫無意義（沒有任何圖層/地圖參照它們）。
 export function abortInFlightForKey(key){
   if(!key) return;
   inFlightGuardedTiles.forEach(entry => {
     if(entry.sourceKey === key) entry.abort({ stale: true });
+  });
+  timeoutFailedGuardedTiles.forEach(entry => {
+    if(entry.sourceKey === key) timeoutFailedGuardedTiles.delete(entry);
   });
 }
 
@@ -442,7 +450,7 @@ function loadWithTimeoutRetry(tile, src, timeoutMs, tileBbox, z, x, y, label, so
         // 讓 sweepStaleGuardedTiles() 之後有機會撥回 IDLE 重新嘗試
         // （見 timeoutFailedGuardedTiles 上方的完整說明）。明確 onerror
         // 判定的失敗（上面 img.onerror）刻意不呼叫這個函式。
-        registerTimeoutRetryCandidate(tile, tileBbox, z);
+        registerTimeoutRetryCandidate(tile, tileBbox, z, sourceKey);
       }, timeoutMs);
       img.src = src;
     }));

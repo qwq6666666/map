@@ -16,7 +16,8 @@ export const runtime = {
   dragging: false,       // 左右比對模式的分隔線是否正在拖曳
   addressDebounceTimer: null,
   searchToken: 0,         // 每次新查詢遞增，避免較舊、較慢的查詢結果覆蓋掉新結果
-  locateToastTimer: null
+  locateToastTimer: null,
+  drawStorageToastTimer: null // drawTool.js 的自動儲存/清空快取提示，比照 locateToastTimer 存 handle，供測試清理／連續觸發時取消上一顆
   // 註：歷史圖層的快取（曾經建立過的 TileLayer／Source）統一由
   // core/layerCache.js 的 WMTS Layer Cache 管理，不再放在這裡的
   // layerPool——runtime.js 只放「執行期內部狀態」，Cache 本身是

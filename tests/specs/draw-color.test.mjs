@@ -13,6 +13,7 @@ import {
   PALETTE_COLORS,
   DEFAULT_COLOR,
 } from '../../src/drawTool.js';
+import { runtime } from '../../src/runtime.js';
 
 await loadAppData();
 initMapCore();
@@ -245,3 +246,8 @@ test('匯入沒有 SimpleStyle 顏色屬性的 GeoJSON，marker-color 會降級�
 });
 
 await run();
+
+// 匯入/匯出操作會觸發 drawTool.js 的 showStorageToast()，留下一顆真實的
+// setTimeout(2500ms)。不清掉的話 Node process 要等它自然到期才會結束，
+// 讓這支測試檔平白多花 2.5 秒 wall time 卻沒有驗證任何額外邏輯。
+if(runtime.drawStorageToastTimer) clearTimeout(runtime.drawStorageToastTimer);

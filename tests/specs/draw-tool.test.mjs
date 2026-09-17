@@ -6,6 +6,7 @@ import { initSidebar } from '../../src/sidebarUI.js';
 import { initSearchUI } from '../../src/searchUI.js';
 import { initDrawTool, exportGeoJSON, exportImage } from '../../src/drawTool.js';
 import { setRendercompleteAutoFire } from '../env-stub.mjs';
+import { runtime } from '../../src/runtime.js';
 
 await loadAppData();
 initMapCore();
@@ -149,3 +150,9 @@ test('exportImage()：rendercomplete 事件正常觸發時，會立即擷取畫�
 });
 
 await run();
+
+// 刪除/清空快取等操作會觸發 drawTool.js 的 showStorageToast()，留下一顆
+// 真實的 setTimeout(2500ms)。不清掉的話 Node process 要等它自然到期
+// 才會結束，讓這支測試檔平白多花 2.5 秒 wall time 卻沒有驗證任何額外
+// 邏輯。
+if(runtime.drawStorageToastTimer) clearTimeout(runtime.drawStorageToastTimer);

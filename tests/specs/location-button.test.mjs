@@ -1,6 +1,7 @@
 import '../env-stub.mjs';
 import { test, run, assertEqual, assertTrue } from '../assert.mjs';
 import { initLocateButton } from '../../src/features/location.js';
+import { runtime } from '../../src/runtime.js';
 
 // 假 geolocation：不立即回呼，讓測試可以自己決定「第一次定位」什麼時候
 // 完成，藉此模擬「使用者在上一次定位還沒回應前又連續點擊」的競態情境。
@@ -63,3 +64,9 @@ test('上一次定位失敗、loading 解除後，再次點擊可以正常發出
 });
 
 await run();
+
+// 定位失敗的測試案例會觸發 showLocateToast()，留下一顆真實的
+// setTimeout(4500ms)（見 features/location.js）。不清掉的話 Node
+// process 要等它自然到期才會結束，讓這支測試檔平白多花 4.5 秒
+// wall time 卻沒有驗證任何額外邏輯。
+if(runtime.locateToastTimer) clearTimeout(runtime.locateToastTimer);
