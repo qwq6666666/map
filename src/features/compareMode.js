@@ -59,13 +59,24 @@ export function enterCompareMode(){
   // 這是進入比對模式當下算出來的預設值，透過既有的 setCompareSide()
   // 寫回 store，讓其他訂閱者也能收到這次狀態變更的廣播。
   const currentBaseKey = store.baseLayer === 'sat' ? 'base:sat' : 'base:osm';
-  setCompareSide('A', store.activeOverlayKey || currentBaseKey);
+  const nextCompareA = store.activeOverlayKey || currentBaseKey;
+  // setCompareSide('A', ...) 呼叫 setState()：如果 compareA 真的因此改變，
+  // store 的訂閱者（core/modeManager.js 的 render()）會被同步重入呼叫，
+  // 而這次呼叫本身正是「切換到 compare 模式」這個 mode 變更事件還在處理
+  // 中途觸發的——render() 對 changedKeys=['compareA'] 那一輪會直接呼叫
+  // applyCompareSide('A') 一次。下面如果再無條件呼叫一次 applyCompareSide('A')，
+  // 就會讓左側裁切圖層重複建立兩次（多一次 new ol.layer.Tile／
+  // map.addLayer／removeLayer，有瞬間閃爍風險）。只有「值沒有實際改變」
+  // （setState() 不會廣播，見 store.js 的 changedKeys.length===0 早退）時，
+  // 才需要自己補呼叫一次，確保裁切圖層還是會被建立。
+  const compareAChanged = nextCompareA !== store.compareA;
+  setCompareSide('A', nextCompareA);
 
   if(runtime.historyLayer){ map.removeLayer(runtime.historyLayer); runtime.historyLayer = null; }
   document.querySelectorAll('.layer-item.active').forEach(el=>el.classList.remove('active'));
   document.getElementById('stamp').classList.remove('show');
 
-  applyCompareSide('A');
+  if(!compareAChanged) applyCompareSide('A');
   applyCompareSide('B');
   positionDivider();
   map.render();
