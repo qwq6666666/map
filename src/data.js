@@ -443,6 +443,20 @@ const ADDRESS_MATCH_FIELDS = [
 export function matchSourceIdsForAddress(addr){
   addr = addr || {};
   const haystack = ADDRESS_MATCH_FIELDS.map(k => addr[k] || '').join('');
+
+  // 完全沒有任何可用地址欄位（反向地理編碼失敗／逾時，或呼叫端在地理編碼
+  // 結果回來前就先送出查詢）時，haystack 是空字串，下面的 rules／
+  // alwaysIncludeUnless 逐條比對永遠不會命中——如果照舊只回傳
+  // alwaysInclude（目前只有 sinica／ls），會把 taipei／newtaipei／
+  // thm……等所有靠地址關鍵字比對才會列入候選的地區性來源整批排除，
+  // 使用者會看到「這個地點附近沒有可比對的來源」或只剩下全臺/全球
+  // 涵蓋的來源，即使當地其實有地區性歷史圖層。這違背了呼叫端（見
+  // ui/search.js 的 handleLocateSuccess()）原本預期的「沒有縣市／
+  // 鄉鎮資訊時保守地不排除」行為，改成直接回傳全部來源 id，交給後面
+  // isPointNearExtent() 的座標 bbox 比對與逐筆圖磚探測把關，不會因此
+  // 顯示出錯誤的圖層，只是候選筆數變多、檢查時間略增。
+  if(!haystack) return DATA.LAYER_SOURCES.map(s => s.id);
+
   const ids = new Set(DATA.SOURCE_MAP_RULES.alwaysInclude); // 全臺涵蓋來源，一律列入候選
 
   // alwaysIncludeUnless：跟 alwaysInclude 一樣預設列入候選，但只要地址命中

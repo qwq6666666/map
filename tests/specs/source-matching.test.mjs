@@ -45,6 +45,16 @@ test('完全沒有可用欄位時，至少會有全臺涵蓋的 sinica', () => {
   assertTrue(result.includes('sinica'), '應包含 sinica');
 });
 
+test('完全沒有可用欄位時（反向地理編碼失敗，或呼叫端搶在地理編碼結果回來前送出查詢），不能只剩 alwaysInclude 來源——地區性來源（例如 taipei）也要一併列入候選，交給後面的座標 bbox 與圖磚探測把關，避免「有時定位後周圍圖資顯示不出來」', () => {
+  const result = matchSourceIdsForAddress({});
+  assertTrue(includesAll(result, ['taipei', 'newtaipei', 'keelung']), '空地址時仍應包含地區性來源');
+});
+
+test('地址欄位全部是空字串（例如 Nominatim 回傳但欄位皆為空值）等同於完全沒有欄位，同樣不排除地區性來源', () => {
+  const result = matchSourceIdsForAddress({ county: '', town: '', city: '' });
+  assertTrue(includesAll(result, ['taipei', 'newtaipei']), '欄位皆為空字串時仍應包含地區性來源');
+});
+
 test('extractPlaceKeywords 不會把縣市層級（county/state）的值當成關鍵字（避免誤篩窄其他來源）', () => {
   const keywords = extractPlaceKeywords({ town: '安平區', county: '臺南市', state: '臺南市' });
   assertTrue(!keywords.includes('臺南市') && !keywords.includes('臺南'), '不該包含縣市層級關鍵字');
