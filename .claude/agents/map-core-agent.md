@@ -27,5 +27,5 @@ model: sonnet
 
 # 驗證規範
 - 修改後執行單元測試進行驗證：
-  `node tests/run-all.mjs tests/specs/tile-checker.test.mjs tests/specs/neighbor-tile-fallback.test.mjs tests/specs/coordinate-transform.test.mjs tests/specs/spatial-index.test.mjs tests/specs/tile-load-guard.test.mjs`
-  （`coordinate-transform.test.mjs`／`spatial-index.test.mjs` 測的是 `src/core/tileGeo.js` 的座標轉換與 bbox 判斷函式，`tile-load-guard.test.mjs` 測的是 `src/core/tileLoadGuard.js`，都屬於本代理權責檔案）
+  `node tests/run-all.mjs tests/specs/tile-checker.test.mjs tests/specs/neighbor-tile-fallback.test.mjs tests/specs/coordinate-transform.test.mjs tests/specs/spatial-index.test.mjs tests/specs/tile-load-guard.test.mjs tests/specs/geocode.test.mjs tests/specs/tile-request-pool.test.mjs tests/specs/tile-source-cache-size.test.mjs tests/specs/storage-and-layers.test.mjs`
+  （`coordinate-transform.test.mjs`／`spatial-index.test.mjs` 測的是 `src/core/tileGeo.js` 的座標轉換與 bbox 判斷函式，`tile-load-guard.test.mjs` 測的是 `src/core/tileLoadGuard.js`，`geocode.test.mjs` 測 `src/geocode.js`，`tile-request-pool.test.mjs` 測 `src/tileChecker.js` 的 `RequestPool`，都屬於本代理權責檔案；`tile-source-cache-size.test.mjs` 靜態掃描 `src/core/map.js`／`src/data.js` 的 `cacheSize` 選項、`storage-and-layers.test.mjs` 涵蓋 `src/config/baseLayers.js`，兩者跨到 data-processing-agent／feature-state-agent 權責檔案，與對方共同驗證）

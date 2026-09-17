@@ -32,5 +32,5 @@ model: sonnet
 
 # 驗證規範
 - 修改後執行對應的功能規格測試：
-  `node tests/run-all.mjs tests/specs/store-and-modes.test.mjs tests/specs/multi-overlay.test.mjs tests/specs/draw-tool.test.mjs tests/specs/wmts-import.test.mjs tests/specs/identify-pin.test.mjs tests/specs/coordinate-transform.test.mjs tests/specs/custom-timeline.test.mjs`
-  （`coordinate-transform.test.mjs` 有一部分測的是 `src/features/search.js` 的 `buildCoordInfoElement`，屬於本代理權責檔案）
+  `node tests/run-all.mjs tests/specs/store-and-modes.test.mjs tests/specs/multi-overlay.test.mjs tests/specs/draw-tool.test.mjs tests/specs/wmts-import.test.mjs tests/specs/identify-pin.test.mjs tests/specs/coordinate-transform.test.mjs tests/specs/custom-timeline.test.mjs tests/specs/timeline-mode.test.mjs tests/specs/multi-overlay-manager.test.mjs tests/specs/compare-mode.test.mjs tests/specs/place-names-matching.test.mjs tests/specs/place-names-nearby.test.mjs tests/specs/share-link.test.mjs tests/specs/location-button.test.mjs tests/specs/source-status.test.mjs tests/specs/storage-and-layers.test.mjs tests/specs/draw-color.test.mjs tests/specs/layer-search.test.mjs tests/specs/compare-mode-mobile-browse.test.mjs`
+  （`coordinate-transform.test.mjs` 有一部分測的是 `src/features/search.js` 的 `buildCoordInfoElement`，屬於本代理權責檔案；`storage-and-layers.test.mjs` 涵蓋 `src/config/baseLayers.js`、`compare-mode-mobile-browse.test.mjs` 涵蓋 `ui/mobileRegionBrowse.js`，兩者跨到 map-core-agent／ui-frontend-agent 權責檔案，與對方共同驗證）
