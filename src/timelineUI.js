@@ -35,6 +35,7 @@
    等間距能讓畫面平均分布、乾淨好讀，兩個刻度點之間的距離不代表真實
    年數差距，但每個刻度點下方都會標示自己的年份。
 --------------------------------------------------------- */
+import { markInteractiveLayerItem } from './uiTree.js';
 
 // 拖曳／播放時，畫面（刻度點顏色、滑桿數值）即時跟著手指走，完全不花
 // 任何網路成本；但「真正套疊圖層」這個動作（會讓瀏覽器去抓圖磚）刻意
@@ -344,7 +345,7 @@ export function buildTimeline(candidates, container, onSelect){
       chip.className = 'layer-item timeline-undated-chip';
       chip.dataset.layerId = c.layer.id;
       chip.textContent = c.layer.title;
-      chip.addEventListener('click', () => onSelect(c.src, c.layer));
+      markInteractiveLayerItem(chip, () => onSelect(c.src, c.layer));
       chipList.appendChild(chip);
     });
     wrap.appendChild(chipList);

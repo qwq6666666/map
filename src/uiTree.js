@@ -100,6 +100,7 @@ export function buildLayerItem(layer, onLayerClick){
   const item = document.createElement('div');
   item.className = 'layer-item';
   item.dataset.layerId = layer.id;
+  markInteractiveLayerItem(item, () => onLayerClick(layer, item));
   const yearEl = document.createElement('span');
   yearEl.className = 'layer-year';
   yearEl.textContent = layer.year;
@@ -121,8 +122,33 @@ export function buildLayerItem(layer, onLayerClick){
     });
     item.appendChild(legendBtn);
   }
-  item.addEventListener('click', ()=> onLayerClick(layer, item));
   return item;
+}
+
+// 讓 .layer-item（以及其他手刻、沒有透過 buildLayerItem() 建立的同類項目，
+// 例如 compareMode.js 的底圖選項、timelineUI.js 的「年代不明」chip）能被
+// 鍵盤操作、被螢幕報讀器正確識別成可互動元素。這些項目原本是純 <div> +
+// 滑鼠 click listener：滑鼠使用者點得到，但無法 Tab 移動焦點過去、Enter/
+// Space 也無法觸發，螢幕報讀器唸出來只是一段沒有互動語意的文字。
+//
+// 用 role="button" 而不是更精確的 role="checkbox"（multiOverlay.js 的
+// 複合疊圖多選清單、實際語意其實是「勾選/取消勾選」）：這個函式是給所有
+// 呼叫端共用的最小改動，不知道呼叫端是單選（點了就切換到這張圖）還是
+// 多選（點了是勾選/取消），統一用 role="button" 是保守但正確的最小公倍數
+// ——螢幕報讀器至少會唸出「按鈕，圖層名稱」並且可以用 Enter/Space 觸發，
+// 比完全沒有 role 好非常多。要讓複合疊圖模式正確唸出「已勾選/未勾選」
+// （aria-checked），需要另外讓 multiOverlay.js 的 syncMultiLayerCheckedClasses()
+// 在切換 .active class 的同時也同步 aria-checked，屬於後續加強項目、
+// 不在這次最小風險的修正範圍內。
+export function markInteractiveLayerItem(item, onActivate){
+  item.tabIndex = 0;
+  item.setAttribute('role', 'button');
+  item.addEventListener('click', onActivate);
+  item.addEventListener('keydown', (e) => {
+    if(e.key !== 'Enter' && e.key !== ' ') return;
+    e.preventDefault(); // 避免 Space 順便捲動頁面
+    onActivate();
+  });
 }
 
 // 把一批圖層項目掛進 container，超過 threshold 筆時預設只顯示前 threshold 筆，

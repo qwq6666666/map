@@ -20,7 +20,7 @@
 import { state as store, setCompareSide, setSwipePercent } from '../store.js';
 import { runtime } from '../runtime.js';
 import { DATA, makeSourceForKey, titleForKey } from '../data.js';
-import { buildCategoryList } from '../uiTree.js';
+import { buildCategoryList, markInteractiveLayerItem } from '../uiTree.js';
 import { map } from '../core/map.js';
 import { collapseSidebar } from '../ui/sidebarToggle.js';
 import { getOrCreateSource } from '../core/layerCache.js';
@@ -275,7 +275,7 @@ function buildPickerPanel(panelEl, onSelect){
     const item = document.createElement('div');
     item.className = 'layer-item';
     item.innerHTML = `<span class="layer-title">${label}</span>`;
-    item.addEventListener('click', ()=> onSelect(key));
+    markInteractiveLayerItem(item, () => onSelect(key));
     baseBody.appendChild(item);
   });
   baseWrap.appendChild(baseHead);
