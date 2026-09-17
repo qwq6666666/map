@@ -60,7 +60,7 @@
           "format": "png",
           "year": 1750,
           "dateLabel": "清乾隆",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -102,7 +102,7 @@
           "format": "png",
           "year": 1887,
           "dateLabel": "1887",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:15000",
           "region": {
             "bbox": [
@@ -342,7 +342,7 @@
           "format": "png",
           "year": 1930,
           "dateLabel": "1930",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -378,7 +378,7 @@
           "format": "png",
           "year": 1935,
           "dateLabel": "1935",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": "1:2500",
           "region": {
             "bbox": [
@@ -456,7 +456,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "1940s",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [

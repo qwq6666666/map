@@ -224,8 +224,12 @@ export async function findAvailableLayersAt(lon, lat, addr, { onProgress, isStal
   return { status: 'ok', available, totalChecked };
 }
 
-// 搜尋結果可篩選的圖層類型清單，供 UI 產生篩選按鈕使用
-export const SEARCH_RESULT_TYPES = ['地形圖', '地籍圖', '行政區劃圖'];
+// 搜尋結果可篩選的圖層類型清單，供 UI 產生篩選按鈕使用。
+// 「海圖」補上（2026-09）：tools/tag-layer-types.js 早就會產出這個 type
+// （目前全站 38 筆），漏掉沒同步進這份清單，這些圖層原本只能被歸進「其他」
+// 分組、永遠無法用「海圖」單獨篩選出來——新增 type 分類後記得同步這裡
+// （見 tools/tag-layer-types.js 檔頭註解）。
+export const SEARCH_RESULT_TYPES = ['地形圖', '地籍圖', '海圖', '行政區劃圖'];
 
 // 依類型篩選 available 陣列（{ src, layer } 的陣列），純前端過濾、不重新搜尋。
 // filterType 為 null / undefined / 'all' 時代表「全部」，不過濾、原樣回傳。
@@ -252,9 +256,10 @@ export function sortAvailableByYear(available, direction = 'desc'){
 // 「類型」頁籤用的分組結果標籤，null／不在 SEARCH_RESULT_TYPES 裡的一律歸入這組
 export const SEARCH_RESULT_TYPE_OTHER = '其他';
 
-// 依類型把 available 陣列分組，固定回傳 4 組（SEARCH_RESULT_TYPES 三種 +
-// 最後一組 SEARCH_RESULT_TYPE_OTHER），每組是 { type, items }，items 可能是
-// 空陣列，是否要跳過空群組交給呼叫端 UI 決定。不 mutate 傳入的 available。
+// 依類型把 available 陣列分組，固定回傳 SEARCH_RESULT_TYPES.length + 1 組
+// （SEARCH_RESULT_TYPES 各一組 + 最後一組 SEARCH_RESULT_TYPE_OTHER），
+// 每組是 { type, items }，items 可能是空陣列，是否要跳過空群組交給
+// 呼叫端 UI 決定。不 mutate 傳入的 available。
 export function groupAvailableByType(available){
   const groups = SEARCH_RESULT_TYPES.map(type => ({ type, items: [] }));
   const otherGroup = { type: SEARCH_RESULT_TYPE_OTHER, items: [] };

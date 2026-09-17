@@ -114,7 +114,7 @@
           "format": "png",
           "year": 1939,
           "dateLabel": "1939",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -156,7 +156,7 @@
           "format": "png",
           "year": 1975,
           "dateLabel": "1975",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -174,7 +174,7 @@
           "format": "png",
           "year": 1976,
           "dateLabel": "1976",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -192,7 +192,7 @@
           "format": "png",
           "year": null,
           "dateLabel": "1980s",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [

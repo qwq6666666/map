@@ -60,7 +60,7 @@
           "format": "png",
           "year": 1911,
           "dateLabel": "1911",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -114,7 +114,7 @@
           "format": "png",
           "year": 1917,
           "dateLabel": "1917",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -150,7 +150,7 @@
           "format": "png",
           "year": 1920,
           "dateLabel": "1920",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -168,7 +168,7 @@
           "format": "png",
           "year": 1920,
           "dateLabel": "1920",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [

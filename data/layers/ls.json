@@ -1284,7 +1284,7 @@
           "format": "png",
           "year": 1991,
           "dateLabel": "1991",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
@@ -1410,7 +1410,7 @@
           "format": "png",
           "year": 1973,
           "dateLabel": "1973",
-          "type": null,
+          "type": "行政區劃圖",
           "scale": null,
           "region": {
             "bbox": [
