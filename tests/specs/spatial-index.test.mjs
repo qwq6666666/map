@@ -384,17 +384,22 @@ function countBboxCoverage(src){
 const bundlePath = path.join(process.cwd(), 'data/layers.bundle.json');
 const bundle = JSON.parse(readFileSync(bundlePath, 'utf-8'));
 
-// udd 沒有對應的 WMTS Capabilities 端點，目前是預期內、已知的 0% 覆蓋率來源，
-// 其餘 38 個來源（全站共 39 個）這次改造後應該全數 100% 補齊 region.bbox。
-const KNOWN_ZERO_BBOX_SOURCES = ['udd'];
+// udd（臺北市都發局）沒有單一共用的 WMTS Capabilities 端點，改用
+// tools/fetch-udd-bbox.js 逐圖層還原對應 ArcGIS MapServer 路徑探測，
+// 54 筆裡有 12 筆（History_TM47/58/69、Image_1945~1972 一帶）在
+// /arcgis/rest/services 目錄下完全找不到對應服務，維持 region:null，
+// 是已知、非本次疏漏的部分覆蓋率來源；其餘 38 個來源（全站共 39 個）
+// 這次改造後應該全數 100% 補齊 region.bbox。
+const KNOWN_PARTIAL_BBOX_SOURCES = { udd: { total: 54, withBbox: 42 } };
 
 (bundle.sources || []).forEach(src => {
   const { total, withBbox } = countBboxCoverage(src);
 
-  if(KNOWN_ZERO_BBOX_SOURCES.includes(src.id)){
-    test(`全站 bbox 覆蓋率：來源 ${src.id} 目前應為 0 筆有 bbox（無對應 WMTS Capabilities 端點，非本次疏漏）`, () => {
-      assertTrue(total > 0, `來源 ${src.id} 應該至少有 1 筆圖層，實際 ${total} 筆`);
-      assertEqual(withBbox, 0, `來源 ${src.id} 目前預期為 0 筆有 bbox（無 WMTS Capabilities 端點），實際 ${withBbox}/${total}`);
+  if(KNOWN_PARTIAL_BBOX_SOURCES[src.id]){
+    const expected = KNOWN_PARTIAL_BBOX_SOURCES[src.id];
+    test(`全站 bbox 覆蓋率：來源 ${src.id} 目前應為部分覆蓋（${expected.withBbox}/${expected.total}，其餘無對應 WMTS Capabilities 端點，非本次疏漏）`, () => {
+      assertEqual(total, expected.total, `來源 ${src.id} 應該有 ${expected.total} 筆圖層，實際 ${total} 筆`);
+      assertEqual(withBbox, expected.withBbox, `來源 ${src.id} 目前預期為 ${expected.withBbox} 筆有 bbox，實際 ${withBbox}/${total}`);
     });
   } else {
     test(`全站 bbox 覆蓋率：來源 ${src.id} 應該 100% 圖層都有合法 region.bbox`, () => {

@@ -63,7 +63,14 @@
           "dateLabel": "1991",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.4479372663118,
+              24.9580076236515,
+              121.67119537881786,
+              25.21346061471939
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/TOPO/DGN_1991/MapServer/WMTS/tile/1.0.0/TOPO_DGN_1991/default/GoogleMapsCompatible/{z}/{y}/{x}.png"
         },
@@ -75,7 +82,14 @@
           "dateLabel": "2002",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.4479372663118,
+              24.9580076236515,
+              121.67119537881786,
+              25.21346061471939
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/TOPO/DGN_2002/MapServer/WMTS/tile/1.0.0/TOPO_DGN_2002/default/GoogleMapsCompatible/{z}/{y}/{x}.png"
         },
@@ -87,7 +101,14 @@
           "dateLabel": "2005",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.4479372663118,
+              24.9580076236515,
+              121.67119537881786,
+              25.21346061471939
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/TOPO/DGN_2005/MapServer/WMTS/tile/1.0.0/TOPO_DGN_2005/default/GoogleMapsCompatible/{z}/{y}/{x}.png"
         },
@@ -99,7 +120,14 @@
           "dateLabel": "2007",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.4479372663118,
+              24.9580076236515,
+              121.67119537881786,
+              25.21346061471939
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/TOPO/DGN_2007/MapServer/WMTS/tile/1.0.0/TOPO_DGN_2007/default/GoogleMapsCompatible/{z}/{y}/{x}.png"
         },
@@ -111,7 +139,14 @@
           "dateLabel": "2009",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.4479372663118,
+              24.9580076236515,
+              121.67119537881786,
+              25.21346061471939
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/TOPO/DGN_2009/MapServer/WMTS/tile/1.0.0/TOPO_DGN_2009/default/GoogleMapsCompatible/{z}/{y}/{x}.png"
         },
@@ -123,7 +158,14 @@
           "dateLabel": "2012",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.44793706776125,
+              24.958035579111545,
+              121.67115596679868,
+              25.213460888270184
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/TOPO/DGN_2012/MapServer/WMTS/tile/1.0.0/TOPO_DGN_2012/default/GoogleMapsCompatible/{z}/{y}/{x}.png"
         },
@@ -135,7 +177,14 @@
           "dateLabel": "2013",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.44762598734646,
+              24.95445875214291,
+              121.67086453344137,
+              25.2152972305931
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/TOPO/DGN_2013/MapServer/WMTS/tile/1.0.0/TOPO_DGN_2013/default/GoogleMapsCompatible/{z}/{y}/{x}.png"
         },
@@ -147,7 +196,14 @@
           "dateLabel": "2015",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.44762598734646,
+              24.95445875214291,
+              121.67086453344137,
+              25.2152972305931
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/TOPO/DGN_2015/MapServer/WMTS/tile/1.0.0/TOPO_DGN_2015/default/GoogleMapsCompatible/{z}/{y}/{x}.png"
         },
@@ -159,7 +215,14 @@
           "dateLabel": "2017",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.28167784181359,
+              24.67062249232192,
+              122.0094515443844,
+              25.30183428729835
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/TOPO/DGN_2017/MapServer/WMTS/tile/1.0.0/TOPO_DGN_2017/default/GoogleMapsCompatible/{z}/{y}/{x}.png"
         },
@@ -171,7 +234,14 @@
           "dateLabel": "2019",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.43067178099251,
+              24.938539729902082,
+              121.69177794489032,
+              25.228460532689464
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/TOPO/DGN_2019/MapServer/WMTS/tile/1.0.0/TOPO_DGN_2019/default/GoogleMapsCompatible/{z}/{y}/{x}.png"
         },
@@ -183,7 +253,14 @@
           "dateLabel": "2021",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.43067178099251,
+              24.938539729902082,
+              121.69177794489032,
+              25.228460532689464
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/TOPO/DGN_2021/MapServer/WMTS/tile/1.0.0/TOPO_DGN_2021/default/GoogleMapsCompatible/{z}/{y}/{x}.png"
         },
@@ -195,7 +272,14 @@
           "dateLabel": "2022",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.43067178099251,
+              24.938539729902082,
+              121.69177794489032,
+              25.228460532689464
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/TOPO/DGN_2022/MapServer/WMTS/tile/1.0.0/TOPO_DGN_2022/default/GoogleMapsCompatible/{z}/{y}/{x}.png"
         },
@@ -207,7 +291,14 @@
           "dateLabel": "2023",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.43067178099251,
+              24.938539729902082,
+              121.69177794489032,
+              25.228460532689464
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/TOPO/DGN_2023/MapServer/WMTS/tile/1.0.0/TOPO_DGN_2023/default/GoogleMapsCompatible/{z}/{y}/{x}.png"
         },
@@ -219,7 +310,14 @@
           "dateLabel": "2024",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.28167784181359,
+              24.6706224916056,
+              122.0094515443844,
+              25.301834286568653
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/TOPO/DGN_2024/MapServer/WMTS/tile/1.0.0/TOPO_DGN_2024/default/GoogleMapsCompatible/{z}/{y}/{x}.png"
         },
@@ -231,7 +329,14 @@
           "dateLabel": "2025",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.28167784181359,
+              24.6706224916056,
+              122.0094515443844,
+              25.301834286568653
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/TOPO/DGN_2025/MapServer/WMTS/tile/1.0.0/TOPO_DGN_2025/default/GoogleMapsCompatible/{z}/{y}/{x}.png"
         }
@@ -309,7 +414,14 @@
           "dateLabel": "1957",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.47950447511222,
+              25.003544801449976,
+              121.59087521369482,
+              25.09061274161288
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/UDDWMTS/tile/Aerial_Ortho_1957/{z}/{y}/{x}"
         },
@@ -369,7 +481,14 @@
           "dateLabel": "1973",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.45678572294118,
+              24.96033334549969,
+              121.66727938772118,
+              25.21125636026124
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_1973/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_1973/default/GoogleMapsCompatible/{z}/{y}/{x}"
         },
@@ -381,7 +500,14 @@
           "dateLabel": "1991",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.4555478205532,
+              24.95445864943295,
+              121.67086508878515,
+              25.21527250013471
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_1991/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_1991/default/GoogleMapsCompatible/{z}/{y}/{x}"
         },
@@ -393,7 +519,14 @@
           "dateLabel": "1994",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.45659229065345,
+              24.9544594761486,
+              121.67086413897692,
+              25.215248652327183
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_1994/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_1994/default/GoogleMapsCompatible/{z}/{y}/{x}"
         },
@@ -405,7 +538,14 @@
           "dateLabel": "2002",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.4555478205532,
+              24.95445864943295,
+              121.67086508878515,
+              25.21527250013471
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2002/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2002/default/GoogleMapsCompatible/{z}/{y}/{x}"
         },
@@ -417,7 +557,14 @@
           "dateLabel": "2005",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.4555478205532,
+              24.95445864943295,
+              121.67086508878515,
+              25.21527250013471
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2005/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2005/default/GoogleMapsCompatible/{z}/{y}/{x}"
         },
@@ -429,7 +576,14 @@
           "dateLabel": "2007",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.4555478205532,
+              24.95445864943295,
+              121.67086508878515,
+              25.21527250013471
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2007/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2007/default/GoogleMapsCompatible/{z}/{y}/{x}"
         },
@@ -441,7 +595,14 @@
           "dateLabel": "2009",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.45554821932338,
+              24.95445937163308,
+              121.67086469580572,
+              25.215273221135526
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2009/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2009/default/GoogleMapsCompatible/{z}/{y}/{x}"
         },
@@ -453,7 +614,14 @@
           "dateLabel": "2011",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.44762598832574,
+              24.95445902475764,
+              121.67086413650186,
+              25.2152972305931
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2011/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2011/default/GoogleMapsCompatible/{z}/{y}/{x}"
         },
@@ -465,7 +633,14 @@
           "dateLabel": "2012",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.44762598832574,
+              24.95445902475764,
+              121.67086413650186,
+              25.2152972305931
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2012/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2012/default/GoogleMapsCompatible/{z}/{y}/{x}"
         },
@@ -477,7 +652,14 @@
           "dateLabel": "2013",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.44762598832574,
+              24.95445902475764,
+              121.67086413650186,
+              25.2152972305931
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2013/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2013/default/GoogleMapsCompatible/{z}/{y}/{x}"
         },
@@ -489,7 +671,14 @@
           "dateLabel": "2015",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.44762598832574,
+              24.95445902475764,
+              121.67086413650186,
+              25.2152972305931
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2015/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2015/default/GoogleMapsCompatible/{z}/{y}/{x}"
         },
@@ -501,7 +690,14 @@
           "dateLabel": "2017",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.45659229065345,
+              24.96033334549969,
+              121.66727938772118,
+              25.21125636026124
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2017/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2017/default/GoogleMapsCompatible/{z}/{y}/{x}"
         },
@@ -513,7 +709,14 @@
           "dateLabel": "2018",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.45659229065345,
+              24.96033334549969,
+              121.66727938772118,
+              25.21125636026124
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2018/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2018/default/GoogleMapsCompatible/{z}/{y}/{x}"
         },
@@ -525,7 +728,14 @@
           "dateLabel": "2019",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.45659229065345,
+              24.96033334549969,
+              121.66727938772118,
+              25.21125636026124
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2019/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2019/default/GoogleMapsCompatible/{z}/{y}/{x}"
         },
@@ -537,7 +747,14 @@
           "dateLabel": "2020",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.45659229065345,
+              24.96033334549969,
+              121.66727938772118,
+              25.21125636026124
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2020/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2020/default/GoogleMapsCompatible/{z}/{y}/{x}"
         },
@@ -549,7 +766,14 @@
           "dateLabel": "2021",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.44757626670476,
+              24.954413670924733,
+              121.6709139206608,
+              25.215342477508237
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2021/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2021/default/GoogleMapsCompatible/{z}/{y}/{x}"
         },
@@ -561,7 +785,14 @@
           "dateLabel": "2022",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.44757626670476,
+              24.954413670924733,
+              121.6709139206608,
+              25.215342477508237
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2022/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2022/default/GoogleMapsCompatible/{z}/{y}/{x}"
         },
@@ -573,7 +804,14 @@
           "dateLabel": "2023",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.44762605520957,
+              24.95445896334105,
+              121.67086413215598,
+              25.215297281527626
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2023/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2023/default/GoogleMapsCompatible/{z}/{y}/{x}"
         },
@@ -585,7 +823,14 @@
           "dateLabel": "2024",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.45659229065345,
+              24.960333309305845,
+              121.66727938772118,
+              25.21125642002119
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2024/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2024/default/GoogleMapsCompatible/{z}/{y}/{x}"
         },
@@ -597,7 +842,14 @@
           "dateLabel": "2025",
           "type": null,
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.28167784181359,
+              24.6706224916056,
+              122.0094515443844,
+              25.301834286568653
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Aerial/Ortho_2025/MapServer/WMTS/tile/1.0.0/Aerial_Ortho_2025/default/GoogleMapsCompatible/{z}/{y}/{x}"
         }
@@ -615,7 +867,14 @@
           "dateLabel": "現況",
           "type": "行政區劃圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.4555483764854,
+              24.95445902475764,
+              121.67086413650186,
+              25.21527292814344
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Urban/EMap/MapServer/WMTS/tile/1.0.0/Urban_EMap/default/GoogleMapsCompatible/{z}/{y}/{x}",
           "legend": "https://gis.sinica.edu.tw/legend/EMap/"
@@ -628,7 +887,14 @@
           "dateLabel": "現況",
           "type": "行政區劃圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.4555483764854,
+              24.95445902475764,
+              121.67086413650186,
+              25.21527292814344
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Urban/EMap_nolabel/MapServer/WMTS/tile/1.0.0/Urban_EMap_nolabel/default/GoogleMapsCompatible/{z}/{y}/{x}"
         },
@@ -640,7 +906,14 @@
           "dateLabel": "現況",
           "type": "地籍圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.45992918107409,
+              24.960155403301993,
+              121.66684248868393,
+              25.210604533103616
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Urban/UrbanPlan/MapServer/WMTS/tile/1.0.0/Urban_UrbanPlan/default/GoogleMapsCompatible/{z}/{y}/{x}.png"
         },
@@ -652,7 +925,14 @@
           "dateLabel": "現況",
           "type": "地籍圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.46215031525745,
+              24.964904668159708,
+              121.66586497820256,
+              25.190313227979946
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Urban/BldgLicense/MapServer/WMTS/tile/1.0.0/Urban_BldgLicense/default/GoogleMapsCompatible/{z}/{y}/{x}"
         },
@@ -664,7 +944,14 @@
           "dateLabel": "2014",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.43383938044316,
+              24.933476293011022,
+              121.68222246000596,
+              25.249792589872236
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Urban/DEM_2014/MapServer/WMTS/tile/1.0.0/Urban_DEM_2014/default/GoogleMapsCompatible/{z}/{y}/{x}.png"
         },
@@ -676,7 +963,14 @@
           "dateLabel": "2012",
           "type": "地形圖",
           "scale": null,
-          "region": null,
+          "region": {
+            "bbox": [
+              121.44781712902426,
+              24.95839964548504,
+              121.6704837391682,
+              25.21498203451607
+            ]
+          },
           "keywords": [],
           "url": "https://www.historygis.udd.gov.taipei/arcgis/rest/services/Urban/DSM_2012/MapServer/WMTS/tile/1.0.0/Urban_DSM_2012/default/GoogleMapsCompatible/{z}/{y}/{x}.png"
         }

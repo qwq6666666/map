@@ -10,7 +10,7 @@
     "test": "node tests/run-all.mjs",
     "test:vitest-pilot": "vitest run",
     "lint": "eslint .",
-    "build:data": "node tools/fetch-wmts-bbox.js && node tools/tag-layer-types.js && node tools/build-layers-bundle.js",
+    "build:data": "node tools/fetch-wmts-bbox.js && node tools/fetch-udd-bbox.js && node tools/tag-layer-types.js && node tools/build-layers-bundle.js",
     "build:place-names": "node tools/build-place-names.js"
   },
   "devDependencies": {
