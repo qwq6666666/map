@@ -1,0 +1,53 @@
+# CI：每次 push／PR 自動檢查，壞掉時 GitHub 上會出現紅色叉叉。
+# 只做「檢查」，不會 commit 或改動任何檔案；部署仍是 GitHub Pages 直接
+# 發布 main 分支的 docs/（見 CLAUDE.md「常用指令」的 build 說明）。
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: 安裝依賴
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: 測試（舊框架 tests/specs）
+        run: npm test
+
+      - name: 測試（vitest tests/specs-vitest）
+        run: npm run test:vitest-pilot
+
+      # 部署驗證：GitHub Pages 發布的是「已 commit 的 docs/」，忘了重新
+      # build 並 commit 會讓線上停在舊版而且毫無警告。做法：先備份已
+      # commit 的 docs/ → 重新 build（會覆寫 docs/）→ 比對兩者。
+      - name: 備份已 commit 的 docs/
+        run: cp -r docs "$RUNNER_TEMP/docs-committed"
+
+      - name: 建置
+        run: npm run build
+
+      - name: 驗證 docs/ 與原始碼同步
+        run: node tools/verify-docs-sync.js "$RUNNER_TEMP/docs-committed" docs

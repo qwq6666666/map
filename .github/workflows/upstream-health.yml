@@ -1,0 +1,57 @@
+# 上游圖資服務健康檢查：每週一次主動偵測中研院 WMTS 來源是否正常。
+# 異常時自動開 GitHub Issue（已有未關閉的同名 Issue 就補留言，不重複開），
+# GitHub 會寄信通知 repo 擁有者。也可在 Actions 頁面手動執行（Run workflow）。
+# 注意：GitHub 對「60 天內沒有任何 repo 活動」的公開 repo 會自動停用排程
+# workflow，若很久沒更新網站，記得回 Actions 頁面重新啟用。
+name: 上游圖資健康檢查
+
+on:
+  schedule:
+    - cron: '0 1 * * 1' # 每週一 01:00 UTC = 台灣時間 09:00
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      REPORT: ${{ github.workspace }}/health-report.md
+      ISSUE_TITLE: 上游圖資服務異常（自動偵測）
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: 檢查上游來源
+        id: health
+        continue-on-error: true
+        run: node tools/check-upstream-health.js --report "$REPORT"
+
+      - name: 異常時開 Issue（或補留言）
+        if: steps.health.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          # 檢查腳本本身當掉（沒產生報告）時，也要留下可追查的訊息
+          [ -f "$REPORT" ] || echo "檢查腳本執行失敗，沒有產生報告。" > "$REPORT"
+          printf '\n\n[查看這次執行記錄](%s)\n' "$RUN_URL" >> "$REPORT"
+          existing=$(gh issue list --state open --json number,title \
+            --jq ".[] | select(.title == \"$ISSUE_TITLE\") | .number" | head -n 1)
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body-file "$REPORT"
+          else
+            gh issue create --title "$ISSUE_TITLE" --body-file "$REPORT"
+          fi
+
+      # 上面 continue-on-error 只是為了讓開 Issue 的步驟能執行；
+      # 最後仍要讓這次 workflow 顯示失敗（紅叉）。
+      - name: 標記本次執行為失敗
+        if: steps.health.outcome == 'failure'
+        run: exit 1
