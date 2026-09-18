@@ -37,6 +37,7 @@ import {
   removeMultiOverlayLayer,
   setMultiOverlayOpacity,
   moveMultiOverlayLayer,
+  reorderMultiOverlayLayer,
   clearMultiOverlayLayers,
   addCustomSource,
   removeCustomSource,
@@ -54,6 +55,20 @@ import { map } from '../core/map.js';
 import { fetchCapabilities, listLayers, buildWmtsEntryConfig, annotateLayersWithCompatibility } from './wmtsImport.js';
 
 let multiCategoriesEl, multiOverlayBarInnerEl;
+
+// 桌面版拖曳排序用：dragover 階段瀏覽器基於安全性限制無法讀取
+// dataTransfer 內容（只有 dragstart／drop 能讀），所以另外用模組層級
+// 變數記住目前正在拖曳哪一個 key，供 dragover／drop 判斷用。手機版
+// 原生 HTML5 drag-and-drop 本來就不會觸發，不需要另外用媒體查詢排除。
+let draggingKey = null;
+
+function clearDragOverVisuals(){
+  if(!multiOverlayBarInnerEl) return;
+  multiOverlayBarInnerEl.querySelectorAll('.multi-layer-row').forEach(r => {
+    r.classList.remove('dragging', 'drag-over-top', 'drag-over-bottom');
+  });
+}
+
 const sourceWraps = []; // [{ src, wrap }]，供國別篩選列（createCountryFilterBar）跟
                          // initMobileCountryBrowse() 用來限定/篩選查詢範圍；
                          // syncMultiLayerCheckedClasses() 已改用 data-source-id
@@ -458,6 +473,51 @@ export function syncMultiLayerCheckedClasses(){
 function buildMultiLayerRow(entry, idx, total){
   const row = document.createElement('div');
   row.className = 'multi-layer-row';
+  row.draggable = true;
+
+  row.addEventListener('dragstart', (e)=>{
+    // 透明度滑桿／上下移／移除按鈕本身也要能用滑鼠操作，整列
+    // draggable=true 會讓這些子元件的原生行為被拖曳搶走，從它們身上
+    // 開始拖曳時直接取消，交還給元件自己處理。
+    if(e.target.closest('input, button')){ e.preventDefault(); return; }
+    draggingKey = entry.key;
+    row.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', entry.key); // Firefox 要真的 setData 拖曳才會啟動
+  });
+
+  row.addEventListener('dragover', (e)=>{
+    if(!draggingKey || draggingKey === entry.key) return;
+    e.preventDefault(); // 允許 drop
+    e.dataTransfer.dropEffect = 'move';
+    const before = (e.clientY - row.getBoundingClientRect().top) < row.offsetHeight / 2;
+    row.classList.toggle('drag-over-top', before);
+    row.classList.toggle('drag-over-bottom', !before);
+  });
+
+  row.addEventListener('dragleave', ()=>{
+    row.classList.remove('drag-over-top', 'drag-over-bottom');
+  });
+
+  row.addEventListener('drop', (e)=>{
+    e.preventDefault();
+    const sourceKey = draggingKey;
+    row.classList.remove('drag-over-top', 'drag-over-bottom');
+    if(!sourceKey || sourceKey === entry.key) return;
+    const before = (e.clientY - row.getBoundingClientRect().top) < row.offsetHeight / 2;
+    // 畫面順序跟陣列順序相反（見 renderMultiOverlayBar 檔頭說明）：拖到
+    // 目標列上半部代表要疊在它上面，即陣列 index 要比目標列（扣掉拖曳
+    // 項目本身之後）的位置多 1；拖到下半部則要跟那個位置相同。
+    const withoutDragged = store.multiOverlayLayers.filter(e2 => e2.key !== sourceKey);
+    const targetPos = withoutDragged.findIndex(e2 => e2.key === entry.key);
+    if(targetPos === -1) return;
+    reorderMultiOverlayLayer(sourceKey, before ? targetPos + 1 : targetPos);
+  });
+
+  row.addEventListener('dragend', ()=>{
+    draggingKey = null;
+    clearDragOverVisuals();
+  });
 
   const titleEl = document.createElement('span');
   titleEl.className = 'multi-layer-title';

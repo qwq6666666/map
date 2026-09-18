@@ -1100,8 +1100,15 @@
   .multi-layer-row{
     display:flex; flex-direction:column; gap:4px;
     padding:6px 2px; border-bottom:1px dashed var(--paper-dim);
+    cursor:grab;
   }
   .multi-layer-row:last-child{border-bottom:none;}
+  /* 桌面版拖曳排序視覺回饋：拖曳中的列降低透明度，放置目標位置用
+     內縮的橫線標示會插入在上方還是下方（見 multiOverlay.js buildMultiLayerRow）。
+     手機版原生 HTML5 drag-and-drop 本來就不會觸發，這裡不用額外排除。 */
+  .multi-layer-row.dragging{opacity:.4; cursor:grabbing;}
+  .multi-layer-row.drag-over-top{box-shadow:inset 0 2px 0 var(--brass-dark);}
+  .multi-layer-row.drag-over-bottom{box-shadow:inset 0 -2px 0 var(--brass-dark);}
   .multi-layer-title{
     font-size:var(--fs-sm); color:var(--ink); font-weight:600; line-height:1.3;
     overflow:hidden; text-overflow:ellipsis; white-space:nowrap;

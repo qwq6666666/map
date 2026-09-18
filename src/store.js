@@ -223,6 +223,24 @@ export function moveMultiOverlayLayer(key, direction){
   setState({ multiOverlayLayers: next });
 }
 
+// 拖曳排序用：把 key 指定的項目搬到陣列中的任意位置（不限相鄰），
+// targetIndex 是「搬移完成後」該項目在陣列裡的最終 index（超出範圍會
+// 夾在合法區間內）。跟 moveMultiOverlayLayer 並存，按鈕沿用相鄰交換、
+// 拖曳改用這支——先移除再用同一個 index 插入，插入位置永遠等於陣列
+// 移除該項目後的目標 index，所以 targetIndex 直接就是最終結果的 index，
+// 不用額外處理「插入點是否要扣掉自己原本佔的那一格」。
+export function reorderMultiOverlayLayer(key, targetIndex){
+  const list = state.multiOverlayLayers;
+  const idx = list.findIndex(e => e.key === key);
+  if(idx === -1) return;
+  const clampedIndex = Math.max(0, Math.min(targetIndex, list.length - 1));
+  if(clampedIndex === idx) return;
+  const next = [...list];
+  const [item] = next.splice(idx, 1);
+  next.splice(clampedIndex, 0, item);
+  setState({ multiOverlayLayers: next });
+}
+
 export function clearMultiOverlayLayers(){
   if(state.multiOverlayLayers.length === 0) return;
   setState({ multiOverlayLayers: [] });

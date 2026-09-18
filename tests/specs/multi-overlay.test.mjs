@@ -7,7 +7,7 @@ import { initSearchUI } from '../../src/searchUI.js';
 import {
   state as store, setMode,
   toggleMultiOverlayLayer, removeMultiOverlayLayer,
-  setMultiOverlayOpacity, moveMultiOverlayLayer, clearMultiOverlayLayers,
+  setMultiOverlayOpacity, moveMultiOverlayLayer, reorderMultiOverlayLayer, clearMultiOverlayLayers,
   selectOverlayLayer, addCustomSource, clearCustomSources
 } from '../../src/store.js';
 import { hasCachedLayer } from '../../src/core/layerCache.js';
@@ -20,8 +20,10 @@ initSearchUI();
 const sinica = DATA.LAYER_SOURCES.find(s => s.id === 'sinica');
 const layerA = sinica.categories[0].layers[0];
 const layerB = sinica.categories[0].layers[1];
+const layerC = sinica.categories[0].layers[2];
 const keyA = `hist:sinica:${layerA.id}:${layerA.fmt}`;
 const keyB = `hist:sinica:${layerB.id}:${layerB.fmt}`;
+const keyC = `hist:sinica:${layerC.id}:${layerC.fmt}`;
 
 test('勾選圖層會加入 multiOverlayLayers，預設透明度 100', () => {
   clearMultiOverlayLayers();
@@ -64,6 +66,21 @@ test('moveMultiOverlayLayer 可以調整疊放順序，超出範圍不動作', (
   assertEqual(store.multiOverlayLayers[1].key, keyA, '交換後第二筆是 A');
   moveMultiOverlayLayer(keyA, 1); // 已經在最上層，不該動作（陣列長度只有 2）
   assertEqual(store.multiOverlayLayers[1].key, keyA, '已在最上層，move(+1) 不動作');
+});
+
+test('reorderMultiOverlayLayer 可以搬到任意位置（非相鄰），拖曳排序用', () => {
+  clearMultiOverlayLayers();
+  toggleMultiOverlayLayer(keyA); // index 0
+  toggleMultiOverlayLayer(keyB); // index 1
+  toggleMultiOverlayLayer(keyC); // index 2（最上層）
+  reorderMultiOverlayLayer(keyC, 0); // 把最上層的 C 直接搬到最底層
+  assertEqual(store.multiOverlayLayers.map(e => e.key).join(','), [keyC, keyA, keyB].join(','), 'C 應該搬到 index 0');
+  reorderMultiOverlayLayer(keyA, 2); // 把目前 index 1 的 A 搬到最上層
+  assertEqual(store.multiOverlayLayers.map(e => e.key).join(','), [keyC, keyB, keyA].join(','), 'A 應該搬到 index 2（最上層）');
+  reorderMultiOverlayLayer('hist:not-exist', 0); // 不存在的 key，不動作也不拋錯
+  assertEqual(store.multiOverlayLayers.length, 3, '不存在的 key 不影響清單');
+  reorderMultiOverlayLayer(keyB, 99); // 超出範圍夾在合法區間內（最上層）
+  assertEqual(store.multiOverlayLayers[store.multiOverlayLayers.length - 1].key, keyB, '超出範圍會夾在最上層');
 });
 
 test('removeMultiOverlayLayer 移除指定 key，其餘保留', () => {
