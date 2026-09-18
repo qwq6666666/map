@@ -383,6 +383,8 @@ function initModePopover(){
   const popover = document.getElementById('mobileModePopover');
   const drawToggleOption = document.getElementById('mobileDrawToggle');
   const realDrawToggleBtn = document.getElementById('drawToggleBtn');
+  const locateOption = document.getElementById('mobileLocateBtn');
+  const realLocateBtn = document.getElementById('locateBtn');
   if(!btn || !popover) return;
 
   function closePopover(){
@@ -444,6 +446,16 @@ function initModePopover(){
   });
   drawToggleOption?.addEventListener('click', ()=>{
     realDrawToggleBtn?.click();
+    closePopover();
+  });
+  // 定位純轉呼叫 #locateBtn 的 click()，不重新實作定位/藍點顯示邏輯（見
+  // src/features/location.js）。額外收合 Bottom Sheet：#locateBtn 觸發後
+  // 會把地圖視角置中到使用者座標（螢幕正中央），Sheet 展開態(75vh)會蓋住
+  // 畫面下 75%，置中點會落在 Sheet 底下看不見；收合成 peek 態(60px)才能
+  // 確保藍點與彈窗（#locatePopup，錨定在藍點正上方）都在可視地圖範圍內。
+  locateOption?.addEventListener('click', ()=>{
+    realLocateBtn?.click();
+    collapseSidebar();
     closePopover();
   });
   popover.querySelectorAll('.mobile-mode-option[data-help-action]').forEach(optBtn=>{
