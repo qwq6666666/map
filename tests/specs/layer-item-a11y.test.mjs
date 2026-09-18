@@ -9,15 +9,15 @@
    buildLayerItem()／compareMode.js／timelineUI.js 三個呼叫端都有正確
    套用。
 --------------------------------------------------------- */
+import { test, expect } from 'vitest';
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
 import { buildLayerItem, markInteractiveLayerItem } from '../../src/uiTree.js';
 
 test('markInteractiveLayerItem：加上 tabIndex=0 與 role="button"', () => {
   const item = document.createElement('div');
   markInteractiveLayerItem(item, () => {});
-  assertEqual(item.tabIndex, 0, '應該可以被 Tab 移動焦點過去');
-  assertEqual(item.getAttribute('role'), 'button', '應該有 role="button" 讓螢幕報讀器識別成可互動元素');
+  expect(item.tabIndex, '應該可以被 Tab 移動焦點過去').toBe(0);
+  expect(item.getAttribute('role'), '應該有 role="button" 讓螢幕報讀器識別成可互動元素').toBe('button');
 });
 
 test('markInteractiveLayerItem：點擊（click）會觸發 onActivate', () => {
@@ -25,7 +25,7 @@ test('markInteractiveLayerItem：點擊（click）會觸發 onActivate', () => {
   const item = document.createElement('div');
   markInteractiveLayerItem(item, () => { called++; });
   item.click();
-  assertEqual(called, 1, '點擊應該觸發一次 onActivate');
+  expect(called, '點擊應該觸發一次 onActivate').toBe(1);
 });
 
 test('markInteractiveLayerItem：鍵盤 Enter 會觸發 onActivate', () => {
@@ -33,7 +33,7 @@ test('markInteractiveLayerItem：鍵盤 Enter 會觸發 onActivate', () => {
   const item = document.createElement('div');
   markInteractiveLayerItem(item, () => { called++; });
   item._listeners['keydown'][0]({ key: 'Enter', preventDefault(){} });
-  assertEqual(called, 1, 'Enter 應該觸發一次 onActivate');
+  expect(called, 'Enter 應該觸發一次 onActivate').toBe(1);
 });
 
 test('markInteractiveLayerItem：鍵盤 Space（" "）會觸發 onActivate，且會呼叫 preventDefault 避免頁面捲動', () => {
@@ -42,8 +42,8 @@ test('markInteractiveLayerItem：鍵盤 Space（" "）會觸發 onActivate，且
   const item = document.createElement('div');
   markInteractiveLayerItem(item, () => { called++; });
   item._listeners['keydown'][0]({ key: ' ', preventDefault(){ prevented = true; } });
-  assertEqual(called, 1, 'Space 應該觸發一次 onActivate');
-  assertTrue(prevented, 'Space 應該呼叫 preventDefault，避免瀏覽器預設的頁面捲動行為');
+  expect(called, 'Space 應該觸發一次 onActivate').toBe(1);
+  expect(prevented, 'Space 應該呼叫 preventDefault，避免瀏覽器預設的頁面捲動行為').toBeTruthy();
 });
 
 test('markInteractiveLayerItem：其他按鍵（例如方向鍵）不應該觸發 onActivate', () => {
@@ -51,17 +51,15 @@ test('markInteractiveLayerItem：其他按鍵（例如方向鍵）不應該觸�
   const item = document.createElement('div');
   markInteractiveLayerItem(item, () => { called++; });
   item._listeners['keydown'][0]({ key: 'ArrowDown', preventDefault(){} });
-  assertEqual(called, 0, '不相關的按鍵不應該觸發 onActivate');
+  expect(called, '不相關的按鍵不應該觸發 onActivate').toBe(0);
 });
 
 test('buildLayerItem：產生的 .layer-item 也套用了鍵盤可及性（tabIndex/role），且 Enter 會觸發 onLayerClick', () => {
   const layer = { id: 'test-layer', year: '1900', title: '測試圖層' };
   let firedLayer = null;
   const item = buildLayerItem(layer, (l) => { firedLayer = l; });
-  assertEqual(item.tabIndex, 0, 'buildLayerItem 產生的節點應該可以被 Tab 移動焦點過去');
-  assertEqual(item.getAttribute('role'), 'button', 'buildLayerItem 產生的節點應該有 role="button"');
+  expect(item.tabIndex, 'buildLayerItem 產生的節點應該可以被 Tab 移動焦點過去').toBe(0);
+  expect(item.getAttribute('role'), 'buildLayerItem 產生的節點應該有 role="button"').toBe('button');
   item._listeners['keydown'][0]({ key: 'Enter', preventDefault(){} });
-  assertEqual(firedLayer, layer, 'Enter 應該觸發跟點擊一樣的 onLayerClick(layer)');
+  expect(firedLayer, 'Enter 應該觸發跟點擊一樣的 onLayerClick(layer)').toBe(layer);
 });
-
-await run();

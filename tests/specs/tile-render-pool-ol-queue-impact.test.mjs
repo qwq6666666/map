@@ -44,7 +44,7 @@
    子集。
 --------------------------------------------------------- */
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, expect } from 'vitest';
 import {
   createGuardedTileLoadFunction,
   TILE_STATE,
@@ -205,12 +205,12 @@ async function runLoadBatch(n, { throttled = true } = {}){
    情境 A：歷史圖磚 LOADING 請求數 ≤ TILE_RENDER_MAX_CONCURRENCY（4）
 --------------------------------------------------------- */
 test('情境 A：4 顆歷史圖磚同時進入 LOADING（未超過節流池上限）-> 尖峰佔用 4 個名額，底圖理論可用名額維持 12 個，符合檔頭註解宣稱', async () => {
-  assertEqual(TILE_RENDER_MAX_CONCURRENCY, 4, '目前拍板的節流池上限應該是 4，調整時記得同步檢視這個情境的假設是否仍成立');
+  expect(TILE_RENDER_MAX_CONCURRENCY, '目前拍板的節流池上限應該是 4，調整時記得同步檢視這個情境的假設是否仍成立').toBe(4);
 
   const queue = await runLoadBatch(4, { throttled: true });
 
-  assertEqual(queue.peak, 4, '4 顆圖磚同時請求，尖峰應該剛好佔滿節流池上限、不多不少');
-  assertEqual(OL_GLOBAL_LOADING_CAP - queue.peak, 12, '底圖理論可用名額應該剛好是 16 - 4 = 12，符合 tileLoadGuard.js 檔頭「平時至少留 12 個名額給底圖」的宣稱');
+  expect(queue.peak, '4 顆圖磚同時請求，尖峰應該剛好佔滿節流池上限、不多不少').toBe(4);
+  expect(OL_GLOBAL_LOADING_CAP - queue.peak, '底圖理論可用名額應該剛好是 16 - 4 = 12，符合 tileLoadGuard.js 檔頭「平時至少留 12 個名額給底圖」的宣稱').toBe(12);
 });
 
 /* ---------------------------------------------------------
@@ -223,15 +223,15 @@ test('情境 B1：8 顆歷史圖磚同時進入 LOADING -> 尖峰佔用 8 個名
   // 4），但 OL 早在呼叫 tileLoadFunction 前就把全部 8 顆都標記
   // LOADING——排隊中的另外 4 顆並沒有因為「還沒真的發送網路請求」而
   // 少算進全域名額，尖峰仍然是 8，不是被壓低到 4。
-  assertEqual(queue.peak, 8, '8 顆同時請求時，OL 認定的 LOADING 尖峰應該是 8（排隊中的圖磚一樣持續佔用全域名額，不會因為排隊而少算）');
-  assertEqual(OL_GLOBAL_LOADING_CAP - queue.peak, 8, '底圖可用名額應該只剩 8 個，比檔頭宣稱的「至少 12 個」少了 4 個');
+  expect(queue.peak, '8 顆同時請求時，OL 認定的 LOADING 尖峰應該是 8（排隊中的圖磚一樣持續佔用全域名額，不會因為排隊而少算）').toBe(8);
+  expect(OL_GLOBAL_LOADING_CAP - queue.peak, '底圖可用名額應該只剩 8 個，比檔頭宣稱的「至少 12 個」少了 4 個').toBe(8);
 });
 
 test('情境 B2：16 顆歷史圖磚同時進入 LOADING（例如複合疊圖＋快速平移跨多顆圖磚）-> 尖峰佔滿全部 16 個名額，底圖完全沒有可用名額', async () => {
   const queue = await runLoadBatch(16, { throttled: true });
 
-  assertEqual(queue.peak, 16, '16 顆同時請求時，OL 認定的 LOADING 尖峰應該佔滿全部 16 個全域名額');
-  assertEqual(OL_GLOBAL_LOADING_CAP - queue.peak, 0, '底圖可用名額應該是 0，完全沒有餘裕，跟檔頭「平時至少留 12 個」的假設完全不成立');
+  expect(queue.peak, '16 顆同時請求時，OL 認定的 LOADING 尖峰應該佔滿全部 16 個全域名額').toBe(16);
+  expect(OL_GLOBAL_LOADING_CAP - queue.peak, '底圖可用名額應該是 0，完全沒有餘裕，跟檔頭「平時至少留 12 個」的假設完全不成立').toBe(0);
 });
 
 test('情境 B：跟「完全不節流」基準情境相比，尖峰佔用名額其實一樣（都是 N），但節流會讓佔用名額的持續時間明顯拉長（約 ceil(N/4) 倍）', async () => {
@@ -245,15 +245,15 @@ test('情境 B：跟「完全不節流」基準情境相比，尖峰佔用名額
   const baseline = await runLoadBatch(n, { throttled: false }); // 模擬「拿掉 tileRenderRequestPool，只受 OL 全域 16 個名額限制」
   const throttledQueue = await runLoadBatch(n, { throttled: true }); // 正式程式碼目前的節流上限（4）
 
-  assertEqual(baseline.peak, throttledQueue.peak, '兩種情境的尖峰佔用名額應該相同（都取決於 OL 一次排入幾顆 LOADING，不受節流池影響）');
+  expect(baseline.peak, '兩種情境的尖峰佔用名額應該相同（都取決於 OL 一次排入幾顆 LOADING，不受節流池影響）').toBe(throttledQueue.peak);
 
   const baselineMax = baseline.maxDuration();
   const throttledMax = throttledQueue.maxDuration();
 
-  assertTrue(baselineMax < DELAY_MS * 2, `基準情境（不節流）應該接近一次來回耗時（${DELAY_MS}ms）就全部釋放完畢，實際最長佔用 ${baselineMax}ms`);
+  expect(baselineMax < DELAY_MS * 2, `基準情境（不節流）應該接近一次來回耗時（${DELAY_MS}ms）就全部釋放完畢，實際最長佔用 ${baselineMax}ms`).toBeTruthy();
   // ceil(16/4) = 4 輪；只要求明顯超過基準情境的 2.5 倍（保守門檻，避免
   // CI 機器排程雜訊造成偶發性失敗），實際上應該接近 4 倍。
-  assertTrue(throttledMax >= baselineMax * 2.5, `節流後最長佔用時間應該明顯拉長（約 4 倍），實際基準 ${baselineMax}ms、節流後 ${throttledMax}ms`);
+  expect(throttledMax >= baselineMax * 2.5, `節流後最長佔用時間應該明顯拉長（約 4 倍），實際基準 ${baselineMax}ms、節流後 ${throttledMax}ms`).toBeTruthy();
 });
 
 test('情境 B：8 顆歷史圖磚時，節流後的佔用時間也應該明顯拉長（約 ceil(8/4)=2 倍），不是只有 16 顆才有感', async () => {
@@ -261,11 +261,11 @@ test('情境 B：8 顆歷史圖磚時，節流後的佔用時間也應該明顯�
   const baseline = await runLoadBatch(n, { throttled: false });
   const throttledQueue = await runLoadBatch(n, { throttled: true });
 
-  assertEqual(baseline.peak, throttledQueue.peak, '兩種情境的尖峰佔用名額應該相同');
+  expect(baseline.peak, '兩種情境的尖峰佔用名額應該相同').toBe(throttledQueue.peak);
 
   const baselineMax = baseline.maxDuration();
   const throttledMax = throttledQueue.maxDuration();
-  assertTrue(throttledMax >= baselineMax * 1.5, `8 顆圖磚時，節流後最長佔用時間應該明顯拉長（約 2 倍），實際基準 ${baselineMax}ms、節流後 ${throttledMax}ms`);
+  expect(throttledMax >= baselineMax * 1.5, `8 顆圖磚時，節流後最長佔用時間應該明顯拉長（約 2 倍），實際基準 ${baselineMax}ms、節流後 ${throttledMax}ms`).toBeTruthy();
 });
 
 /* ---------------------------------------------------------
@@ -306,10 +306,10 @@ test('情境 C：16 顆歷史圖磚同時進入 LOADING、其中 8 顆因視角�
   // 其餘 12 個（含之後要被判定 stale 的 8 顆裡，至少一部分）還在排隊、
   // 根本還沒發送過網路請求——用來確認「排隊中」跟「真正在下載」是分開
   // 的兩件事，接下來的 abort 要驗證的正是排隊中的那些也能被同步釋放。
-  assertEqual(queue.active, 16, '前置條件：16 顆圖磚應該全部計入 OL 全域 LOADING（不受節流池排隊與否影響）');
-  assertEqual(tileRenderRequestPool.getStats().active, TILE_RENDER_MAX_CONCURRENCY, `節流池本身應該只有 ${TILE_RENDER_MAX_CONCURRENCY} 個真正在下載`);
-  assertEqual(tileRenderRequestPool.getStats().queued, 16 - TILE_RENDER_MAX_CONCURRENCY, '其餘應該都還在節流池排隊，尚未真的發送網路請求');
-  assertEqual(queue.availableForBasemap(), 0, '前置條件：全域 16 個名額已被歷史圖磚佔滿，底圖完全沒有可用名額');
+  expect(queue.active, '前置條件：16 顆圖磚應該全部計入 OL 全域 LOADING（不受節流池排隊與否影響）').toBe(16);
+  expect(tileRenderRequestPool.getStats().active, `節流池本身應該只有 ${TILE_RENDER_MAX_CONCURRENCY} 個真正在下載`).toBe(TILE_RENDER_MAX_CONCURRENCY);
+  expect(tileRenderRequestPool.getStats().queued, '其餘應該都還在節流池排隊，尚未真的發送網路請求').toBe(16 - TILE_RENDER_MAX_CONCURRENCY);
+  expect(queue.availableForBasemap(), '前置條件：全域 16 個名額已被歷史圖磚佔滿，底圖完全沒有可用名額').toBe(0);
 
   const currentExtent = tileXYToBbox(taipei15.x, taipei15.y, taipei15.z);
   const fakeMap = makeFakeMap({ zoom: taipei15.z, extent: currentExtent });
@@ -321,10 +321,10 @@ test('情境 C：16 顆歷史圖磚同時進入 LOADING、其中 8 顆因視角�
   // 之前就已經同步指定好，所以 moveend 觸發當下就能同步 setState()、
   // 立刻釋放這些圖磚佔用的 OL 全域名額，不需要等它們排到 slot 或等
   // 逾時（999999ms）才釋放。
-  assertEqual(queue.active, 8, 'stale abort 應該同步釋放全部 8 顆過期圖磚佔用的全域名額，不論它們當下是真的在下載還是還在節流池排隊');
-  assertEqual(queue.availableForBasemap(), 8, '釋放後底圖應該恢復 8 個可用名額');
-  staleTiles.forEach((t, i) => assertEqual(t.state, TILE_STATE.IDLE, `第 ${i} 顆過期圖磚應該被同步放棄成 IDLE（不是永久 ERROR），才能之後重新進入可視範圍時正常重新載入`));
-  keepTiles.forEach((t, i) => assertEqual(t.state, null, `第 ${i} 顆仍相關的圖磚不應該被誤傷，應該維持在途狀態`));
+  expect(queue.active, 'stale abort 應該同步釋放全部 8 顆過期圖磚佔用的全域名額，不論它們當下是真的在下載還是還在節流池排隊').toBe(8);
+  expect(queue.availableForBasemap(), '釋放後底圖應該恢復 8 個可用名額').toBe(8);
+  staleTiles.forEach((t, i) => expect(t.state, `第 ${i} 顆過期圖磚應該被同步放棄成 IDLE（不是永久 ERROR），才能之後重新進入可視範圍時正常重新載入`).toBe(TILE_STATE.IDLE));
+  keepTiles.forEach((t, i) => expect(t.state, `第 ${i} 顆仍相關的圖磚不應該被誤傷，應該維持在途狀態`).toBe(null));
 
   // 測試結束前清乾淨剩下的 8 顆「仍相關」圖磚，避免遺留 999999ms 的
   // 計時器讓 Node process 無法自然結束（比照 tile-load-guard.test.mjs
@@ -332,7 +332,5 @@ test('情境 C：16 顆歷史圖磚同時進入 LOADING、其中 8 顆因視角�
   const fakeMap2 = makeFakeMap({ zoom: 3, extent: [1, 1, 2, 2] });
   attachStaleTileAbort(fakeMap2);
   fakeMap2._trigger('moveend');
-  assertEqual(queue.active, 0, '測試結束前應該清空所有剩餘的在途請求，避免遺留計時器');
+  expect(queue.active, '測試結束前應該清空所有剩餘的在途請求，避免遺留計時器').toBe(0);
 });
-
-await run();

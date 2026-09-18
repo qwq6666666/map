@@ -45,7 +45,7 @@ export default [
     }
   },
   {
-    // 舊測試框架跑在 Node，但模擬瀏覽器環境（env-stub.mjs）
+    // 測試跑在 Node，但模擬瀏覽器環境（env-stub.mjs）
     files: ['tests/**/*.mjs'],
     languageOptions: {
       ecmaVersion: 2022,

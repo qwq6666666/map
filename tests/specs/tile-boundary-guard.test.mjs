@@ -24,8 +24,9 @@
    urlResults 查找表模擬 onload/onerror/逾時；另外自訂 FakeTile 模擬
    OL 的 tile 物件（getTileCoord/getImage/setState）。
 --------------------------------------------------------- */
+import { test, expect } from 'vitest';
 import '../env-stub.mjs';
-import { test, run, assertEqual } from '../assert.mjs';
+
 import {
   createGuardedTileLoadFunction,
   TILE_STATE,
@@ -101,8 +102,8 @@ test('邊界外：regionBbox 跟圖磚座標完全不相交 -> 直接 EMPTY，�
   const loadFn = createGuardedTileLoadFunction({ regionBbox: [110, 30, 112, 32], timeoutMs: 30 }); // 明顯不涵蓋台北
   loadFn(tile, url);
 
-  assertEqual(tile.state, TILE_STATE.EMPTY, '邊界外的圖磚應該立刻被標記 EMPTY');
-  assertEqual(urlAttempts[url] || 0, beforeAttempts, '邊界外的圖磚不應該發送任何請求');
+  expect(tile.state, '邊界外的圖磚應該立刻被標記 EMPTY').toBe(TILE_STATE.EMPTY);
+  expect(urlAttempts[url] || 0, '邊界外的圖磚不應該發送任何請求').toBe(beforeAttempts);
 });
 
 test('邊界內：regionBbox 涵蓋圖磚座標，正常載入一次成功 -> LOADED', async () => {
@@ -114,8 +115,8 @@ test('邊界內：regionBbox 涵蓋圖磚座標，正常載入一次成功 -> LO
   loadFn(tile, url);
 
   const state = await waitForState(tile);
-  assertEqual(state, TILE_STATE.LOADED, '邊界內、正常回應的圖磚應該是 LOADED');
-  assertEqual(urlAttempts[url], 1, '正常載入只應該發送 1 次請求');
+  expect(state, '邊界內、正常回應的圖磚應該是 LOADED').toBe(TILE_STATE.LOADED);
+  expect(urlAttempts[url], '正常載入只應該發送 1 次請求').toBe(1);
 });
 
 test('沒有 regionBbox（custom: 情境）：任何座標都不應被誤判 EMPTY，照常走載入流程', async () => {
@@ -127,8 +128,6 @@ test('沒有 regionBbox（custom: 情境）：任何座標都不應被誤判 EMP
   loadFn(tile, url);
 
   const state = await waitForState(tile);
-  assertEqual(state, TILE_STATE.LOADED, '沒有 regionBbox 時應該正常載入成功，不應該被誤判為 EMPTY');
-  assertEqual(urlAttempts[url], 1, '應該有真的發送請求');
+  expect(state, '沒有 regionBbox 時應該正常載入成功，不應該被誤判為 EMPTY').toBe(TILE_STATE.LOADED);
+  expect(urlAttempts[url], '應該有真的發送請求').toBe(1);
 });
-
-await run();

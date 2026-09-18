@@ -16,7 +16,7 @@
    模組頂層的具名 function 宣告，不是 ESM 語法，砍掉 export default 那
    段之後這些函式會變成 vm context 全域可以直接呼叫的函式）。
 --------------------------------------------------------- */
-import { test, run, assertTrue, assertEqual } from '../assert.mjs';
+import { test, expect } from 'vitest';
 import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
@@ -77,25 +77,25 @@ function createWorkerEnv({ fetchImpl, cacheImpl } = {}){
 
 test('isBlockedHost：擋掉常見內網/保留位址', () => {
   const { isBlockedHost } = createWorkerEnv();
-  assertTrue(isBlockedHost('localhost'));
-  assertTrue(isBlockedHost('127.0.0.1'));
-  assertTrue(isBlockedHost('10.0.0.5'));
-  assertTrue(isBlockedHost('192.168.1.1'));
-  assertTrue(isBlockedHost('172.16.0.1'));
-  assertTrue(isBlockedHost('169.254.1.1'));
-  assertTrue(isBlockedHost('::1'));
+  expect(isBlockedHost('localhost')).toBeTruthy();
+  expect(isBlockedHost('127.0.0.1')).toBeTruthy();
+  expect(isBlockedHost('10.0.0.5')).toBeTruthy();
+  expect(isBlockedHost('192.168.1.1')).toBeTruthy();
+  expect(isBlockedHost('172.16.0.1')).toBeTruthy();
+  expect(isBlockedHost('169.254.1.1')).toBeTruthy();
+  expect(isBlockedHost('::1')).toBeTruthy();
 });
 
 test('isBlockedHost：新增的數字型 IP 偵測擋掉十進位/十六進位表示法', () => {
   const { isBlockedHost } = createWorkerEnv();
-  assertTrue(isBlockedHost('2130706433'), '十進位整數形式的 127.0.0.1');
-  assertTrue(isBlockedHost('0x7f000001'), '十六進位形式的 127.0.0.1');
+  expect(isBlockedHost('2130706433'), '十進位整數形式的 127.0.0.1').toBeTruthy();
+  expect(isBlockedHost('0x7f000001'), '十六進位形式的 127.0.0.1').toBeTruthy();
 });
 
 test('isBlockedHost：正常的公開網域不會被誤擋', () => {
   const { isBlockedHost } = createWorkerEnv();
-  assertTrue(!isBlockedHost('wmts.nlsc.gov.tw'));
-  assertTrue(!isBlockedHost('gis.sinica.edu.tw'));
+  expect(!isBlockedHost('wmts.nlsc.gov.tw')).toBeTruthy();
+  expect(!isBlockedHost('gis.sinica.edu.tw')).toBeTruthy();
 });
 
 test('handleRequest：邊緣快取寫入透過 ctx.waitUntil() 保護，不是 fire-and-forget', async () => {
@@ -130,11 +130,9 @@ test('handleRequest：邊緣快取寫入透過 ctx.waitUntil() 保護，不是 f
 
   const response = await handleRequest(fakeRequest, fakeCtx);
 
-  assertTrue(response.ok, 'handleRequest 應該成功回應（假 fetch 回傳成功的 upstream response）');
-  assertTrue(putCalled, 'cache.put() 應該有被呼叫過一次');
-  assertEqual(waitUntilCalls.length, 1, 'ctx.waitUntil() 應該被呼叫恰好一次');
-  assertTrue(waitUntilCalls[0] instanceof Promise, 'ctx.waitUntil() 收到的參數應該是一個 Promise（即 cache.put() 的回傳值），而不是先呼叫完 cache.put() 才傳別的東西進去');
-  assertTrue(waitUntilCalls[0] === putPromise, 'ctx.waitUntil() 傳入的 Promise 應該就是 cache.put() 回傳的那個 Promise 本身');
+  expect(response.ok, 'handleRequest 應該成功回應（假 fetch 回傳成功的 upstream response）').toBeTruthy();
+  expect(putCalled, 'cache.put() 應該有被呼叫過一次').toBeTruthy();
+  expect(waitUntilCalls.length, 'ctx.waitUntil() 應該被呼叫恰好一次').toBe(1);
+  expect(waitUntilCalls[0] instanceof Promise, 'ctx.waitUntil() 收到的參數應該是一個 Promise（即 cache.put() 的回傳值），而不是先呼叫完 cache.put() 才傳別的東西進去').toBeTruthy();
+  expect(waitUntilCalls[0] === putPromise, 'ctx.waitUntil() 傳入的 Promise 應該就是 cache.put() 回傳的那個 Promise 本身').toBeTruthy();
 });
-
-await run();

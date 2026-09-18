@@ -21,7 +21,7 @@
         store.compareA／store.compareB。
 --------------------------------------------------------- */
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, expect } from 'vitest';
 
 // 局部 stub：每次呼叫都回傳全新、獨立的假 MediaQueryList（matches 固定
 // true，模擬手機寬度）。buildPickerPanel() 對 A、B 兩側各自呼叫一次
@@ -63,37 +63,37 @@ function mobileBrowseEntries(panelEl){
 test('手機寬度下，A、B 兩側 picker 面板各自都有三段式瀏覽 UI（tw／cn／other 各一個大區域／來源按鈕列＋國家篩選列）', () => {
   [[panelA, 'A'], [panelB, 'B']].forEach(([panelEl, label]) => {
     const entries = mobileBrowseEntries(panelEl);
-    assertEqual(entries.length, 3, `${label} 側面板應該有 tw／cn／other 三個三段式（或二段式）瀏覽容器`);
+    expect(entries.length, `${label} 側面板應該有 tw／cn／other 三個三段式（或二段式）瀏覽容器`).toBe(3);
     entries.forEach(entry => {
       const macroRow = entry.children[0];
-      assertTrue(!!macroRow && macroRow.classList.contains('mobile-tw-macro-row'), `${label} 側每個瀏覽容器都應該有大區域／來源按鈕列`);
-      assertTrue(macroRow.children.length > 0, `${label} 側大區域／來源按鈕列不應該是空的`);
+      expect(!!macroRow && macroRow.classList.contains('mobile-tw-macro-row'), `${label} 側每個瀏覽容器都應該有大區域／來源按鈕列`).toBeTruthy();
+      expect(macroRow.children.length > 0, `${label} 側大區域／來源按鈕列不應該是空的`).toBeTruthy();
     });
-    assertTrue(!!panelEl.querySelector('.country-filter'), `${label} 側面板應該有國家篩選列`);
+    expect(!!panelEl.querySelector('.country-filter'), `${label} 側面板應該有國家篩選列`).toBeTruthy();
   });
 });
 
 test('A、B 兩側 mobileBrowse 實例互相獨立：兩側的三段式瀏覽容器不是同一個 DOM 節點', () => {
   const [twEntryA, cnEntryA, otherEntryA] = mobileBrowseEntries(panelA);
   const [twEntryB, cnEntryB, otherEntryB] = mobileBrowseEntries(panelB);
-  assertTrue(twEntryA !== twEntryB, 'A、B 兩側的 tw 三段式瀏覽容器應該是各自獨立建立的 DOM 節點');
-  assertTrue(cnEntryA !== cnEntryB, 'A、B 兩側的 cn 三段式瀏覽容器應該是各自獨立建立的 DOM 節點');
-  assertTrue(otherEntryA !== otherEntryB, 'A、B 兩側的 other（其他）瀏覽容器應該是各自獨立建立的 DOM 節點');
+  expect(twEntryA !== twEntryB, 'A、B 兩側的 tw 三段式瀏覽容器應該是各自獨立建立的 DOM 節點').toBeTruthy();
+  expect(cnEntryA !== cnEntryB, 'A、B 兩側的 cn 三段式瀏覽容器應該是各自獨立建立的 DOM 節點').toBeTruthy();
+  expect(otherEntryA !== otherEntryB, 'A、B 兩側的 other（其他）瀏覽容器應該是各自獨立建立的 DOM 節點').toBeTruthy();
 });
 
 test('切換 A 側國家篩選列到「中國」，只影響 A 側面板的三段式瀏覽顯示，不影響 B 側', () => {
   const filterBarA = panelA.querySelector('.country-filter');
   const cnBtnA = Array.from(filterBarA.children).find(b => b.textContent === '中國');
-  assertTrue(!!cnBtnA, 'A 側篩選列應該有「中國」按鈕');
+  expect(!!cnBtnA, 'A 側篩選列應該有「中國」按鈕').toBeTruthy();
   cnBtnA.click();
 
   const [twEntryA, cnEntryA] = mobileBrowseEntries(panelA);
-  assertEqual(twEntryA.hidden, true, 'A 側切到中國後，tw 三段式瀏覽應該隱藏');
-  assertEqual(cnEntryA.hidden, false, 'A 側切到中國後，cn 三段式瀏覽應該顯示');
+  expect(twEntryA.hidden, 'A 側切到中國後，tw 三段式瀏覽應該隱藏').toBe(true);
+  expect(cnEntryA.hidden, 'A 側切到中國後，cn 三段式瀏覽應該顯示').toBe(false);
 
   const [twEntryB, cnEntryB] = mobileBrowseEntries(panelB);
-  assertEqual(twEntryB.hidden, false, 'B 側不受 A 側篩選列切換影響，應該仍顯示 tw 三段式瀏覽');
-  assertEqual(cnEntryB.hidden, true, 'B 側不受 A 側篩選列切換影響，cn 三段式瀏覽應該仍隱藏');
+  expect(twEntryB.hidden, 'B 側不受 A 側篩選列切換影響，應該仍顯示 tw 三段式瀏覽').toBe(false);
+  expect(cnEntryB.hidden, 'B 側不受 A 側篩選列切換影響，cn 三段式瀏覽應該仍隱藏').toBe(true);
 
   // 還原：切回台灣分頁，避免影響後續測試對 A 側的假設
   const twBtnA = Array.from(filterBarA.children).find(b => b.textContent === '台灣');
@@ -103,23 +103,23 @@ test('切換 A 側國家篩選列到「中國」，只影響 A 側面板的三�
 test('切換 A 側國家篩選列到「其他」，只影響 A 側面板的 other 二段式瀏覽顯示，不影響 B 側', () => {
   const filterBarA = panelA.querySelector('.country-filter');
   const otherBtnA = Array.from(filterBarA.children).find(b => b.textContent === '其他');
-  assertTrue(!!otherBtnA, 'A 側篩選列應該有「其他」按鈕');
+  expect(!!otherBtnA, 'A 側篩選列應該有「其他」按鈕').toBeTruthy();
   otherBtnA.click();
 
   const [twEntryA, cnEntryA, otherEntryA] = mobileBrowseEntries(panelA);
-  assertEqual(twEntryA.hidden, true, 'A 側切到其他後，tw 瀏覽應該隱藏');
-  assertEqual(cnEntryA.hidden, true, 'A 側切到其他後，cn 瀏覽應該隱藏');
-  assertEqual(otherEntryA.hidden, false, 'A 側切到其他後，other 瀏覽應該顯示');
+  expect(twEntryA.hidden, 'A 側切到其他後，tw 瀏覽應該隱藏').toBe(true);
+  expect(cnEntryA.hidden, 'A 側切到其他後，cn 瀏覽應該隱藏').toBe(true);
+  expect(otherEntryA.hidden, 'A 側切到其他後，other 瀏覽應該顯示').toBe(false);
 
   const [twEntryB, , otherEntryB] = mobileBrowseEntries(panelB);
-  assertEqual(twEntryB.hidden, false, 'B 側不受 A 側篩選列切換影響，應該仍顯示 tw 瀏覽');
-  assertEqual(otherEntryB.hidden, true, 'B 側不受 A 側篩選列切換影響，other 瀏覽應該仍隱藏');
+  expect(twEntryB.hidden, 'B 側不受 A 側篩選列切換影響，應該仍顯示 tw 瀏覽').toBe(false);
+  expect(otherEntryB.hidden, 'B 側不受 A 側篩選列切換影響，other 瀏覽應該仍隱藏').toBe(true);
 
   // other 分頁是「來源 chip → buildSourceGroup」二段式，結構跟 tw/cn 不同
   // （沒有地區列），這裡只驗證第一層來源 chip 列存在且數量等於 country==='other' 的來源數。
   const otherSourceRow = otherEntryA.children[0];
   const expectedOtherCount = DATA.LAYER_SOURCES.filter(s => s.country === 'other').length;
-  assertEqual(otherSourceRow.children.length, expectedOtherCount, 'A 側 other 來源 chip 數量應等於 country==="other" 的來源總數');
+  expect(otherSourceRow.children.length, 'A 側 other 來源 chip 數量應等於 country==="other" 的來源總數').toBe(expectedOtherCount);
 
   // 還原：切回台灣分頁，避免影響後續測試對 A 側的假設
   const twBtnA = Array.from(filterBarA.children).find(b => b.textContent === '台灣');
@@ -131,17 +131,17 @@ test('三段式瀏覽選擇大區域後正確篩出來源，且只影響被操�
   const twEntryB = mobileBrowseEntries(panelB)[0];
   const macroRowA = twEntryA.children[0];
   const northBtn = Array.from(macroRowA.children).find(b => b.textContent === '北部');
-  assertTrue(!!northBtn, 'A 側應該有「北部」大區域按鈕');
+  expect(!!northBtn, 'A 側應該有「北部」大區域按鈕').toBeTruthy();
   northBtn.click();
 
   const expectedCount = DATA.LAYER_SOURCES.filter(s => s.country === 'tw' && macroRegionForSource(s) === '北部').length;
-  assertTrue(expectedCount > 0, '前置條件：北部應該至少有一個 tw 來源');
+  expect(expectedCount > 0, '前置條件：北部應該至少有一個 tw 來源').toBeTruthy();
 
   const sourcesWrapA = twEntryA.children[3];
-  assertEqual(sourcesWrapA.children.length, expectedCount, 'A 側選擇北部後，應該篩出所有北部來源的 source-group');
+  expect(sourcesWrapA.children.length, 'A 側選擇北部後，應該篩出所有北部來源的 source-group').toBe(expectedCount);
 
   const sourcesWrapB = twEntryB.children[3];
-  assertEqual(sourcesWrapB.children.length, 0, 'B 側未操作，三段式瀏覽的來源清單應該仍是空的（另一側不受影響）');
+  expect(sourcesWrapB.children.length, 'B 側未操作，三段式瀏覽的來源清單應該仍是空的（另一側不受影響）').toBe(0);
 });
 
 test('三段式瀏覽點選圖層：onSelect 正確觸發，只更新被操作那一側的 store.compareA/compareB', () => {
@@ -151,15 +151,13 @@ test('三段式瀏覽點選圖層：onSelect 正確觸發，只更新被操作�
   // 沿用上一個測試已選好「北部」的 A 側面板狀態，直接找一個圖層項目點選。
   const twEntryA = mobileBrowseEntries(panelA)[0];
   const layerItem = twEntryA.querySelector('.layer-item[data-layer-id]');
-  assertTrue(!!layerItem, 'A 側北部來源篩選結果裡應該至少能找到一個圖層項目');
+  expect(!!layerItem, 'A 側北部來源篩選結果裡應該至少能找到一個圖層項目').toBeTruthy();
   const expectedLayerId = layerItem.dataset.layerId;
   layerItem.click();
 
-  assertTrue(store.compareA !== 'base:osm', 'A 側 store.compareA 應該被三段式瀏覽選圖更新，不再是原本的 base:osm');
-  assertTrue(store.compareA.startsWith('hist:'), 'A 側 store.compareA 應該是選到的歷史圖層 key');
-  assertTrue(store.compareA.includes(expectedLayerId), 'A 側 store.compareA 應該包含剛剛點選的圖層 id');
-  assertEqual(store.compareB, 'base:sat', 'B 側 store.compareB 不應該被 A 側的三段式瀏覽選圖影響');
-  assertTrue(!panelA.classList.contains('open'), '選好圖層後 A 側面板應該收合');
+  expect(store.compareA !== 'base:osm', 'A 側 store.compareA 應該被三段式瀏覽選圖更新，不再是原本的 base:osm').toBeTruthy();
+  expect(store.compareA.startsWith('hist:'), 'A 側 store.compareA 應該是選到的歷史圖層 key').toBeTruthy();
+  expect(store.compareA.includes(expectedLayerId), 'A 側 store.compareA 應該包含剛剛點選的圖層 id').toBeTruthy();
+  expect(store.compareB, 'B 側 store.compareB 不應該被 A 側的三段式瀏覽選圖影響').toBe('base:sat');
+  expect(!panelA.classList.contains('open'), '選好圖層後 A 側面板應該收合').toBeTruthy();
 });
-
-await run();

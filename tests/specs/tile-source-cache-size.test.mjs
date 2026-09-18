@@ -28,7 +28,7 @@
    括號深度，從 `new ol.source.X({` 的那個 `{` 開始數到真正配對的
    `}` 為止，正確處理巢狀大括號。
 --------------------------------------------------------- */
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -62,7 +62,7 @@ function findSourceConstructions(code){
   for(const m of code.matchAll(SOURCE_CTOR_START_RE)){
     const openBraceIndex = m.index + m[0].length - 1; // m[0] 最後一個字元就是 '{'
     const closeBraceIndex = findMatchingBrace(code, openBraceIndex);
-    assertTrue(closeBraceIndex !== -1, `在 ${m[0]} 附近找不到配對的 '}'，原始碼可能有語法問題`);
+    expect(closeBraceIndex !== -1, `在 ${m[0]} 附近找不到配對的 '}'，原始碼可能有語法問題`).toBeTruthy();
     results.push({ type: m[1], snippet: code.slice(m.index, closeBraceIndex + 1) });
   }
   return results;
@@ -76,10 +76,10 @@ function classify(snippet){
 
 test('src/core/map.js：osmLayer／satLayer 的 ol.source.* 都帶 cacheSize', () => {
   const found = findSourceConstructions(mapJs);
-  assertEqual(found.length, 2, `預期 core/map.js 剛好有 2 個 ol.source.* 建構呼叫（osm、sat），實際找到 ${found.length}`);
+  expect(found.length, `預期 core/map.js 剛好有 2 個 ol.source.* 建構呼叫（osm、sat），實際找到 ${found.length}`).toBe(2);
   found.forEach(({ type, snippet }) => {
     const { hasCacheSize } = classify(snippet);
-    assertTrue(hasCacheSize, `core/map.js 的 ol.source.${type} 建構呼叫缺少 cacheSize：\n${snippet}`);
+    expect(hasCacheSize, `core/map.js 的 ol.source.${type} 建構呼叫缺少 cacheSize：\n${snippet}`).toBeTruthy();
   });
 });
 
@@ -91,34 +91,32 @@ test('src/data.js：每個真的會發送請求的 ol.source.* 都帶 cacheSize�
   // 失敗；3 處在 makeSourceForKey：custom entry 不存在、src 不存在、
   // layer 不存在），刻意不帶 cacheSize。異動 data.js 新增/刪除 ol.source.*
   // 呼叫時，這個總數斷言會抓到漏改。
-  assertEqual(found.length, 10, `預期 data.js 剛好有 10 個 ol.source.* 建構呼叫，實際找到 ${found.length}`);
+  expect(found.length, `預期 data.js 剛好有 10 個 ol.source.* 建構呼叫，實際找到 ${found.length}`).toBe(10);
 
   let realCount = 0;
   let placeholderCount = 0;
   found.forEach(({ type, snippet }) => {
     const { hasCacheSize, isEmptyUrlPlaceholder } = classify(snippet);
     if(hasCacheSize){ realCount++; return; }
-    assertTrue(
+    expect(
       isEmptyUrlPlaceholder,
       `data.js 的 ol.source.${type} 建構呼叫既沒有 cacheSize、也不是已知的 url: '' 佔位 source，可能漏帶 cacheSize：\n${snippet}`
-    );
+    ).toBeTruthy();
     placeholderCount++;
   });
 
-  assertEqual(realCount, 5, `預期 5 個真的會發送請求的 ol.source.* 都帶 cacheSize，實際 ${realCount}`);
-  assertEqual(placeholderCount, 5, `預期 5 個 url: '' 佔位 source 刻意不帶 cacheSize，實際 ${placeholderCount}`);
+  expect(realCount, `預期 5 個真的會發送請求的 ol.source.* 都帶 cacheSize，實際 ${realCount}`).toBe(5);
+  expect(placeholderCount, `預期 5 個 url: '' 佔位 source 刻意不帶 cacheSize，實際 ${placeholderCount}`).toBe(5);
 });
 
 test('src/data.js／src/core/map.js：所有帶 cacheSize 的 ol.source.* 都指向 DEFAULT_TILE_CACHE_SIZE（不是寫死的數字），且該常數確實有從 tileLoadGuard.js 匯入', () => {
-  assertTrue(dataJs.includes("import { createGuardedTileLoadFunction, DEFAULT_TILE_CACHE_SIZE"), 'data.js 應該從 core/tileLoadGuard.js 匯入 DEFAULT_TILE_CACHE_SIZE，除非 import 寫法已變更（此時請同步更新這條斷言）');
-  assertTrue(mapJs.includes('DEFAULT_TILE_CACHE_SIZE') && mapJs.includes("from './tileLoadGuard.js'"), 'core/map.js 應該從 core/tileLoadGuard.js 匯入 DEFAULT_TILE_CACHE_SIZE');
+  expect(dataJs.includes("import { createGuardedTileLoadFunction, DEFAULT_TILE_CACHE_SIZE"), 'data.js 應該從 core/tileLoadGuard.js 匯入 DEFAULT_TILE_CACHE_SIZE，除非 import 寫法已變更（此時請同步更新這條斷言）').toBeTruthy();
+  expect(mapJs.includes('DEFAULT_TILE_CACHE_SIZE') && mapJs.includes("from './tileLoadGuard.js'"), 'core/map.js 應該從 core/tileLoadGuard.js 匯入 DEFAULT_TILE_CACHE_SIZE').toBeTruthy();
 
   const found = [...findSourceConstructions(dataJs), ...findSourceConstructions(mapJs)];
   found.forEach(({ type, snippet }) => {
     const m = snippet.match(/cacheSize\s*:\s*([^\n,}]+)/);
     if(!m) return; // 佔位 source，另一個測試案例已經驗證過不需要 cacheSize
-    assertEqual(m[1].trim(), 'DEFAULT_TILE_CACHE_SIZE', `ol.source.${type} 的 cacheSize 應該引用 DEFAULT_TILE_CACHE_SIZE 常數，不應該寫死數字：\n${snippet}`);
+    expect(m[1].trim(), `ol.source.${type} 的 cacheSize 應該引用 DEFAULT_TILE_CACHE_SIZE 常數，不應該寫死數字：\n${snippet}`).toBe('DEFAULT_TILE_CACHE_SIZE');
   });
 });
-
-await run();

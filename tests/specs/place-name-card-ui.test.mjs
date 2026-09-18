@@ -1,5 +1,5 @@
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, expect } from 'vitest';
 import { loadAppData } from '../../src/data.js';
 import { initMapCore } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
@@ -78,53 +78,53 @@ function cardText(){
 
 test('renderPlaceNameCard()：呼叫後 #placeNameCard.hidden 變成 false，內容包含現名文字', () => {
   renderPlaceNameCard(place);
-  assertEqual(placeNameCardEl.hidden, false, '渲染後卡片應該顯示');
-  assertTrue(cardText().includes('德化社'), '應該包含現名「德化社」');
+  expect(placeNameCardEl.hidden, '渲染後卡片應該顯示').toBe(false);
+  expect(cardText().includes('德化社'), '應該包含現名「德化社」').toBeTruthy();
 });
 
 test('renderPlaceNameCard()：呼叫後預設是收合狀態（collapsed class／aria-expanded=false／▸）', () => {
   renderPlaceNameCard(place);
-  assertTrue(placeNameCardEl.classList.contains('collapsed'), '渲染後應該預設收合');
-  assertEqual(placeNameCardToggleBtn.getAttribute('aria-expanded'), 'false', 'aria-expanded 應該是 false');
-  assertEqual(placeNameCardToggleBtn.textContent, '▸', '收合按鈕文字應該是 ▸');
+  expect(placeNameCardEl.classList.contains('collapsed'), '渲染後應該預設收合').toBeTruthy();
+  expect(placeNameCardToggleBtn.getAttribute('aria-expanded'), 'aria-expanded 應該是 false').toBe('false');
+  expect(placeNameCardToggleBtn.textContent, '收合按鈕文字應該是 ▸').toBe('▸');
 });
 
 test('renderPlaceNameCard()：aliases 非空時會顯示別名／舊稱標籤與內容', () => {
   renderPlaceNameCard(place);
   const text = cardText();
-  assertTrue(text.includes('別名／舊稱'), '應該顯示「別名／舊稱」標籤');
-  assertTrue(text.includes('卜吉') && text.includes('化番社'), '應該顯示別名內容');
+  expect(text.includes('別名／舊稱'), '應該顯示「別名／舊稱」標籤').toBeTruthy();
+  expect(text.includes('卜吉') && text.includes('化番社'), '應該顯示別名內容').toBeTruthy();
 });
 
 test('renderPlaceNameCard()：現代位置一定顯示（縣市＋鄉鎮）', () => {
   renderPlaceNameCard(place);
-  assertTrue(cardText().includes('南投縣魚池鄉'), '應該顯示現代位置');
+  expect(cardText().includes('南投縣魚池鄉'), '應該顯示現代位置').toBeTruthy();
 });
 
 test('renderPlaceNameCard()：資料來源固定格式，且正確帶入 sourceTypeLabel', () => {
   renderPlaceNameCard(place);
-  assertTrue(cardText().includes('臺灣地區地名資料（聚落類）'), '資料來源文字格式應該正確（settlement -> 聚落）');
+  expect(cardText().includes('臺灣地區地名資料（聚落類）'), '資料來源文字格式應該正確（settlement -> 聚落）').toBeTruthy();
 });
 
 test('renderPlaceNameCard()：aliases 為空陣列時，卡片內容不出現「別名／舊稱」標籤', () => {
   renderPlaceNameCard(placeNoAlias);
   const text = cardText();
-  assertTrue(!text.includes('別名／舊稱'), 'aliases 為空時不應該出現別名／舊稱標籤');
-  assertTrue(text.includes('社寮'), '仍然應該顯示現名');
-  assertTrue(text.includes('臺灣地區地名資料（行政區域類）'), 'admin 類型的資料來源文字應該正確');
+  expect(!text.includes('別名／舊稱'), 'aliases 為空時不應該出現別名／舊稱標籤').toBeTruthy();
+  expect(text.includes('社寮'), '仍然應該顯示現名').toBeTruthy();
+  expect(text.includes('臺灣地區地名資料（行政區域類）'), 'admin 類型的資料來源文字應該正確').toBeTruthy();
 });
 
 test('renderPlaceNameCard()：description 為空字串時，不顯示「地名說明」標籤', () => {
   renderPlaceNameCard(placeNoAlias);
-  assertTrue(!cardText().includes('地名說明'), 'description 為空時不應該有地名說明區塊');
+  expect(!cardText().includes('地名說明'), 'description 為空時不應該有地名說明區塊').toBeTruthy();
 });
 
 test('renderPlaceNameCard()：description 過長時會截斷並顯示「展開全文」按鈕', () => {
   const longDesc = '甲'.repeat(150);
   renderPlaceNameCard({ ...place, description: longDesc });
   const text = cardText();
-  assertTrue(text.includes('展開全文'), '超過 100 字應該顯示「展開全文」按鈕');
-  assertTrue(!text.includes(longDesc), '截斷狀態不應該顯示完整全文');
+  expect(text.includes('展開全文'), '超過 100 字應該顯示「展開全文」按鈕').toBeTruthy();
+  expect(!text.includes(longDesc), '截斷狀態不應該顯示完整全文').toBeTruthy();
 });
 
 test('點擊「展開全文」按鈕後顯示完整全文，按鈕文字變成「收合」', () => {
@@ -136,67 +136,67 @@ test('點擊「展開全文」按鈕後顯示完整全文，按鈕文字變成�
     if(node.tag === 'button' && node.textContent === '展開全文') toggleBtn = node;
     (node.children || []).forEach(walk);
   })(placeNameCardBodyEl);
-  assertTrue(!!toggleBtn, '前置條件：應該找得到「展開全文」按鈕');
+  expect(!!toggleBtn, '前置條件：應該找得到「展開全文」按鈕').toBeTruthy();
 
   toggleBtn.click();
 
-  assertTrue(cardText().includes(longDesc), '點擊後應該顯示完整全文');
-  assertEqual(toggleBtn.textContent, '收合', '按鈕文字應該變成「收合」');
+  expect(cardText().includes(longDesc), '點擊後應該顯示完整全文').toBeTruthy();
+  expect(toggleBtn.textContent, '按鈕文字應該變成「收合」').toBe('收合');
 });
 
 test('收合按鈕（#placeNameCardToggle）點擊後，#placeNameCard 移除 collapsed class（展開）', () => {
   renderPlaceNameCard(place); // 渲染後預設是收合狀態
-  assertTrue(placeNameCardEl.classList.contains('collapsed'), '前置條件：卡片預設應該是收合狀態');
+  expect(placeNameCardEl.classList.contains('collapsed'), '前置條件：卡片預設應該是收合狀態').toBeTruthy();
 
   placeNameCardToggleBtn.click();
 
-  assertTrue(!placeNameCardEl.classList.contains('collapsed'), '點擊收合按鈕後應該移除 collapsed class（展開）');
-  assertEqual(placeNameCardToggleBtn.getAttribute('aria-expanded'), 'true', '展開後 aria-expanded 應該是 true');
-  assertEqual(placeNameCardToggleBtn.textContent, '▾', '展開後按鈕文字應該是 ▾');
+  expect(!placeNameCardEl.classList.contains('collapsed'), '點擊收合按鈕後應該移除 collapsed class（展開）').toBeTruthy();
+  expect(placeNameCardToggleBtn.getAttribute('aria-expanded'), '展開後 aria-expanded 應該是 true').toBe('true');
+  expect(placeNameCardToggleBtn.textContent, '展開後按鈕文字應該是 ▾').toBe('▾');
 });
 
 test('再次點擊收合按鈕會加回 collapsed class（切換回收合）', () => {
-  assertTrue(!placeNameCardEl.classList.contains('collapsed'), '前置條件：目前應該是展開狀態');
+  expect(!placeNameCardEl.classList.contains('collapsed'), '前置條件：目前應該是展開狀態').toBeTruthy();
 
   placeNameCardToggleBtn.click();
 
-  assertTrue(placeNameCardEl.classList.contains('collapsed'), '再次點擊應該加回 collapsed class');
-  assertEqual(placeNameCardToggleBtn.getAttribute('aria-expanded'), 'false', '收合後 aria-expanded 應該是 false');
-  assertEqual(placeNameCardToggleBtn.textContent, '▸', '收合後按鈕文字應該是 ▸');
+  expect(placeNameCardEl.classList.contains('collapsed'), '再次點擊應該加回 collapsed class').toBeTruthy();
+  expect(placeNameCardToggleBtn.getAttribute('aria-expanded'), '收合後 aria-expanded 應該是 false').toBe('false');
+  expect(placeNameCardToggleBtn.textContent, '收合後按鈕文字應該是 ▸').toBe('▸');
 });
 
 test('hidePlaceNameCard()：呼叫後 #placeNameCard.hidden 變成 true', () => {
   renderPlaceNameCard(place);
-  assertEqual(placeNameCardEl.hidden, false, '前置條件：卡片應該是顯示中');
+  expect(placeNameCardEl.hidden, '前置條件：卡片應該是顯示中').toBe(false);
 
   hidePlaceNameCard();
 
-  assertEqual(placeNameCardEl.hidden, true, '呼叫後卡片應該隱藏');
+  expect(placeNameCardEl.hidden, '呼叫後卡片應該隱藏').toBe(true);
 });
 
 test('renderPlaceNameCandidateList()：多筆候選會各自渲染成 .place-name-suggest-item', () => {
   const candidates = [place, placeNoAlias];
   renderPlaceNameCandidateList(candidates);
   const items = addressSuggestEl.children.filter(c => c.classList.contains('place-name-suggest-item'));
-  assertEqual(items.length, 2, '應該渲染出跟候選筆數相同的項目');
-  assertTrue(addressSuggestEl.classList.contains('show'), '候選清單容器應該加上 show class');
+  expect(items.length, '應該渲染出跟候選筆數相同的項目').toBe(2);
+  expect(addressSuggestEl.classList.contains('show'), '候選清單容器應該加上 show class').toBeTruthy();
 });
 
 test('renderMergedSuggestList()：地名候選在上、地址建議在下，且各自套用對應 class', () => {
   const geocodeResults = [{ display_name: '南投縣魚池鄉德化社', lon: '120.9123', lat: '23.8567' }];
   renderMergedSuggestList([place], geocodeResults);
-  assertTrue(addressSuggestEl.classList.contains('show'), '建議清單容器應該加上 show class');
+  expect(addressSuggestEl.classList.contains('show'), '建議清單容器應該加上 show class').toBeTruthy();
   const children = addressSuggestEl.children;
-  assertEqual(children.length, 2, '應該渲染出地名候選＋地址建議共 2 筆');
-  assertTrue(children[0].classList.contains('place-name-suggest-item'), '第一筆應該是地名候選項目');
-  assertTrue(children[1].classList.contains('address-suggest-item') && !children[1].classList.contains('place-name-suggest-item'), '第二筆應該是一般地址建議項目');
+  expect(children.length, '應該渲染出地名候選＋地址建議共 2 筆').toBe(2);
+  expect(children[0].classList.contains('place-name-suggest-item'), '第一筆應該是地名候選項目').toBeTruthy();
+  expect(children[1].classList.contains('address-suggest-item') && !children[1].classList.contains('place-name-suggest-item'), '第二筆應該是一般地址建議項目').toBeTruthy();
 });
 
 test('renderMergedSuggestList()：地名候選與地址建議皆為空陣列時，顯示空狀態訊息', () => {
   renderMergedSuggestList([], []);
-  assertTrue(addressSuggestEl.classList.contains('show'), '空狀態也應該加上 show class（顯示提示文字）');
+  expect(addressSuggestEl.classList.contains('show'), '空狀態也應該加上 show class（顯示提示文字）').toBeTruthy();
   const empty = addressSuggestEl.children.find(c => c.classList.contains('address-suggest-empty'));
-  assertTrue(!!empty, '應該渲染出空狀態提示元素');
+  expect(!!empty, '應該渲染出空狀態提示元素').toBeTruthy();
 });
 
 /* ---------------------------------------------------------
@@ -222,15 +222,15 @@ function withFakeDebounceTimer(fn){
 test('#addressInput debounce：輸入未達門檻（1 字）不會建立 debounce timer', () => {
   withFakeDebounceTimer((calls) => {
     typeAddress('中');
-    assertEqual(calls.length, 0, '長度 1（< ADDRESS_SUGGEST_MIN_QUERY_LENGTH=2）不應該排入 debounce timer');
+    expect(calls.length, '長度 1（< ADDRESS_SUGGEST_MIN_QUERY_LENGTH=2）不應該排入 debounce timer').toBe(0);
   });
 });
 
 test('#addressInput debounce：輸入達到門檻（2 字）會建立一個 1000ms 的 debounce timer', () => {
   withFakeDebounceTimer((calls) => {
     typeAddress('中正');
-    assertEqual(calls.length, 1, '長度 2 應該排入 1 個 debounce timer');
-    assertEqual(calls[0], 1000, 'debounce 延遲應該是 1000ms（Nominatim 節流要求，見 ADDRESS_SUGGEST_DEBOUNCE_MS）');
+    expect(calls.length, '長度 2 應該排入 1 個 debounce timer').toBe(1);
+    expect(calls[0], 'debounce 延遲應該是 1000ms（Nominatim 節流要求，見 ADDRESS_SUGGEST_DEBOUNCE_MS）').toBe(1000);
   });
 });
 
@@ -241,22 +241,22 @@ test('#addressInput debounce：輸入達到門檻（2 字）會建立一個 1000
 test('#addressInputClearBtn：輸入框有文字時顯示，清空文字後隱藏', () => {
   withFakeDebounceTimer(() => {
     typeAddress('中正');
-    assertEqual(addressInputClearBtn.hidden, false, '有輸入內容時清除鈕應該顯示');
+    expect(addressInputClearBtn.hidden, '有輸入內容時清除鈕應該顯示').toBe(false);
 
     typeAddress('');
-    assertEqual(addressInputClearBtn.hidden, true, '清空輸入內容後清除鈕應該隱藏');
+    expect(addressInputClearBtn.hidden, '清空輸入內容後清除鈕應該隱藏').toBe(true);
   });
 });
 
 test('點擊 #addressInputClearBtn：清空輸入框文字並隱藏自己', () => {
   withFakeDebounceTimer(() => {
     typeAddress('台北車站');
-    assertEqual(addressInputClearBtn.hidden, false, '前置條件：清除鈕應該顯示');
+    expect(addressInputClearBtn.hidden, '前置條件：清除鈕應該顯示').toBe(false);
 
     addressInputClearBtn.click();
 
-    assertEqual(addressInput.value, '', '點擊後輸入框應該清空');
-    assertEqual(addressInputClearBtn.hidden, true, '點擊後清除鈕應該隱藏');
+    expect(addressInput.value, '點擊後輸入框應該清空').toBe('');
+    expect(addressInputClearBtn.hidden, '點擊後清除鈕應該隱藏').toBe(true);
   });
 });
 
@@ -266,8 +266,6 @@ test('點擊 #clearLocationBtn：同步隱藏 #addressInputClearBtn（清除搜�
 
   clearLocationBtn.click();
 
-  assertEqual(addressInput.value, '', '點擊後輸入框應該清空');
-  assertEqual(addressInputClearBtn.hidden, true, '點擊後應該同步隱藏清除鈕');
+  expect(addressInput.value, '點擊後輸入框應該清空').toBe('');
+  expect(addressInputClearBtn.hidden, '點擊後應該同步隱藏清除鈕').toBe(true);
 });
-
-await run();

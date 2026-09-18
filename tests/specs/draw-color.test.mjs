@@ -1,5 +1,5 @@
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, expect } from 'vitest';
 import { loadAppData } from '../../src/data.js';
 import { initMapCore, map } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
@@ -79,7 +79,7 @@ test('選了靛藍色票後畫點，marker-color 會是選到的顏色', () => {
   const drawInteraction = map._interactions[map._interactions.length - 1];
   const feature = makeFakeFeature({});
   drawInteraction.simulateDrawEnd(feature);
-  assertEqual(feature.get('marker-color'), '#2980B9', 'marker-color');
+  expect(feature.get('marker-color'), 'marker-color').toBe('#2980B9');
 });
 
 test('選了靛藍色票後畫線，stroke/stroke-width/stroke-opacity 正確', () => {
@@ -89,9 +89,9 @@ test('選了靛藍色票後畫線，stroke/stroke-width/stroke-opacity 正確', 
   const drawInteraction = map._interactions[map._interactions.length - 1];
   const feature = makeFakeFeature({ _length: 100 });
   drawInteraction.simulateDrawEnd(feature);
-  assertEqual(feature.get('stroke'), '#2980B9', 'stroke');
-  assertEqual(feature.get('stroke-width'), 3, 'stroke-width');
-  assertEqual(feature.get('stroke-opacity'), 0.8, 'stroke-opacity');
+  expect(feature.get('stroke'), 'stroke').toBe('#2980B9');
+  expect(feature.get('stroke-width'), 'stroke-width').toBe(3);
+  expect(feature.get('stroke-opacity'), 'stroke-opacity').toBe(0.8);
 });
 
 test('選了靛藍色票後畫面，stroke/fill/fill-opacity 正確', () => {
@@ -101,9 +101,9 @@ test('選了靛藍色票後畫面，stroke/fill/fill-opacity 正確', () => {
   const drawInteraction = map._interactions[map._interactions.length - 1];
   const feature = makeFakeFeature({ _area: 100 });
   drawInteraction.simulateDrawEnd(feature);
-  assertEqual(feature.get('stroke'), '#2980B9', 'stroke');
-  assertEqual(feature.get('fill'), '#2980B9', 'fill');
-  assertEqual(feature.get('fill-opacity'), 0.35, 'fill-opacity');
+  expect(feature.get('stroke'), 'stroke').toBe('#2980B9');
+  expect(feature.get('fill'), 'fill').toBe('#2980B9');
+  expect(feature.get('fill-opacity'), 'fill-opacity').toBe(0.35);
 });
 
 test('不特別選色時，預設用 DEFAULT_COLOR（朱紅）畫點', () => {
@@ -113,7 +113,7 @@ test('不特別選色時，預設用 DEFAULT_COLOR（朱紅）畫點', () => {
   const drawInteraction = map._interactions[map._interactions.length - 1];
   const feature = makeFakeFeature({});
   drawInteraction.simulateDrawEnd(feature);
-  assertEqual(feature.get('marker-color'), DEFAULT_COLOR, 'marker-color 應為預設朱紅色');
+  expect(feature.get('marker-color'), 'marker-color 應為預設朱紅色').toBe(DEFAULT_COLOR);
 });
 
 /* ---------- 2. 二次改色覆寫既有屬性與樣式 ---------- */
@@ -123,15 +123,15 @@ test('applyColorToFeature 二次改色會覆寫既有 SimpleStyle 屬性（不�
   feature.set('kind', 'polygon');
 
   applyColorToFeature(feature, '#27AE60'); // 墨綠
-  assertEqual(feature.get('stroke'), '#27AE60', 'stroke 應為墨綠');
-  assertEqual(feature.get('fill'), '#27AE60', 'fill 應為墨綠');
+  expect(feature.get('stroke'), 'stroke 應為墨綠').toBe('#27AE60');
+  expect(feature.get('fill'), 'fill 應為墨綠').toBe('#27AE60');
 
   applyColorToFeature(feature, '#8E44AD'); // 紫藤
-  assertEqual(feature.get('stroke'), '#8E44AD', 'stroke 應被覆寫成紫藤，而非殘留墨綠');
-  assertEqual(feature.get('fill'), '#8E44AD', 'fill 應被覆寫成紫藤，而非殘留墨綠');
+  expect(feature.get('stroke'), 'stroke 應被覆寫成紫藤，而非殘留墨綠').toBe('#8E44AD');
+  expect(feature.get('fill'), 'fill 應被覆寫成紫藤，而非殘留墨綠').toBe('#8E44AD');
 
   const styleResult = featureStyleFn(feature);
-  assertEqual(styleResult.opts.stroke.opts.color, '#8E44AD', 'featureStyleFn 應即時讀取最新的屬性顏色');
+  expect(styleResult.opts.stroke.opts.color, 'featureStyleFn 應即時讀取最新的屬性顏色').toBe('#8E44AD');
 });
 
 /* ---------- 3. 匯出 GeoJSON 包含正確顏色屬性 ---------- */
@@ -166,12 +166,12 @@ test('匯出 GeoJSON 會包含畫圖時各自選用的正確顏色屬性', () =>
   document.createElement = originalCreateElement;
   globalThis.Blob = OriginalBlob;
 
-  assertTrue(!!downloadedContent, '應該有產生下載內容');
+  expect(!!downloadedContent, '應該有產生下載內容').toBeTruthy();
   const parsed = JSON.parse(downloadedContent);
   const exportedPoint = parsed.features.find(f => f.properties['marker-color'] === '#D35400');
   const exportedLine = parsed.features.find(f => f.properties['stroke'] === '#2C3E50');
-  assertTrue(!!exportedPoint, '匯出結果應包含南瓜橘的點，且 marker-color 正確');
-  assertTrue(!!exportedLine, '匯出結果應包含深藍灰的線，且 stroke 正確');
+  expect(!!exportedPoint, '匯出結果應包含南瓜橘的點，且 marker-color 正確').toBeTruthy();
+  expect(!!exportedLine, '匯出結果應包含深藍灰的線，且 stroke 正確').toBeTruthy();
 });
 
 /* ---------- 4. 匯入 GeoJSON ---------- */
@@ -188,7 +188,7 @@ test('匯入帶 SimpleStyle 顏色屬性的 GeoJSON，顏色會被保留（不�
     ],
   };
   const count = importGeoJSON(geojson);
-  assertEqual(count, 1, '應成功匯入 1 個圖形');
+  expect(count, '應成功匯入 1 個圖形').toBe(1);
   // 從匯出結果反查，確認剛匯入的顏色屬性有被保留
   let downloadedContent = null;
   const OriginalBlob = globalThis.Blob;
@@ -208,7 +208,7 @@ test('匯入帶 SimpleStyle 顏色屬性的 GeoJSON，顏色會被保留（不�
   // importGeoJSON() 是把 feature 用 addFeature 加進 vectorSource 尾端，
   // 匯出時 features 陣列順序跟加入順序一致，所以最後一筆就是剛匯入的這個。
   const imported = parsed.features[parsed.features.length - 1];
-  assertEqual(imported.properties.stroke, '#D35400', '匯入的線應保留原本的 stroke 顏色，不被 DEFAULT_COLOR 蓋掉');
+  expect(imported.properties.stroke, '匯入的線應保留原本的 stroke 顏色，不被 DEFAULT_COLOR 蓋掉').toBe('#D35400');
 });
 
 test('匯入沒有 SimpleStyle 顏色屬性的 GeoJSON，marker-color 會降級回退成 DEFAULT_COLOR', () => {
@@ -223,7 +223,7 @@ test('匯入沒有 SimpleStyle 顏色屬性的 GeoJSON，marker-color 會降級�
     ],
   };
   const count = importGeoJSON(geojson);
-  assertEqual(count, 1, '應成功匯入 1 個圖形');
+  expect(count, '應成功匯入 1 個圖形').toBe(1);
   let downloadedContent = null;
   const OriginalBlob = globalThis.Blob;
   globalThis.Blob = class extends OriginalBlob {
@@ -241,11 +241,9 @@ test('匯入沒有 SimpleStyle 顏色屬性的 GeoJSON，marker-color 會降級�
   const parsed = JSON.parse(downloadedContent);
   // 同上，最後一筆就是剛匯入的這個點。
   const imported = parsed.features[parsed.features.length - 1];
-  assertEqual(imported.properties.kind, 'point', 'kind 應依幾何類型自動判斷為 point');
-  assertEqual(imported.properties['marker-color'], DEFAULT_COLOR, '沒有顏色屬性的匯入點，marker-color 應回退成 DEFAULT_COLOR');
+  expect(imported.properties.kind, 'kind 應依幾何類型自動判斷為 point').toBe('point');
+  expect(imported.properties['marker-color'], '沒有顏色屬性的匯入點，marker-color 應回退成 DEFAULT_COLOR').toBe(DEFAULT_COLOR);
 });
-
-await run();
 
 // 匯入/匯出操作會觸發 drawTool.js 的 showStorageToast()，留下一顆真實的
 // setTimeout(2500ms)。不清掉的話 Node process 要等它自然到期才會結束，

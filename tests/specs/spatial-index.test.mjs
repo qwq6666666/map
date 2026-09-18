@@ -1,5 +1,5 @@
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { lonLatToTileXY, pointInBbox, bboxIntersects, tileXYToBbox } from '../../src/core/tileGeo.js';
@@ -13,49 +13,49 @@ import { createTileImageStub } from '../tileImageStub.mjs';
 const TAIWAN_BBOX = [119, 21, 123, 26]; // 概略涵蓋台灣本島的假 bbox，方便手算驗證
 
 test('pointInBbox：座標在合法 bbox 內部 -> true', () => {
-  assertTrue(pointInBbox(121.5654, 25.0330, TAIWAN_BBOX), '台北座標應該落在 bbox 內');
+  expect(pointInBbox(121.5654, 25.0330, TAIWAN_BBOX), '台北座標應該落在 bbox 內').toBeTruthy();
 });
 
 test('pointInBbox：座標明確在 bbox 外部 -> false', () => {
-  assertTrue(!pointInBbox(150, 25.0330, TAIWAN_BBOX), '經度 150 明顯超出範圍，應為 false');
+  expect(!pointInBbox(150, 25.0330, TAIWAN_BBOX), '經度 150 明顯超出範圍，應為 false').toBeTruthy();
 });
 
 test('pointInBbox：座標剛好等於 minLon/maxLon/minLat/maxLat 邊界 -> 應視為在範圍內（true）', () => {
   const [minLon, minLat, maxLon, maxLat] = TAIWAN_BBOX;
-  assertTrue(pointInBbox(minLon, 23, TAIWAN_BBOX), 'lon === minLon 應視為範圍內');
-  assertTrue(pointInBbox(maxLon, 23, TAIWAN_BBOX), 'lon === maxLon 應視為範圍內');
-  assertTrue(pointInBbox(121, minLat, TAIWAN_BBOX), 'lat === minLat 應視為範圍內');
-  assertTrue(pointInBbox(121, maxLat, TAIWAN_BBOX), 'lat === maxLat 應視為範圍內');
+  expect(pointInBbox(minLon, 23, TAIWAN_BBOX), 'lon === minLon 應視為範圍內').toBeTruthy();
+  expect(pointInBbox(maxLon, 23, TAIWAN_BBOX), 'lon === maxLon 應視為範圍內').toBeTruthy();
+  expect(pointInBbox(121, minLat, TAIWAN_BBOX), 'lat === minLat 應視為範圍內').toBeTruthy();
+  expect(pointInBbox(121, maxLat, TAIWAN_BBOX), 'lat === maxLat 應視為範圍內').toBeTruthy();
 });
 
 test('pointInBbox：經度、緯度都明顯超出範圍好幾度 -> false', () => {
-  assertTrue(!pointInBbox(90, 40, TAIWAN_BBOX), '經緯度都遠遠超出範圍，應為 false');
+  expect(!pointInBbox(90, 40, TAIWAN_BBOX), '經緯度都遠遠超出範圍，應為 false').toBeTruthy();
 });
 
 /* ---------------------------------------------------------
    bboxIntersects：兩個 bbox 是否相交（圖磚渲染邊界保護用）
 --------------------------------------------------------- */
 test('bboxIntersects：兩個明顯重疊的 bbox -> true', () => {
-  assertTrue(bboxIntersects([119, 21, 123, 26], [121, 24, 125, 28]), '兩個 bbox 有重疊，應該回傳 true');
+  expect(bboxIntersects([119, 21, 123, 26], [121, 24, 125, 28]), '兩個 bbox 有重疊，應該回傳 true').toBeTruthy();
 });
 
 test('bboxIntersects：一個 bbox 完全包含另一個 -> true', () => {
-  assertTrue(bboxIntersects(TAIWAN_BBOX, [121, 24, 122, 25]), '被完全包含也算相交，應該回傳 true');
+  expect(bboxIntersects(TAIWAN_BBOX, [121, 24, 122, 25]), '被完全包含也算相交，應該回傳 true').toBeTruthy();
 });
 
 test('bboxIntersects：兩個明顯不相交的 bbox（台北 vs 高雄外海）-> false', () => {
-  assertTrue(!bboxIntersects([121.4, 24.9, 121.7, 25.2], [119, 21, 119.5, 21.5]), '兩個 bbox 明顯不重疊，應該回傳 false');
+  expect(!bboxIntersects([121.4, 24.9, 121.7, 25.2], [119, 21, 119.5, 21.5]), '兩個 bbox 明顯不重疊，應該回傳 false').toBeTruthy();
 });
 
 test('bboxIntersects：邊界剛好相切（一個的 maxLon 等於另一個的 minLon）-> true', () => {
-  assertTrue(bboxIntersects([119, 21, 121, 23], [121, 21, 123, 23]), '邊界相切應視為相交（跟 pointInBbox 邊界視為範圍內的慣例一致）');
+  expect(bboxIntersects([119, 21, 121, 23], [121, 21, 123, 23]), '邊界相切應視為相交（跟 pointInBbox 邊界視為範圍內的慣例一致）').toBeTruthy();
 });
 
 test('bboxIntersects：任一 bbox 為 null／格式不合法 -> fallback true', () => {
-  assertTrue(bboxIntersects(TAIWAN_BBOX, null), 'bboxB 為 null 應該 fallback 為 true');
-  assertTrue(bboxIntersects(null, TAIWAN_BBOX), 'bboxA 為 null 應該 fallback 為 true');
-  assertTrue(bboxIntersects([119, 21, 123], TAIWAN_BBOX), 'bboxA 長度不是 4 應該 fallback 為 true');
-  assertTrue(bboxIntersects(TAIWAN_BBOX, [119, NaN, 123, 26]), 'bboxB 含 NaN 應該 fallback 為 true');
+  expect(bboxIntersects(TAIWAN_BBOX, null), 'bboxB 為 null 應該 fallback 為 true').toBeTruthy();
+  expect(bboxIntersects(null, TAIWAN_BBOX), 'bboxA 為 null 應該 fallback 為 true').toBeTruthy();
+  expect(bboxIntersects([119, 21, 123], TAIWAN_BBOX), 'bboxA 長度不是 4 應該 fallback 為 true').toBeTruthy();
+  expect(bboxIntersects(TAIWAN_BBOX, [119, NaN, 123, 26]), 'bboxB 含 NaN 應該 fallback 為 true').toBeTruthy();
 });
 
 test('bboxIntersects：搭配 tileXYToBbox 驗證圖磚渲染實際情境——已知有資料的圖磚應與圖層 bbox 相交', () => {
@@ -72,47 +72,47 @@ test('bboxIntersects：搭配 tileXYToBbox 驗證圖磚渲染實際情境——�
   const insideTile = lonLatToTileXY(121.5654, 25.0330, z); // 台北，落在 bbox 內
   const outsideTile = lonLatToTileXY(116.4074, 39.9042, z); // 北京，明顯在 bbox 外
 
-  assertTrue(bboxIntersects(tileXYToBbox(insideTile.x, insideTile.y, insideTile.z), bbox), '台北座標所在圖磚應該跟 JM20K_1904 的 bbox 相交');
-  assertTrue(!bboxIntersects(tileXYToBbox(outsideTile.x, outsideTile.y, outsideTile.z), bbox), '北京座標所在圖磚應該跟 JM20K_1904 的 bbox 不相交');
+  expect(bboxIntersects(tileXYToBbox(insideTile.x, insideTile.y, insideTile.z), bbox), '台北座標所在圖磚應該跟 JM20K_1904 的 bbox 相交').toBeTruthy();
+  expect(!bboxIntersects(tileXYToBbox(outsideTile.x, outsideTile.y, outsideTile.z), bbox), '北京座標所在圖磚應該跟 JM20K_1904 的 bbox 不相交').toBeTruthy();
 });
 
 /* ---------------------------------------------------------
    4~5：bbox 缺失／格式錯誤時的 fallback（一律 true）
 --------------------------------------------------------- */
 test('pointInBbox：bbox 為 undefined -> fallback true', () => {
-  assertTrue(pointInBbox(121.5654, 25.0330, undefined), 'bbox 缺失應該 fallback 為 true');
+  expect(pointInBbox(121.5654, 25.0330, undefined), 'bbox 缺失應該 fallback 為 true').toBeTruthy();
 });
 
 test('pointInBbox：bbox 為 null -> fallback true', () => {
-  assertTrue(pointInBbox(121.5654, 25.0330, null), 'bbox 為 null 應該 fallback 為 true');
+  expect(pointInBbox(121.5654, 25.0330, null), 'bbox 為 null 應該 fallback 為 true').toBeTruthy();
 });
 
 test('pointInBbox：bbox 不是陣列（物件）-> fallback true', () => {
-  assertTrue(pointInBbox(121.5654, 25.0330, { minLon: 119, minLat: 21, maxLon: 123, maxLat: 26 }), 'bbox 是物件應該 fallback 為 true');
+  expect(pointInBbox(121.5654, 25.0330, { minLon: 119, minLat: 21, maxLon: 123, maxLat: 26 }), 'bbox 是物件應該 fallback 為 true').toBeTruthy();
 });
 
 test('pointInBbox：bbox 不是陣列（字串）-> fallback true', () => {
-  assertTrue(pointInBbox(121.5654, 25.0330, '119,21,123,26'), 'bbox 是字串應該 fallback 為 true');
+  expect(pointInBbox(121.5654, 25.0330, '119,21,123,26'), 'bbox 是字串應該 fallback 為 true').toBeTruthy();
 });
 
 test('pointInBbox：bbox 陣列長度不是 4（太短）-> fallback true', () => {
-  assertTrue(pointInBbox(121.5654, 25.0330, [119, 21, 123]), 'bbox 長度為 3 應該 fallback 為 true');
+  expect(pointInBbox(121.5654, 25.0330, [119, 21, 123]), 'bbox 長度為 3 應該 fallback 為 true').toBeTruthy();
 });
 
 test('pointInBbox：bbox 陣列長度不是 4（太長）-> fallback true', () => {
-  assertTrue(pointInBbox(121.5654, 25.0330, [119, 21, 123, 26, 999]), 'bbox 長度為 5 應該 fallback 為 true');
+  expect(pointInBbox(121.5654, 25.0330, [119, 21, 123, 26, 999]), 'bbox 長度為 5 應該 fallback 為 true').toBeTruthy();
 });
 
 test('pointInBbox：bbox 陣列含 NaN -> fallback true', () => {
-  assertTrue(pointInBbox(121.5654, 25.0330, [119, NaN, 123, 26]), 'bbox 含 NaN 應該 fallback 為 true');
+  expect(pointInBbox(121.5654, 25.0330, [119, NaN, 123, 26]), 'bbox 含 NaN 應該 fallback 為 true').toBeTruthy();
 });
 
 test('pointInBbox：bbox 陣列含 undefined -> fallback true', () => {
-  assertTrue(pointInBbox(121.5654, 25.0330, [119, 21, undefined, 26]), 'bbox 含 undefined 應該 fallback 為 true');
+  expect(pointInBbox(121.5654, 25.0330, [119, 21, undefined, 26]), 'bbox 含 undefined 應該 fallback 為 true').toBeTruthy();
 });
 
 test('pointInBbox：bbox 陣列含字串（非有限數字）-> fallback true', () => {
-  assertTrue(pointInBbox(121.5654, 25.0330, [119, '21', 123, 26]), 'bbox 含字串應該 fallback 為 true（即使字串本身看起來像數字）');
+  expect(pointInBbox(121.5654, 25.0330, [119, '21', 123, 26]), 'bbox 含字串應該 fallback 為 true（即使字串本身看起來像數字）').toBeTruthy();
 });
 
 /* ---------------------------------------------------------
@@ -123,17 +123,17 @@ test('lonLatToTileXY：台北市中心座標換算出合理且正確的圖磚座
   const lon = 121.5654, lat = 25.0330;
   const tile = lonLatToTileXY(lon, lat, z);
 
-  assertEqual(tile.z, 15, 'z 應該原樣回傳');
+  expect(tile.z, 'z 應該原樣回傳').toBe(15);
   const n = Math.pow(2, z);
-  assertTrue(tile.x >= 0 && tile.x <= n - 1, `x 應在 0 ~ ${n - 1} 範圍內，實際 ${tile.x}`);
-  assertTrue(tile.y >= 0 && tile.y <= n - 1, `y 應在 0 ~ ${n - 1} 範圍內，實際 ${tile.y}`);
+  expect(tile.x >= 0 && tile.x <= n - 1, `x 應在 0 ~ ${n - 1} 範圍內，實際 ${tile.x}`).toBeTruthy();
+  expect(tile.y >= 0 && tile.y <= n - 1, `y 應在 0 ~ ${n - 1} 範圍內，實際 ${tile.y}`).toBeTruthy();
 
   // 獨立用標準 Slippy Map 公式手算一次，交叉比對 lonLatToTileXY 的實作結果
   const expectedX = Math.floor((lon + 180) / 360 * n);
   const latRad = lat * Math.PI / 180;
   const expectedY = Math.floor((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n);
-  assertEqual(tile.x, expectedX, 'x 座標應符合標準 Slippy Map 公式手算結果');
-  assertEqual(tile.y, expectedY, 'y 座標應符合標準 Slippy Map 公式手算結果');
+  expect(tile.x, 'x 座標應符合標準 Slippy Map 公式手算結果').toBe(expectedX);
+  expect(tile.y, 'y 座標應符合標準 Slippy Map 公式手算結果').toBe(expectedY);
 });
 
 /* ---------------------------------------------------------
@@ -153,16 +153,16 @@ test('pointInBbox：用 JM20K_1904 實際 bbox，台北座標為 true、北京�
     (layersArr || []).forEach(layer => { if(layer.id === 'JM20K_1904') target = layer; });
   });
 
-  assertTrue(!!target, '應該要能在 sinica.json 裡找到 JM20K_1904 這筆圖層');
-  assertTrue(!!(target.region && Array.isArray(target.region.bbox)), 'JM20K_1904 應該要有 region.bbox');
+  expect(!!target, '應該要能在 sinica.json 裡找到 JM20K_1904 這筆圖層').toBeTruthy();
+  expect(!!(target.region && Array.isArray(target.region.bbox)), 'JM20K_1904 應該要有 region.bbox').toBeTruthy();
 
   const bbox = target.region.bbox;
-  assertEqual(bbox.length, 4, 'bbox 應該有 4 個元素');
-  assertEqual(bbox[0], 117.84953432, 'minLon 應與 sinica.json 實際數值一致');
-  assertEqual(bbox[1], 21.65607265, 'minLat 應與 sinica.json 實際數值一致');
+  expect(bbox.length, 'bbox 應該有 4 個元素').toBe(4);
+  expect(bbox[0], 'minLon 應與 sinica.json 實際數值一致').toBe(117.84953432);
+  expect(bbox[1], 'minLat 應與 sinica.json 實際數值一致').toBe(21.65607265);
 
-  assertTrue(pointInBbox(121.5654, 25.0330, bbox), '台北座標應該落在 JM20K_1904 的 bbox 內');
-  assertTrue(!pointInBbox(116.4074, 39.9042, bbox), '北京座標明顯在台灣以外，應該不在 JM20K_1904 的 bbox 內');
+  expect(pointInBbox(121.5654, 25.0330, bbox), '台北座標應該落在 JM20K_1904 的 bbox 內').toBeTruthy();
+  expect(!pointInBbox(116.4074, 39.9042, bbox), '北京座標明顯在台灣以外，應該不在 JM20K_1904 的 bbox 內').toBeTruthy();
 });
 
 /* ---------------------------------------------------------
@@ -172,8 +172,8 @@ test('tile URL 生成：{z}/{x}/{y} 佔位符能正確替換成 lonLatToTileXY()
   const tile = lonLatToTileXY(121.5654, 25.0330, 15);
   const template = 'https://example.com/wmts/{z}/{y}/{x}.jpg';
   const url = template.replace('{z}', tile.z).replace('{x}', tile.x).replace('{y}', tile.y);
-  assertEqual(url, `https://example.com/wmts/${tile.z}/${tile.y}/${tile.x}.jpg`, '佔位符應該被正確替換');
-  assertTrue(!url.includes('{'), '替換後不應該還殘留未替換的佔位符');
+  expect(url, '佔位符應該被正確替換').toBe(`https://example.com/wmts/${tile.z}/${tile.y}/${tile.x}.jpg`);
+  expect(!url.includes('{'), '替換後不應該還殘留未替換的佔位符').toBeTruthy();
 });
 
 test('tile URL 生成：比照 search.js urlOf 的組法（c.src.tileUrl(c.layer) 再替換佔位符）', () => {
@@ -183,7 +183,7 @@ test('tile URL 生成：比照 search.js urlOf 的組法（c.src.tileUrl(c.layer
   const c = { src: fakeSrc, layer: fakeLayer };
   const urlOf = (c) => c.src.tileUrl(c.layer).replace('{z}', tile.z).replace('{x}', tile.x).replace('{y}', tile.y);
   const url = urlOf(c);
-  assertEqual(url, `https://x/JM20K_1904/${tile.z}/${tile.x}/${tile.y}.png`, 'urlOf 組出的網址應該正確替換座標');
+  expect(url, 'urlOf 組出的網址應該正確替換座標').toBe(`https://x/JM20K_1904/${tile.z}/${tile.x}/${tile.y}.png`);
 });
 
 /* ---------------------------------------------------------
@@ -202,14 +202,14 @@ test('filterCandidatesByBbox：篩掉跟探測圖磚範圍不相交的候選，�
   const candidates = [insideCandidate, outsideCandidate1, outsideCandidate2, noBboxCandidate];
   const filtered = filterCandidatesByBbox(candidates, tileBbox);
 
-  assertTrue(filtered.length < candidates.length, '篩選後的陣列長度應該比輸入短，證明有起到篩選效果');
-  assertEqual(filtered.length, 2, '應該只剩下範圍內的 1 筆 + 沒有 bbox 的 1 筆，共 2 筆');
+  expect(filtered.length < candidates.length, '篩選後的陣列長度應該比輸入短，證明有起到篩選效果').toBeTruthy();
+  expect(filtered.length, '應該只剩下範圍內的 1 筆 + 沒有 bbox 的 1 筆，共 2 筆').toBe(2);
 
   const filteredIds = filtered.map(c => c.layer.id).sort();
-  assertEqual(JSON.stringify(filteredIds), JSON.stringify(['inside', 'no-bbox']), '剩下的候選應該是 inside 與 no-bbox');
+  expect(JSON.stringify(filteredIds), '剩下的候選應該是 inside 與 no-bbox').toBe(JSON.stringify(['inside', 'no-bbox']));
 
   // 不 mutate 傳入的陣列
-  assertEqual(candidates.length, 4, '傳入的原始 candidates 陣列不應該被 mutate');
+  expect(candidates.length, '傳入的原始 candidates 陣列不應該被 mutate').toBe(4);
 });
 
 /* ---------------------------------------------------------
@@ -242,8 +242,8 @@ test('全域 tile concurrency 不超過上限：checkBatchAny 巢狀 Promise.all
 
   await checker.checkBatchAny(candidates, c => c.urls);
 
-  assertTrue(maxAlive > 0, '過程中應該真的有發送請求');
-  assertTrue(maxAlive <= N, `同一時間存活中的請求數最大值應該 <= ${N}，實際最大值為 ${maxAlive}`);
+  expect(maxAlive > 0, '過程中應該真的有發送請求').toBeTruthy();
+  expect(maxAlive <= N, `同一時間存活中的請求數最大值應該 <= ${N}，實際最大值為 ${maxAlive}`).toBeTruthy();
 });
 
 /* ---------------------------------------------------------
@@ -264,11 +264,11 @@ test('pointInBbox：thm.json 讀出 hsinchu_tj7a0510 實際 bbox 應與預期一
     (layersArr || []).forEach(layer => { if(layer.id === 'hsinchu_tj7a0510') target = layer; });
   });
 
-  assertTrue(!!target, '應該要能在 thm.json 裡找到 hsinchu_tj7a0510 這筆圖層');
-  assertTrue(!!(target.region && Array.isArray(target.region.bbox)), 'hsinchu_tj7a0510 應該要有 region.bbox');
-  assertEqual(JSON.stringify(target.region.bbox), JSON.stringify(HSINCHU_BBOX), 'thm.json 實際 bbox 應與預期數值一致');
+  expect(!!target, '應該要能在 thm.json 裡找到 hsinchu_tj7a0510 這筆圖層').toBeTruthy();
+  expect(!!(target.region && Array.isArray(target.region.bbox)), 'hsinchu_tj7a0510 應該要有 region.bbox').toBeTruthy();
+  expect(JSON.stringify(target.region.bbox), 'thm.json 實際 bbox 應與預期數值一致').toBe(JSON.stringify(HSINCHU_BBOX));
 
-  assertTrue(pointInBbox(TEST_LON, TEST_LAT, target.region.bbox), '測試座標 (121.074, 24.827) 應該落在新埔街圖層 bbox 內');
+  expect(pointInBbox(TEST_LON, TEST_LAT, target.region.bbox), '測試座標 (121.074, 24.827) 應該落在新埔街圖層 bbox 內').toBeTruthy();
 });
 
 test('filterCandidatesByBbox：thm 來源新埔街候選應被保留，範圍明顯不涵蓋的候選應被排除', () => {
@@ -291,7 +291,7 @@ test('filterCandidatesByBbox：thm 來源新埔街候選應被保留，範圍明
       }
     });
   });
-  assertTrue(!!farLayer, '應該能在 thm.json 裡找到至少一筆 bbox 跟探測圖磚範圍不相交的圖層當對照組');
+  expect(!!farLayer, '應該能在 thm.json 裡找到至少一筆 bbox 跟探測圖磚範圍不相交的圖層當對照組').toBeTruthy();
 
   const outsideCandidate = { src: { id: 'thm' }, layer: farLayer };
   const fakeOutsideCandidate = { src: { id: 'thm' }, layer: { id: 'fake-far-away', region: { bbox: [110, 30, 112, 32] } } };
@@ -300,37 +300,36 @@ test('filterCandidatesByBbox：thm 來源新埔街候選應被保留，範圍明
   const filtered = filterCandidatesByBbox(candidates, tileBbox);
 
   const filteredIds = filtered.map(c => c.layer.id);
-  assertTrue(filteredIds.includes('hsinchu_tj7a0510'), '篩選結果應該包含 hsinchu_tj7a0510');
-  assertTrue(!filteredIds.includes(farLayer.id), `篩選結果不應該包含範圍不涵蓋測試座標的 ${farLayer.id}`);
-  assertTrue(!filteredIds.includes('fake-far-away'), '篩選結果不應該包含明顯不涵蓋測試座標的假造候選 fake-far-away');
+  expect(filteredIds.includes('hsinchu_tj7a0510'), '篩選結果應該包含 hsinchu_tj7a0510').toBeTruthy();
+  expect(!filteredIds.includes(farLayer.id), `篩選結果不應該包含範圍不涵蓋測試座標的 ${farLayer.id}`).toBeTruthy();
+  expect(!filteredIds.includes('fake-far-away'), '篩選結果不應該包含明顯不涵蓋測試座標的假造候選 fake-far-away').toBeTruthy();
 });
 
 test('lonLatToTileXY：新埔街測試座標用 SEARCH_ZOOM 換算出合理且正確的 tile 座標', () => {
-  assertEqual(SEARCH_ZOOM, 15, 'SEARCH_ZOOM 目前應為 15（若未來調整，此斷言會提醒同步更新測試）');
+  expect(SEARCH_ZOOM, 'SEARCH_ZOOM 目前應為 15（若未來調整，此斷言會提醒同步更新測試）').toBe(15);
 
   const tile = lonLatToTileXY(TEST_LON, TEST_LAT, SEARCH_ZOOM);
-  assertEqual(tile.z, SEARCH_ZOOM, 'z 應該原樣回傳 SEARCH_ZOOM');
+  expect(tile.z, 'z 應該原樣回傳 SEARCH_ZOOM').toBe(SEARCH_ZOOM);
 
   const n = Math.pow(2, SEARCH_ZOOM);
-  assertTrue(Number.isInteger(tile.x) && tile.x >= 0 && tile.x <= n - 1, `x 應為 0 ~ ${n - 1} 範圍內的整數，實際 ${tile.x}`);
-  assertTrue(Number.isInteger(tile.y) && tile.y >= 0 && tile.y <= n - 1, `y 應為 0 ~ ${n - 1} 範圍內的整數，實際 ${tile.y}`);
+  expect(Number.isInteger(tile.x) && tile.x >= 0 && tile.x <= n - 1, `x 應為 0 ~ ${n - 1} 範圍內的整數，實際 ${tile.x}`).toBeTruthy();
+  expect(Number.isInteger(tile.y) && tile.y >= 0 && tile.y <= n - 1, `y 應為 0 ~ ${n - 1} 範圍內的整數，實際 ${tile.y}`).toBeTruthy();
 
   // 獨立用標準 Slippy Map 公式手算一次，交叉比對 lonLatToTileXY 的實作結果
   const expectedX = Math.floor((TEST_LON + 180) / 360 * n);
   const latRad = TEST_LAT * Math.PI / 180;
   const expectedY = Math.floor((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n);
-  assertEqual(tile.x, expectedX, 'x 座標應符合標準 Slippy Map 公式手算結果');
-  assertEqual(tile.y, expectedY, 'y 座標應符合標準 Slippy Map 公式手算結果');
+  expect(tile.x, 'x 座標應符合標準 Slippy Map 公式手算結果').toBe(expectedX);
+  expect(tile.y, 'y 座標應符合標準 Slippy Map 公式手算結果').toBe(expectedY);
 });
 
 test('WMTS URL 生成：比照 resolveTileUrl 組法，組出 hsinchu_tj7a0510 的 file-exists.php 網址且無殘留佔位符', () => {
-  assertTrue(!!(thm.provider && thm.provider.tileTemplate), 'thm.json 應該要有 provider.tileTemplate');
+  expect(!!(thm.provider && thm.provider.tileTemplate), 'thm.json 應該要有 provider.tileTemplate').toBeTruthy();
   const tileTemplate = thm.provider.tileTemplate;
-  assertEqual(
+  expect(
     tileTemplate,
-    'https://gis.sinica.edu.tw/thm/file-exists.php?img={id}-{format}-{z}-{x}-{y}',
     'thm.json provider.tileTemplate 應與預期樣板一致'
-  );
+  ).toBe('https://gis.sinica.edu.tw/thm/file-exists.php?img={id}-{format}-{z}-{x}-{y}');
 
   const layerId = 'hsinchu_tj7a0510';
   const layerFormat = 'png';
@@ -347,8 +346,8 @@ test('WMTS URL 生成：比照 resolveTileUrl 組法，組出 hsinchu_tj7a0510 �
     .replace('{y}', tile.y);
 
   const expectedUrl = `https://gis.sinica.edu.tw/thm/file-exists.php?img=hsinchu_tj7a0510-png-${tile.z}-${tile.x}-${tile.y}`;
-  assertEqual(url, expectedUrl, '組出的 URL 應符合 file-exists.php 格式');
-  assertTrue(!url.includes('{') && !url.includes('}'), '替換後不應該還殘留任何未替換的佔位符');
+  expect(url, '組出的 URL 應符合 file-exists.php 格式').toBe(expectedUrl);
+  expect(!url.includes('{') && !url.includes('}'), '替換後不應該還殘留任何未替換的佔位符').toBeTruthy();
 });
 
 /* ---------------------------------------------------------
@@ -398,13 +397,13 @@ const KNOWN_PARTIAL_BBOX_SOURCES = { udd: { total: 54, withBbox: 42 } };
   if(KNOWN_PARTIAL_BBOX_SOURCES[src.id]){
     const expected = KNOWN_PARTIAL_BBOX_SOURCES[src.id];
     test(`全站 bbox 覆蓋率：來源 ${src.id} 目前應為部分覆蓋（${expected.withBbox}/${expected.total}，其餘無對應 WMTS Capabilities 端點，非本次疏漏）`, () => {
-      assertEqual(total, expected.total, `來源 ${src.id} 應該有 ${expected.total} 筆圖層，實際 ${total} 筆`);
-      assertEqual(withBbox, expected.withBbox, `來源 ${src.id} 目前預期為 ${expected.withBbox} 筆有 bbox，實際 ${withBbox}/${total}`);
+      expect(total, `來源 ${src.id} 應該有 ${expected.total} 筆圖層，實際 ${total} 筆`).toBe(expected.total);
+      expect(withBbox, `來源 ${src.id} 目前預期為 ${expected.withBbox} 筆有 bbox，實際 ${withBbox}/${total}`).toBe(expected.withBbox);
     });
   } else {
     test(`全站 bbox 覆蓋率：來源 ${src.id} 應該 100% 圖層都有合法 region.bbox`, () => {
-      assertTrue(total > 0, `來源 ${src.id} 應該至少有 1 筆圖層，實際 ${total} 筆`);
-      assertEqual(withBbox, total, `來源 ${src.id} 應該全部 ${total} 筆圖層都有合法 bbox，實際只有 ${withBbox}/${total}`);
+      expect(total > 0, `來源 ${src.id} 應該至少有 1 筆圖層，實際 ${total} 筆`).toBeTruthy();
+      expect(withBbox, `來源 ${src.id} 應該全部 ${total} 筆圖層都有合法 bbox，實際只有 ${withBbox}/${total}`).toBe(total);
     });
   }
 });
@@ -412,13 +411,13 @@ const KNOWN_PARTIAL_BBOX_SOURCES = { udd: { total: 54, withBbox: 42 } };
 test('全站 bbox 覆蓋率：總計圖層數應為 2428 筆（新增 southeast_asia 來源後同步更新）', () => {
   let totalLayers = 0;
   (bundle.sources || []).forEach(src => { totalLayers += countBboxCoverage(src).total; });
-  assertEqual(totalLayers, 2428, `全站圖層總數應為 2428 筆，實際 ${totalLayers} 筆（若有新增/移除圖層來源，請同步更新此測試）`);
+  expect(totalLayers, `全站圖層總數應為 2428 筆，實際 ${totalLayers} 筆（若有新增/移除圖層來源，請同步更新此測試）`).toBe(2428);
 });
 
 test('全站 bbox 覆蓋率：有合法 bbox 的圖層總數應 >= 1885 筆（用 >= 而非寫死等於，避免未來補齊 udd 或新增來源時擋路，但仍能抓到既有來源退化的回歸）', () => {
   let totalWithBbox = 0;
   (bundle.sources || []).forEach(src => { totalWithBbox += countBboxCoverage(src).withBbox; });
-  assertTrue(totalWithBbox >= 1885, `全站有 bbox 的圖層數應該 >= 1885，實際 ${totalWithBbox}（可能是某個來源的 bbox 資料整批消失了）`);
+  expect(totalWithBbox >= 1885, `全站有 bbox 的圖層數應該 >= 1885，實際 ${totalWithBbox}（可能是某個來源的 bbox 資料整批消失了）`).toBeTruthy();
 });
 
 test('全站 bbox 方向性：所有 region.bbox 都應該 minLat<=maxLat（曾發生上游 WMTS Capabilities 座標順序異常、緯度上下界顛倒導致圖層永遠不相交的真實案例，見 ccts/newtaipei/taipei/taoyuan 四筆修正）——經度不檢查方向性，minLon>maxLon 是跨越國際換日線的合法表示法，見 src/core/tileGeo.js 的 lonSubRanges()', () => {
@@ -437,7 +436,5 @@ test('全站 bbox 方向性：所有 region.bbox 都應該 minLat<=maxLat（曾�
       });
     });
   });
-  assertEqual(inverted.length, 0, `發現緯度 min/max 方向顛倒的 bbox：\n${inverted.join('\n')}`);
+  expect(inverted.length, `發現緯度 min/max 方向顛倒的 bbox：\n${inverted.join('\n')}`).toBe(0);
 });
-
-await run();

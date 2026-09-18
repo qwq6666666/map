@@ -1,5 +1,5 @@
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, expect } from 'vitest';
 import { loadAppData, DATA, prefilterLayersByPlaceName } from '../../src/data.js';
 
 await loadAppData();
@@ -9,7 +9,7 @@ test('文字篩選：關鍵字完全沒命中任何標題時回傳 null（呼叫
     { src: {}, layer: { id: 'a', title: '完全不相關的標題' } },
   ];
   const result = prefilterLayersByPlaceName(candidates, ['某個不會出現的關鍵字']);
-  assertEqual(result, null, '應該回傳 null');
+  expect(result, '應該回傳 null').toBe(null);
 });
 
 test('文字篩選：關鍵字命中「部分」標題時，只回傳命中的那幾筆（不是全部）', () => {
@@ -18,8 +18,8 @@ test('文字篩選：關鍵字命中「部分」標題時，只回傳命中的�
     { src: {}, layer: { id: 'b', title: '苗栗廳苗栗一堡新開庄' } },
   ];
   const result = prefilterLayersByPlaceName(candidates, ['竹北二堡']);
-  assertEqual(result.length, 1, '應該只有 1 筆命中');
-  assertEqual(result[0].layer.id, 'a', '命中的應該是 a');
+  expect(result.length, '應該只有 1 筆命中').toBe(1);
+  expect(result[0].layer.id, '命中的應該是 a').toBe('a');
 });
 
 test('只有「有次分類（groups）結構」的來源才適合套用文字篩選（例如 thm）', () => {
@@ -30,14 +30,12 @@ test('只有「有次分類（groups）結構」的來源才適合套用文字�
   const thm = DATA.LAYER_SOURCES.find(s => s.id === 'thm');
   const sinicaHasGroups = sinica.categories.some(c => c.groups);
   const thmHasGroups = thm.categories.some(c => c.groups);
-  assertTrue(!sinicaHasGroups, 'sinica 不該有 groups 結構');
-  assertTrue(thmHasGroups, 'thm 應該有 groups 結構');
+  expect(!sinicaHasGroups, 'sinica 不該有 groups 結構').toBeTruthy();
+  expect(thmHasGroups, 'thm 應該有 groups 結構').toBeTruthy();
 });
 
 test('目前只有 thm、nlsc 這兩個來源有 groups 結構（如果之後又有新來源用了 groups，這則測試會提醒要重新檢視篩選規則）', () => {
   const sourcesWithGroups = DATA.LAYER_SOURCES.filter(s => s.categories.some(c => c.groups));
   const idsWithGroups = sourcesWithGroups.map(s => s.id).sort();
-  assertEqual(idsWithGroups.join(','), ['nlsc', 'thm'].sort().join(','), '目前應該剛好是 thm、nlsc 這兩個來源用 groups 結構');
+  expect(idsWithGroups.join(','), '目前應該剛好是 thm、nlsc 這兩個來源用 groups 結構').toBe(['nlsc', 'thm'].sort().join(','));
 });
-
-await run();

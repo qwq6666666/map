@@ -14,8 +14,8 @@
    （macroRegionForSource／regionLabelForSource 等），那些已經在
    mobile-tw-browse.test.mjs／mobile-cn-browse.test.mjs 涵蓋。
 --------------------------------------------------------- */
+import { test, expect } from 'vitest';
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
 import { initMobileCountryBrowse } from '../../src/ui/mobileRegionBrowse.js';
 
 // 最小假來源：只需要 country 欄位（initMobileCountryBrowse 用來篩選丟給
@@ -64,10 +64,10 @@ function setup(){
 
 test('initMobileCountryBrowse：依 configs 各別呼叫 build()，並把結果 append 進 containerEl', () => {
   const { containerEl } = setup();
-  assertEqual(containerEl.children.length, 2, 'tw／cn 兩個 config 各建立一個容器');
+  expect(containerEl.children.length, 'tw／cn 兩個 config 各建立一個容器').toBe(2);
   const [twEl, cnEl] = containerEl.children;
-  assertEqual(twEl.children.length, 2, 'tw 容器裡應該只收到 2 筆 tw 來源');
-  assertEqual(cnEl.children.length, 1, 'cn 容器裡應該只收到 1 筆 cn 來源');
+  expect(twEl.children.length, 'tw 容器裡應該只收到 2 筆 tw 來源').toBe(2);
+  expect(cnEl.children.length, 'cn 容器裡應該只收到 1 筆 cn 來源').toBe(1);
 });
 
 test('sync()：手機寬度＋目前分頁 tw 時，tw 容器顯示、cn 容器隱藏，且只有 tw 的 sourceWraps 被加上 accordion-hidden', () => {
@@ -75,12 +75,12 @@ test('sync()：手機寬度＋目前分頁 tw 時，tw 容器顯示、cn 容器�
   mq.matches = true;
   sync();
   const [twEl, cnEl] = containerEl.children;
-  assertEqual(twEl.hidden, false, 'tw 分頁三段式瀏覽應該顯示');
-  assertEqual(cnEl.hidden, true, '非目前分頁的 cn 容器應該隱藏');
+  expect(twEl.hidden, 'tw 分頁三段式瀏覽應該顯示').toBe(false);
+  expect(cnEl.hidden, '非目前分頁的 cn 容器應該隱藏').toBe(true);
   sourceWraps.forEach(({ src, wrap }) => {
     const expected = src.country === 'tw';
-    assertEqual(wrap.classList.contains('mobile-tw-accordion-hidden'), expected,
-      `${src.id} 的扁平手風琴節點 accordion-hidden 狀態應該對應其國別`);
+    expect(wrap.classList.contains('mobile-tw-accordion-hidden'),
+      `${src.id} 的扁平手風琴節點 accordion-hidden 狀態應該對應其國別`).toBe(expected);
   });
 });
 
@@ -89,11 +89,11 @@ test('sync()：非手機寬度時，不論目前分頁為何，兩個容器都�
   mq.matches = false;
   sync();
   const [twEl, cnEl] = containerEl.children;
-  assertEqual(twEl.hidden, true, '桌面寬度不顯示三段式瀏覽（tw）');
-  assertEqual(cnEl.hidden, true, '桌面寬度不顯示三段式瀏覽（cn）');
+  expect(twEl.hidden, '桌面寬度不顯示三段式瀏覽（tw）').toBe(true);
+  expect(cnEl.hidden, '桌面寬度不顯示三段式瀏覽（cn）').toBe(true);
   sourceWraps.forEach(({ src, wrap }) => {
-    assertTrue(!wrap.classList.contains('mobile-tw-accordion-hidden'),
-      `桌面寬度不應該隱藏扁平手風琴節點（${src.id}）`);
+    expect(!wrap.classList.contains('mobile-tw-accordion-hidden'),
+      `桌面寬度不應該隱藏扁平手風琴節點（${src.id}）`).toBeTruthy();
   });
 });
 
@@ -106,13 +106,11 @@ test('sync()：切換目前分頁後重新呼叫，顯示狀態與 accordion-hid
   sync();
 
   const [twEl, cnEl] = containerEl.children;
-  assertEqual(twEl.hidden, true, '切到 cn 分頁後，tw 容器應該改為隱藏');
-  assertEqual(cnEl.hidden, false, '切到 cn 分頁後，cn 容器應該改為顯示');
+  expect(twEl.hidden, '切到 cn 分頁後，tw 容器應該改為隱藏').toBe(true);
+  expect(cnEl.hidden, '切到 cn 分頁後，cn 容器應該改為顯示').toBe(false);
   sourceWraps.forEach(({ src, wrap }) => {
     const expected = src.country === 'cn';
-    assertEqual(wrap.classList.contains('mobile-tw-accordion-hidden'), expected,
-      `切到 cn 分頁後，${src.id} 的 accordion-hidden 狀態應該對應其國別`);
+    expect(wrap.classList.contains('mobile-tw-accordion-hidden'),
+      `切到 cn 分頁後，${src.id} 的 accordion-hidden 狀態應該對應其國別`).toBe(expected);
   });
 });
-
-await run();

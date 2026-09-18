@@ -175,10 +175,10 @@ main.js                      進入點，依序 initXxx()
 ## 測試（`tests/`）
 
 ```
-node tests/run-all.mjs
+npm test
 ```
 
-一次跑完全部測試（純 Node.js，零套件依賴，不需要 `npm install`）。`tests/env-stub.mjs` 是共用的假瀏覽器／OpenLayers 環境，`tests/assert.mjs` 是極簡的測試小工具。每份 `tests/specs/*.test.mjs` 用獨立 process 執行，避免不同測試檔案之間共用同一份 `src/store.js` 單例狀態互相汙染。
+用 vitest 一次跑完全部測試（需要先 `npm install`）。`tests/env-stub.mjs` 是共用的假瀏覽器／OpenLayers 環境，`tests/helpers.mjs` 放共用的 `sleep()`／`waitFor()`。vitest 預設讓每份 `tests/specs/*.test.mjs` 在各自獨立的 worker 執行，避免不同測試檔案之間共用同一份 `src/store.js` 單例狀態互相汙染。只跑特定檔案：`npx vitest run tests/specs/<test-file>.test.mjs`。
 
 **寫測試時的陷阱**：`store.js` 的 `selectOverlayLayer(key)` 是 toggle 邏輯（同一個 key 呼叫兩次會變成「開→關」），測試之間如果沒有明確重設狀態，很容易因為前一個測試留下的殘留狀態而斷言失敗（不是程式壞了，是測試沒有隔離乾淨）。同理 `drawTool.js` 的工具按鈕也是 toggle（`setTool` 再點同一個工具會取消），測試裡用 `ensureToolActive()` 這種輔助函式明確保證結果狀態，不要假設「點一次」一定會是啟用。
 

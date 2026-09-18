@@ -1,5 +1,5 @@
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, expect } from 'vitest';
 import { findNearbyPlaceNames } from '../../src/features/placeNames.js';
 
 /* ---------------------------------------------------------
@@ -50,11 +50,11 @@ test('距離計算正確性：正南北向位移的距離應約等於 R×Δlat�
   const dLatDeg = 0.01; // 約 1112 公尺
   const places = [ makePlace('正北方測試點', BASE_LON, BASE_LAT + dLatDeg) ];
   const results = findNearbyPlaceNames(places, BASE_LON, BASE_LAT, { radiusMeters: 2000 });
-  assertEqual(results.length, 1, '前置條件：應該找到這筆測試點');
+  expect(results.length, '前置條件：應該找到這筆測試點').toBe(1);
 
   const expected = EARTH_RADIUS_METERS_FOR_FIXTURE * (dLatDeg * Math.PI / 180);
   const diff = Math.abs(results[0].distanceMeters - expected);
-  assertTrue(diff <= 5, `距離應該接近 ${expected.toFixed(1)} 公尺（誤差 <= 5 公尺），實際 ${results[0].distanceMeters}`);
+  expect(diff <= 5, `距離應該接近 ${expected.toFixed(1)} 公尺（誤差 <= 5 公尺），實際 ${results[0].distanceMeters}`).toBeTruthy();
 });
 
 test('半徑篩選：超出 radiusMeters 的候選不會出現在結果裡', () => {
@@ -63,8 +63,8 @@ test('半徑篩選：超出 radiusMeters 的候選不會出現在結果裡', () 
     makePlace('遠處', BASE_LON + 0.5, BASE_LAT + 0.5), // 遠遠超過任何合理半徑
   ];
   const results = findNearbyPlaceNames(places, BASE_LON, BASE_LAT, { radiusMeters: 800 });
-  assertEqual(results.length, 1, '應該只有「近處」在半徑範圍內');
-  assertEqual(results[0].place.name, '近處');
+  expect(results.length, '應該只有「近處」在半徑範圍內').toBe(1);
+  expect(results[0].place.name).toBe('近處');
 });
 
 test('半徑篩選：邊界情況（距離剛好等於 radiusMeters）目前的實際行為是「包含」（<=）', () => {
@@ -76,7 +76,7 @@ test('半徑篩選：邊界情況（距離剛好等於 radiusMeters）目前的�
   const places = [ makePlace('邊界點', BASE_LON, boundaryLat) ];
 
   const results = findNearbyPlaceNames(places, BASE_LON, BASE_LAT, { radiusMeters: exactDistance });
-  assertEqual(results.length, 1, '距離剛好等於 radiusMeters 時，目前的實作行為應該是「包含」在結果裡');
+  expect(results.length, '距離剛好等於 radiusMeters 時，目前的實作行為應該是「包含」在結果裡').toBe(1);
 });
 
 test('limit 截斷：候選數量超過 limit 時，只回傳最近的前 limit 筆', () => {
@@ -89,9 +89,9 @@ test('limit 截斷：候選數量超過 limit 時，只回傳最近的前 limit 
     makePlace('第6近', BASE_LON + 0.003, BASE_LAT),
   ];
   const results = findNearbyPlaceNames(places, BASE_LON, BASE_LAT, { radiusMeters: 2000, limit: 3 });
-  assertEqual(results.length, 3, '應該只回傳 3 筆（limit=3）');
+  expect(results.length, '應該只回傳 3 筆（limit=3）').toBe(3);
   const names = results.map(r => r.place.name);
-  assertEqual(names.join(','), '第1近,第2近,第3近', '應該是距離最近的前 3 筆，依序排列');
+  expect(names.join(','), '應該是距離最近的前 3 筆，依序排列').toBe('第1近,第2近,第3近');
 });
 
 test('排序：結果應該依 distanceMeters 由近到遠排序', () => {
@@ -101,10 +101,10 @@ test('排序：結果應該依 distanceMeters 由近到遠排序', () => {
     makePlace('遠', BASE_LON + 0.003, BASE_LAT),
   ];
   const results = findNearbyPlaceNames(places, BASE_LON, BASE_LAT, { radiusMeters: 2000 });
-  assertEqual(results.length, 3, '前置條件：3 筆都應該在半徑內');
-  assertEqual(results.map(r => r.place.name).join(','), '近,中,遠', '應該依距離由近到遠排序');
-  assertTrue(results[0].distanceMeters <= results[1].distanceMeters, '第 1 筆距離應該 <= 第 2 筆');
-  assertTrue(results[1].distanceMeters <= results[2].distanceMeters, '第 2 筆距離應該 <= 第 3 筆');
+  expect(results.length, '前置條件：3 筆都應該在半徑內').toBe(3);
+  expect(results.map(r => r.place.name).join(','), '應該依距離由近到遠排序').toBe('近,中,遠');
+  expect(results[0].distanceMeters <= results[1].distanceMeters, '第 1 筆距離應該 <= 第 2 筆').toBeTruthy();
+  expect(results[1].distanceMeters <= results[2].distanceMeters, '第 2 筆距離應該 <= 第 3 筆').toBeTruthy();
 });
 
 test('沒有座標（longitude/latitude 不是 number）的候選會被跳過，不計入候選', () => {
@@ -114,12 +114,12 @@ test('沒有座標（longitude/latitude 不是 number）的候選會被跳過，
     { name: '座標是字串', aliases: [], county: '南投縣', town: '魚池鄉', description: '', sourceType: 'settlement', longitude: '120.9', latitude: '23.86' },
   ];
   const results = findNearbyPlaceNames(places, BASE_LON, BASE_LAT, { radiusMeters: 2000 });
-  assertEqual(results.length, 1, '只有「有座標」那一筆應該被計入');
-  assertEqual(results[0].place.name, '有座標');
+  expect(results.length, '只有「有座標」那一筆應該被計入').toBe(1);
+  expect(results[0].place.name).toBe('有座標');
 });
 
 test('邊界情況：places 為空陣列時回傳空陣列', () => {
-  assertEqual(findNearbyPlaceNames([], BASE_LON, BASE_LAT).length, 0);
+  expect(findNearbyPlaceNames([], BASE_LON, BASE_LAT).length).toBe(0);
 });
 
 test('邊界情況：lon/lat 不合法（非數字）不拋例外，回傳空陣列', () => {
@@ -131,8 +131,8 @@ test('邊界情況：lon/lat 不合法（非數字）不拋例外，回傳空陣
   } catch {
     threw = true;
   }
-  assertTrue(!threw, '不應該拋出例外');
-  assertEqual(results.length, 0, 'lon 不合法時應該回傳空陣列');
+  expect(!threw, '不應該拋出例外').toBeTruthy();
+  expect(results.length, 'lon 不合法時應該回傳空陣列').toBe(0);
 
   threw = false;
   try {
@@ -140,29 +140,29 @@ test('邊界情況：lon/lat 不合法（非數字）不拋例外，回傳空陣
   } catch {
     threw = true;
   }
-  assertTrue(!threw, '不應該拋出例外');
-  assertEqual(results.length, 0, 'lat 不合法時應該回傳空陣列');
+  expect(!threw, '不應該拋出例外').toBeTruthy();
+  expect(results.length, 'lat 不合法時應該回傳空陣列').toBe(0);
 });
 
 test('查無範圍內候選時回傳空陣列（有候選但全部超出半徑）', () => {
   const places = [ makePlace('遠方', BASE_LON + 1, BASE_LAT + 1) ];
   const results = findNearbyPlaceNames(places, BASE_LON, BASE_LAT, { radiusMeters: 800 });
-  assertEqual(results.length, 0);
+  expect(results.length).toBe(0);
 });
 
 test('distanceMeters 是整數（Math.round 過，不是浮點數）', () => {
   const places = [ makePlace('測試點', BASE_LON + 0.0013, BASE_LAT + 0.0007) ];
   const results = findNearbyPlaceNames(places, BASE_LON, BASE_LAT, { radiusMeters: 2000 });
-  assertEqual(results.length, 1, '前置條件：應該有 1 筆結果');
-  assertTrue(Number.isInteger(results[0].distanceMeters), 'distanceMeters 應該是整數');
+  expect(results.length, '前置條件：應該有 1 筆結果').toBe(1);
+  expect(Number.isInteger(results[0].distanceMeters), 'distanceMeters 應該是整數').toBeTruthy();
 });
 
 test('不會 mutate 原始 place 物件（distanceMeters 只存在回傳的 wrapper 上）', () => {
   const place = makePlace('測試點', BASE_LON + 0.0005, BASE_LAT);
   const results = findNearbyPlaceNames([place], BASE_LON, BASE_LAT, { radiusMeters: 2000 });
-  assertEqual(results.length, 1);
-  assertEqual(results[0].place, place, '結果裡的 place 應該是同一個物件參照');
-  assertTrue(!Object.hasOwn(place, 'distanceMeters'), '不應該在原始 place 物件上新增 distanceMeters 欄位');
+  expect(results.length).toBe(1);
+  expect(results[0].place, '結果裡的 place 應該是同一個物件參照').toBe(place);
+  expect(!Object.hasOwn(place, 'distanceMeters'), '不應該在原始 place 物件上新增 distanceMeters 欄位').toBeTruthy();
 });
 
 test('預設 radiusMeters=800、limit=5（不傳 opts 時使用預設值）', () => {
@@ -172,9 +172,7 @@ test('預設 radiusMeters=800、limit=5（不傳 opts 時使用預設值）', ()
     makePlace('遠-超過800m', BASE_LON + 0.01, BASE_LAT), // 約 1112 公尺，超過預設 800
   ];
   const results = findNearbyPlaceNames(places, BASE_LON, BASE_LAT);
-  assertEqual(results.length, 2, '預設半徑 800 公尺應該只找到 2 筆近處候選');
+  expect(results.length, '預設半徑 800 公尺應該只找到 2 筆近處候選').toBe(2);
   const names = results.map(r => r.place.name).sort();
-  assertEqual(names.join(','), '近-1,近-2', '應該剛好是兩筆近處候選');
+  expect(names.join(','), '應該剛好是兩筆近處候選').toBe('近-1,近-2');
 });
-
-await run();

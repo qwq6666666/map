@@ -1,5 +1,5 @@
 import '../env-stub.mjs';
-import { test, run, assertTrue } from '../assert.mjs';
+import { test, expect } from 'vitest';
 import { loadAppData } from '../../src/data.js';
 import { initMapCore } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
@@ -51,7 +51,7 @@ const addressSearchBtn = document.getElementById('addressSearchBtn');
 test('地址搜尋命中單筆結果後，放大鏡按鈕的 loading 狀態應該被正確移除（不會卡死轉圈）', async () => {
   addressInput.value = '某個會命中單筆結果的測試地址';
   await addressSearchBtn._listeners.click[0]();
-  assertTrue(!addressSearchBtn.classList.contains('loading'), 'loading class 應該被移除，不應該卡住轉圈');
+  expect(!addressSearchBtn.classList.contains('loading'), 'loading class 應該被移除，不應該卡住轉圈').toBeTruthy();
 });
 
 test('連續觸發兩次搜尋（模擬快速按兩次），結束後 loading 狀態一樣要被正確移除', async () => {
@@ -60,7 +60,5 @@ test('連續觸發兩次搜尋（模擬快速按兩次），結束後 loading �
     addressSearchBtn._listeners.click[0](),
     addressSearchBtn._listeners.click[0]() // 函式開頭的 loading class 重入防護會擋掉第二次真正執行
   ]);
-  assertTrue(!addressSearchBtn.classList.contains('loading'), '兩次呼叫結束後 loading class 都應該被移除');
+  expect(!addressSearchBtn.classList.contains('loading'), '兩次呼叫結束後 loading class 都應該被移除').toBeTruthy();
 });
-
-await run();

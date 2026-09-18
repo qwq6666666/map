@@ -1,5 +1,5 @@
+import { test, expect } from 'vitest';
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
 import { loadAppData, DATA } from '../../src/data.js';
 import { MACRO_REGION_ORDER, macroRegionForSource, regionLabelForSource, FIXED_AREA_ORDER } from '../../src/ui/mobileTwBrowse.js';
 import { guessRegionFromLastLocation } from '../../src/ui/mobileRegionBrowse.js';
@@ -8,7 +8,7 @@ await loadAppData();
 
 function findSource(id){
   const src = DATA.LAYER_SOURCES.find(s => s.id === id);
-  assertTrue(!!src, `應該要能在 DATA.LAYER_SOURCES 找到來源 ${id}`);
+  expect(!!src, `應該要能在 DATA.LAYER_SOURCES 找到來源 ${id}`).toBeTruthy();
   return src;
 }
 
@@ -16,78 +16,77 @@ function findSource(id){
    1：MACRO_REGION_ORDER 順序
 --------------------------------------------------------- */
 test('MACRO_REGION_ORDER：內容與順序應為全國／北部／中部／南部／東部／離島', () => {
-  assertEqual(
+  expect(
     JSON.stringify(MACRO_REGION_ORDER),
-    JSON.stringify(['全國', '北部', '中部', '南部', '東部', '離島']),
     'MACRO_REGION_ORDER 應該完全符合預期的 6 個字串與順序'
-  );
+  ).toBe(JSON.stringify(['全國', '北部', '中部', '南部', '東部', '離島']));
 });
 
 /* ---------------------------------------------------------
    2：macroRegionForSource 對照表測試
 --------------------------------------------------------- */
 test('macroRegionForSource：sinica -> 全國', () => {
-  assertEqual(macroRegionForSource(findSource('sinica')), '全國', 'sinica 應該對應到全國');
+  expect(macroRegionForSource(findSource('sinica')), 'sinica 應該對應到全國').toBe('全國');
 });
 test('macroRegionForSource：nlsc -> 全國', () => {
-  assertEqual(macroRegionForSource(findSource('nlsc')), '全國', 'nlsc 應該對應到全國');
+  expect(macroRegionForSource(findSource('nlsc')), 'nlsc 應該對應到全國').toBe('全國');
 });
 test('macroRegionForSource：taipei -> 北部', () => {
-  assertEqual(macroRegionForSource(findSource('taipei')), '北部', 'taipei 應該對應到北部');
+  expect(macroRegionForSource(findSource('taipei')), 'taipei 應該對應到北部').toBe('北部');
 });
 test('macroRegionForSource：thm -> 北部', () => {
-  assertEqual(macroRegionForSource(findSource('thm')), '北部', 'thm 應該對應到北部');
+  expect(macroRegionForSource(findSource('thm')), 'thm 應該對應到北部').toBe('北部');
 });
 test('macroRegionForSource：yilan -> 東部', () => {
-  assertEqual(macroRegionForSource(findSource('yilan')), '東部', 'yilan 應該對應到東部');
+  expect(macroRegionForSource(findSource('yilan')), 'yilan 應該對應到東部').toBe('東部');
 });
 test('macroRegionForSource：taichung -> 中部', () => {
-  assertEqual(macroRegionForSource(findSource('taichung')), '中部', 'taichung 應該對應到中部');
+  expect(macroRegionForSource(findSource('taichung')), 'taichung 應該對應到中部').toBe('中部');
 });
 test('macroRegionForSource：lukang -> 中部', () => {
-  assertEqual(macroRegionForSource(findSource('lukang')), '中部', 'lukang 應該對應到中部');
+  expect(macroRegionForSource(findSource('lukang')), 'lukang 應該對應到中部').toBe('中部');
 });
 test('macroRegionForSource：kaohsiung -> 南部', () => {
-  assertEqual(macroRegionForSource(findSource('kaohsiung')), '南部', 'kaohsiung 應該對應到南部');
+  expect(macroRegionForSource(findSource('kaohsiung')), 'kaohsiung 應該對應到南部').toBe('南部');
 });
 test('macroRegionForSource：hakkaliudui -> 南部', () => {
-  assertEqual(macroRegionForSource(findSource('hakkaliudui')), '南部', 'hakkaliudui 應該對應到南部');
+  expect(macroRegionForSource(findSource('hakkaliudui')), 'hakkaliudui 應該對應到南部').toBe('南部');
 });
 test('macroRegionForSource：hualien -> 東部', () => {
-  assertEqual(macroRegionForSource(findSource('hualien')), '東部', 'hualien 應該對應到東部');
+  expect(macroRegionForSource(findSource('hualien')), 'hualien 應該對應到東部').toBe('東部');
 });
 test('macroRegionForSource：kinmen -> 離島', () => {
-  assertEqual(macroRegionForSource(findSource('kinmen')), '離島', 'kinmen 應該對應到離島');
+  expect(macroRegionForSource(findSource('kinmen')), 'kinmen 應該對應到離島').toBe('離島');
 });
 
 /* ---------------------------------------------------------
    3：regionLabelForSource 規則測試（函式沒變，沿用原斷言）
 --------------------------------------------------------- */
 test('regionLabelForSource：sinica -> 全國性圖資（特殊對照表）', () => {
-  assertEqual(regionLabelForSource(findSource('sinica')), '全國性圖資', 'sinica 應該對應到全國性圖資');
+  expect(regionLabelForSource(findSource('sinica')), 'sinica 應該對應到全國性圖資').toBe('全國性圖資');
 });
 test('regionLabelForSource：nlsc -> 全國性圖資（特殊對照表）', () => {
-  assertEqual(regionLabelForSource(findSource('nlsc')), '全國性圖資', 'nlsc 應該對應到全國性圖資');
+  expect(regionLabelForSource(findSource('nlsc')), 'nlsc 應該對應到全國性圖資').toBe('全國性圖資');
 });
 test('regionLabelForSource：thm -> 桃竹苗（特殊對照表）', () => {
-  assertEqual(regionLabelForSource(findSource('thm')), '桃竹苗', 'thm 應該對應到桃竹苗');
+  expect(regionLabelForSource(findSource('thm')), 'thm 應該對應到桃竹苗').toBe('桃竹苗');
 });
 test('regionLabelForSource：udd -> 臺北（特殊對照表，刻意跟 taipei 合併）', () => {
-  assertEqual(regionLabelForSource(findSource('udd')), '臺北', 'udd 應該對應到臺北');
+  expect(regionLabelForSource(findSource('udd')), 'udd 應該對應到臺北').toBe('臺北');
 });
 test('regionLabelForSource：taipei -> 臺北（去尾規則）', () => {
-  assertEqual(regionLabelForSource(findSource('taipei')), '臺北', 'taipei 應該對應到臺北');
+  expect(regionLabelForSource(findSource('taipei')), 'taipei 應該對應到臺北').toBe('臺北');
 });
 test('regionLabelForSource：udd 與 taipei 應合併成同一個地區標籤', () => {
   const uddLabel = regionLabelForSource(findSource('udd'));
   const taipeiLabel = regionLabelForSource(findSource('taipei'));
-  assertEqual(uddLabel, taipeiLabel, 'udd 與 taipei 應該回傳完全相同的地區標籤字串');
+  expect(uddLabel, 'udd 與 taipei 應該回傳完全相同的地區標籤字串').toBe(taipeiLabel);
 });
 test('regionLabelForSource：newtaipei -> 新北（去尾規則）', () => {
-  assertEqual(regionLabelForSource(findSource('newtaipei')), '新北', 'newtaipei 應該對應到新北');
+  expect(regionLabelForSource(findSource('newtaipei')), 'newtaipei 應該對應到新北').toBe('新北');
 });
 test('regionLabelForSource：keelung -> 基隆（去尾規則）', () => {
-  assertEqual(regionLabelForSource(findSource('keelung')), '基隆', 'keelung 應該對應到基隆');
+  expect(regionLabelForSource(findSource('keelung')), 'keelung 應該對應到基隆').toBe('基隆');
 });
 
 /* ---------------------------------------------------------
@@ -111,19 +110,19 @@ test('全站台灣來源大區域分組：24 個 tw 來源依 macroRegionForSour
     }
   });
 
-  assertEqual(twSources.length, 24, `目前台灣來源（country==='tw'）總數應為 24 個，實際 ${twSources.length} 個`);
+  expect(twSources.length, `目前台灣來源（country==='tw'）總數應為 24 個，實際 ${twSources.length} 個`).toBe(24);
 
-  assertEqual(counts['全國'], 2, `全國組來源數應為 2，實際 ${counts['全國']}`);
-  assertEqual(counts['北部'], 8, `北部組來源數應為 8，實際 ${counts['北部']}`);
-  assertEqual(counts['中部'], 4, `中部組來源數應為 4，實際 ${counts['中部']}`);
-  assertEqual(counts['南部'], 5, `南部組來源數應為 5，實際 ${counts['南部']}`);
-  assertEqual(counts['東部'], 3, `東部組來源數應為 3，實際 ${counts['東部']}`);
-  assertEqual(counts['離島'], 2, `離島組來源數應為 2，實際 ${counts['離島']}`);
+  expect(counts['全國'], `全國組來源數應為 2，實際 ${counts['全國']}`).toBe(2);
+  expect(counts['北部'], `北部組來源數應為 8，實際 ${counts['北部']}`).toBe(8);
+  expect(counts['中部'], `中部組來源數應為 4，實際 ${counts['中部']}`).toBe(4);
+  expect(counts['南部'], `南部組來源數應為 5，實際 ${counts['南部']}`).toBe(5);
+  expect(counts['東部'], `東部組來源數應為 3，實際 ${counts['東部']}`).toBe(3);
+  expect(counts['離島'], `離島組來源數應為 2，實際 ${counts['離島']}`).toBe(2);
 
   const total = MACRO_REGION_ORDER.reduce((sum, macro) => sum + counts[macro], 0);
-  assertEqual(total, 24, `六組加總應等於 tw 來源總數 24，實際 ${total}（新增/移除台灣來源時要同步更新這幾個數字）`);
+  expect(total, `六組加總應等於 tw 來源總數 24，實際 ${total}（新增/移除台灣來源時要同步更新這幾個數字）`).toBe(24);
 
-  assertEqual(otherCount, 0, `不應該有任何 tw 來源被分類成「其他」，實際有 ${otherCount} 個未涵蓋：${otherIds.join(', ')}（代表 MACRO_REGION_MAP 未涵蓋目前全部 24 個 tw 來源，需同步更新）`);
+  expect(otherCount, `不應該有任何 tw 來源被分類成「其他」，實際有 ${otherCount} 個未涵蓋：${otherIds.join(', ')}（代表 MACRO_REGION_MAP 未涵蓋目前全部 24 個 tw 來源，需同步更新）`).toBe(0);
 });
 
 /* ---------------------------------------------------------
@@ -134,7 +133,7 @@ test('FIXED_AREA_ORDER：北部/中部/南部列出的地區標籤都要能在�
   const actualLabels = new Set(twSources.map(regionLabelForSource));
   Object.entries(FIXED_AREA_ORDER).forEach(([macro, labels]) => {
     labels.forEach(label => {
-      assertTrue(actualLabels.has(label), `FIXED_AREA_ORDER['${macro}'] 裡的 '${label}' 應該要能在實際 tw 來源的 regionLabelForSource() 結果中找到，否則代表某個來源改名後這裡沒同步更新`);
+      expect(actualLabels.has(label), `FIXED_AREA_ORDER['${macro}'] 裡的 '${label}' 應該要能在實際 tw 來源的 regionLabelForSource() 結果中找到，否則代表某個來源改名後這裡沒同步更新`).toBeTruthy();
     });
   });
 });
@@ -154,19 +153,17 @@ function setLocationResult({ display, countryCode, text }){
 test('guessRegionFromLastLocation：countryCode 相符時，應該從候選標籤中猜出對上的地區', () => {
   setLocationResult({ display: 'block', countryCode: 'tw', text: '臺北市中山區南京東路一段' });
   const guessed = guessRegionFromLastLocation(['臺北', '新北', '基隆'], 'tw');
-  assertEqual(guessed, '臺北', 'countryCode 相符時應該猜出候選標籤裡出現在文字中的那一個');
+  expect(guessed, 'countryCode 相符時應該猜出候選標籤裡出現在文字中的那一個').toBe('臺北');
 });
 
 test('guessRegionFromLastLocation：跨國別誤判回歸測試——地址搜尋結果 countryCode 是 tw，中國分頁用 cn 去比對應該回傳 null（不能把「南京東路」誤判成中國「南京」）', () => {
   setLocationResult({ display: 'block', countryCode: 'tw', text: '臺北市中山區南京東路一段' });
   const guessed = guessRegionFromLastLocation(['南京', '上海', '北京'], 'cn');
-  assertEqual(guessed, null, '台灣地址搜尋結果的 countryCode 是 tw，中國分頁傳入 cn 應該比對不上、回傳 null，不能誤判成南京');
+  expect(guessed, '台灣地址搜尋結果的 countryCode 是 tw，中國分頁傳入 cn 應該比對不上、回傳 null，不能誤判成南京').toBe(null);
 });
 
 test('guessRegionFromLastLocation：沒有顯示中的搜尋結果（style.display 為 none）時，不論 countryCode 為何都應回傳 null', () => {
   setLocationResult({ display: 'none', countryCode: 'tw', text: '臺北市中山區南京東路一段' });
-  assertEqual(guessRegionFromLastLocation(['臺北', '新北'], 'tw'), null, 'display 為 none 時應回傳 null');
-  assertEqual(guessRegionFromLastLocation(['臺北', '新北'], 'cn'), null, 'display 為 none 時不論 countryCode 為何都應回傳 null');
+  expect(guessRegionFromLastLocation(['臺北', '新北'], 'tw'), 'display 為 none 時應回傳 null').toBe(null);
+  expect(guessRegionFromLastLocation(['臺北', '新北'], 'cn'), 'display 為 none 時不論 countryCode 為何都應回傳 null').toBe(null);
 });
-
-await run();

@@ -25,7 +25,7 @@
    OL 的 tile 物件（getTileCoord/getImage/setState）。
 --------------------------------------------------------- */
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, expect } from 'vitest';
 import {
   createGuardedTileLoadFunction,
   TILE_STATE,
@@ -94,7 +94,7 @@ function waitForState(tile, timeoutMs = 5000){
 const TAIPEI_TILE = lonLatToTileXY(121.5654, 25.0330, 15);
 
 test('tileRenderRequestPool：節流池併發上限，超過 TILE_RENDER_MAX_CONCURRENCY 的請求會先排隊，不會一次全部發送', async () => {
-  assertEqual(TILE_RENDER_MAX_CONCURRENCY, 4, '目前拍板的上限應該是 4，調整上限時記得同步更新這條斷言');
+  expect(TILE_RENDER_MAX_CONCURRENCY, '目前拍板的上限應該是 4，調整上限時記得同步更新這條斷言').toBe(4);
 
   const total = 8;
   const urls = Array.from({ length: total }, (_, i) => `http://tile-render-pool/render-pool-${i}`);
@@ -104,15 +104,13 @@ test('tileRenderRequestPool：節流池併發上限，超過 TILE_RENDER_MAX_CON
   const loadFn = createGuardedTileLoadFunction({ timeoutMs: 5000 }); // 夠長，確保不會被逾時機制搶先判定
   urls.forEach((u, i) => loadFn(tiles[i], u));
 
-  assertEqual(tileRenderRequestPool.getStats().active, TILE_RENDER_MAX_CONCURRENCY, `8 顆圖磚一次送出，應該立刻佔滿節流池上限 ${TILE_RENDER_MAX_CONCURRENCY} 個 slot`);
-  assertEqual(tileRenderRequestPool.getStats().queued, total - TILE_RENDER_MAX_CONCURRENCY, '超過上限的請求應該先排隊，不能一次全部發送');
+  expect(tileRenderRequestPool.getStats().active, `8 顆圖磚一次送出，應該立刻佔滿節流池上限 ${TILE_RENDER_MAX_CONCURRENCY} 個 slot`).toBe(TILE_RENDER_MAX_CONCURRENCY);
+  expect(tileRenderRequestPool.getStats().queued, '超過上限的請求應該先排隊，不能一次全部發送').toBe(total - TILE_RENDER_MAX_CONCURRENCY);
 
   await Promise.all(tiles.map(t => waitForState(t)));
 
-  tiles.forEach((t, i) => assertEqual(t.state, TILE_STATE.LOADED, `第 ${i} 顆圖磚排隊後仍應該正常載入成功`));
-  urls.forEach(u => assertEqual(urlAttempts[u], 1, '每個網址應該只發送 1 次請求，排隊不應該造成重複發送'));
-  assertEqual(tileRenderRequestPool.getStats().active, 0, '全部完成後，節流池的 active 應該歸零');
-  assertTrue(tileRenderRequestPool.getStats().maxObserved <= TILE_RENDER_MAX_CONCURRENCY, `maxObserved 不應該超過上限 ${TILE_RENDER_MAX_CONCURRENCY}`);
+  tiles.forEach((t, i) => expect(t.state, `第 ${i} 顆圖磚排隊後仍應該正常載入成功`).toBe(TILE_STATE.LOADED));
+  urls.forEach(u => expect(urlAttempts[u], '每個網址應該只發送 1 次請求，排隊不應該造成重複發送').toBe(1));
+  expect(tileRenderRequestPool.getStats().active, '全部完成後，節流池的 active 應該歸零').toBe(0);
+  expect(tileRenderRequestPool.getStats().maxObserved <= TILE_RENDER_MAX_CONCURRENCY, `maxObserved 不應該超過上限 ${TILE_RENDER_MAX_CONCURRENCY}`).toBeTruthy();
 });
-
-await run();

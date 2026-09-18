@@ -7,7 +7,7 @@
    AbortController 逾時保護會被轉換成中文提示訊息。
 --------------------------------------------------------- */
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, expect } from 'vitest';
 import { geocodeAddress, reverseGeocode } from '../../src/geocode.js';
 
 test('geocodeAddress 成功時回傳 fetch 的 json 內容，且網址帶正確編碼的查詢字串', async () => {
@@ -20,26 +20,26 @@ test('geocodeAddress 成功時回傳 fetch 的 json 內容，且網址帶正確�
     return { ok: true, json: async () => fakeResults };
   };
   const result = await geocodeAddress('台北 車站');
-  assertEqual(JSON.stringify(result), JSON.stringify(fakeResults), '應該回傳 fetch 回應的 json 內容');
-  assertTrue(capturedUrl.includes('nominatim.openstreetmap.org/search'), 'URL 應該指向 search endpoint');
-  assertTrue(capturedUrl.includes(encodeURIComponent('台北 車站')), 'URL 應該正確編碼查詢字串');
-  assertEqual(capturedHeaders.Accept, 'application/json', '應該帶 Accept: application/json 標頭');
+  expect(JSON.stringify(result), '應該回傳 fetch 回應的 json 內容').toBe(JSON.stringify(fakeResults));
+  expect(capturedUrl.includes('nominatim.openstreetmap.org/search'), 'URL 應該指向 search endpoint').toBeTruthy();
+  expect(capturedUrl.includes(encodeURIComponent('台北 車站')), 'URL 應該正確編碼查詢字串').toBeTruthy();
+  expect(capturedHeaders.Accept, '應該帶 Accept: application/json 標頭').toBe('application/json');
 });
 
 test('geocodeAddress：res.ok 為 false 時拋出錯誤', async () => {
   globalThis.fetch = async () => ({ ok: false, json: async () => ({}) });
   let caught = null;
   try { await geocodeAddress('不存在的地址'); } catch(err){ caught = err; }
-  assertTrue(caught !== null, '應該要拋出錯誤');
-  assertEqual(caught.message, 'geocode request failed', '錯誤訊息應符合實作');
+  expect(caught !== null, '應該要拋出錯誤').toBeTruthy();
+  expect(caught.message, '錯誤訊息應符合實作').toBe('geocode request failed');
 });
 
 test('geocodeAddress：fetch 拋出一般網路錯誤時原樣往外拋（非逾時訊息）', async () => {
   globalThis.fetch = async () => { throw new Error('network down'); };
   let caught = null;
   try { await geocodeAddress('台北'); } catch(err){ caught = err; }
-  assertTrue(caught !== null, '應該要拋出錯誤');
-  assertEqual(caught.message, 'network down', '一般網路錯誤不應被改寫成逾時訊息');
+  expect(caught !== null, '應該要拋出錯誤').toBeTruthy();
+  expect(caught.message, '一般網路錯誤不應被改寫成逾時訊息').toBe('network down');
 });
 
 test('reverseGeocode 成功時回傳 fetch 的 json 內容，且網址帶正確的經緯度', async () => {
@@ -50,18 +50,18 @@ test('reverseGeocode 成功時回傳 fetch 的 json 內容，且網址帶正確�
     return { ok: true, json: async () => fakeResult };
   };
   const result = await reverseGeocode(121.51, 25.04);
-  assertEqual(JSON.stringify(result), JSON.stringify(fakeResult), '應該回傳 fetch 回應的 json 內容');
-  assertTrue(capturedUrl.includes('nominatim.openstreetmap.org/reverse'), 'URL 應該指向 reverse endpoint');
-  assertTrue(capturedUrl.includes('lat=25.04'), 'URL 應該帶正確的緯度');
-  assertTrue(capturedUrl.includes('lon=121.51'), 'URL 應該帶正確的經度');
+  expect(JSON.stringify(result), '應該回傳 fetch 回應的 json 內容').toBe(JSON.stringify(fakeResult));
+  expect(capturedUrl.includes('nominatim.openstreetmap.org/reverse'), 'URL 應該指向 reverse endpoint').toBeTruthy();
+  expect(capturedUrl.includes('lat=25.04'), 'URL 應該帶正確的緯度').toBeTruthy();
+  expect(capturedUrl.includes('lon=121.51'), 'URL 應該帶正確的經度').toBeTruthy();
 });
 
 test('reverseGeocode：res.ok 為 false 時拋出錯誤', async () => {
   globalThis.fetch = async () => ({ ok: false, json: async () => ({}) });
   let caught = null;
   try { await reverseGeocode(121, 25); } catch(err){ caught = err; }
-  assertTrue(caught !== null, '應該要拋出錯誤');
-  assertEqual(caught.message, 'reverse geocode request failed', '錯誤訊息應符合實作');
+  expect(caught !== null, '應該要拋出錯誤').toBeTruthy();
+  expect(caught.message, '錯誤訊息應符合實作').toBe('reverse geocode request failed');
 });
 
 test('逾時保護：AbortController 觸發 abort 時，會被轉換成中文逾時提示（不洩漏原始 AbortError）', async () => {
@@ -81,8 +81,8 @@ test('逾時保護：AbortController 觸發 abort 時，會被轉換成中文逾
   try {
     let caught = null;
     try { await reverseGeocode(121.5, 25.05); } catch(err){ caught = err; }
-    assertTrue(caught !== null, '逾時應該要拋出錯誤');
-    assertEqual(caught.message, '地理編碼服務逾時，請稍後再試', '逾時錯誤訊息應為中文提示');
+    expect(caught !== null, '逾時應該要拋出錯誤').toBeTruthy();
+    expect(caught.message, '逾時錯誤訊息應為中文提示').toBe('地理編碼服務逾時，請稍後再試');
   } finally {
     globalThis.setTimeout = originalSetTimeout;
   }
@@ -94,8 +94,8 @@ test('geocodeAddress：相同查詢字串快取命中時不重複呼叫 fetch', 
   globalThis.fetch = async () => { fetchCallCount++; return { ok: true, json: async () => fakeResults }; };
   const first = await geocodeAddress('快取重複查詢測試');
   const second = await geocodeAddress('快取重複查詢測試');
-  assertEqual(fetchCallCount, 1, '第二次呼叫應該直接命中快取，不應該再打一次 fetch');
-  assertEqual(JSON.stringify(second), JSON.stringify(first), '快取命中應回傳跟第一次相同的結果');
+  expect(fetchCallCount, '第二次呼叫應該直接命中快取，不應該再打一次 fetch').toBe(1);
+  expect(JSON.stringify(second), '快取命中應回傳跟第一次相同的結果').toBe(JSON.stringify(first));
 });
 
 test('geocodeAddress：失敗的查詢不應該被快取，下次重試仍會呼叫 fetch', async () => {
@@ -103,10 +103,8 @@ test('geocodeAddress：失敗的查詢不應該被快取，下次重試仍會呼
   globalThis.fetch = async () => { fetchCallCount++; return { ok: false, json: async () => ({}) }; };
   let caught = null;
   try { await geocodeAddress('快取失敗重試測試'); } catch(err){ caught = err; }
-  assertTrue(caught !== null, '第一次應該拋出錯誤');
+  expect(caught !== null, '第一次應該拋出錯誤').toBeTruthy();
   globalThis.fetch = async () => { fetchCallCount++; return { ok: true, json: async () => ([{ display_name: '重試成功' }]) }; };
   await geocodeAddress('快取失敗重試測試');
-  assertEqual(fetchCallCount, 2, '失敗結果不應該被快取，重試應該再呼叫一次 fetch');
+  expect(fetchCallCount, '失敗結果不應該被快取，重試應該再呼叫一次 fetch').toBe(2);
 });
-
-await run();

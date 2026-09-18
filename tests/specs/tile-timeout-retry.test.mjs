@@ -41,7 +41,8 @@
    完整的 ol.Map 模擬。
 --------------------------------------------------------- */
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue, waitFor } from '../assert.mjs';
+import { test, expect } from 'vitest';
+import { waitFor } from '../helpers.mjs';
 import {
   createGuardedTileLoadFunction,
   DEFAULT_TILE_LOAD_TIMEOUT_MS,
@@ -152,8 +153,8 @@ test('逾時一次後重試成功 -> LOADED，共發送 2 次請求', async () =
   loadFn(tile, url);
 
   const state = await waitForState(tile);
-  assertEqual(state, TILE_STATE.LOADED, '逾時一次後重試成功，最終應該是 LOADED');
-  assertEqual(urlAttempts[url], 2, '應該總共發送 2 次請求（第一次逾時 + 重試 1 次）');
+  expect(state, '逾時一次後重試成功，最終應該是 LOADED').toBe(TILE_STATE.LOADED);
+  expect(urlAttempts[url], '應該總共發送 2 次請求（第一次逾時 + 重試 1 次）').toBe(2);
 });
 
 test('逾時兩次（含重試）-> ERROR，只重試 1 次、不會有第 3 次請求', async () => {
@@ -165,8 +166,8 @@ test('逾時兩次（含重試）-> ERROR，只重試 1 次、不會有第 3 次
   loadFn(tile, url);
 
   const state = await waitForState(tile);
-  assertEqual(state, TILE_STATE.ERROR, '持續逾時，重試後仍失敗，最終應該是 ERROR');
-  assertEqual(urlAttempts[url], 2, '只應該重試 1 次，總共 2 次請求，不會有第 3 次');
+  expect(state, '持續逾時，重試後仍失敗，最終應該是 ERROR').toBe(TILE_STATE.ERROR);
+  expect(urlAttempts[url], '只應該重試 1 次，總共 2 次請求，不會有第 3 次').toBe(2);
 });
 
 test('明確 onerror（伺服器已回應但失敗）不重試，直接 ERROR，只發送 1 次請求', async () => {
@@ -178,13 +179,13 @@ test('明確 onerror（伺服器已回應但失敗）不重試，直接 ERROR，
   loadFn(tile, url);
 
   const state = await waitForState(tile);
-  assertEqual(state, TILE_STATE.ERROR, '明確 onerror 應該直接判定 ERROR');
-  assertEqual(urlAttempts[url], 1, '明確失敗不應該重試，只應該發送 1 次請求');
+  expect(state, '明確 onerror 應該直接判定 ERROR').toBe(TILE_STATE.ERROR);
+  expect(urlAttempts[url], '明確失敗不應該重試，只應該發送 1 次請求').toBe(1);
 });
 
 test('DEFAULT_TILE_LOAD_TIMEOUT_MS 應該明顯短於 tileChecker.js 的預設值（6000ms），確認兩者刻意分開設定', () => {
-  assertTrue(DEFAULT_TILE_LOAD_TIMEOUT_MS < 6000, `預設逾時應該明顯短於背景探測用的 6000ms，實際 ${DEFAULT_TILE_LOAD_TIMEOUT_MS}`);
-  assertTrue(DEFAULT_TILE_LOAD_TIMEOUT_MS > 0, '預設逾時應該是正數');
+  expect(DEFAULT_TILE_LOAD_TIMEOUT_MS < 6000, `預設逾時應該明顯短於背景探測用的 6000ms，實際 ${DEFAULT_TILE_LOAD_TIMEOUT_MS}`).toBeTruthy();
+  expect(DEFAULT_TILE_LOAD_TIMEOUT_MS > 0, '預設逾時應該是正數').toBeTruthy();
 });
 
 /* ---------------------------------------------------------
@@ -214,8 +215,8 @@ test('逾時終局失敗、冷卻時間已過、tile 仍在目前可視範圍內
     const loadFn = createGuardedTileLoadFunction({ regionBbox: TAIPEI_BBOX, timeoutMs: 20 });
     loadFn(tile, url);
     const state = await waitForState(tile);
-    assertEqual(state, TILE_STATE.ERROR, '前置條件：逾時重試一次後仍逾時，應該終局判定 ERROR');
-    assertEqual(urlAttempts[url], 2, '前置條件：終局失敗前應該已經重試過 1 次，共 2 次請求');
+    expect(state, '前置條件：逾時重試一次後仍逾時，應該終局判定 ERROR').toBe(TILE_STATE.ERROR);
+    expect(urlAttempts[url], '前置條件：終局失敗前應該已經重試過 1 次，共 2 次請求').toBe(2);
 
     now += TIMEOUT_RETRY_COOLDOWN_MS + 1000; // 快轉到冷卻時間已過
 
@@ -223,7 +224,7 @@ test('逾時終局失敗、冷卻時間已過、tile 仍在目前可視範圍內
     attachStaleTileAbort(fakeMap);
     fakeMap._trigger('moveend');
 
-    assertEqual(tile.state, TILE_STATE.IDLE, '冷卻時間已過、bbox 仍與目前可視範圍相交，應該被 sweep 撥回 IDLE');
+    expect(tile.state, '冷卻時間已過、bbox 仍與目前可視範圍相交，應該被 sweep 撥回 IDLE').toBe(TILE_STATE.IDLE);
 
     // 不是只有狀態變化：驗證撥回 IDLE 後，模擬 OL 重新呼叫
     // tileLoadFunction（等同圖磚重新進入可視範圍）真的可以再次成功。
@@ -236,8 +237,8 @@ test('逾時終局失敗、冷卻時間已過、tile 仍在目前可視範圍內
       };
       check();
     }), 5000, '撥回 IDLE 後重新載入一直沒有進入 LOADED/ERROR（可能發生 deadlock）');
-    assertEqual(finalState, TILE_STATE.LOADED, '撥回 IDLE 後重新載入應該能正常成功 LOADED');
-    assertEqual(urlAttempts[url], 3, '應該有真的發送第 3 次請求（前 2 次是終局失敗前的逾時嘗試，第 3 次才是冷卻重試後的重新載入）');
+    expect(finalState, '撥回 IDLE 後重新載入應該能正常成功 LOADED').toBe(TILE_STATE.LOADED);
+    expect(urlAttempts[url], '應該有真的發送第 3 次請求（前 2 次是終局失敗前的逾時嘗試，第 3 次才是冷卻重試後的重新載入）').toBe(3);
   }finally{
     Date.now = originalDateNow;
   }
@@ -256,21 +257,22 @@ test('逾時終局失敗、完全不觸發 moveend／view change 事件，只等
   // 這裡刻意不 mock Date.now()：內部的冷卻計時器用的是真正的
   // setTimeout，時間到期判斷跟 Date.now() 無關（不像 sweepStaleGuardedTiles()
   // 是拿 Date.now() 跟 failedAt 相減比較），所以只能真的等待，這是這個
-  // 測試案例會花費將近 TIMEOUT_RETRY_COOLDOWN_MS 實際時間的原因；
-  // waitFor() 的逾時上限留了充足餘裕（+3000ms），避免計時器誤差導致
-  // 誤判失敗。
+  // 測試案例會花費將近 TIMEOUT_RETRY_COOLDOWN_MS 實際時間的原因；也因此
+  // 這裡明確把 vitest 的單一測試逾時上限拉高到 15000ms（比預設 5000ms
+  // 長，否則測試會被 vitest 自己判定逾時失敗，而不是真的等到條件成立或
+  // 真的失敗）。
   const loadFn = createGuardedTileLoadFunction({ regionBbox: TAIPEI_BBOX, timeoutMs: 20 });
   loadFn(tile, url);
   const state = await waitForState(tile);
-  assertEqual(state, TILE_STATE.ERROR, '前置條件：逾時重試一次後仍逾時，應該終局判定 ERROR');
+  expect(state, '前置條件：逾時重試一次後仍逾時，應該終局判定 ERROR').toBe(TILE_STATE.ERROR);
 
   await waitFor(() => tile.state === TILE_STATE.IDLE, {
     timeoutMs: TIMEOUT_RETRY_COOLDOWN_MS + 3000,
     intervalMs: 50,
     message: `完全沒有觸發任何視角事件，等待超過 ${TIMEOUT_RETRY_COOLDOWN_MS + 3000}ms 後圖磚仍未自動撥回 IDLE`,
   });
-  assertEqual(tile.state, TILE_STATE.IDLE, '沒有任何 moveend／view change 事件，冷卻時間一到仍應該被 setTimeout 兜底路徑自動撥回 IDLE');
-});
+  expect(tile.state, '沒有任何 moveend／view change 事件，冷卻時間一到仍應該被 setTimeout 兜底路徑自動撥回 IDLE').toBe(TILE_STATE.IDLE);
+}, 15000);
 
 test('abortInFlightForKey：圖層被移除時，也要清掉 timeoutFailedGuardedTiles 裡屬於這個 key 的冷卻重試候選（回歸：曾經只清 inFlightGuardedTiles，孤兒 entry 會留到冷卻時間到或名單滿了才消失）', async () => {
   const url = 'http://tile-timeout-retry/abort-by-key-cooldown';
@@ -285,7 +287,7 @@ test('abortInFlightForKey：圖層被移除時，也要清掉 timeoutFailedGuard
     const loadFn = createGuardedTileLoadFunction({ regionBbox: TAIPEI_BBOX, timeoutMs: 20, sourceKey });
     loadFn(tile, url);
     const state = await waitForState(tile);
-    assertEqual(state, TILE_STATE.ERROR, '前置條件：逾時重試一次後仍逾時，應該終局判定 ERROR，並登記進冷卻重試候選名單');
+    expect(state, '前置條件：逾時重試一次後仍逾時，應該終局判定 ERROR，並登記進冷卻重試候選名單').toBe(TILE_STATE.ERROR);
 
     // 圖層被移除（比照 core/layerCache.js 的 removeCachedLayer()）：這個
     // key 底下的冷卻重試候選應該被一併清掉。
@@ -296,7 +298,7 @@ test('abortInFlightForKey：圖層被移除時，也要清掉 timeoutFailedGuard
     attachStaleTileAbort(fakeMap);
     fakeMap._trigger('moveend');
 
-    assertEqual(tile.state, TILE_STATE.ERROR, '候選已經被 abortInFlightForKey 清掉，之後的 sweep 不應該再把它撥回 IDLE');
+    expect(tile.state, '候選已經被 abortInFlightForKey 清掉，之後的 sweep 不應該再把它撥回 IDLE').toBe(TILE_STATE.ERROR);
   }finally{
     Date.now = originalDateNow;
   }
@@ -314,7 +316,7 @@ test('逾時終局失敗、冷卻時間還沒過 -> sweep 後應該維持 ERROR�
     const loadFn = createGuardedTileLoadFunction({ regionBbox: TAIPEI_BBOX, timeoutMs: 20 });
     loadFn(tile, url);
     const state = await waitForState(tile);
-    assertEqual(state, TILE_STATE.ERROR, '前置條件：逾時重試一次後仍逾時，應該終局判定 ERROR');
+    expect(state, '前置條件：逾時重試一次後仍逾時，應該終局判定 ERROR').toBe(TILE_STATE.ERROR);
 
     now += TIMEOUT_RETRY_COOLDOWN_MS - 1000; // 快轉到「還沒到」冷卻時間
 
@@ -322,7 +324,7 @@ test('逾時終局失敗、冷卻時間還沒過 -> sweep 後應該維持 ERROR�
     attachStaleTileAbort(fakeMap);
     fakeMap._trigger('moveend');
 
-    assertEqual(tile.state, TILE_STATE.ERROR, '冷卻時間還沒到，不應該被撥回 IDLE，應該留著等下次 sweep');
+    expect(tile.state, '冷卻時間還沒到，不應該被撥回 IDLE，應該留著等下次 sweep').toBe(TILE_STATE.ERROR);
   }finally{
     Date.now = originalDateNow;
   }
@@ -340,8 +342,8 @@ test('明確 onerror 終局失敗，即使冷卻時間過了很久、tile 在目
     const loadFn = createGuardedTileLoadFunction({ regionBbox: TAIPEI_BBOX, timeoutMs: 500 });
     loadFn(tile, url);
     const state = await waitForState(tile);
-    assertEqual(state, TILE_STATE.ERROR, '前置條件：明確 onerror 應該直接終局判定 ERROR');
-    assertEqual(urlAttempts[url], 1, '前置條件：明確失敗不應該重試，只發送 1 次請求');
+    expect(state, '前置條件：明確 onerror 應該直接終局判定 ERROR').toBe(TILE_STATE.ERROR);
+    expect(urlAttempts[url], '前置條件：明確失敗不應該重試，只發送 1 次請求').toBe(1);
 
     now += TIMEOUT_RETRY_COOLDOWN_MS * 100; // 遠超過冷卻時間，排除「其實只是還沒到」的可能
 
@@ -349,7 +351,7 @@ test('明確 onerror 終局失敗，即使冷卻時間過了很久、tile 在目
     attachStaleTileAbort(fakeMap);
     fakeMap._trigger('moveend');
 
-    assertEqual(tile.state, TILE_STATE.ERROR, '明確 onerror 判定的失敗刻意不納入冷卻重試名單，不論冷卻多久都不應該被撥回 IDLE');
+    expect(tile.state, '明確 onerror 判定的失敗刻意不納入冷卻重試名單，不論冷卻多久都不應該被撥回 IDLE').toBe(TILE_STATE.ERROR);
   }finally{
     Date.now = originalDateNow;
   }
@@ -367,14 +369,14 @@ test('逾時終局失敗撥回 IDLE 一次後，若再次逾時終局失敗 -> �
     const loadFn = createGuardedTileLoadFunction({ regionBbox: TAIPEI_BBOX, timeoutMs: 20 });
     loadFn(tile, url);
     let state = await waitForState(tile);
-    assertEqual(state, TILE_STATE.ERROR, '前置條件：第一次逾時重試一次後仍逾時，應該終局判定 ERROR');
-    assertEqual(urlAttempts[url], 2, '前置條件：第一次終局失敗前應該重試過 1 次，共 2 次請求');
+    expect(state, '前置條件：第一次逾時重試一次後仍逾時，應該終局判定 ERROR').toBe(TILE_STATE.ERROR);
+    expect(urlAttempts[url], '前置條件：第一次終局失敗前應該重試過 1 次，共 2 次請求').toBe(2);
 
     now += TIMEOUT_RETRY_COOLDOWN_MS + 1000; // 第一次冷卻時間已過
     const fakeMap1 = makeFakeMap({ zoom: TAIPEI_TILE.z, extent: TAIPEI_BBOX });
     attachStaleTileAbort(fakeMap1);
     fakeMap1._trigger('moveend');
-    assertEqual(tile.state, TILE_STATE.IDLE, '第一次冷卻重試機會：應該被撥回 IDLE');
+    expect(tile.state, '第一次冷卻重試機會：應該被撥回 IDLE').toBe(TILE_STATE.IDLE);
 
     // 模擬圖磚重新進入可視範圍、OL 重新呼叫 tileLoadFunction；這次同樣
     // 持續逾時（urlResults[url] 仍是 'timeout-always'），驗證再次終局
@@ -387,15 +389,15 @@ test('逾時終局失敗撥回 IDLE 一次後，若再次逾時終局失敗 -> �
       };
       check();
     }), 5000, '第二次逾時後一直沒有回到 ERROR（可能發生 deadlock）');
-    assertEqual(state, TILE_STATE.ERROR, '第二次逾時重試一次後仍逾時，應該再次終局判定 ERROR');
-    assertEqual(urlAttempts[url], 4, '第二次終局失敗前應該又重試過 1 次，累計共 4 次請求');
+    expect(state, '第二次逾時重試一次後仍逾時，應該再次終局判定 ERROR').toBe(TILE_STATE.ERROR);
+    expect(urlAttempts[url], '第二次終局失敗前應該又重試過 1 次，累計共 4 次請求').toBe(4);
 
     now += TIMEOUT_RETRY_COOLDOWN_MS + 1000; // 再快轉過一次完整冷卻時間
     const fakeMap2 = makeFakeMap({ zoom: TAIPEI_TILE.z, extent: TAIPEI_BBOX });
     attachStaleTileAbort(fakeMap2);
     fakeMap2._trigger('moveend');
 
-    assertEqual(tile.state, TILE_STATE.ERROR, '每顆 tile 物件只有一次額外冷卻重試機會，第二次終局失敗不應該再被登記、不會再被撥回 IDLE');
+    expect(tile.state, '每顆 tile 物件只有一次額外冷卻重試機會，第二次終局失敗不應該再被登記、不會再被撥回 IDLE').toBe(TILE_STATE.ERROR);
   }finally{
     Date.now = originalDateNow;
   }
@@ -416,12 +418,12 @@ test('recordTileFailure：明確 onerror 會記錄一筆 reason=error，帶正�
   await waitForState(tile);
 
   const failures = getRecentTileFailures();
-  assertEqual(failures.length, 1, '明確 onerror 應該記錄剛好 1 筆失敗');
-  assertEqual(failures[0].reason, 'error', '失敗原因應該分類成 error');
-  assertEqual(failures[0].label, '測試圖層／明確錯誤', '應該帶上呼叫端傳入的 label');
-  assertEqual(failures[0].z, TAIPEI_TILE.z, '應該記錄正確的 z');
-  assertEqual(failures[0].x, TAIPEI_TILE.x, '應該記錄正確的 x');
-  assertEqual(failures[0].y, TAIPEI_TILE.y, '應該記錄正確的 y');
+  expect(failures.length, '明確 onerror 應該記錄剛好 1 筆失敗').toBe(1);
+  expect(failures[0].reason, '失敗原因應該分類成 error').toBe('error');
+  expect(failures[0].label, '應該帶上呼叫端傳入的 label').toBe('測試圖層／明確錯誤');
+  expect(failures[0].z, '應該記錄正確的 z').toBe(TAIPEI_TILE.z);
+  expect(failures[0].x, '應該記錄正確的 x').toBe(TAIPEI_TILE.x);
+  expect(failures[0].y, '應該記錄正確的 y').toBe(TAIPEI_TILE.y);
 });
 
 test('recordTileFailure：逾時兩次（含重試）後仍失敗，只記錄 1 筆 reason=timeout（不是每次逾時都記）', async () => {
@@ -435,9 +437,9 @@ test('recordTileFailure：逾時兩次（含重試）後仍失敗，只記錄 1 
   await waitForState(tile);
 
   const failures = getRecentTileFailures();
-  assertEqual(failures.length, 1, '重試一次後仍逾時，最終只應該記錄 1 筆（第一次逾時只是觸發重試，不算最終失敗）');
-  assertEqual(failures[0].reason, 'timeout', '失敗原因應該分類成 timeout');
-  assertEqual(failures[0].label, '測試圖層／逾時', '應該帶上呼叫端傳入的 label');
+  expect(failures.length, '重試一次後仍逾時，最終只應該記錄 1 筆（第一次逾時只是觸發重試，不算最終失敗）').toBe(1);
+  expect(failures[0].reason, '失敗原因應該分類成 timeout').toBe('timeout');
+  expect(failures[0].label, '應該帶上呼叫端傳入的 label').toBe('測試圖層／逾時');
 });
 
 test('recordTileFailure：正常載入成功不應該留下任何失敗紀錄', async () => {
@@ -450,7 +452,7 @@ test('recordTileFailure：正常載入成功不應該留下任何失敗紀錄', 
   loadFn(tile, url);
   await waitForState(tile);
 
-  assertEqual(getRecentTileFailures().length, 0, '成功載入不應該產生任何失敗紀錄');
+  expect(getRecentTileFailures().length, '成功載入不應該產生任何失敗紀錄').toBe(0);
 });
 
 test('recordTileFailure：邊界保護判定的 EMPTY 不應該被記錄為失敗（平移到範圍外是預期行為，不是故障）', () => {
@@ -462,8 +464,8 @@ test('recordTileFailure：邊界保護判定的 EMPTY 不應該被記錄為失�
   const loadFn = createGuardedTileLoadFunction({ regionBbox: [110, 30, 112, 32], timeoutMs: 30, label: '測試圖層／邊界外' });
   loadFn(tile, url);
 
-  assertEqual(tile.state, TILE_STATE.EMPTY, '前置條件：邊界外應該直接 EMPTY');
-  assertEqual(getRecentTileFailures().length, 0, '邊界保護判定的 EMPTY 不應該計入失敗紀錄，只有真正逾時/明確錯誤才算');
+  expect(tile.state, '前置條件：邊界外應該直接 EMPTY').toBe(TILE_STATE.EMPTY);
+  expect(getRecentTileFailures().length, '邊界保護判定的 EMPTY 不應該計入失敗紀錄，只有真正逾時/明確錯誤才算').toBe(0);
 });
 
 test('getRecentTileFailures()：只保留最近 RECENT_TILE_FAILURE_LIMIT 筆，最新的排最前面', async () => {
@@ -479,8 +481,8 @@ test('getRecentTileFailures()：只保留最近 RECENT_TILE_FAILURE_LIMIT 筆，
   }
 
   const failures = getRecentTileFailures();
-  assertEqual(failures.length, RECENT_TILE_FAILURE_LIMIT, `超過上限的紀錄應該被丟棄，只保留最近 ${RECENT_TILE_FAILURE_LIMIT} 筆`);
-  assertEqual(failures[0].label, `第${total - 1}筆`, '最新的一筆應該排在最前面');
+  expect(failures.length, `超過上限的紀錄應該被丟棄，只保留最近 ${RECENT_TILE_FAILURE_LIMIT} 筆`).toBe(RECENT_TILE_FAILURE_LIMIT);
+  expect(failures[0].label, '最新的一筆應該排在最前面').toBe(`第${total - 1}筆`);
 });
 
 test('getRecentTileFailures()：回傳的是複本，呼叫端修改回傳陣列不會影響內部狀態', async () => {
@@ -494,7 +496,7 @@ test('getRecentTileFailures()：回傳的是複本，呼叫端修改回傳陣列
 
   const failures = getRecentTileFailures();
   failures.pop();
-  assertEqual(getRecentTileFailures().length, 1, '呼叫端清空回傳陣列不應該影響下次呼叫拿到的內部狀態');
+  expect(getRecentTileFailures().length, '呼叫端清空回傳陣列不應該影響下次呼叫拿到的內部狀態').toBe(1);
 });
 
 test('clearRecentTileFailures()：清空後 getRecentTileFailures() 應該回傳空陣列', async () => {
@@ -504,10 +506,8 @@ test('clearRecentTileFailures()：清空後 getRecentTileFailures() 應該回傳
   const loadFn = createGuardedTileLoadFunction({ regionBbox: TAIPEI_BBOX, timeoutMs: 500 });
   loadFn(tile, url);
   await waitForState(tile);
-  assertTrue(getRecentTileFailures().length > 0, '前置條件：應該至少有 1 筆紀錄');
+  expect(getRecentTileFailures().length > 0, '前置條件：應該至少有 1 筆紀錄').toBeTruthy();
 
   clearRecentTileFailures();
-  assertEqual(getRecentTileFailures().length, 0, '清空後應該回傳空陣列');
+  expect(getRecentTileFailures().length, '清空後應該回傳空陣列').toBe(0);
 });
-
-await run();

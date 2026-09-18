@@ -1,4 +1,4 @@
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, expect } from 'vitest';
 import buildPlaceNames from '../../tools/build-place-names.js';
 
 /* ---------------------------------------------------------
@@ -13,150 +13,150 @@ import buildPlaceNames from '../../tools/build-place-names.js';
 const { parseCsv, splitAliases, extractAliasesFromDescription, rowToPlace } = buildPlaceNames;
 
 test('module.exports 應該正確匯出四個函式', () => {
-  assertEqual(typeof parseCsv, 'function', 'parseCsv 應該是函式');
-  assertEqual(typeof splitAliases, 'function', 'splitAliases 應該是函式');
-  assertEqual(typeof extractAliasesFromDescription, 'function', 'extractAliasesFromDescription 應該是函式');
-  assertEqual(typeof rowToPlace, 'function', 'rowToPlace 應該是函式');
+  expect(typeof parseCsv, 'parseCsv 應該是函式').toBe('function');
+  expect(typeof splitAliases, 'splitAliases 應該是函式').toBe('function');
+  expect(typeof extractAliasesFromDescription, 'extractAliasesFromDescription 應該是函式').toBe('function');
+  expect(typeof rowToPlace, 'rowToPlace 應該是函式').toBe('function');
 });
 
 /* ---------------- parseCsv ---------------- */
 
 test('parseCsv：一般逗號分隔列', () => {
   const rows = parseCsv('a,b,c\n1,2,3');
-  assertEqual(rows.length, 2, '應該有 2 列');
-  assertEqual(rows[0].join('|'), 'a|b|c', '第一列欄位應正確拆分');
-  assertEqual(rows[1].join('|'), '1|2|3', '第二列欄位應正確拆分');
+  expect(rows.length, '應該有 2 列').toBe(2);
+  expect(rows[0].join('|'), '第一列欄位應正確拆分').toBe('a|b|c');
+  expect(rows[1].join('|'), '第二列欄位應正確拆分').toBe('1|2|3');
 });
 
 test('parseCsv：欄位帶雙引號且內含逗號', () => {
   const rows = parseCsv('a,"b,c",d');
-  assertEqual(rows.length, 1, '應該只有 1 列');
-  assertEqual(rows[0].length, 3, '應該只有 3 個欄位（引號內的逗號不應該被當成分隔符）');
-  assertEqual(rows[0][1], 'b,c', '第二欄應該是含逗號的完整字串');
+  expect(rows.length, '應該只有 1 列').toBe(1);
+  expect(rows[0].length, '應該只有 3 個欄位（引號內的逗號不應該被當成分隔符）').toBe(3);
+  expect(rows[0][1], '第二欄應該是含逗號的完整字串').toBe('b,c');
 });
 
 test('parseCsv：欄位帶 "" 轉義雙引號', () => {
   const rows = parseCsv('"he said ""hi"""');
-  assertEqual(rows.length, 1, '應該只有 1 列');
-  assertEqual(rows[0][0], 'he said "hi"', '"" 應該被轉義成一個字面雙引號');
+  expect(rows.length, '應該只有 1 列').toBe(1);
+  expect(rows[0][0], '"" 應該被轉義成一個字面雙引號').toBe('he said "hi"');
 });
 
 test('parseCsv：CRLF / LF 混合換行皆視為換列', () => {
   const rows = parseCsv('a,b\r\nc,d\ne,f');
-  assertEqual(rows.length, 3, '應該有 3 列（CRLF 與 LF 都要正確斷列）');
-  assertEqual(rows[1].join('|'), 'c|d', '第二列（CRLF 後）應該正確拆分');
-  assertEqual(rows[2].join('|'), 'e|f', '第三列（LF 後）應該正確拆分');
+  expect(rows.length, '應該有 3 列（CRLF 與 LF 都要正確斷列）').toBe(3);
+  expect(rows[1].join('|'), '第二列（CRLF 後）應該正確拆分').toBe('c|d');
+  expect(rows[2].join('|'), '第三列（LF 後）應該正確拆分').toBe('e|f');
 });
 
 test('parseCsv：空白列會被過濾掉', () => {
   const rows = parseCsv('a,b\n\nc,d\n');
-  assertEqual(rows.length, 2, '中間的空白列不應該出現在結果中');
-  assertEqual(rows[0].join('|'), 'a|b');
-  assertEqual(rows[1].join('|'), 'c|d');
+  expect(rows.length, '中間的空白列不應該出現在結果中').toBe(2);
+  expect(rows[0].join('|')).toBe('a|b');
+  expect(rows[1].join('|')).toBe('c|d');
 });
 
 /* ---------------- splitAliases ---------------- */
 
 test('splitAliases：頓號分隔的混合別名', () => {
   const result = splitAliases('卜吉、化番社', '德化社');
-  assertEqual(result.join(','), '卜吉,化番社', '應該依頓號拆分成兩個別名');
+  expect(result.join(','), '應該依頓號拆分成兩個別名').toBe('卜吉,化番社');
 });
 
 test('splitAliases：頓號/逗號/分號/間隔號混合分隔', () => {
   const result = splitAliases('甲,乙；丙・丁、戊', '主名');
-  assertEqual(result.join(','), '甲,乙,丙,丁,戊', '應該用各種分隔符正確拆分');
+  expect(result.join(','), '應該用各種分隔符正確拆分').toBe('甲,乙,丙,丁,戊');
 });
 
 test('splitAliases：跟 name 相同的片段要被排除', () => {
   const result = splitAliases('德化社、卜吉', '德化社');
-  assertEqual(result.join(','), '卜吉', '跟主名相同的片段應被排除');
+  expect(result.join(','), '跟主名相同的片段應被排除').toBe('卜吉');
 });
 
 test('splitAliases：重複片段要去重', () => {
   const result = splitAliases('卜吉、卜吉、化番社', '德化社');
-  assertEqual(result.join(','), '卜吉,化番社', '重複片段應該只留一份');
+  expect(result.join(','), '重複片段應該只留一份').toBe('卜吉,化番社');
 });
 
 test('splitAliases：純空字串輸入回傳空陣列', () => {
-  assertEqual(splitAliases('', '德化社').length, 0, '空字串輸入應該回傳空陣列');
+  expect(splitAliases('', '德化社').length, '空字串輸入應該回傳空陣列').toBe(0);
 });
 
 test('splitAliases：undefined/null 輸入回傳空陣列', () => {
-  assertEqual(splitAliases(undefined, '德化社').length, 0, 'undefined 輸入應該回傳空陣列');
-  assertEqual(splitAliases(null, '德化社').length, 0, 'null 輸入應該回傳空陣列');
+  expect(splitAliases(undefined, '德化社').length, 'undefined 輸入應該回傳空陣列').toBe(0);
+  expect(splitAliases(null, '德化社').length, 'null 輸入應該回傳空陣列').toBe(0);
 });
 
 /* ---------------- extractAliasesFromDescription ---------------- */
 
 test('extractAliasesFromDescription：「舊稱」前導語句抓出候選', () => {
   const result = extractAliasesFromDescription('本地舊稱阿罩霧，清代設庄', '霧峰');
-  assertEqual(result.join(','), '阿罩霧', '應該抓出「舊稱」後面的候選');
+  expect(result.join(','), '應該抓出「舊稱」後面的候選').toBe('阿罩霧');
 });
 
 test('extractAliasesFromDescription：「原名」前導語句抓出候選', () => {
   const result = extractAliasesFromDescription('本聚落原名錫口，因位於基隆河渡口而得名', '松山');
-  assertEqual(result.join(','), '錫口', '應該抓出「原名」後面的候選');
+  expect(result.join(','), '應該抓出「原名」後面的候選').toBe('錫口');
 });
 
 test('extractAliasesFromDescription：「又名」前導語句抓出候選', () => {
   const result = extractAliasesFromDescription('此地又名打狗，為重要港口', '高雄');
-  assertEqual(result.join(','), '打狗', '應該抓出「又名」後面的候選');
+  expect(result.join(','), '應該抓出「又名」後面的候選').toBe('打狗');
 });
 
 test('extractAliasesFromDescription：「俗稱」前導語句抓出候選', () => {
   const result = extractAliasesFromDescription('當地俗稱三重埔，因地勢低窪而得名', '三重');
-  assertEqual(result.join(','), '三重埔', '應該抓出「俗稱」後面的候選');
+  expect(result.join(','), '應該抓出「俗稱」後面的候選').toBe('三重埔');
 });
 
 test('extractAliasesFromDescription：「古稱」前導語句抓出候選', () => {
   const result = extractAliasesFromDescription('本地古稱大加蚋，為平埔族社名', '大加蚋堡');
-  assertEqual(result.join(','), '大加蚋', '應該抓出「古稱」後面的候選');
+  expect(result.join(','), '應該抓出「古稱」後面的候選').toBe('大加蚋');
 });
 
 test('extractAliasesFromDescription：「曾稱」前導語句抓出候選', () => {
   const result = extractAliasesFromDescription('日治時期曾稱錦町，光復後改名', '錦华里');
-  assertEqual(result.join(','), '錦町', '應該抓出「曾稱」後面的候選');
+  expect(result.join(','), '應該抓出「曾稱」後面的候選').toBe('錦町');
 });
 
 test('extractAliasesFromDescription：「改稱」前導語句抓出候選', () => {
   const result = extractAliasesFromDescription('民國九年改稱員林，沿用至今', '員林鎮');
-  assertEqual(result.join(','), '員林', '應該抓出「改稱」後面的候選');
+  expect(result.join(','), '應該抓出「改稱」後面的候選').toBe('員林');
 });
 
 test('extractAliasesFromDescription：同一句內兩個前導語句，其中一個候選跟主名稱相同時會被排除', () => {
   const result = extractAliasesFromDescription('舊稱阿罩霧，日治時期改稱霧峰', '霧峰');
-  assertEqual(result.join(','), '阿罩霧', '「改稱」後面的「霧峰」跟主名稱相同應該被排除，只留「舊稱」抓到的「阿罩霧」');
+  expect(result.join(','), '「改稱」後面的「霧峰」跟主名稱相同應該被排除，只留「舊稱」抓到的「阿罩霧」').toBe('阿罩霧');
 });
 
 test('extractAliasesFromDescription：無前導語句的一般敘述文字抓不到任何東西', () => {
-  assertEqual(extractAliasesFromDescription('無沿革記載', '某地').length, 0, '「無沿革記載」不應該抓出任何候選');
-  assertEqual(extractAliasesFromDescription('地勢平坦', '某地').length, 0, '「地勢平坦」不應該抓出任何候選');
+  expect(extractAliasesFromDescription('無沿革記載', '某地').length, '「無沿革記載」不應該抓出任何候選').toBe(0);
+  expect(extractAliasesFromDescription('地勢平坦', '某地').length, '「地勢平坦」不應該抓出任何候選').toBe(0);
 });
 
 test('extractAliasesFromDescription：前導語句後緊接標點（引號）抓不到——刻意行為，避免以後改動 regex 時意外誤抓整句', () => {
   const result = extractAliasesFromDescription('又名『打狗』，為重要港口', '高雄');
-  assertEqual(result.length, 0, '「又名」後面緊接『』全形引號時，目前設計是抓不到候選（不會誤抓成空字串或整句）');
+  expect(result.length, '「又名」後面緊接『』全形引號時，目前設計是抓不到候選（不會誤抓成空字串或整句）').toBe(0);
 });
 
 test('extractAliasesFromDescription：前導語句後緊接冒號抓不到——同樣是刻意行為', () => {
   const result = extractAliasesFromDescription('俗稱：三重埔', '三重');
-  assertEqual(result.length, 0, '「俗稱」後面緊接冒號時，目前設計是抓不到候選');
+  expect(result.length, '「俗稱」後面緊接冒號時，目前設計是抓不到候選').toBe(0);
 });
 
 test('extractAliasesFromDescription：description 為空字串／undefined／null 都回傳空陣列', () => {
-  assertEqual(extractAliasesFromDescription('', '某地').length, 0, '空字串應該回傳空陣列');
-  assertEqual(extractAliasesFromDescription(undefined, '某地').length, 0, 'undefined 應該回傳空陣列');
-  assertEqual(extractAliasesFromDescription(null, '某地').length, 0, 'null 應該回傳空陣列');
+  expect(extractAliasesFromDescription('', '某地').length, '空字串應該回傳空陣列').toBe(0);
+  expect(extractAliasesFromDescription(undefined, '某地').length, 'undefined 應該回傳空陣列').toBe(0);
+  expect(extractAliasesFromDescription(null, '某地').length, 'null 應該回傳空陣列').toBe(0);
 });
 
 test('extractAliasesFromDescription：候選片段超過 8 字時在第 8 字處截斷', () => {
   const result = extractAliasesFromDescription('本地舊稱一二三四五六七八九十，其餘從略', '某地');
-  assertEqual(result.join(','), '一二三四五六七八', '候選片段應該只取前 8 個字，超過的部分不納入');
+  expect(result.join(','), '候選片段應該只取前 8 個字，超過的部分不納入').toBe('一二三四五六七八');
 });
 
 test('extractAliasesFromDescription：前導語句剛好在字串最尾端、沒有後續內容時不拋錯，回傳空陣列', () => {
   const result = extractAliasesFromDescription('本地舊稱', '某地');
-  assertEqual(result.length, 0, '前導語句後面沒有任何字元可組成候選時，應該回傳空陣列而不是拋錯');
+  expect(result.length, '前導語句後面沒有任何字元可組成候選時，應該回傳空陣列而不是拋錯').toBe(0);
 });
 
 test('extractAliasesFromDescription：已知誤判案例（現況記錄，非預期修正）——「由來與開墾有關」後接「原名同今名」會被誤抓成候選', () => {
@@ -166,7 +166,7 @@ test('extractAliasesFromDescription：已知誤判案例（現況記錄，非預
   // 現況行為，日後若要調整 DESC_ALIAS_LEAD_PATTERNS 或補停用詞規則，
   // 這個測試案例可以拿來對照修正前後的差異。
   const result = extractAliasesFromDescription('地名由來與開墾有關，原名同今名', '某地');
-  assertEqual(result.join(','), '同今名', '已知誤判：目前會把「同今名」誤判成候選別名');
+  expect(result.join(','), '已知誤判：目前會把「同今名」誤判成候選別名').toBe('同今名');
 });
 
 /* ----------------------------------------------------------------
@@ -183,7 +183,7 @@ test('extractAliasesFromDescription：真實案例（富興村，花蓮縣瑞穗
     '富興村位在富源、富民兩村東側原野間，清代舊稱溪底仔，緣於此地原為拔仔庄外的溪埔地，' +
     '故居民多以「溪底仔」稱之。日治時仍屬拔仔庄（白川）所轄，民國35年（1946）設村，改稱為富興。';
   const result = extractAliasesFromDescription(desc, '富興村');
-  assertEqual(result.join(','), '溪底仔,富興', '應抓到「舊稱」的「溪底仔」與「改稱為」跳過連接詞後的「富興」（不是「為富興」）');
+  expect(result.join(','), '應抓到「舊稱」的「溪底仔」與「改稱為」跳過連接詞後的「富興」（不是「為富興」）').toBe('溪底仔,富興');
 });
 
 test('extractAliasesFromDescription：真實案例（安宜里，高雄市三民區）——「原名稱安宜里」跳過連接詞「稱」後，候選與主名稱相同應被排除，不殘留「稱安宜里」', () => {
@@ -201,7 +201,7 @@ test('extractAliasesFromDescription：真實案例（安宜里，高雄市三民
     '戰後里內房舍漸見，直到民國七十年代（1980s），自立路東側的街廓多為建成區，自立路西邊也有工廠分布，' +
     '附近被規劃為三民區2號公園，現名為三民敦新公園，公園內後來設高雄市客家文物館。';
   const result = extractAliasesFromDescription(desc, '安宜里');
-  assertEqual(result.length, 0, '「原名稱安宜里」跳過「稱」後候選是「安宜里」，跟主名稱相同應被排除，結果應為空陣列（不含「稱安宜里」）');
+  expect(result.length, '「原名稱安宜里」跳過「稱」後候選是「安宜里」，跟主名稱相同應被排除，結果應為空陣列（不含「稱安宜里」）').toBe(0);
 });
 
 test('extractAliasesFromDescription：真實案例（南汕里，高雄市旗津區）——連接詞跳過＋機構名尾綴雙重過濾，「改稱為第二區公所」「改稱旗津區公所」都不應殘留', () => {
@@ -219,22 +219,22 @@ test('extractAliasesFromDescription：真實案例（南汕里，高雄市旗津
     '里內有旗津國民中學、大汕國民小學、海星托兒所、中區汙水處理廠。由於本里瀕臨高雄港一帶，為港埠用地，' +
     '有多家造船公司。';
   const result = extractAliasesFromDescription(desc, '南汕里');
-  assertEqual(result.length, 0, '「第二區公所」「旗津區公所」都以機構名尾綴結尾應被捨棄，結果應為空陣列');
+  expect(result.length, '「第二區公所」「旗津區公所」都以機構名尾綴結尾應被捨棄，結果應為空陣列').toBe(0);
 });
 
 test('extractAliasesFromDescription：真實案例（石牌村，花蓮縣富里鄉）——「為清代舊稱沿用至今」整句殘留應捨棄', () => {
   const result = extractAliasesFromDescription('因其地有兩石對立，高約六尺，形狀似牌而得名。為清代舊稱沿用至今。', '石牌村');
-  assertEqual(result.length, 0, '「舊稱」後緊接的候選是「沿用至今」，屬於語意殘留應捨棄，結果應為空陣列');
+  expect(result.length, '「舊稱」後緊接的候選是「沿用至今」，屬於語意殘留應捨棄，結果應為空陣列').toBe(0);
 });
 
 test('extractAliasesFromDescription：真實案例（賊仔市，嘉義市東區）——「故俗稱此地為賊仔市」的「此地為」指示詞開頭候選應捨棄', () => {
   const result = extractAliasesFromDescription('民國38年後有許多外省籍人士佔據此地賣贓物，故俗稱此地為「賊仔市」', '賊仔市');
-  assertEqual(result.length, 0, '「俗稱」後緊接的候選是「此地為」，以「此」開頭屬於指示詞殘留應捨棄，結果應為空陣列');
+  expect(result.length, '「俗稱」後緊接的候選是「此地為」，以「此」開頭屬於指示詞殘留應捨棄，結果應為空陣列').toBe(0);
 });
 
 test('extractAliasesFromDescription：真實案例（鯉魚窟，南投縣埔里鎮）——「原名應為鱺魚潭」的「應為」揣測詞開頭候選應捨棄', () => {
   const result = extractAliasesFromDescription('居民認為原名應為「鱺魚潭」，因潭內多高貴魚類「鱺魚」而名（另有一說指鯉魚）。', '鯉魚窟');
-  assertEqual(result.length, 0, '「原名」後緊接的候選是「應為」，以「應為」開頭屬於揣測詞殘留應捨棄，結果應為空陣列');
+  expect(result.length, '「原名」後緊接的候選是「應為」，以「應為」開頭屬於揣測詞殘留應捨棄，結果應為空陣列').toBe(0);
 });
 
 test('extractAliasesFromDescription：真實案例（日本宿舍，嘉義縣朴子市）——「改稱樸仔腳支署」「改稱樸仔腳支廳」機構名尾綴應捨棄，但同句「舊衙門」不受影響、正常保留', () => {
@@ -245,7 +245,7 @@ test('extractAliasesFromDescription：真實案例（日本宿舍，嘉義縣朴
     '俗稱舊衙門，其東北向周圍為長官及屬吏是日本宿舍之由來，光復後政府收編為縣政府朴子宿舍。' +
     '北側現軍公教福利中心有所謂蕃仔墓葬庄崎支廳長及宮下郵便局長之舊址，現已不復見。';
   const result = extractAliasesFromDescription(desc, '日本宿舍');
-  assertEqual(result.join(','), '舊衙門', '「樸仔腳支署」「樸仔腳支廳」都以機構名尾綴結尾應被捨棄，只留下不受影響的「舊衙門」');
+  expect(result.join(','), '「樸仔腳支署」「樸仔腳支廳」都以機構名尾綴結尾應被捨棄，只留下不受影響的「舊衙門」').toBe('舊衙門');
 });
 
 test('extractAliasesFromDescription：真實案例（大禹里，花蓮縣玉里鎮）——沿革文字品質良好時應正常抽出真正舊名「末廣」', () => {
@@ -254,7 +254,7 @@ test('extractAliasesFromDescription：真實案例（大禹里，花蓮縣玉里
     '（大正6年，1917）日人改稱末廣，光復後易名大禹（駱香林，1983：64），舊文獻或譯作周塱、新塱、金塱' +
     '（夏獻綸，1996：78；台灣省文獻委員會，1994：33-35），現居當地的漢人大多仍沿舊習稱為Sinlon（信農）。';
   const result = extractAliasesFromDescription(desc, '大禹里');
-  assertEqual(result.join(','), '末廣', '「改稱末廣」應正常抽出候選「末廣」（沿革文字開頭的「舊名針塱」用的是「舊名」而非「舊稱」，不在前導語句清單內，本就不會被抓到）');
+  expect(result.join(','), '「改稱末廣」應正常抽出候選「末廣」（沿革文字開頭的「舊名針塱」用的是「舊名」而非「舊稱」，不在前導語句清單內，本就不會被抓到）').toBe('末廣');
 });
 
 /* ---------------- rowToPlace ---------------- */
@@ -265,53 +265,53 @@ const HEADER = ['Type','PlaceName','ChinesePhonetic','CommonPhonetic','AnotherNa
 test('rowToPlace：正常一列（含經緯度、含別名）轉出正確物件', () => {
   const row = ['聚落','德化社','','','卜吉、化番社','南投縣','','魚池鄉','','','日月潭邊的聚落','120.9123','23.8567'];
   const place = rowToPlace(HEADER, row, 'settlement');
-  assertTrue(!!place, '應該回傳有效物件');
-  assertEqual(place.name, '德化社');
-  assertEqual(place.aliases.join(','), '卜吉,化番社');
-  assertEqual(place.county, '南投縣');
-  assertEqual(place.town, '魚池鄉');
-  assertEqual(place.description, '日月潭邊的聚落');
-  assertEqual(place.sourceType, 'settlement');
-  assertEqual(place.longitude, 120.9123);
-  assertEqual(place.latitude, 23.8567);
+  expect(!!place, '應該回傳有效物件').toBeTruthy();
+  expect(place.name).toBe('德化社');
+  expect(place.aliases.join(',')).toBe('卜吉,化番社');
+  expect(place.county).toBe('南投縣');
+  expect(place.town).toBe('魚池鄉');
+  expect(place.description).toBe('日月潭邊的聚落');
+  expect(place.sourceType).toBe('settlement');
+  expect(place.longitude).toBe(120.9123);
+  expect(place.latitude).toBe(23.8567);
 });
 
 test('rowToPlace：PlaceName 空白時回傳 null', () => {
   const row = ['聚落','','','','','南投縣','','魚池鄉','','','','120.9','23.8'];
   const place = rowToPlace(HEADER, row, 'settlement');
-  assertEqual(place, null, 'PlaceName 空白應該回傳 null');
+  expect(place, 'PlaceName 空白應該回傳 null').toBe(null);
 });
 
 test('rowToPlace：PlaceName 只有空白字元時也視為空、回傳 null', () => {
   const row = ['聚落','   ','','','','南投縣','','魚池鄉','','','','120.9','23.8'];
   const place = rowToPlace(HEADER, row, 'settlement');
-  assertEqual(place, null, '只有空白字元的 PlaceName 應該視為空');
+  expect(place, '只有空白字元的 PlaceName 應該視為空').toBe(null);
 });
 
 test('rowToPlace：經度缺值時，輸出物件不應該有 longitude/latitude 這兩個 key', () => {
   const row = ['聚落','社寮','','','','南投縣','','竹山鎮','','','','','23.8'];
   const place = rowToPlace(HEADER, row, 'settlement');
-  assertTrue(!('longitude' in place), '經度缺值時不應該有 longitude key');
-  assertTrue(!('latitude' in place), '經度缺值時也不應該有 latitude key（要嘛兩個都有，要嘛都沒有）');
+  expect(!('longitude' in place), '經度缺值時不應該有 longitude key').toBeTruthy();
+  expect(!('latitude' in place), '經度缺值時也不應該有 latitude key（要嘛兩個都有，要嘛都沒有）').toBeTruthy();
 });
 
 test('rowToPlace：緯度缺值時，輸出物件不應該有 longitude/latitude 這兩個 key', () => {
   const row = ['聚落','社寮','','','','南投縣','','竹山鎮','','','','120.7',''];
   const place = rowToPlace(HEADER, row, 'settlement');
-  assertTrue(!('longitude' in place), '緯度缺值時不應該有 longitude key');
-  assertTrue(!('latitude' in place), '緯度缺值時也不應該有 latitude key');
+  expect(!('longitude' in place), '緯度缺值時不應該有 longitude key').toBeTruthy();
+  expect(!('latitude' in place), '緯度缺值時也不應該有 latitude key').toBeTruthy();
 });
 
 test('rowToPlace：AnotherName 為空時 aliases 應為空陣列', () => {
   const row = ['聚落','社寮','','','','南投縣','','竹山鎮','','','','120.7','23.8'];
   const place = rowToPlace(HEADER, row, 'settlement');
-  assertEqual(place.aliases.length, 0, '沒有別名應該是空陣列');
+  expect(place.aliases.length, '沒有別名應該是空陣列').toBe(0);
 });
 
 test('rowToPlace：sourceType 正確帶入 admin', () => {
   const row = ['行政區域','南投市','','','','南投縣','','南投市','','','','120.68','23.91'];
   const place = rowToPlace(HEADER, row, 'admin');
-  assertEqual(place.sourceType, 'admin', 'sourceType 應該正確帶入 admin');
+  expect(place.sourceType, 'sourceType 應該正確帶入 admin').toBe('admin');
 });
 
 test('rowToPlace：aliases 併入 splitAliases(AnotherName) 與 extractAliasesFromDescription(PlaceMean) 兩者結果，且互相重複時不重複', () => {
@@ -319,16 +319,14 @@ test('rowToPlace：aliases 併入 splitAliases(AnotherName) 與 extractAliasesFr
   // 還有一個獨有的「涼傘樹」——驗證最終 aliases 是兩邊來源的聯集且去重複。
   const row = ['聚落','霧峰','','','阿罩霧、涼傘樹','臺中市','','霧峰區','','','舊稱阿罩霧，因地勢而得名','120.71','24.07'];
   const place = rowToPlace(HEADER, row, 'settlement');
-  assertEqual(
+  expect(
     Array.from(new Set(place.aliases)).length,
-    place.aliases.length,
     'aliases 陣列本身不應該有重複項目'
-  );
-  assertEqual(
+  ).toBe(place.aliases.length);
+  expect(
     [...place.aliases].sort().join(','),
-    ['阿罩霧', '涼傘樹'].sort().join(','),
     'aliases 應該是 AnotherName 與 PlaceMean 沿革抽取結果的聯集（「阿罩霧」在兩邊都出現，最終只留一份）'
-  );
+  ).toBe(['阿罩霧', '涼傘樹'].sort().join(','));
 });
 
 /* ----------------------------------------------------------------
@@ -353,8 +351,8 @@ test('rowToPlace：真實案例（南汕里，高雄市旗津區）——同時�
     '有多家造船公司。';
   const row = ['行政區域', '南汕里', '', '', '', '高雄市', '', '旗津區', '', '', description, '', ''];
   const place = rowToPlace(HEADER, row, 'admin');
-  assertTrue(!!place, '應該回傳有效物件');
-  assertEqual(place.aliases.length, 0, 'AnotherName 為空、PlaceMean 抽取的候選又全被連接詞跳過＋機構名尾綴過濾掉，最終 aliases 應為空陣列');
+  expect(!!place, '應該回傳有效物件').toBeTruthy();
+  expect(place.aliases.length, 'AnotherName 為空、PlaceMean 抽取的候選又全被連接詞跳過＋機構名尾綴過濾掉，最終 aliases 應為空陣列').toBe(0);
 });
 
 test('rowToPlace：真實案例（松浦里，花蓮縣玉里鎮）——AnotherName 與 PlaceMean 沿革都提到「猛仔蘭」，兩來源合併去重複，並保留沿革另抽出的「松浦」', () => {
@@ -363,17 +361,13 @@ test('rowToPlace：真實案例（松浦里，花蓮縣玉里鎮）——Another
     '民國二十六年（昭和12年，1937），日人改稱松浦。';
   const row = ['行政區域', '松浦里', '', '', '猛仔蘭', '花蓮縣', '', '玉里鎮', '', '', description, '', ''];
   const place = rowToPlace(HEADER, row, 'admin');
-  assertTrue(!!place, '應該回傳有效物件');
-  assertEqual(
+  expect(!!place, '應該回傳有效物件').toBeTruthy();
+  expect(
     Array.from(new Set(place.aliases)).length,
-    place.aliases.length,
     'aliases 陣列本身不應該有重複項目'
-  );
-  assertEqual(
+  ).toBe(place.aliases.length);
+  expect(
     [...place.aliases].sort().join(','),
-    ['猛仔蘭', '松浦'].sort().join(','),
     'aliases 應該是 AnotherName 的「猛仔蘭」與 PlaceMean 沿革抽取結果「猛仔蘭、松浦」的聯集（「猛仔蘭」兩邊都出現，最終只留一份）'
-  );
+  ).toBe(['猛仔蘭', '松浦'].sort().join(','));
 });
-
-await run();

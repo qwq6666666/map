@@ -1,5 +1,7 @@
+import { test, expect } from 'vitest';
+import { waitFor } from '../helpers.mjs';
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue, waitFor } from '../assert.mjs';
+
 import { loadAppData } from '../../src/data.js';
 import { initMapCore } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
@@ -26,7 +28,7 @@ test('時間軸模式：進入後會依方案 A 清單探測，得到 15 筆圖�
     message: '時間軸模式進入後，逾時仍未渲染出任何 .timeline-dot（背景圖磚探測流程可能卡住）'
   });
   const dots = inner.querySelectorAll('.timeline-dot');
-  assertEqual(dots.length, 15, '方案 A（1:25,000 系列）應該有 15 筆');
+  expect(dots.length, '方案 A（1:25,000 系列）應該有 15 筆').toBe(15);
 });
 
 test('時間軸模式：切換到 1:50,000 系列會重新探測，得到 9 筆', async () => {
@@ -49,13 +51,11 @@ test('時間軸模式：切換到 1:50,000 系列會重新探測，得到 9 筆'
     message: '切換到 1:50,000 系列後，逾時仍未渲染出 9 筆 .timeline-dot（背景圖磚探測流程可能卡住）'
   });
   const dots = inner.querySelectorAll('.timeline-dot');
-  assertEqual(dots.length, 9, '1:50,000 系列應該有 9 筆');
+  expect(dots.length, '1:50,000 系列應該有 9 筆').toBe(9);
 });
 
 test('三種模式可以依序切換回疊圖模式，不拋出例外', async () => {
   setMode('compare');
   setMode('overlay');
-  assertTrue(true, '沒有拋出例外就算通過');
+  expect(true, '沒有拋出例外就算通過').toBeTruthy();
 });
-
-await run();

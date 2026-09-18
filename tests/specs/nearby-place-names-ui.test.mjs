@@ -1,5 +1,5 @@
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, expect } from 'vitest';
 import { loadAppData } from '../../src/data.js';
 import { initMapCore } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
@@ -118,9 +118,9 @@ test('一般地址搜尋命中（非地名精確比對）後，#locationResult �
   await searchByText('測試地址不是任何地名');
 
   const wrap = locationResultEl.querySelector('.nearby-place-names');
-  assertTrue(!!wrap, '應該出現附近歷史地名區塊');
+  expect(!!wrap, '應該出現附近歷史地名區塊').toBeTruthy();
   const items = wrap.querySelectorAll('.nearby-place-name-item');
-  assertEqual(items.length, 2, '預設半徑 800 公尺內應該剛好有 2 筆候選（遠方地名不應該被列入）');
+  expect(items.length, '預設半徑 800 公尺內應該剛好有 2 筆候選（遠方地名不應該被列入）').toBe(2);
 });
 
 test('.nearby-place-names 是 #locationResult 底下的直接子節點（插入呼叫用的是 locationResultEl.insertBefore）', async () => {
@@ -132,23 +132,23 @@ test('.nearby-place-names 是 #locationResult 底下的直接子節點（插入�
   // `locationResultEl.insertBefore(wrap, layerAvailPanelEl)` 確實讓
   // wrap 變成 locationResultEl 的子節點，位置關係交由實機／人工驗證。
   const wrap = locationResultEl.querySelector('.nearby-place-names');
-  assertTrue(!!wrap, '前置條件：應該存在 .nearby-place-names');
-  assertEqual(wrap.parentElement, locationResultEl, '.nearby-place-names 應該是 #locationResult 的子節點');
+  expect(!!wrap, '前置條件：應該存在 .nearby-place-names').toBeTruthy();
+  expect(wrap.parentElement, '.nearby-place-names 應該是 #locationResult 的子節點').toBe(locationResultEl);
 });
 
 test('每筆項目內容包含地名與縣市鄉鎮，且依距離由近到遠排序（化番社舊址在前、德化社渡船頭在後）', async () => {
   const wrap = locationResultEl.querySelector('.nearby-place-names');
   const items = wrap.querySelectorAll('.nearby-place-name-item');
-  assertEqual(items.length, 2, '前置條件：應該有 2 筆項目');
+  expect(items.length, '前置條件：應該有 2 筆項目').toBe(2);
 
   const nameOf = (item) => item.querySelector('.nearby-place-name-name').textContent;
   const metaOf = (item) => item.querySelector('.nearby-place-name-meta').textContent;
 
-  assertEqual(nameOf(items[0]), '化番社舊址', '第 1 筆應該是距離較近的「化番社舊址」');
-  assertEqual(nameOf(items[1]), '德化社渡船頭', '第 2 筆應該是距離較遠的「德化社渡船頭」');
+  expect(nameOf(items[0]), '第 1 筆應該是距離較近的「化番社舊址」').toBe('化番社舊址');
+  expect(nameOf(items[1]), '第 2 筆應該是距離較遠的「德化社渡船頭」').toBe('德化社渡船頭');
 
-  assertTrue(metaOf(items[0]).includes('南投縣魚池鄉'), '每筆項目應該包含縣市鄉鎮資訊');
-  assertTrue(/距離約\s*\d+\s*公尺/.test(metaOf(items[0])), '每筆項目應該包含「距離約 X 公尺」文字');
+  expect(metaOf(items[0]).includes('南投縣魚池鄉'), '每筆項目應該包含縣市鄉鎮資訊').toBeTruthy();
+  expect(/距離約\s*\d+\s*公尺/.test(metaOf(items[0])), '每筆項目應該包含「距離約 X 公尺」文字').toBeTruthy();
 });
 
 test('點擊 .nearby-place-name-item 會展開該筆完整的地名今昔對照卡（呼叫 renderPlaceNameCard＋focusPlaceNameCard）', async () => {
@@ -156,13 +156,13 @@ test('點擊 .nearby-place-name-item 會展開該筆完整的地名今昔對照�
   const items = wrap.querySelectorAll('.nearby-place-name-item');
   const secondItem = items[1]; // 「德化社渡船頭」，跟目前作用中的搜尋結果不同筆，確保是點擊觸發、不是搜尋結果殘留
 
-  assertTrue(placeNameCardEl.hidden, '前置條件：地名今昔對照卡目前應該是隱藏的（這次搜尋走的是一般地址路徑，不會自動顯示卡片）');
+  expect(placeNameCardEl.hidden, '前置條件：地名今昔對照卡目前應該是隱藏的（這次搜尋走的是一般地址路徑，不會自動顯示卡片）').toBeTruthy();
 
   secondItem.click();
 
-  assertEqual(placeNameCardEl.hidden, false, '點擊後應該顯示地名今昔對照卡');
-  assertTrue(!placeNameCardEl.classList.contains('collapsed'), 'focusPlaceNameCard() 應該讓卡片展開（移除 collapsed）');
-  assertTrue(cardText().includes('德化社渡船頭'), '卡片內容應該是被點擊那一筆「德化社渡船頭」');
+  expect(placeNameCardEl.hidden, '點擊後應該顯示地名今昔對照卡').toBe(false);
+  expect(!placeNameCardEl.classList.contains('collapsed'), 'focusPlaceNameCard() 應該讓卡片展開（移除 collapsed）').toBeTruthy();
+  expect(cardText().includes('德化社渡船頭'), '卡片內容應該是被點擊那一筆「德化社渡船頭」').toBeTruthy();
 });
 
 test('查無附近地名候選時（半徑內沒有任何候選），#locationResult 不會出現 .nearby-place-names 區塊', async () => {
@@ -182,7 +182,7 @@ test('查無附近地名候選時（半徑內沒有任何候選），#locationRe
   try {
     await searchByText('查無附近地名的地方');
     const wrap = locationResultEl.querySelector('.nearby-place-names');
-    assertTrue(!wrap, '半徑內沒有任何候選時，不應該出現 .nearby-place-names 區塊');
+    expect(!wrap, '半徑內沒有任何候選時，不應該出現 .nearby-place-names 區塊').toBeTruthy();
   } finally {
     globalThis.fetch = originalFetchForThisTest;
   }
@@ -190,25 +190,23 @@ test('查無附近地名候選時（半徑內沒有任何候選），#locationRe
 
 test('重新搜尋（再次呼叫一般地址搜尋流程）：上一輪的 .nearby-place-names 會被清掉，不會疊加兩份', async () => {
   await searchByText('第一次搜尋的測試地址');
-  assertTrue(!!locationResultEl.querySelector('.nearby-place-names'), '前置條件：第一次搜尋後應該有附近地名清單');
+  expect(!!locationResultEl.querySelector('.nearby-place-names'), '前置條件：第一次搜尋後應該有附近地名清單').toBeTruthy();
 
   await searchByText('第二次搜尋的測試地址');
 
   const wraps = locationResultEl.querySelectorAll('.nearby-place-names');
-  assertEqual(wraps.length, 1, '重新搜尋後應該只有 1 份 .nearby-place-names，不會疊加上一輪殘留的舊版本');
+  expect(wraps.length, '重新搜尋後應該只有 1 份 .nearby-place-names，不會疊加上一輪殘留的舊版本').toBe(1);
 });
 
 test('地名今昔對照精確比對命中（selectPlaceNameCandidate 路徑）：不會觸發附近地名清單，維持只有一張完整對照卡', async () => {
   // 先確保上一輪一般地址搜尋殘留的 .nearby-place-names 存在，驗證這條
   // 精確比對路徑會把它清掉（走 showLocationAndFindLayers() 開頭那段
   // 共用的清空邏輯）、但不會像 selectGeocodeResult() 一樣重新產生一份。
-  assertTrue(!!locationResultEl.querySelector('.nearby-place-names'), '前置條件：應該還殘留著上一輪的附近地名清單');
+  expect(!!locationResultEl.querySelector('.nearby-place-names'), '前置條件：應該還殘留著上一輪的附近地名清單').toBeTruthy();
 
   await searchByText('卜吉庄'); // 精確比對到 EXACT_MATCH_PLACE 的現名
 
-  assertTrue(!locationResultEl.querySelector('.nearby-place-names'), '精確比對到古地名時，不應該出現（或殘留）附近地名清單');
-  assertEqual(placeNameCardEl.hidden, false, '精確比對命中應該直接顯示完整的地名今昔對照卡');
-  assertTrue(cardText().includes('卜吉庄'), '卡片內容應該是精確比對到的「卜吉庄」');
+  expect(!locationResultEl.querySelector('.nearby-place-names'), '精確比對到古地名時，不應該出現（或殘留）附近地名清單').toBeTruthy();
+  expect(placeNameCardEl.hidden, '精確比對命中應該直接顯示完整的地名今昔對照卡').toBe(false);
+  expect(cardText().includes('卜吉庄'), '卡片內容應該是精確比對到的「卜吉庄」').toBeTruthy();
 });
-
-await run();

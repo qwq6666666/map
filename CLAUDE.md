@@ -10,8 +10,7 @@
 - 正式建置：`npm run build`（輸出到 `docs/`，含 hash 檔名與 sourcemap；GitHub Pages 設定為 `main` 分支 `/docs` 資料夾，`docs/` 就是實際發布內容，build 完直接 commit + push 即完成部署，不用再手動複製貼上到別的 repo。**注意**：GitHub Pages 的資料夾設定只能選 `/ (root)` 或 `/docs`，不能填任意資料夾名稱——這正是當初改用 `docs/` 而非沿用 `files/` 的原因：用 root 設定時，使用者實際造訪的根網址會落在 repo 根目錄未打包的 `index.html`/`src/` 原始碼上，Service Worker／圖磚快取完全不會生效）
 - 預覽建置結果：`npm run preview`
 - 免建置純靜態啟動（備用，不經過 Vite）：`.\start-website.bat` 或 `npx serve`
-- 全域測試：`node tests/run-all.mjs`（或 `npm test`）；單一測試：`node tests/run-all.mjs tests/specs/<test-file>.mjs`
-- vitest 版全域測試（見下方「測試框架雙軌並存」）：`npm run test:vitest-pilot`（等同 `vitest run`）
+- 全域測試：`npm test`（等同 `vitest run`，約 10 秒）；單一測試：`npx vitest run tests/specs/<test-file>.test.mjs`
 - 圖資打包：`node tools/build-layers-bundle.js`
 - 圖層類型自動打標：`node tools/tag-layer-types.js`（以 title/keywords/階層繼承判定 type，新增圖層後、打包 bundle 前執行）
 - WMTS bbox 空間索引重新產生：`node tools/fetch-wmts-bbox.js`（解析中研院各來源 WMTS Capabilities，寫入 `data/layers/<id>.json` 的 `layer.region.bbox`；只在建置階段執行，前端不重新下載解析）
@@ -19,7 +18,7 @@
 - 地名今昔對照資料重新產生：`npm run build:place-names`（讀工作區外的兩份內政部地名 CSV，輸出 `data/place-names.json`；預設路徑寫死在 `tools/build-place-names.js`，也可傳自訂 CSV 路徑；**不含**在 `build:data` 裡，因為那兩份 CSV 不在 repo、無法假設每台機器都有）
 
 ## CI 與上游監控 (`.github/workflows/`)
-- **`ci.yml`**（push 到 `main`／PR／手動觸發）：`npm ci` → `npm run lint` → `npm test` → `npm run test:vitest-pilot` → 備份已 commit 的 `docs/` → `npm run build` → `tools/verify-docs-sync.js` 比對。只做檢查、不 commit 任何東西；部署仍是 Pages 直接發布 `main` 的 `docs/`。
+- **`ci.yml`**（push 到 `main`／PR／手動觸發）：`npm ci` → `npm run lint` → `npm test` → 備份已 commit 的 `docs/` → `npm run build` → `tools/verify-docs-sync.js` 比對。只做檢查、不 commit 任何東西；部署仍是 Pages 直接發布 `main` 的 `docs/`。
 - **`docs/` 同步驗證（`tools/verify-docs-sync.js <已 commit 的 docs> <重新 build 的 docs>`）**：抓「改了原始碼卻忘了重新 build 並 commit `docs/`」。**刻意忽略文字檔換行差異（CRLF/LF）、`*.map`、`.gitkeep`**——已實測 Windows 開發／Linux CI 之間 JS／CSS／`index.html` 的 hash 檔名與內容一致，但 `sw.js`、`data/`、svg 這類原樣複製的檔案會因換行不同而位元組不同，逐位元組比對會天天誤報。**不要改成嚴格位元組比對。** 也**不檢查 `sw.js` 版本號有沒有遞增**：JS／CSS 是 hash 檔名 Cache-First、HTML 與 `data/*.json` 是 Network-First，`CACHE_VERSION` 只有快取結構本身變動時才需要手動遞增，強制每次都遞增沒有意義。
 - **`upstream-health.yml`**（每週一 09:00 台灣時間＋手動觸發）：跑 `node tools/check-upstream-health.js`（也可在本機 `npm run check:upstream`）。來源清單從 `data/layers/*.json` 的 `provider.tileTemplate`（指向 `gis.sinica.edu.tw`）動態推導，新增來源不用改腳本；檢查 Capabilities 可連線，且「本地圖層 id 都還在上游」。異常時自動開 GitHub Issue（同名未關閉就補留言）並讓 workflow 顯示失敗；「上游新增、本地未收錄」只提示、不算故障。**不在檢查範圍**：`udd`（無統一 Capabilities 端點）、`nlsc`（非 sinica）、實際圖磚請求（`file-exists.php` 語意不同、易誤報）。GitHub 會停用「60 天沒有 repo 活動」的排程 workflow，久未更新時要回 Actions 頁面重新啟用。
 
@@ -70,14 +69,13 @@
 - **已知限制**：別名取自 `AnotherName` 欄位＋`PlaceMean` 沿革文字的保守前導語句抽取（見上），不是完整的舊名反推，仍可能有漏抓／誤抓（見上一點）；代表點是資料庫座標點，非歷史行政界線；總共約 1.1 萬筆無座標、不會出現在搜尋結果，其中行政區域類佔大宗（8,589 筆裡僅 2,629 筆有座標，覆蓋率約 3 成，遠低於聚落類的 86.6%）。
 - 測試：`place-names-data.test.mjs`（CSV 解析）、`place-names-matching.test.mjs`（比對邏輯）、`place-name-card-ui.test.mjs`（卡片渲染／收合／候選清單）、`identify-pin.test.mjs`（「歷史地名」小區塊案例）、`place-names-nearby.test.mjs`（`findNearbyPlaceNames` 距離/半徑/排序/邊界）、`nearby-place-names-ui.test.mjs`（附近地名清單渲染／點擊展開／清空／精確比對路徑不觸發）。
 
-## 測試框架雙軌並存（評估中，尚未汰換舊框架）
-原本 `tests/run-all.mjs` + `tests/assert.mjs` + `tests/env-stub.mjs` 是完全手刻的測試框架（不依賴任何套件）。目前正在評估遷移到 vitest，**兩套框架刻意並存觀察，還沒有拆掉舊的**，改動測試時要注意：
-- `tests/specs/*.test.mjs`（舊框架，52 支，`test()`/`assertEqual()`/`assertTrue()` 來自 `tests/assert.mjs`）與 `tests/specs-vitest/*.test.mjs`（vitest 版，52 支，一一對應同名檔案，`test()`/`expect()` 來自 `vitest`）**內容邏輯完全對應、案例數一致（603/603）**，目前是刻意重複維護的過渡狀態——修 bug／加測試案例時，如果兩邊都存在對應檔案，理論上要兩邊同步改，但這只是評估期間的暫時負擔，不是長期要維持的規範。
-- `vitest.config.js` 的 `test.include` 只掃描 `tests/specs-vitest/`，不會碰到 `tests/specs/`；`tests/run-all.mjs` 只掃描 `tests/specs/`，兩者互不干擾，可以各自獨立執行（`node tests/run-all.mjs` vs `npm run test:vitest-pilot`）。
-- `tests/env-stub.mjs` 已修正過一個關鍵相容性問題：原本 `globalThis.URL = { createObjectURL, revokeObjectURL }` 會整個覆蓋掉 Node 原生 `URL` 建構子，這在舊框架（純 Node ESM，import 在任何程式碼執行前就已解析完畢）下不會出事，但 vitest 的模組載入器（vite-node）解析每個後續 `import` 都需要真正的 `URL` 建構子，會直接拋 `TypeError: URL is not a constructor`。現在改成保留原生 `URL`、只在上面附加這兩個靜態方法（這其實也更貼近真實瀏覽器的 API 形狀）。**這個修正對兩套框架都是安全的**，`src/features/sourceStatus.js`／`tests/specs/spatial-index.test.mjs` 裡原本因為這個限制而寫的「不能用 `new URL()`」迴避寫法，現在其實可以移除了，但目前尚未動手（不在遷移任務範圍內，留給之後決定）。
-- vitest 版 `test()` 是「先收集全部呼叫、模組載入完才統一執行」，不是舊框架的「同步依序執行」，**任何寫在模組頂層（不在 `test()`/`beforeEach()`/`afterEach()`/`afterAll()` 裡）、假設『在測試案例執行完之後才跑』的清理程式碼，原封不動搬過去語意會跑掉**（已踩過一次坑：`location-button.test.mjs` 清理 `runtime.locateToastTimer` 的程式碼，照搬到模組頂層會在測試真正執行前就跑、清理失效，讓一顆 4.5 秒的真實計時器每次都拖到自然到期；修法是用 vitest 的 `afterAll()` 包起來）。之後如果繼續手動遷移其他檔案，遇到類似「檔案結尾的收尾程式碼」要留意這點。
-- 效能參考：`node tests/run-all.mjs`（52 個 process 各自啟動）約 26 秒；`npm run test:vitest-pilot`（vitest 預設 `pool: threads`，每個測試檔案仍各自隔離 worker，已驗證跨檔案無汙染）約 6.5 秒，快約 4 倍。
-- 何時決定要不要整個汰換掉舊框架、拆掉 `tests/specs/` 或 `tests/assert.mjs`：由使用者決定，這裡不預設時程。
+## 測試框架 (vitest)
+測試統一使用 vitest（`tests/specs/*.test.mjs`，52 支、605 個案例；設定 `vitest.config.js`）。原本並存的手刻框架（`tests/run-all.mjs`＋`tests/assert.mjs`）已在雙軌期間漏改案例（`multi-overlay` 拖曳排序測試只補在舊版）而移除，不要再新增第二套測試機制。改動測試時要注意：
+- 共用模組：`tests/env-stub.mjs`（手動塞 `globalThis` 模擬 `document`／`window`／`ol` 的假瀏覽器環境，vitest `environment` 維持預設 `'node'`，不要疊加 jsdom）、`tests/helpers.mjs`（`sleep()`／`waitFor()`）、`tests/tileImageStub.mjs`（假 `Image`）。
+- `tests/env-stub.mjs` 有一個關鍵相容性修正：`globalThis.URL` 必須保留 Node 原生建構子、只在上面附加 `createObjectURL`／`revokeObjectURL` 兩個靜態方法。若整個覆蓋成 `{ createObjectURL, revokeObjectURL }`，vitest 的模組載入器（vite-node）解析後續 `import` 時會拋 `TypeError: URL is not a constructor`。`src/features/sourceStatus.js`／`tests/specs/spatial-index.test.mjs` 裡當初因這個限制而寫的「不能用 `new URL()`」迴避寫法，其實現在可以移除（尚未動手）。
+- vitest 的 `test()` 是「先收集全部呼叫、模組載入完才統一執行」，**任何寫在模組頂層（不在 `test()`／`beforeEach()`／`afterEach()`／`afterAll()` 裡）、假設『在測試案例執行完之後才跑』的清理程式碼，語意會跑掉**（已踩過：`location-button.test.mjs` 清理 `runtime.locateToastTimer` 的程式碼放在模組頂層會在測試執行前就跑、清理失效，讓一顆 4.5 秒的真實計時器每次都拖到自然到期；修法是用 `afterAll()` 包起來）。
+- vitest 預設 `pool: threads`，每個測試檔案各自獨立 worker，已驗證 `env-stub.mjs` 對 `globalThis` 的側效應跨檔案無汙染；若之後發現汙染，改成 `pool: 'forks'` 退回 process 隔離。
+- 全站圖層總數斷言（`data-loading.test.mjs`、`spatial-index.test.mjs`，目前 2428）在增刪圖層／來源時要同步更新。
 
 ## 子代理分工與路由 (Subagents Routing)
 遇到具體模組需求時，主代理即刻將任務派發給對應 Subagent，勿在主階段載入過多非權責程式碼：

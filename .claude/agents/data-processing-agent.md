@@ -30,5 +30,5 @@ model: sonnet
 
 # 驗證規範
 - 資料更新後必須驗證資料載入與來源匹配測試：
-  `node tests/run-all.mjs tests/specs/data-loading.test.mjs tests/specs/source-matching.test.mjs tests/specs/custom-sources.test.mjs tests/specs/search-two-tier.test.mjs tests/specs/build-nlsc-layers.test.mjs tests/specs/place-names-data.test.mjs tests/specs/layer-walk.test.mjs`
+  `npx vitest run tests/specs/data-loading.test.mjs tests/specs/source-matching.test.mjs tests/specs/custom-sources.test.mjs tests/specs/search-two-tier.test.mjs tests/specs/build-nlsc-layers.test.mjs tests/specs/place-names-data.test.mjs tests/specs/layer-walk.test.mjs`
   （`search-two-tier.test.mjs` 測的是 `src/data.js` 的 `prefilterLayersByPlaceName`；`build-nlsc-layers.test.mjs` 測 `tools/build-nlsc-layers.js`；`place-names-data.test.mjs` 測 `tools/build-place-names.js` 的 CSV 解析；`layer-walk.test.mjs` 測 `tools/lib/layerWalk.js`，四者皆屬於本代理權責檔案）

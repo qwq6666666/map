@@ -8,7 +8,7 @@
    不佔用名額；timeout 一定會釋放 slot，不會卡死排隊中的下一筆請求。
 --------------------------------------------------------- */
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, expect } from 'vitest';
 import { TileChecker, RequestPool, globalTileRequestPool } from '../../src/tileChecker.js';
 import { tileChecker as searchTileChecker } from '../../src/features/search.js';
 import { tileChecker as timelineTileChecker } from '../../src/timelineMode.js';
@@ -70,10 +70,10 @@ test('Test 1：RequestPool 全域 concurrency 上限，20 個任務同時排隊�
     setTimeout(() => { active--; resolve(true); }, 10);
   })));
   await Promise.all(tasks);
-  assertTrue(maxObserved <= 3, `手動追蹤的 maxObserved (${maxObserved}) 不應該超過上限 3`);
-  assertEqual(maxObserved, 3, '20 個任務、上限 3，應該確實有搶到滿 3 個 slot 的時刻');
-  assertTrue(pool.getStats().maxObserved <= 3, `pool.getStats().maxObserved (${pool.getStats().maxObserved}) 不應該超過上限 3`);
-  assertEqual(pool.getStats().active, 0, '全部任務完成後，pool 的 active 應該歸零');
+  expect(maxObserved <= 3, `手動追蹤的 maxObserved (${maxObserved}) 不應該超過上限 3`).toBeTruthy();
+  expect(maxObserved, '20 個任務、上限 3，應該確實有搶到滿 3 個 slot 的時刻').toBe(3);
+  expect(pool.getStats().maxObserved <= 3, `pool.getStats().maxObserved (${pool.getStats().maxObserved}) 不應該超過上限 3`).toBeTruthy();
+  expect(pool.getStats().active, '全部任務完成後，pool 的 active 應該歸零').toBe(0);
 });
 
 test('Test 2：10 個 layer 各自用 Promise.all 做鄰近圖磚 fallback，仍共用同一個 global pool 上限', async () => {
@@ -93,8 +93,8 @@ test('Test 2：10 個 layer 各自用 Promise.all 做鄰近圖磚 fallback，仍
     return checker.checkBatchAny([candidate], c => c.neighbors);
   });
   await withTimeout(Promise.all(jobs), 5000, 'checkBatchAny 鄰近圖磚 fallback 沒有在時限內完成');
-  assertTrue(maxLiveImages <= 4, `手動追蹤的 maxLiveImages (${maxLiveImages}) 不應該超過上限 4，不能讓 10 layer x 8 neighbor 疊加成 80 個並行請求`);
-  assertTrue(pool.getStats().maxObserved <= 4, `pool.getStats().maxObserved (${pool.getStats().maxObserved}) 不應該超過上限 4`);
+  expect(maxLiveImages <= 4, `手動追蹤的 maxLiveImages (${maxLiveImages}) 不應該超過上限 4，不能讓 10 layer x 8 neighbor 疊加成 80 個並行請求`).toBeTruthy();
+  expect(pool.getStats().maxObserved <= 4, `pool.getStats().maxObserved (${pool.getStats().maxObserved}) 不應該超過上限 4`).toBeTruthy();
 });
 
 test('Test 3：cache hit 不會增加 active request（也不會建立新的 Image）', async () => {
@@ -105,9 +105,9 @@ test('Test 3：cache hit 不會增加 active request（也不會建立新的 Ima
   await checker.checkOne(url);
   const attemptsAfterFirst = urlAttempts[url];
   const ok = await checker.checkOne(url);
-  assertTrue(ok, '快取的結果應該還是 true');
-  assertEqual(urlAttempts[url], attemptsAfterFirst, '第二次是 cache hit，不應該再送出新的 Image 請求');
-  assertEqual(pool.getStats().active, 0, 'cache hit 不應該佔用 pool 的 active slot');
+  expect(ok, '快取的結果應該還是 true').toBeTruthy();
+  expect(urlAttempts[url], '第二次是 cache hit，不應該再送出新的 Image 請求').toBe(attemptsAfterFirst);
+  expect(pool.getStats().active, 'cache hit 不應該佔用 pool 的 active slot').toBe(0);
 });
 
 test('Test 4：同一網址同時查詢 4 次，只會真的發送 1 次請求（in-flight dedup 仍然生效）', async () => {
@@ -119,8 +119,8 @@ test('Test 4：同一網址同時查詢 4 次，只會真的發送 1 次請求�
   const results = await Promise.all([
     checker.checkOne(url), checker.checkOne(url), checker.checkOne(url), checker.checkOne(url),
   ]);
-  assertEqual((urlAttempts[url] || 0) - before, 1, '4 次同時查詢應該只真的送出 1 次請求');
-  assertTrue(results.every(r => r === true), '4 次查詢都應該拿到同樣的結果');
+  expect((urlAttempts[url] || 0) - before, '4 次同時查詢應該只真的送出 1 次請求').toBe(1);
+  expect(results.every(r => r === true), '4 次查詢都應該拿到同樣的結果').toBeTruthy();
 });
 
 test('Test 5：maxConcurrency=1 時，A 逾時後會釋放 slot，B 才能接著拿到 slot 完成，不會 deadlock', async () => {
@@ -142,9 +142,9 @@ test('Test 5：maxConcurrency=1 時，A 逾時後會釋放 slot，B 才能接著
     5000,
     'A timeout 後 slot 沒有釋放，B 被卡死（deadlock）'
   );
-  assertTrue(!okA, 'A 應該因為持續逾時被判定沒資料');
-  assertTrue(okB, 'B 應該能在 A 釋放 slot 後正常完成，得到 true');
-  assertEqual(pool.getStats().active, 0, '兩個請求都結束後，pool 的 active 應該歸零');
+  expect(!okA, 'A 應該因為持續逾時被判定沒資料').toBeTruthy();
+  expect(okB, 'B 應該能在 A 釋放 slot 後正常完成，得到 true').toBeTruthy();
+  expect(pool.getStats().active, '兩個請求都結束後，pool 的 active 應該歸零').toBe(0);
 });
 
 test('Test 6：center timeout + retry + neighbor fallback 全部經過同一個 pool，仍不超過上限', async () => {
@@ -165,15 +165,13 @@ test('Test 6：center timeout + retry + neighbor fallback 全部經過同一個 
     5000,
     'center timeout + retry + neighbor fallback 沒有在時限內完成'
   );
-  assertEqual(available.length, 1, 'neighbor 裡有一顆成功，這個候選項目應該算有資料');
-  assertTrue(maxLiveImages <= 3, `手動追蹤的 maxLiveImages (${maxLiveImages}) 不應該超過上限 3`);
-  assertTrue(pool.getStats().maxObserved <= 3, `pool.getStats().maxObserved (${pool.getStats().maxObserved}) 不應該超過上限 3`);
+  expect(available.length, 'neighbor 裡有一顆成功，這個候選項目應該算有資料').toBe(1);
+  expect(maxLiveImages <= 3, `手動追蹤的 maxLiveImages (${maxLiveImages}) 不應該超過上限 3`).toBeTruthy();
+  expect(pool.getStats().maxObserved <= 3, `pool.getStats().maxObserved (${pool.getStats().maxObserved}) 不應該超過上限 3`).toBeTruthy();
 });
 
 test('features/search.js 與 timelineMode.js 的 TileChecker 真的共用同一個 globalTileRequestPool（不是各自獨立的 pool）', () => {
-  assertTrue(searchTileChecker.pool === globalTileRequestPool, 'search.js 的 tileChecker 應該用 globalTileRequestPool');
-  assertTrue(timelineTileChecker.pool === globalTileRequestPool, 'timelineMode.js 的 tileChecker 應該用 globalTileRequestPool');
-  assertTrue(searchTileChecker.pool === timelineTileChecker.pool, '兩邊的 tileChecker 應該共用同一個 pool 物件');
+  expect(searchTileChecker.pool === globalTileRequestPool, 'search.js 的 tileChecker 應該用 globalTileRequestPool').toBeTruthy();
+  expect(timelineTileChecker.pool === globalTileRequestPool, 'timelineMode.js 的 tileChecker 應該用 globalTileRequestPool').toBeTruthy();
+  expect(searchTileChecker.pool === timelineTileChecker.pool, '兩邊的 tileChecker 應該共用同一個 pool 物件').toBeTruthy();
 });
-
-await run();

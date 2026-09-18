@@ -1,5 +1,5 @@
 import '../env-stub.mjs';
-import { test, beforeEach, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, beforeEach, expect } from 'vitest';
 import { loadAppData, DATA } from '../../src/data.js';
 import { initMapCore } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
@@ -47,48 +47,48 @@ test('預設狀態下網址只帶 cmpA/cmpB（compareA/compareB 本身有非 nul
   const url = buildShareURL();
   const qs = url.split('?')[1] || '';
   const params = new URLSearchParams(qs);
-  assertEqual(params.get('mode'), null, '預設 mode 不寫入');
-  assertEqual(params.get('base'), null, '預設 base 不寫入');
-  assertEqual(params.get('overlay'), null, 'activeOverlayKey 預設是 null，不寫入');
-  assertEqual(params.get('swipe'), null, '預設 swipe 不寫入');
-  assertEqual(params.get('multi'), null, '空陣列不寫入');
-  assertEqual(params.get('lon'), null, '中心點沒變不寫入');
-  assertEqual(params.get('lat'), null, '中心點沒變不寫入');
-  assertEqual(params.get('zoom'), null, '縮放沒變不寫入');
-  assertEqual(params.get('cmpA'), 'hist:sinica:JM20K_1904:jpg', 'cmpA 有值就一定寫');
-  assertEqual(params.get('cmpB'), 'base:osm', 'cmpB 有值就一定寫');
+  expect(params.get('mode'), '預設 mode 不寫入').toBe(null);
+  expect(params.get('base'), '預設 base 不寫入').toBe(null);
+  expect(params.get('overlay'), 'activeOverlayKey 預設是 null，不寫入').toBe(null);
+  expect(params.get('swipe'), '預設 swipe 不寫入').toBe(null);
+  expect(params.get('multi'), '空陣列不寫入').toBe(null);
+  expect(params.get('lon'), '中心點沒變不寫入').toBe(null);
+  expect(params.get('lat'), '中心點沒變不寫入').toBe(null);
+  expect(params.get('zoom'), '縮放沒變不寫入').toBe(null);
+  expect(params.get('cmpA'), 'cmpA 有值就一定寫').toBe('hist:sinica:JM20K_1904:jpg');
+  expect(params.get('cmpB'), 'cmpB 有值就一定寫').toBe('base:osm');
 });
 
 test('改變 mode／baseLayer／swipePercent 後網址正確帶上對應參數', () => {
   setState({ mode: 'compare', baseLayer: 'sat', swipePercent: 30 });
   const params = new URLSearchParams(buildShareURL().split('?')[1]);
-  assertEqual(params.get('mode'), 'compare', 'mode 應該出現');
-  assertEqual(params.get('base'), 'sat', 'base 應該出現');
-  assertEqual(params.get('swipe'), '30', 'swipe 應該出現');
+  expect(params.get('mode'), 'mode 應該出現').toBe('compare');
+  expect(params.get('base'), 'base 應該出現').toBe('sat');
+  expect(params.get('swipe'), 'swipe 應該出現').toBe('30');
 });
 
 test('activeOverlayKey 有值時 overlay 參數會出現', () => {
   setState({ activeOverlayKey: keyA });
   const params = new URLSearchParams(buildShareURL().split('?')[1]);
-  assertEqual(params.get('overlay'), keyA, 'overlay 應該出現');
+  expect(params.get('overlay'), 'overlay 應該出現').toBe(keyA);
 });
 
 test('multiOverlayLayers 會編碼成 key,opacity 用分號串接的 multi 參數', () => {
   setState({ multiOverlayLayers: [{ key: keyA, opacity: 100 }, { key: keyB, opacity: 40 }] });
   const params = new URLSearchParams(buildShareURL().split('?')[1]);
-  assertEqual(params.get('multi'), `${keyA},100;${keyB},40`, 'multi 應該正確編碼');
+  expect(params.get('multi'), 'multi 應該正確編碼').toBe(`${keyA},100;${keyB},40`);
 });
 
 test('地圖中心點/縮放沒變時不出現 lon/lat/zoom，變了才出現', () => {
   let params = new URLSearchParams(buildShareURL().split('?')[1]);
-  assertEqual(params.get('lon'), null, '沒變不該出現 lon');
+  expect(params.get('lon'), '沒變不該出現 lon').toBe(null);
 
   map.getView().setCenter([121.5, 25.05]);
   map.getView().setZoom(12);
   params = new URLSearchParams(buildShareURL().split('?')[1]);
-  assertEqual(params.get('lon'), '121.5', 'lon 應該出現');
-  assertEqual(params.get('lat'), '25.05', 'lat 應該出現');
-  assertEqual(params.get('zoom'), '12', 'zoom 應該出現');
+  expect(params.get('lon'), 'lon 應該出現').toBe('121.5');
+  expect(params.get('lat'), 'lat 應該出現').toBe('25.05');
+  expect(params.get('zoom'), 'zoom 應該出現').toBe('12');
 });
 
 test('activeOverlayKey/compareA/compareB/multiOverlayLayers 是 custom: 開頭時，網址不會帶對應參數', () => {
@@ -99,23 +99,23 @@ test('activeOverlayKey/compareA/compareB/multiOverlayLayers 是 custom: 開頭�
     multiOverlayLayers: [{ key: keyA, opacity: 100 }, { key: 'custom:my-source', opacity: 40 }]
   });
   const params = new URLSearchParams(buildShareURL().split('?')[1]);
-  assertEqual(params.get('overlay'), null, 'custom: overlay 不應該寫入網址');
-  assertEqual(params.get('cmpA'), null, 'custom: cmpA 不應該寫入網址');
-  assertEqual(params.get('cmpB'), null, 'custom: cmpB 不應該寫入網址');
-  assertEqual(params.get('multi'), `${keyA},100`, 'multi 只保留非 custom: 的圖層');
+  expect(params.get('overlay'), 'custom: overlay 不應該寫入網址').toBe(null);
+  expect(params.get('cmpA'), 'custom: cmpA 不應該寫入網址').toBe(null);
+  expect(params.get('cmpB'), 'custom: cmpB 不應該寫入網址').toBe(null);
+  expect(params.get('multi'), 'multi 只保留非 custom: 的圖層').toBe(`${keyA},100`);
 });
 
 test('shareStateHasCustomLayers()：純函式偵測目前狀態是否含有分享連結不會帶到的自訂圖層', () => {
-  assertEqual(shareStateHasCustomLayers(), false, '預設狀態（compareA/compareB 都是內建 key）不應該偵測到 custom 圖層');
+  expect(shareStateHasCustomLayers(), '預設狀態（compareA/compareB 都是內建 key）不應該偵測到 custom 圖層').toBe(false);
 
   setState({ activeOverlayKey: 'custom:my-source' });
-  assertTrue(shareStateHasCustomLayers(), 'activeOverlayKey 是 custom: 時應該偵測到');
+  expect(shareStateHasCustomLayers(), 'activeOverlayKey 是 custom: 時應該偵測到').toBeTruthy();
 
   setState({ activeOverlayKey: null, multiOverlayLayers: [{ key: 'custom:my-source', opacity: 100 }] });
-  assertTrue(shareStateHasCustomLayers(), 'multiOverlayLayers 裡有 custom: 時應該偵測到');
+  expect(shareStateHasCustomLayers(), 'multiOverlayLayers 裡有 custom: 時應該偵測到').toBeTruthy();
 
   setState({ multiOverlayLayers: [{ key: keyA, opacity: 100 }] });
-  assertEqual(shareStateHasCustomLayers(), false, '全部都是 hist: 圖層時不應該偵測到');
+  expect(shareStateHasCustomLayers(), '全部都是 hist: 圖層時不應該偵測到').toBe(false);
 });
 
 /* ---------------------------------------------------------
@@ -126,18 +126,18 @@ test('完全沒有相關參數時回傳 false，不覆蓋現有狀態', () => {
   setState({ mode: 'compare' }); // 先弄成非預設，確認函式沒亂動它
   location.search = '?unrelated=1';
   const result = applyShareStateFromURL();
-  assertEqual(result, false, '沒有相關參數應該回傳 false');
-  assertEqual(store.mode, 'compare', '不該覆蓋現有 mode');
+  expect(result, '沒有相關參數應該回傳 false').toBe(false);
+  expect(store.mode, '不該覆蓋現有 mode').toBe('compare');
   setState({ mode: 'overlay' });
 });
 
 test('合法的 overlay/cmpA/cmpB 能正確還原', () => {
   location.search = `?overlay=${encodeURIComponent(keyA)}&cmpA=${encodeURIComponent(keyB)}&cmpB=base:sat`;
   const result = applyShareStateFromURL();
-  assertTrue(result, '應該回傳 true');
-  assertEqual(store.activeOverlayKey, keyA, 'overlay 正確還原');
-  assertEqual(store.compareA, keyB, 'cmpA 正確還原');
-  assertEqual(store.compareB, 'base:sat', 'cmpB 正確還原');
+  expect(result, '應該回傳 true').toBeTruthy();
+  expect(store.activeOverlayKey, 'overlay 正確還原').toBe(keyA);
+  expect(store.compareA, 'cmpA 正確還原').toBe(keyB);
+  expect(store.compareB, 'cmpB 正確還原').toBe('base:sat');
 });
 
 test('mode=compare 跟 cmpA/cmpB 一起還原時，compareA 不會被 enterCompareMode() 的預設值蓋掉', () => {
@@ -148,10 +148,10 @@ test('mode=compare 跟 cmpA/cmpB 一起還原時，compareA 不會被 enterCompa
   // enterCompareMode() 的預設值就會蓋掉分享連結原本要還原的左側圖層。
   location.search = `?mode=compare&cmpA=${encodeURIComponent(keyA)}&cmpB=${encodeURIComponent(keyB)}`;
   const result = applyShareStateFromURL();
-  assertTrue(result, '應該回傳 true');
-  assertEqual(store.mode, 'compare', 'mode 正確還原');
-  assertEqual(store.compareA, keyA, 'compareA 應該是分享連結指定的圖層，不是 enterCompareMode() 的預設值');
-  assertEqual(store.compareB, keyB, 'compareB 正確還原');
+  expect(result, '應該回傳 true').toBeTruthy();
+  expect(store.mode, 'mode 正確還原').toBe('compare');
+  expect(store.compareA, 'compareA 應該是分享連結指定的圖層，不是 enterCompareMode() 的預設值').toBe(keyA);
+  expect(store.compareB, 'compareB 正確還原').toBe(keyB);
 });
 
 test('不存在的 hist 圖層 key、custom: 開頭 key 都會被忽略，但同批其他合法欄位仍正常還原', () => {
@@ -164,22 +164,22 @@ test('不存在的 hist 圖層 key、custom: 開頭 key 都會被忽略，但同
   location.search = `?overlay=hist:sinica:not-a-real-layer:jpg&cmpA=custom:my-layer&cmpB=${encodeURIComponent(keyA)}&base=sat`;
   const before = { activeOverlayKey: store.activeOverlayKey, compareA: store.compareA };
   const result = applyShareStateFromURL();
-  assertTrue(result, '至少有 cmpB/base 合法，應該回傳 true');
-  assertEqual(store.activeOverlayKey, before.activeOverlayKey, '不存在的 hist key 應該被忽略，不覆蓋');
-  assertEqual(store.compareA, before.compareA, 'custom: 開頭 key 應該被忽略，不覆蓋');
-  assertEqual(store.compareB, keyA, 'cmpB 是合法 key，應該正常還原');
-  assertEqual(store.baseLayer, 'sat', 'base 是合法值，應該正常還原');
+  expect(result, '至少有 cmpB/base 合法，應該回傳 true').toBeTruthy();
+  expect(store.activeOverlayKey, '不存在的 hist key 應該被忽略，不覆蓋').toBe(before.activeOverlayKey);
+  expect(store.compareA, 'custom: 開頭 key 應該被忽略，不覆蓋').toBe(before.compareA);
+  expect(store.compareB, 'cmpB 是合法 key，應該正常還原').toBe(keyA);
+  expect(store.baseLayer, 'base 是合法值，應該正常還原').toBe('sat');
 });
 
 test('multi 參數單筆壞掉只跳過那一筆，opacity 超出範圍會被 clamp', () => {
   location.search = `?multi=${encodeURIComponent(`${keyA},150;hist:sinica:not-real:jpg,50;${keyB},-20`)}`;
   const result = applyShareStateFromURL();
-  assertTrue(result, '至少一筆合法應該回傳 true');
-  assertEqual(store.multiOverlayLayers.length, 2, '壞掉那一筆應該被跳過');
+  expect(result, '至少一筆合法應該回傳 true').toBeTruthy();
+  expect(store.multiOverlayLayers.length, '壞掉那一筆應該被跳過').toBe(2);
   const a = store.multiOverlayLayers.find(e => e.key === keyA);
   const b = store.multiOverlayLayers.find(e => e.key === keyB);
-  assertEqual(a.opacity, 100, 'opacity 超過 100 應該被 clamp 成 100');
-  assertEqual(b.opacity, 0, 'opacity 小於 0 應該被 clamp 成 0');
+  expect(a.opacity, 'opacity 超過 100 應該被 clamp 成 100').toBe(100);
+  expect(b.opacity, 'opacity 小於 0 應該被 clamp 成 0').toBe(0);
 });
 
 test('zoom/lon/lat 不是合法數字時會被忽略，不呼叫 setCenter/setZoom', () => {
@@ -187,18 +187,18 @@ test('zoom/lon/lat 不是合法數字時會被忽略，不呼叫 setCenter/setZo
   const beforeZoom = map.getView().getZoom();
   location.search = '?lon=abc&lat=xyz&zoom=notanumber';
   const result = applyShareStateFromURL();
-  assertEqual(result, false, '全部都不合法，applied 應該維持 false');
-  assertEqual(map.getView().getCenter(), beforeCenter, '不該呼叫 setCenter');
-  assertEqual(map.getView().getZoom(), beforeZoom, '不該呼叫 setZoom');
+  expect(result, '全部都不合法，applied 應該維持 false').toBe(false);
+  expect(map.getView().getCenter(), '不該呼叫 setCenter').toBe(beforeCenter);
+  expect(map.getView().getZoom(), '不該呼叫 setZoom').toBe(beforeZoom);
 });
 
 test('合法的 lon/lat/zoom 能正確還原地圖視角', () => {
   location.search = '?lon=121.5&lat=25.05&zoom=12';
   const result = applyShareStateFromURL();
-  assertTrue(result, '應該回傳 true');
-  assertEqual(map.getView().getCenter()[0], 121.5, 'lon 正確還原');
-  assertEqual(map.getView().getCenter()[1], 25.05, 'lat 正確還原');
-  assertEqual(map.getView().getZoom(), 12, 'zoom 正確還原');
+  expect(result, '應該回傳 true').toBeTruthy();
+  expect(map.getView().getCenter()[0], 'lon 正確還原').toBe(121.5);
+  expect(map.getView().getCenter()[1], 'lat 正確還原').toBe(25.05);
+  expect(map.getView().getZoom(), 'zoom 正確還原').toBe(12);
 });
 
 /* ---------------------------------------------------------
@@ -208,21 +208,19 @@ test('合法的 lon/lat/zoom 能正確還原地圖視角', () => {
 test('navigator.clipboard.writeText 成功時回傳 true', async () => {
   navigator.clipboard = { writeText: async () => {} };
   const result = await copyShareLink();
-  assertEqual(result, true, '應該回傳 true');
+  expect(result, '應該回傳 true').toBe(true);
   delete navigator.clipboard;
 });
 
 test('navigator.clipboard 不存在時退回 execCommand fallback', async () => {
   delete navigator.clipboard;
   const result = await copyShareLink();
-  assertTrue(typeof result === 'boolean', '應該回傳 boolean，不噴例外');
+  expect(typeof result === 'boolean', '應該回傳 boolean，不噴例外').toBeTruthy();
 });
 
 test('navigator.clipboard.writeText 失敗時退回 execCommand fallback，不噴例外', async () => {
   navigator.clipboard = { writeText: async () => { throw new Error('模擬複製失敗'); } };
   const result = await copyShareLink();
-  assertTrue(typeof result === 'boolean', '應該回傳 boolean，不噴例外');
+  expect(typeof result === 'boolean', '應該回傳 boolean，不噴例外').toBeTruthy();
   delete navigator.clipboard;
 });
-
-await run();

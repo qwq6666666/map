@@ -1,5 +1,5 @@
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, expect } from 'vitest';
 import { matchPlaceNames, getActivePlaceNameMatchAt, setActivePlaceNameMatch, clearActivePlaceNameMatch, sourceTypeLabel } from '../../src/features/placeNames.js';
 
 /* ---------------------------------------------------------
@@ -35,53 +35,53 @@ function makePlaces(){
 
 test('matchPlaceNames：現名精確相符能找到', () => {
   const results = matchPlaceNames(makePlaces(), '社寮');
-  assertEqual(results.length, 1, '應該找到 1 筆');
-  assertEqual(results[0].name, '社寮');
+  expect(results.length, '應該找到 1 筆').toBe(1);
+  expect(results[0].name).toBe('社寮');
 });
 
 test('matchPlaceNames：別名精確相符能找到，且回傳現名那筆完整物件', () => {
   const results = matchPlaceNames(makePlaces(), '卜吉');
-  assertEqual(results.length, 1, '應該找到 1 筆');
-  assertEqual(results[0].name, '德化社', '應該回傳現名為「德化社」的完整物件');
-  assertEqual(results[0].description, '日月潭邊聚落', '應該是完整的 place 物件，不是憑空生出的別名物件');
+  expect(results.length, '應該找到 1 筆').toBe(1);
+  expect(results[0].name, '應該回傳現名為「德化社」的完整物件').toBe('德化社');
+  expect(results[0].description, '應該是完整的 place 物件，不是憑空生出的別名物件').toBe('日月潭邊聚落');
 });
 
 test('matchPlaceNames：同名有多筆資料時，回傳全部候選（不是只回傳第一筆）', () => {
   const results = matchPlaceNames(makePlaces(), '德化社');
-  assertEqual(results.length, 2, '應該回傳 2 筆同名的「德化社」候選');
+  expect(results.length, '應該回傳 2 筆同名的「德化社」候選').toBe(2);
   const sourceTypes = results.map(r => r.sourceType).sort().join(',');
-  assertEqual(sourceTypes, 'admin,settlement', '應該分別是聚落類跟行政區域類各一筆');
+  expect(sourceTypes, '應該分別是聚落類跟行政區域類各一筆').toBe('admin,settlement');
 });
 
 test('matchPlaceNames：沒有座標的候選會被過濾掉', () => {
   const results = matchPlaceNames(makePlaces(), '無座標地');
-  assertEqual(results.length, 0, '沒有座標的候選不應該出現在結果裡');
+  expect(results.length, '沒有座標的候選不應該出現在結果裡').toBe(0);
 });
 
 test('matchPlaceNames：別名比對也會過濾沒有座標的候選', () => {
   const results = matchPlaceNames(makePlaces(), '無座標別名');
-  assertEqual(results.length, 0, '沒有座標的候選（透過別名比對到）也不應該出現在結果裡');
+  expect(results.length, '沒有座標的候選（透過別名比對到）也不應該出現在結果裡').toBe(0);
 });
 
 test('matchPlaceNames：完全比對不到時回傳空陣列', () => {
   const results = matchPlaceNames(makePlaces(), '完全不存在的地名');
-  assertEqual(results.length, 0, '應該回傳空陣列');
+  expect(results.length, '應該回傳空陣列').toBe(0);
 });
 
 test('matchPlaceNames：query 為空字串時回傳空陣列', () => {
-  assertEqual(matchPlaceNames(makePlaces(), '').length, 0);
-  assertEqual(matchPlaceNames(makePlaces(), '   ').length, 0, '純空白也應該視為空');
+  expect(matchPlaceNames(makePlaces(), '').length).toBe(0);
+  expect(matchPlaceNames(makePlaces(), '   ').length, '純空白也應該視為空').toBe(0);
 });
 
 test('matchPlaceNames：places 為空陣列時回傳空陣列', () => {
-  assertEqual(matchPlaceNames([], '德化社').length, 0);
+  expect(matchPlaceNames([], '德化社').length).toBe(0);
 });
 
 test('matchPlaceNames：同一筆資料同時符合現名與別名也只回傳一次（物件參照去重複）', () => {
   // 竹腳寮本身有別名「腳寮」，用現名查詢應只回傳一次，不會因為
   // matchPlaceNames 內部先查 byName 再查 byAlias 就重複兩次。
   const results = matchPlaceNames(makePlaces(), '竹腳寮');
-  assertEqual(results.length, 1, '同一筆資料不應該因為現名/別名各命中一次就被算兩筆');
+  expect(results.length, '同一筆資料不應該因為現名/別名各命中一次就被算兩筆').toBe(1);
 });
 
 /* ---------------- getActivePlaceNameMatchAt / setActivePlaceNameMatch ---------------- */
@@ -90,22 +90,22 @@ test('setActivePlaceNameMatch 之後，用完全相同座標查詢會拿到該 p
   const place = makePlaces()[0]; // 德化社 (120.9123, 23.8567)
   setActivePlaceNameMatch(place);
   const found = getActivePlaceNameMatchAt(120.9123, 23.8567);
-  assertTrue(!!found, '應該找到目前作用中的比對結果');
-  assertEqual(found.name, '德化社');
+  expect(!!found, '應該找到目前作用中的比對結果').toBeTruthy();
+  expect(found.name).toBe('德化社');
 });
 
 test('用差距超過 1e-4 度的座標查詢應該回傳 null', () => {
   const place = makePlaces()[0];
   setActivePlaceNameMatch(place);
   const found = getActivePlaceNameMatchAt(120.9123 + 0.001, 23.8567);
-  assertEqual(found, null, '超過誤差容許值應該回傳 null');
+  expect(found, '超過誤差容許值應該回傳 null').toBe(null);
 });
 
 test('用差距在 1e-4 度以內的座標查詢仍然能命中', () => {
   const place = makePlaces()[0];
   setActivePlaceNameMatch(place);
   const found = getActivePlaceNameMatchAt(120.9123 + 0.00005, 23.8567 - 0.00005);
-  assertTrue(!!found, '誤差容許值以內應該仍然命中');
+  expect(!!found, '誤差容許值以內應該仍然命中').toBeTruthy();
 });
 
 test('clearActivePlaceNameMatch 之後查詢任何座標都回傳 null', () => {
@@ -113,29 +113,27 @@ test('clearActivePlaceNameMatch 之後查詢任何座標都回傳 null', () => {
   setActivePlaceNameMatch(place);
   clearActivePlaceNameMatch();
   const found = getActivePlaceNameMatchAt(120.9123, 23.8567);
-  assertEqual(found, null, '清除後應該一律回傳 null');
+  expect(found, '清除後應該一律回傳 null').toBe(null);
 });
 
 test('setActivePlaceNameMatch(null) 等同清除', () => {
   const place = makePlaces()[0];
   setActivePlaceNameMatch(place);
   setActivePlaceNameMatch(null);
-  assertEqual(getActivePlaceNameMatchAt(120.9123, 23.8567), null);
+  expect(getActivePlaceNameMatchAt(120.9123, 23.8567)).toBe(null);
 });
 
 /* ---------------- sourceTypeLabel ---------------- */
 
 test('sourceTypeLabel：settlement 對應「聚落」', () => {
-  assertEqual(sourceTypeLabel('settlement'), '聚落');
+  expect(sourceTypeLabel('settlement')).toBe('聚落');
 });
 
 test('sourceTypeLabel：admin 對應「行政區域」', () => {
-  assertEqual(sourceTypeLabel('admin'), '行政區域');
+  expect(sourceTypeLabel('admin')).toBe('行政區域');
 });
 
 test('sourceTypeLabel：未知值回傳空字串', () => {
-  assertEqual(sourceTypeLabel('unknown-type'), '');
-  assertEqual(sourceTypeLabel(undefined), '');
+  expect(sourceTypeLabel('unknown-type')).toBe('');
+  expect(sourceTypeLabel(undefined)).toBe('');
 });
-
-await run();

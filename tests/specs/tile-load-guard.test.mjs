@@ -35,7 +35,8 @@
    calculateExtent/getProjection），不是完整的 ol.Map 模擬。
 --------------------------------------------------------- */
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue, sleep } from '../assert.mjs';
+import { test, expect } from 'vitest';
+import { sleep } from '../helpers.mjs';
 import {
   createGuardedTileLoadFunction,
   DEFAULT_TILE_CACHE_SIZE,
@@ -154,12 +155,12 @@ function waitForState(tile, timeoutMs = 5000){
 const TAIPEI_TILE = lonLatToTileXY(121.5654, 25.0330, 15);
 
 test('DEFAULT_TILE_CACHE_SIZE 應該是正數，且不會小到讓 LRU 過期機制形同虛設', () => {
-  assertTrue(Number.isInteger(DEFAULT_TILE_CACHE_SIZE), 'cacheSize 應該是整數');
-  assertTrue(DEFAULT_TILE_CACHE_SIZE > 0, 'cacheSize 必須是正數，0 會讓 OL 的 canExpireCache() 永遠不觸發清除');
+  expect(Number.isInteger(DEFAULT_TILE_CACHE_SIZE), 'cacheSize 應該是整數').toBeTruthy();
+  expect(DEFAULT_TILE_CACHE_SIZE > 0, 'cacheSize 必須是正數，0 會讓 OL 的 canExpireCache() 永遠不觸發清除').toBeTruthy();
   // 一般視窗＋平移緩衝同時用到的圖磚數量大約是數十顆量級，這裡只驗證
   // 「明顯不會小到跟沒設一樣」，不鎖死成某個精確值（之後想調參數不用
   // 特地回來改這條斷言）。
-  assertTrue(DEFAULT_TILE_CACHE_SIZE >= 64, `cacheSize 太小可能起不到留住回訪圖磚的效果，實際 ${DEFAULT_TILE_CACHE_SIZE}`);
+  expect(DEFAULT_TILE_CACHE_SIZE >= 64, `cacheSize 太小可能起不到留住回訪圖磚的效果，實際 ${DEFAULT_TILE_CACHE_SIZE}`).toBeTruthy();
 });
 
 /* ---------------------------------------------------------
@@ -204,9 +205,9 @@ test('attachStaleTileAbort：z／bbox 跟目前視角對不上的在途請求同
   loadFn(tileBboxMismatch, urlBboxMismatch);
   loadFn(tileZoomMismatch, urlZoomMismatch);
 
-  assertEqual(tileKeep.state, null, '送出請求後、moveend 觸發前應該還在等待中');
-  assertEqual(tileBboxMismatch.state, null, '送出請求後、moveend 觸發前應該還在等待中');
-  assertEqual(tileZoomMismatch.state, null, '送出請求後、moveend 觸發前應該還在等待中');
+  expect(tileKeep.state, '送出請求後、moveend 觸發前應該還在等待中').toBe(null);
+  expect(tileBboxMismatch.state, '送出請求後、moveend 觸發前應該還在等待中').toBe(null);
+  expect(tileZoomMismatch.state, '送出請求後、moveend 觸發前應該還在等待中').toBe(null);
 
   // 目前視角：z15、範圍剛好等於 tileKeep 的 bbox（保證相交），藉此讓
   // tileKeep 的 z 與 bbox 都對得上，另外兩顆分別因為 bbox、z 對不上。
@@ -215,14 +216,14 @@ test('attachStaleTileAbort：z／bbox 跟目前視角對不上的在途請求同
   attachStaleTileAbort(fakeMap);
   fakeMap._trigger('moveend');
 
-  assertEqual(tileKeep.state, null, 'z、bbox 都對得上目前視角，不應該被 abort（應同步發生，不用等待）');
+  expect(tileKeep.state, 'z、bbox 都對得上目前視角，不應該被 abort（應同步發生，不用等待）').toBe(null);
   // 放棄的是「視角過期」而非真正逾時/失敗，最終狀態應該是 IDLE 而不是
   // ERROR：OL 只有 IDLE 的 Tile 才會在下次重新進入可視範圍時被排回
   // 載入佇列，卡在 ERROR 會永久顯示空白（見 tileLoadGuard.js entry.abort
   // 的完整說明）。
-  assertEqual(tileBboxMismatch.state, TILE_STATE.IDLE, 'z 相同但 bbox 對不上目前視角，應該同步被 abort 成 IDLE，讓它之後能重新載入');
-  assertEqual(tileZoomMismatch.state, TILE_STATE.IDLE, 'bbox 對得上但 z 不同，應該同步被 abort 成 IDLE，讓它之後能重新載入');
-  assertEqual(urlAttempts[urlKeep], 1, '未被 abort 的請求不應該產生額外的重新嘗試');
+  expect(tileBboxMismatch.state, 'z 相同但 bbox 對不上目前視角，應該同步被 abort 成 IDLE，讓它之後能重新載入').toBe(TILE_STATE.IDLE);
+  expect(tileZoomMismatch.state, 'bbox 對得上但 z 不同，應該同步被 abort 成 IDLE，讓它之後能重新載入').toBe(TILE_STATE.IDLE);
+  expect(urlAttempts[urlKeep], '未被 abort 的請求不應該產生額外的重新嘗試').toBe(1);
 
   // 第二次 moveend：模擬使用者又移動視角、這次 tileKeep 的位置也不再
   // 相關（extent 換成跟 tileKeep 明顯不相交的範圍），驗證它一樣會被
@@ -230,7 +231,7 @@ test('attachStaleTileAbort：z／bbox 跟目前視角對不上的在途請求同
   const fakeMap2 = makeFakeMap({ zoom: 15, extent: [130, 30, 131, 31] });
   attachStaleTileAbort(fakeMap2);
   fakeMap2._trigger('moveend');
-  assertEqual(tileKeep.state, TILE_STATE.IDLE, '視角再次改變、涵蓋範圍已不相關時，應該同樣被 abort 成 IDLE');
+  expect(tileKeep.state, '視角再次改變、涵蓋範圍已不相關時，應該同樣被 abort 成 IDLE').toBe(TILE_STATE.IDLE);
 });
 
 test('abortInFlightForKey：只中止指定 sourceKey 的在途請求，不影響其他 key（供 core/layerCache.js 淘汰／移除圖層時呼叫，見該檔案的說明）', () => {
@@ -247,19 +248,19 @@ test('abortInFlightForKey：只中止指定 sourceKey 的在途請求，不影�
   loadFnA(tileA, urlA);
   loadFnB(tileB, urlB);
 
-  assertEqual(tileA.state, null, '送出請求後應該還在等待中');
-  assertEqual(tileB.state, null, '送出請求後應該還在等待中');
+  expect(tileA.state, '送出請求後應該還在等待中').toBe(null);
+  expect(tileB.state, '送出請求後應該還在等待中').toBe(null);
 
   abortInFlightForKey('not-a-real-key'); // 不存在的 key 應該安全地什麼都不做
-  assertEqual(tileA.state, null, '不相關的 key 不應該影響 A');
-  assertEqual(tileB.state, null, '不相關的 key 不應該影響 B');
+  expect(tileA.state, '不相關的 key 不應該影響 A').toBe(null);
+  expect(tileB.state, '不相關的 key 不應該影響 B').toBe(null);
 
   abortInFlightForKey('hist:test:layerA:jpg');
-  assertEqual(tileA.state, TILE_STATE.IDLE, 'A 對應的 key 被中止後，圖磚應該被 abort 成 IDLE（比照 stale abort，不是永久 ERROR）');
-  assertEqual(tileB.state, null, 'B 的 sourceKey 不同，不應該被連帶中止');
+  expect(tileA.state, 'A 對應的 key 被中止後，圖磚應該被 abort 成 IDLE（比照 stale abort，不是永久 ERROR）').toBe(TILE_STATE.IDLE);
+  expect(tileB.state, 'B 的 sourceKey 不同，不應該被連帶中止').toBe(null);
 
   abortInFlightForKey('hist:test:layerB:jpg'); // 收尾，避免遺留逾時計時器影響其他測試
-  assertEqual(tileB.state, TILE_STATE.IDLE, '測試結束前主動清理 B');
+  expect(tileB.state, '測試結束前主動清理 B').toBe(TILE_STATE.IDLE);
 });
 
 test('attachStaleTileAbort：已經 resolve（LOADED）的圖磚，moveend 觸發時不應該被重複處理或拋例外', async () => {
@@ -270,14 +271,14 @@ test('attachStaleTileAbort：已經 resolve（LOADED）的圖磚，moveend 觸�
   const loadFn = createGuardedTileLoadFunction({ timeoutMs: 500 });
   loadFn(tile, url);
   const state = await waitForState(tile);
-  assertEqual(state, TILE_STATE.LOADED, '前置條件：載入應該正常成功');
+  expect(state, '前置條件：載入應該正常成功').toBe(TILE_STATE.LOADED);
 
   // resolve 後 entry 已經從 registry 移除；用一個跟這顆圖磚座標完全對不上
   // 的視角觸發 moveend，確認不會拋例外，且不會把已經 LOADED 的狀態改掉。
   const fakeMap = makeFakeMap({ zoom: 3, extent: [1, 1, 2, 2] });
   attachStaleTileAbort(fakeMap);
   fakeMap._trigger('moveend');
-  assertEqual(tile.state, TILE_STATE.LOADED, '已經 resolve 的圖磚不應該被 moveend 掃描影響');
+  expect(tile.state, '已經 resolve 的圖磚不應該被 moveend 掃描影響').toBe(TILE_STATE.LOADED);
 });
 
 test('attachStaleTileAbort：邊界保護已經直接判 EMPTY 的圖磚，從未進入 registry，moveend 掃描不應該誤傷它', () => {
@@ -288,14 +289,14 @@ test('attachStaleTileAbort：邊界保護已經直接判 EMPTY 的圖磚，從�
 
   const loadFn = createGuardedTileLoadFunction({ regionBbox: [110, 30, 112, 32], timeoutMs: 30 }); // 明顯不涵蓋台北
   loadFn(tile, url);
-  assertEqual(tile.state, TILE_STATE.EMPTY, '前置條件：邊界外應該直接 EMPTY');
+  expect(tile.state, '前置條件：邊界外應該直接 EMPTY').toBe(TILE_STATE.EMPTY);
 
   const fakeMap = makeFakeMap({ zoom: TAIPEI_TILE.z, extent: [119, 21, 123, 26] });
   attachStaleTileAbort(fakeMap);
   fakeMap._trigger('moveend');
 
-  assertEqual(tile.state, TILE_STATE.EMPTY, '從未送出請求的 EMPTY 圖磚，moveend 掃描不應該改變它的狀態');
-  assertEqual(urlAttempts[url] || 0, beforeAttempts, 'EMPTY 圖磚不應該因為 moveend 掃描而多發送任何請求');
+  expect(tile.state, '從未送出請求的 EMPTY 圖磚，moveend 掃描不應該改變它的狀態').toBe(TILE_STATE.EMPTY);
+  expect(urlAttempts[url] || 0, 'EMPTY 圖磚不應該因為 moveend 掃描而多發送任何請求').toBe(beforeAttempts);
 });
 
 /* ---------------------------------------------------------
@@ -311,19 +312,19 @@ test('throttle()：窗口內第一次呼叫立即執行（leading），窗口內
   const throttled = throttle((label) => calls.push(label), THROTTLE_WINDOW_MS);
 
   throttled('a');
-  assertEqual(calls.length, 1, '第一次呼叫應該立即執行');
-  assertEqual(calls[0], 'a', '第一次呼叫應該帶正確的參數');
+  expect(calls.length, '第一次呼叫應該立即執行').toBe(1);
+  expect(calls[0], '第一次呼叫應該帶正確的參數').toBe('a');
 
   throttled('b');
   throttled('c');
-  assertEqual(calls.length, 1, '窗口內的後續呼叫不應該立即執行');
+  expect(calls.length, '窗口內的後續呼叫不應該立即執行').toBe(1);
 
   await sleep(THROTTLE_WINDOW_MS * 2);
-  assertEqual(calls.length, 2, '窗口結束後應該補跑一次');
-  assertEqual(calls[1], 'c', 'trailing 呼叫應該帶最後一次呼叫的參數，不是被吃掉的中間那次');
+  expect(calls.length, '窗口結束後應該補跑一次').toBe(2);
+  expect(calls[1], 'trailing 呼叫應該帶最後一次呼叫的參數，不是被吃掉的中間那次').toBe('c');
 
   await sleep(THROTTLE_WINDOW_MS * 2);
-  assertEqual(calls.length, 2, '窗口結束後如果沒有新呼叫，不應該無中生有再多跑一次');
+  expect(calls.length, '窗口結束後如果沒有新呼叫，不應該無中生有再多跑一次').toBe(2);
 });
 
 /* ---------------------------------------------------------
@@ -348,8 +349,8 @@ test('attachStaleTileAbort：拖曳中透過 change:center 節流清理，不用
   loadFn(tileStale, urlStale);
   loadFn(tileKeep, urlKeep);
 
-  assertEqual(tileStale.state, null, '前置條件：請求還在進行中');
-  assertEqual(tileKeep.state, null, '前置條件：請求還在進行中');
+  expect(tileStale.state, '前置條件：請求還在進行中').toBe(null);
+  expect(tileKeep.state, '前置條件：請求還在進行中').toBe(null);
 
   // 目前視角：z15、範圍剛好等於 tileKeep 的 bbox（保證相交），tileStale
   // （高雄）明顯不相交，模擬「使用者正在拖曳、還沒放開滑鼠到 moveend」。
@@ -357,20 +358,20 @@ test('attachStaleTileAbort：拖曳中透過 change:center 節流清理，不用
   const fakeMap = makeFakeMap({ zoom: 15, extent: currentExtent });
   attachStaleTileAbort(fakeMap);
 
-  assertEqual(tileStale.state, null, '掛上監聽器本身不應該立刻觸發清理');
+  expect(tileStale.state, '掛上監聽器本身不應該立刻觸發清理').toBe(null);
 
   fakeMap._triggerView('change:center');
 
   // 放棄的是「視角過期」而非真正逾時/失敗，最終狀態應該是 IDLE（見上一個
   // 案例的說明），不是永久 ERROR。
-  assertEqual(tileStale.state, TILE_STATE.IDLE, 'change:center 節流的第一次觸發（leading）應該立即掃描並放棄過期請求成 IDLE，不用等 moveend');
-  assertEqual(tileKeep.state, null, '沒有過期的請求不應該被拖曳中的節流清理誤傷');
+  expect(tileStale.state, 'change:center 節流的第一次觸發（leading）應該立即掃描並放棄過期請求成 IDLE，不用等 moveend').toBe(TILE_STATE.IDLE);
+  expect(tileKeep.state, '沒有過期的請求不應該被拖曳中的節流清理誤傷').toBe(null);
 
   // 節流窗口內立刻再次觸發：tileStale 已經被 abort、從 registry 移除，
   // 這裡主要驗證重複觸發不會拋例外、也不會改變已經結束的狀態。
   fakeMap._triggerView('change:center');
-  assertEqual(tileStale.state, TILE_STATE.IDLE, '重複觸發不應該改變已經 abort 的狀態');
-  assertEqual(tileKeep.state, null, '重複觸發不應該誤傷沒有過期的請求');
+  expect(tileStale.state, '重複觸發不應該改變已經 abort 的狀態').toBe(TILE_STATE.IDLE);
+  expect(tileKeep.state, '重複觸發不應該誤傷沒有過期的請求').toBe(null);
 
   // throttle() 是 leading+trailing：上面第二次 change:center 落在節流窗口
   // 內，會排一個約 STALE_TILE_SWEEP_THROTTLE_MS 後才觸發的真實 setTimeout
@@ -381,7 +382,7 @@ test('attachStaleTileAbort：拖曳中透過 change:center 節流清理，不用
   // tileStale 已經被 abort 從 registry 移除、tileKeep 的 bbox 仍跟目前視角
   // 相交，trailing sweep 對兩者都是無害的 no-op。
   await sleep(STALE_TILE_SWEEP_THROTTLE_MS + 50);
-  assertEqual(tileKeep.state, null, 'trailing 節流補跑一次 sweep 不應該誤傷仍相交的請求');
+  expect(tileKeep.state, 'trailing 節流補跑一次 sweep 不應該誤傷仍相交的請求').toBe(null);
 
   // 測試結束前主動清掉 tileKeep：它刻意用 999999ms 的 timeoutMs 模擬
   // 「請求還在進行中」，不清乾淨的話會留下一個真正的 setTimeout，讓
@@ -390,7 +391,7 @@ test('attachStaleTileAbort：拖曳中透過 change:center 節流清理，不用
   // 比照檔案開頭其他案例「結束前想辦法讓它 resolve／被 abort」的慣例。
   fakeMap._setViewState({ extent: [130, 30, 131, 31] });
   fakeMap._trigger('moveend');
-  assertEqual(tileKeep.state, TILE_STATE.IDLE, '測試結束前主動清理 tileKeep，避免遺留逾時計時器');
+  expect(tileKeep.state, '測試結束前主動清理 tileKeep，避免遺留逾時計時器').toBe(TILE_STATE.IDLE);
 });
 
 /* ---------------------------------------------------------
@@ -411,13 +412,13 @@ test('Bug 修正回歸：stale abort 後同一顆 tile 被重新呼叫 tileLoadF
 
   const loadFn = createGuardedTileLoadFunction({ timeoutMs: 999999 });
   loadFn(tile, url);
-  assertEqual(tile.state, null, '前置條件：請求還在進行中');
+  expect(tile.state, '前置條件：請求還在進行中').toBe(null);
 
   // 用跟這顆圖磚完全對不上的視角觸發 moveend，模擬使用者已經看不到它。
   const fakeMap = makeFakeMap({ zoom: 3, extent: [1, 1, 2, 2] });
   attachStaleTileAbort(fakeMap);
   fakeMap._trigger('moveend');
-  assertEqual(tile.state, TILE_STATE.IDLE, 'stale abort 後應該是 IDLE，不是永久 ERROR');
+  expect(tile.state, 'stale abort 後應該是 IDLE，不是永久 ERROR').toBe(TILE_STATE.IDLE);
 
   // 模擬圖磚重新進入可視範圍：OL 看到 getState()===IDLE，重新呼叫
   // tile.load() -> 我們的 guardedTileLoadFunction，這裡直接再呼叫一次
@@ -438,8 +439,6 @@ test('Bug 修正回歸：stale abort 後同一顆 tile 被重新呼叫 tileLoadF
     };
     check();
   }), 5000, '重新載入後一直沒有進入 LOADED/ERROR（可能發生 deadlock）');
-  assertEqual(state, TILE_STATE.LOADED, '重新進入可視範圍後應該能正常重新載入成功，不會因為之前被 stale abort 而卡住');
-  assertEqual(urlAttempts[url], 2, '應該有真的重新發送第 2 次請求（第 1 次是被 stale abort 放棄的那次）');
+  expect(state, '重新進入可視範圍後應該能正常重新載入成功，不會因為之前被 stale abort 而卡住').toBe(TILE_STATE.LOADED);
+  expect(urlAttempts[url], '應該有真的重新發送第 2 次請求（第 1 次是被 stale abort 放棄的那次）').toBe(2);
 });
-
-await run();

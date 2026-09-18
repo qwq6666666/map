@@ -34,11 +34,8 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: 測試（舊框架 tests/specs）
+      - name: 測試
         run: npm test
-
-      - name: 測試（vitest tests/specs-vitest）
-        run: npm run test:vitest-pilot
 
       # 部署驗證：GitHub Pages 發布的是「已 commit 的 docs/」，忘了重新
       # build 並 commit 會讓線上停在舊版而且毫無警告。做法：先備份已

@@ -8,7 +8,7 @@
    驗證一次。
 --------------------------------------------------------- */
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, expect } from 'vitest';
 import { loadAppData, DATA } from '../../src/data.js';
 import {
   buildProbeUrl, buildSourceStatusTargets, hostOf,
@@ -18,53 +18,53 @@ import {
 await loadAppData();
 
 test('hostOf：從完整網址正確取出 host', () => {
-  assertEqual(hostOf('https://gis.sinica.edu.tw/beijing/file-exists.php?img=x'), 'gis.sinica.edu.tw', 'https 網址');
-  assertEqual(hostOf('http://example.com/a/b'), 'example.com', 'http 網址');
+  expect(hostOf('https://gis.sinica.edu.tw/beijing/file-exists.php?img=x'), 'https 網址').toBe('gis.sinica.edu.tw');
+  expect(hostOf('http://example.com/a/b'), 'http 網址').toBe('example.com');
 });
 
 test('buildProbeUrl：sinica 樣板式來源，{id}/{format}/{z}/{x}/{y} 都被正確代換', () => {
   const sinica = DATA.LAYER_SOURCES.find(s => s.id === 'sinica');
   const url = buildProbeUrl(sinica);
-  assertTrue(!!url, '應該組得出網址');
-  assertTrue(url.startsWith('https://gis.sinica.edu.tw/'), '應該是 sinica 的主機');
-  assertTrue(!/\{.*\}/.test(url), '不應該殘留任何未代換的 {佔位符}');
+  expect(!!url, '應該組得出網址').toBeTruthy();
+  expect(url.startsWith('https://gis.sinica.edu.tw/'), '應該是 sinica 的主機').toBeTruthy();
+  expect(!/\{.*\}/.test(url), '不應該殘留任何未代換的 {佔位符}').toBeTruthy();
 });
 
 test('buildProbeUrl：udd literalUrl 式來源，直接用該圖層自己的 url 樣板代換 z/y/x', () => {
   const udd = DATA.LAYER_SOURCES.find(s => s.id === 'udd');
   const url = buildProbeUrl(udd);
-  assertTrue(!!url, '應該組得出網址');
-  assertTrue(url.startsWith('https://'), '應該是完整網址');
-  assertTrue(!/\{.*\}/.test(url), '不應該殘留任何未代換的 {佔位符}');
+  expect(!!url, '應該組得出網址').toBeTruthy();
+  expect(url.startsWith('https://'), '應該是完整網址').toBeTruthy();
+  expect(!/\{.*\}/.test(url), '不應該殘留任何未代換的 {佔位符}').toBeTruthy();
 });
 
 test('buildSourceStatusTargets：同一台主機（sinica）底下多個來源會合併成同一筆，且都在 sources 清單裡', () => {
   const targets = buildSourceStatusTargets();
   const sinicaHostTarget = targets.find(t => t.host === 'gis.sinica.edu.tw');
-  assertTrue(!!sinicaHostTarget, '應該有 gis.sinica.edu.tw 這筆');
-  assertTrue(sinicaHostTarget.sources.length > 5, 'sinica 主機底下應該有一大批來源共用（實際遠超過 5 個）');
-  assertTrue(sinicaHostTarget.sources.some(s => s.id === 'sinica'), '應該包含 sinica 本身');
-  assertTrue(sinicaHostTarget.sources.some(s => s.id === 'beijing'), '應該包含同樣掛在這台主機下的 beijing');
+  expect(!!sinicaHostTarget, '應該有 gis.sinica.edu.tw 這筆').toBeTruthy();
+  expect(sinicaHostTarget.sources.length > 5, 'sinica 主機底下應該有一大批來源共用（實際遠超過 5 個）').toBeTruthy();
+  expect(sinicaHostTarget.sources.some(s => s.id === 'sinica'), '應該包含 sinica 本身').toBeTruthy();
+  expect(sinicaHostTarget.sources.some(s => s.id === 'beijing'), '應該包含同樣掛在這台主機下的 beijing').toBeTruthy();
 });
 
 test('buildSourceStatusTargets：udd／nlsc 各自是獨立主機，不會被併進 sinica 那筆', () => {
   const targets = buildSourceStatusTargets();
   const hosts = targets.map(t => t.host);
-  assertTrue(hosts.includes('www.historygis.udd.gov.taipei'), '應該有 udd 自己的主機');
-  assertTrue(hosts.includes('wmts.nlsc.gov.tw'), '應該有 nlsc 自己的主機');
+  expect(hosts.includes('www.historygis.udd.gov.taipei'), '應該有 udd 自己的主機').toBeTruthy();
+  expect(hosts.includes('wmts.nlsc.gov.tw'), '應該有 nlsc 自己的主機').toBeTruthy();
   const uddTarget = targets.find(t => t.host === 'www.historygis.udd.gov.taipei');
-  assertTrue(uddTarget.sources.every(s => s.id === 'udd'), 'udd 主機底下不應該混進其他來源');
+  expect(uddTarget.sources.every(s => s.id === 'udd'), 'udd 主機底下不應該混進其他來源').toBeTruthy();
 });
 
 test('classifyProbeResult：逾時一律判定 down，不管 ms 多少', () => {
-  assertEqual(classifyProbeResult({ timedOut: true, ms: 10 }), 'down', '逾時應該是 down');
-  assertEqual(classifyProbeResult({ timedOut: true, ms: 99999 }), 'down', '逾時應該是 down（ms 不影響）');
+  expect(classifyProbeResult({ timedOut: true, ms: 10 }), '逾時應該是 down').toBe('down');
+  expect(classifyProbeResult({ timedOut: true, ms: 99999 }), '逾時應該是 down（ms 不影響）').toBe('down');
 });
 
 test('classifyProbeResult：有回應但耗時超過門檻判定 slow，門檻以內判定 ok', () => {
-  assertEqual(classifyProbeResult({ timedOut: false, ms: 100 }), 'ok', '快速回應應該是 ok');
-  assertEqual(classifyProbeResult({ timedOut: false, ms: 5000 }), 'ok', '剛好等於門檻不算超過，應該是 ok');
-  assertEqual(classifyProbeResult({ timedOut: false, ms: 5001 }), 'slow', '超過門檻應該是 slow');
+  expect(classifyProbeResult({ timedOut: false, ms: 100 }), '快速回應應該是 ok').toBe('ok');
+  expect(classifyProbeResult({ timedOut: false, ms: 5000 }), '剛好等於門檻不算超過，應該是 ok').toBe('ok');
+  expect(classifyProbeResult({ timedOut: false, ms: 5001 }), '超過門檻應該是 slow').toBe('slow');
 });
 
 // 端到端：用假 Image 覆蓋掉 env-stub 版本，模擬「這台主機快速回應」
@@ -90,12 +90,10 @@ test('checkAllSourceStatuses：逾時的主機被判定為 down，正常回應�
     const results = await checkAllSourceStatuses();
     const sinicaResult = results.find(r => r.host === 'gis.sinica.edu.tw');
     const uddResult = results.find(r => r.host === 'www.historygis.udd.gov.taipei');
-    assertEqual(sinicaResult.status, 'down', 'sinica 主機應該被判定為 down');
-    assertEqual(uddResult.status, 'ok', 'udd 主機應該被判定為 ok');
+    expect(sinicaResult.status, 'sinica 主機應該被判定為 down').toBe('down');
+    expect(uddResult.status, 'udd 主機應該被判定為 ok').toBe('ok');
   } finally {
     globalThis.Image = originalImage;
     globalThis.setTimeout = originalSetTimeout;
   }
 });
-
-await run();

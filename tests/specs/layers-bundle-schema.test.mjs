@@ -1,4 +1,4 @@
-import { test, run, assertTrue } from '../assert.mjs';
+import { test, expect } from 'vitest';
 import { validateLayersBundle } from '../../src/layersBundleSchema.js';
 
 function minimalValidBundle(){
@@ -31,9 +31,9 @@ function assertThrows(fn, msgFragment){
     threw = true;
     errMsg = err.message;
   }
-  assertTrue(threw, '預期會拋出例外，但沒有');
+  expect(threw, '預期會拋出例外，但沒有').toBeTruthy();
   if(msgFragment){
-    assertTrue(errMsg.includes(msgFragment), `錯誤訊息「${errMsg}」應包含「${msgFragment}」`);
+    expect(errMsg.includes(msgFragment), `錯誤訊息「${errMsg}」應包含「${msgFragment}」`).toBeTruthy();
   }
   return errMsg;
 }
@@ -46,21 +46,19 @@ test('validateLayersBundle：layer 缺少 format（undefined）應該 throw，�
   const bundle = minimalValidBundle();
   delete bundle.sources[0].categories[0].layers[0].format;
   const msg = assertThrows(() => validateLayersBundle(bundle), '缺少 format');
-  assertTrue(msg.includes('demo-layer'), `錯誤訊息「${msg}」應包含 layer id "demo-layer"`);
+  expect(msg.includes('demo-layer'), `錯誤訊息「${msg}」應包含 layer id "demo-layer"`).toBeTruthy();
 });
 
 test('validateLayersBundle：layer 的 format 為 null 應該 throw（build-nlsc-layers.js 未知 MIME 時的情境）', () => {
   const bundle = minimalValidBundle();
   bundle.sources[0].categories[0].layers[0].format = null;
   const msg = assertThrows(() => validateLayersBundle(bundle), '缺少 format');
-  assertTrue(msg.includes('demo-layer'), `錯誤訊息「${msg}」應包含 layer id "demo-layer"`);
+  expect(msg.includes('demo-layer'), `錯誤訊息「${msg}」應包含 layer id "demo-layer"`).toBeTruthy();
 });
 
 test('validateLayersBundle：source 缺少 region.bbox 應該 throw，且錯誤訊息能定位到哪個 source', () => {
   const bundle = minimalValidBundle();
   delete bundle.sources[0].region;
   const msg = assertThrows(() => validateLayersBundle(bundle), 'region.bbox');
-  assertTrue(msg.includes('demo'), `錯誤訊息「${msg}」應包含 source id "demo"`);
+  expect(msg.includes('demo'), `錯誤訊息「${msg}」應包含 source id "demo"`).toBeTruthy();
 });
-
-await run();

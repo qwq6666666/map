@@ -1,5 +1,5 @@
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, expect } from 'vitest';
 import { loadAppData, DATA } from '../../src/data.js';
 import { TIMELINE_SOURCES } from '../../src/timelineMode.js';
 
@@ -17,7 +17,7 @@ await loadAppData();
 
 function findSource(id){
   const src = DATA.LAYER_SOURCES.find(s => s.id === id);
-  assertTrue(!!src, `應該要能在 DATA.LAYER_SOURCES 裡找到來源 ${id}`);
+  expect(!!src, `應該要能在 DATA.LAYER_SOURCES 裡找到來源 ${id}`).toBeTruthy();
   return src;
 }
 
@@ -51,10 +51,10 @@ const sinicaEntries = flattenLayersWithCategory(sinica);
    1：TIMELINE_SOURCES 結構基本檢查
 --------------------------------------------------------- */
 test('TIMELINE_SOURCES：應該同時有 sinica、udd 兩個來源設定', () => {
-  assertTrue(!!TIMELINE_SOURCES.sinica, '應該有 sinica 設定');
-  assertTrue(!!TIMELINE_SOURCES.udd, '應該有 udd 設定');
-  assertEqual(TIMELINE_SOURCES.sinica.sourceId, 'sinica', 'sinica.sourceId 應為 sinica');
-  assertEqual(TIMELINE_SOURCES.udd.sourceId, 'udd', 'udd.sourceId 應為 udd');
+  expect(!!TIMELINE_SOURCES.sinica, '應該有 sinica 設定').toBeTruthy();
+  expect(!!TIMELINE_SOURCES.udd, '應該有 udd 設定').toBeTruthy();
+  expect(TIMELINE_SOURCES.sinica.sourceId, 'sinica.sourceId 應為 sinica').toBe('sinica');
+  expect(TIMELINE_SOURCES.udd.sourceId, 'udd.sourceId 應為 udd').toBe('udd');
 });
 
 /* ---------------------------------------------------------
@@ -66,8 +66,8 @@ test('udd topo mode：match() 篩出的候選數應等於「數值地形圖（�
   const expectedCount = countByCategoryName(uddEntries, '數值地形圖（歷年版）');
   const matched = filterByMode(uddEntries, topoMode);
 
-  assertTrue(expectedCount > 0, '「數值地形圖（歷年版）」分類底下應該至少有 1 筆圖層，資料結構可能已改動');
-  assertEqual(matched.length, expectedCount, `topo mode 篩出的候選數應等於分類底下的圖層數，實際 ${matched.length} vs ${expectedCount}`);
+  expect(expectedCount > 0, '「數值地形圖（歷年版）」分類底下應該至少有 1 筆圖層，資料結構可能已改動').toBeTruthy();
+  expect(matched.length, `topo mode 篩出的候選數應等於分類底下的圖層數，實際 ${matched.length} vs ${expectedCount}`).toBe(expectedCount);
 });
 
 test('udd aerial mode：match() 篩出的候選數應等於「航空測量影像（歷年版）」分類底下的圖層數', () => {
@@ -75,8 +75,8 @@ test('udd aerial mode：match() 篩出的候選數應等於「航空測量影像
   const expectedCount = countByCategoryName(uddEntries, '航空測量影像（歷年版）');
   const matched = filterByMode(uddEntries, aerialMode);
 
-  assertTrue(expectedCount > 0, '「航空測量影像（歷年版）」分類底下應該至少有 1 筆圖層，資料結構可能已改動');
-  assertEqual(matched.length, expectedCount, `aerial mode 篩出的候選數應等於分類底下的圖層數，實際 ${matched.length} vs ${expectedCount}`);
+  expect(expectedCount > 0, '「航空測量影像（歷年版）」分類底下應該至少有 1 筆圖層，資料結構可能已改動').toBeTruthy();
+  expect(matched.length, `aerial mode 篩出的候選數應等於分類底下的圖層數，實際 ${matched.length} vs ${expectedCount}`).toBe(expectedCount);
 });
 
 /* ---------------------------------------------------------
@@ -90,7 +90,7 @@ test('udd topo／aerial 兩組候選彼此不重疊：沒有圖層同時符合�
   const aerialIds = new Set(filterByMode(uddEntries, aerialMode).map(e => e.layer.id));
 
   const overlap = [...topoIds].filter(id => aerialIds.has(id));
-  assertEqual(overlap.length, 0, `topo／aerial 候選不應該有重疊，實際重疊：${JSON.stringify(overlap)}`);
+  expect(overlap.length, `topo／aerial 候選不應該有重疊，實際重疊：${JSON.stringify(overlap)}`).toBe(0);
 });
 
 /* ---------------------------------------------------------
@@ -99,13 +99,13 @@ test('udd topo／aerial 兩組候選彼此不重疊：沒有圖層同時符合�
 test('sinica 25k mode：至少篩出 1 筆候選（PLAN_A_LAYER_IDS 沒有整批消失）', () => {
   const mode25k = TIMELINE_SOURCES.sinica.modes['25k'];
   const matched = filterByMode(sinicaEntries, mode25k);
-  assertTrue(matched.length > 0, `25k mode 應該至少篩出 1 筆候選，實際 ${matched.length}`);
+  expect(matched.length > 0, `25k mode 應該至少篩出 1 筆候選，實際 ${matched.length}`).toBeTruthy();
 });
 
 test('sinica 50k mode：至少篩出 1 筆候選（PLAN_B_LAYER_IDS 沒有整批消失）', () => {
   const mode50k = TIMELINE_SOURCES.sinica.modes['50k'];
   const matched = filterByMode(sinicaEntries, mode50k);
-  assertTrue(matched.length > 0, `50k mode 應該至少篩出 1 筆候選，實際 ${matched.length}`);
+  expect(matched.length > 0, `50k mode 應該至少篩出 1 筆候選，實際 ${matched.length}`).toBeTruthy();
 });
 
 test('sinica mix mode：25k／50k 兩組 id 彼此互斥，mix 篩出的候選數應等於兩者相加', () => {
@@ -117,10 +117,10 @@ test('sinica mix mode：25k／50k 兩組 id 彼此互斥，mix 篩出的候選�
   const ids50k = new Set(filterByMode(sinicaEntries, mode50k).map(e => e.layer.id));
   const overlap = [...ids25k].filter(id => ids50k.has(id));
 
-  assertEqual(overlap.length, 0, `25k／50k 兩組 id 應該互斥不重疊，實際重疊：${JSON.stringify(overlap)}（若已改為有交集，請把這個斷言改成 >= 而非等於）`);
+  expect(overlap.length, `25k／50k 兩組 id 應該互斥不重疊，實際重疊：${JSON.stringify(overlap)}（若已改為有交集，請把這個斷言改成 >= 而非等於）`).toBe(0);
 
   const matchedMix = filterByMode(sinicaEntries, modeMix);
-  assertEqual(matchedMix.length, ids25k.size + ids50k.size, `mix mode 篩出的候選數應等於 25k(${ids25k.size}) + 50k(${ids50k.size})，實際 ${matchedMix.length}`);
+  expect(matchedMix.length, `mix mode 篩出的候選數應等於 25k(${ids25k.size}) + 50k(${ids50k.size})，實際 ${matchedMix.length}`).toBe(ids25k.size + ids50k.size);
 });
 
 /* ---------------------------------------------------------
@@ -128,13 +128,11 @@ test('sinica mix mode：25k／50k 兩組 id 彼此互斥，mix 篩出的候選�
 --------------------------------------------------------- */
 test('每個來源、每個 mode 的 label／btnLabel 都是非空字串', () => {
   Object.entries(TIMELINE_SOURCES).forEach(([sourceKey, sourceConfig]) => {
-    assertTrue(typeof sourceConfig.label === 'string' && sourceConfig.label.length > 0, `${sourceKey}.label 應該是非空字串`);
+    expect(typeof sourceConfig.label === 'string' && sourceConfig.label.length > 0, `${sourceKey}.label 應該是非空字串`).toBeTruthy();
     Object.entries(sourceConfig.modes).forEach(([modeKey, mode]) => {
-      assertTrue(typeof mode.label === 'string' && mode.label.length > 0, `${sourceKey}.modes.${modeKey}.label 應該是非空字串`);
-      assertTrue(typeof mode.btnLabel === 'string' && mode.btnLabel.length > 0, `${sourceKey}.modes.${modeKey}.btnLabel 應該是非空字串`);
-      assertTrue(typeof mode.match === 'function', `${sourceKey}.modes.${modeKey}.match 應該是函式`);
+      expect(typeof mode.label === 'string' && mode.label.length > 0, `${sourceKey}.modes.${modeKey}.label 應該是非空字串`).toBeTruthy();
+      expect(typeof mode.btnLabel === 'string' && mode.btnLabel.length > 0, `${sourceKey}.modes.${modeKey}.btnLabel 應該是非空字串`).toBeTruthy();
+      expect(typeof mode.match === 'function', `${sourceKey}.modes.${modeKey}.match 應該是函式`).toBeTruthy();
     });
   });
 });
-
-await run();

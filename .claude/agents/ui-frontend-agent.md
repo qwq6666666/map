@@ -35,5 +35,5 @@ model: sonnet
 
 # 驗證規範
 - 修改後執行介面相關測試：
-  `node tests/run-all.mjs tests/specs/timeline-ui.test.mjs tests/specs/search-two-tier.test.mjs tests/specs/custom-timeline.test.mjs tests/specs/mobile-tw-browse.test.mjs tests/specs/mobile-cn-browse.test.mjs tests/specs/mobile-region-browse.test.mjs tests/specs/mobile-other-browse.test.mjs tests/specs/mobile-layout.test.mjs tests/specs/place-name-card-ui.test.mjs tests/specs/nearby-place-names-ui.test.mjs tests/specs/compare-mode-mobile-browse.test.mjs`
+  `npx vitest run tests/specs/timeline-ui.test.mjs tests/specs/search-two-tier.test.mjs tests/specs/custom-timeline.test.mjs tests/specs/mobile-tw-browse.test.mjs tests/specs/mobile-cn-browse.test.mjs tests/specs/mobile-region-browse.test.mjs tests/specs/mobile-other-browse.test.mjs tests/specs/mobile-layout.test.mjs tests/specs/place-name-card-ui.test.mjs tests/specs/nearby-place-names-ui.test.mjs tests/specs/compare-mode-mobile-browse.test.mjs`
   （`compare-mode-mobile-browse.test.mjs` 測手機版 `features/compareMode.js` 串接 `ui/mobileRegionBrowse.js` 的整合路徑，跨到 feature-state-agent 權責檔案，與對方共同驗證）

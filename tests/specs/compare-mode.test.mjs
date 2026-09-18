@@ -1,5 +1,5 @@
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, expect } from 'vitest';
 import { loadAppData } from '../../src/data.js';
 import { initMapCore } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
@@ -25,32 +25,32 @@ initSearchUI();
 test('進入比對模式：分隔線與左右容器顯示、左右裁切圖層建立', () => {
   setMode('overlay'); // 確保從乾淨狀態切入
   setMode('compare');
-  assertEqual(store.mode, 'compare', '模式應該切到 compare');
-  assertTrue(document.getElementById('swipeDivider').classList.contains('show'), 'swipeDivider 應該顯示');
-  assertTrue(document.getElementById('compareWrapA').classList.contains('show'), 'compareWrapA 應該顯示');
-  assertTrue(document.getElementById('compareWrapB').classList.contains('show'), 'compareWrapB 應該顯示');
-  assertTrue(runtime.swipeLayerA !== null, '左側裁切圖層應該已建立');
-  assertTrue(runtime.swipeLayerB !== null, '右側裁切圖層應該已建立');
+  expect(store.mode, '模式應該切到 compare').toBe('compare');
+  expect(document.getElementById('swipeDivider').classList.contains('show'), 'swipeDivider 應該顯示').toBeTruthy();
+  expect(document.getElementById('compareWrapA').classList.contains('show'), 'compareWrapA 應該顯示').toBeTruthy();
+  expect(document.getElementById('compareWrapB').classList.contains('show'), 'compareWrapB 應該顯示').toBeTruthy();
+  expect(runtime.swipeLayerA !== null, '左側裁切圖層應該已建立').toBeTruthy();
+  expect(runtime.swipeLayerB !== null, '右側裁切圖層應該已建立').toBeTruthy();
 });
 
 test('離開比對模式：分隔線收起、左右裁切圖層清除', () => {
   setMode('compare');
-  assertTrue(runtime.swipeLayerA !== null, '前置條件：先確認左側圖層存在');
+  expect(runtime.swipeLayerA !== null, '前置條件：先確認左側圖層存在').toBeTruthy();
   setMode('overlay');
-  assertEqual(store.mode, 'overlay', '模式應該切回 overlay');
-  assertTrue(!document.getElementById('swipeDivider').classList.contains('show'), 'swipeDivider 應該收起');
-  assertTrue(!document.getElementById('compareWrapA').classList.contains('show'), 'compareWrapA 應該收起');
-  assertTrue(!document.getElementById('compareWrapB').classList.contains('show'), 'compareWrapB 應該收起');
-  assertTrue(runtime.swipeLayerA === null, '左側裁切圖層應該被清除');
-  assertTrue(runtime.swipeLayerB === null, '右側裁切圖層應該被清除');
+  expect(store.mode, '模式應該切回 overlay').toBe('overlay');
+  expect(!document.getElementById('swipeDivider').classList.contains('show'), 'swipeDivider 應該收起').toBeTruthy();
+  expect(!document.getElementById('compareWrapA').classList.contains('show'), 'compareWrapA 應該收起').toBeTruthy();
+  expect(!document.getElementById('compareWrapB').classList.contains('show'), 'compareWrapB 應該收起').toBeTruthy();
+  expect(runtime.swipeLayerA === null, '左側裁切圖層應該被清除').toBeTruthy();
+  expect(runtime.swipeLayerB === null, '右側裁切圖層應該被清除').toBeTruthy();
 });
 
 test('positionDivider：分隔線位置依 swipePercent 與容器寬度計算（假環境預設寬度 800px）', () => {
   setMode('compare');
   setSwipePercent(25);
-  assertEqual(document.getElementById('swipeDivider').style.left, '200px', 'swipePercent=25 時應該落在 200px');
+  expect(document.getElementById('swipeDivider').style.left, 'swipePercent=25 時應該落在 200px').toBe('200px');
   setSwipePercent(75);
-  assertEqual(document.getElementById('swipeDivider').style.left, '600px', 'swipePercent=75 時應該落在 600px');
+  expect(document.getElementById('swipeDivider').style.left, 'swipePercent=75 時應該落在 600px').toBe('600px');
   setSwipePercent(50); // 還原預設值，避免影響其他測試檔的初始假設
   setMode('overlay');
 });
@@ -59,9 +59,9 @@ test('compareA/compareB 切換時，非比對模式不會重建裁切圖層；�
   setMode('overlay');
   runtime.swipeLayerA = null; // 明確歸零，確保下面斷言不是殘留舊物件
   setCompareSide('A', 'hist:sinica:JM20K_1904:jpg');
-  assertTrue(runtime.swipeLayerA === null, '非比對模式下切換 compareA 不應該建立裁切圖層');
+  expect(runtime.swipeLayerA === null, '非比對模式下切換 compareA 不應該建立裁切圖層').toBeTruthy();
   setMode('compare');
-  assertTrue(runtime.swipeLayerA !== null, '切回比對模式後應該補建左側裁切圖層');
+  expect(runtime.swipeLayerA !== null, '切回比對模式後應該補建左側裁切圖層').toBeTruthy();
   setMode('overlay');
 });
 
@@ -79,17 +79,17 @@ test('getProtectedKeys 保護名單涵蓋 compareA/compareB/activeOverlayKey/mul
   runtime.historyLayerKey = historyKey;
 
   const keys = getProtectedKeys();
-  assertTrue(keys.has(overlayKey), '應包含 activeOverlayKey');
-  assertTrue(keys.has(compareAKey), '應包含 compareA（hist: 開頭）');
+  expect(keys.has(overlayKey), '應包含 activeOverlayKey').toBeTruthy();
+  expect(keys.has(compareAKey), '應包含 compareA（hist: 開頭）').toBeTruthy();
   // compareA/compareB 無條件加入保護名單，不判斷字首：layerCache 的保護名單只是
   // 「跳過淘汰」，對沒有對應 cache entry 的 key（例如 base: 開頭，不會進
   // layerCache）完全無害。若在 protectedKeys.js 這裡另外判斷字首，等於跟
   // compareMode.js「只對 hist:/custom: 呼叫 getOrCreateSource()」的假設重複維護
   // 同一份子集邏輯，一旦 compareMode.js 之後改變快取策略卻忘記同步，就會讓比對
   // 模式正在用的圖層被誤淘汰——所以這裡刻意連 base:osm 也一併保護。
-  assertTrue(keys.has('base:osm'), 'compareB 即使非 hist: 開頭，也應該無條件被保護');
-  assertTrue(keys.has(multiKey), '應包含 multiOverlayLayers 裡的 key');
-  assertTrue(keys.has(historyKey), '應包含 runtime.historyLayerKey');
+  expect(keys.has('base:osm'), 'compareB 即使非 hist: 開頭，也應該無條件被保護').toBeTruthy();
+  expect(keys.has(multiKey), '應包含 multiOverlayLayers 裡的 key').toBeTruthy();
+  expect(keys.has(historyKey), '應包含 runtime.historyLayerKey').toBeTruthy();
 
   // 還原狀態，避免污染同一份檔案裡後續（若有）測試
   selectOverlayLayer(null);
@@ -105,7 +105,5 @@ test('resolveSourceForCompareKey：custom: 開頭的 key 跟 hist: 一樣走共�
   const key = 'custom:not-a-real-id';
   const sourceA = resolveSourceForCompareKey(key);
   const sourceB = resolveSourceForCompareKey(key);
-  assertTrue(sourceA === sourceB, 'custom: key 應該走 getOrCreateSource() 共用快取，兩次呼叫拿到同一個 source 物件');
+  expect(sourceA === sourceB, 'custom: key 應該走 getOrCreateSource() 共用快取，兩次呼叫拿到同一個 source 物件').toBeTruthy();
 });
-
-await run();

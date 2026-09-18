@@ -17,7 +17,7 @@
    sw.js 的頂層程式碼、重新註冊 install/activate/fetch handler、
    重新建立一份空的假 CacheStorage），案例之間彼此不共用狀態。
 --------------------------------------------------------- */
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, expect } from 'vitest';
 import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
@@ -212,13 +212,13 @@ test('HTML navigate：有網路時拿新版內容，且會更新 APP_CACHE 裡�
 
   const request = new FakeRequest(url, { mode: 'navigate' });
   const { called, promise } = env.triggerFetch(request);
-  assertTrue(called, 'navigate 請求應該呼叫 event.respondWith()');
+  expect(called, 'navigate 請求應該呼叫 event.respondWith()').toBeTruthy();
 
   const res = await promise;
-  assertEqual(await res.text(), '<html>新版</html>', 'Network-First 應該回傳網路上的新版內容');
+  expect(await res.text(), 'Network-First 應該回傳網路上的新版內容').toBe('<html>新版</html>');
 
   const cached = env.getCacheEntry(APP_CACHE, url);
-  assertEqual(await cached.text(), '<html>新版</html>', '拿到新版後應該同步 cache.put() 更新 APP_CACHE');
+  expect(await cached.text(), '拿到新版後應該同步 cache.put() 更新 APP_CACHE').toBe('<html>新版</html>');
 });
 
 /* ---------------------------------------------------------
@@ -234,7 +234,7 @@ test('HTML navigate：離線（fetch reject）時 fallback 回快取的舊版內
   const { promise } = env.triggerFetch(request);
 
   const res = await promise;
-  assertEqual(await res.text(), '<html>舊版（離線快取）</html>', '離線時應該 fallback 回快取版本');
+  expect(await res.text(), '離線時應該 fallback 回快取版本').toBe('<html>舊版（離線快取）</html>');
 });
 
 /* ---------------------------------------------------------
@@ -246,14 +246,14 @@ test('activate：舊版 app-shell-v1 會被清掉，目前版本 app-shell-v2 �
   env.presetCache(APP_CACHE, 'https://example.local/', new FakeResponse('目前版本'));
 
   const waitUntilPromise = env.triggerActivate();
-  assertTrue(waitUntilPromise, 'activate handler 應該呼叫 event.waitUntil()');
+  expect(waitUntilPromise, 'activate handler 應該呼叫 event.waitUntil()').toBeTruthy();
   await waitUntilPromise;
 
   const names = env.getCacheNames();
-  assertTrue(!names.includes(OLD_APP_CACHE), '舊版 app-shell-v1 應該被 activate 清除');
-  assertTrue(names.includes(APP_CACHE), '目前版本 app-shell-v2 不應該被清掉');
-  assertEqual(env.getCacheSize(APP_CACHE), 1, 'app-shell-v2 裡原本的內容應該完整保留');
-  assertTrue(env.isClientsClaimed(), 'activate 結束後應該呼叫 self.clients.claim()');
+  expect(!names.includes(OLD_APP_CACHE), '舊版 app-shell-v1 應該被 activate 清除').toBeTruthy();
+  expect(names.includes(APP_CACHE), '目前版本 app-shell-v2 不應該被清掉').toBeTruthy();
+  expect(env.getCacheSize(APP_CACHE), 'app-shell-v2 裡原本的內容應該完整保留').toBe(1);
+  expect(env.isClientsClaimed(), 'activate 結束後應該呼叫 self.clients.claim()').toBeTruthy();
 });
 
 /* ---------------------------------------------------------
@@ -268,9 +268,9 @@ test('activate：App Shell 改版清除舊快取時，完全不影響 tile-cache
   await env.triggerActivate();
 
   const names = env.getCacheNames();
-  assertTrue(!names.includes(OLD_APP_CACHE), '舊版 App Shell 快取應該被清掉');
-  assertTrue(names.includes(TILE_CACHE), 'tile-cache-v1 不應該被 activate 誤刪整個 cache');
-  assertEqual(env.getCacheSize(TILE_CACHE), 2, 'tile-cache-v1 裡原本的 2 筆圖磚應該完整保留，一筆都不能少');
+  expect(!names.includes(OLD_APP_CACHE), '舊版 App Shell 快取應該被清掉').toBeTruthy();
+  expect(names.includes(TILE_CACHE), 'tile-cache-v1 不應該被 activate 誤刪整個 cache').toBeTruthy();
+  expect(env.getCacheSize(TILE_CACHE), 'tile-cache-v1 裡原本的 2 筆圖磚應該完整保留，一筆都不能少').toBe(2);
 });
 
 /* ---------------------------------------------------------
@@ -287,8 +287,8 @@ test('OSM 底圖圖磚（tile.openstreetmap.org）快取命中時走 OSM_TILE_CA
   const { promise } = env.triggerFetch(request);
   const res = await promise;
 
-  assertEqual(await res.text(), 'OSM圖磚', 'OSM 底圖圖磚快取命中時應該直接回傳 OSM_TILE_CACHE 裡的內容');
-  assertEqual(env.getCacheSize(TILE_CACHE), 0, 'OSM 底圖圖磚不應該寫進 TILE_CACHE');
+  expect(await res.text(), 'OSM 底圖圖磚快取命中時應該直接回傳 OSM_TILE_CACHE 裡的內容').toBe('OSM圖磚');
+  expect(env.getCacheSize(TILE_CACHE), 'OSM 底圖圖磚不應該寫進 TILE_CACHE').toBe(0);
 });
 
 test('非 OSM 圖磚（中研院 WMTS）快取命中時走 TILE_CACHE，不進 OSM_TILE_CACHE', async () => {
@@ -301,8 +301,8 @@ test('非 OSM 圖磚（中研院 WMTS）快取命中時走 TILE_CACHE，不進 O
   const { promise } = env.triggerFetch(request);
   const res = await promise;
 
-  assertEqual(await res.text(), 'WMTS圖磚', '歷史 WMTS 圖磚快取命中時應該直接回傳 TILE_CACHE 裡的內容');
-  assertEqual(env.getCacheSize(OSM_TILE_CACHE), 0, '歷史 WMTS 圖磚不應該寫進 OSM_TILE_CACHE');
+  expect(await res.text(), '歷史 WMTS 圖磚快取命中時應該直接回傳 TILE_CACHE 裡的內容').toBe('WMTS圖磚');
+  expect(env.getCacheSize(OSM_TILE_CACHE), '歷史 WMTS 圖磚不應該寫進 OSM_TILE_CACHE').toBe(0);
 });
 
 test('圖磚請求未命中快取時，OSM 與非 OSM 分別寫進各自的快取空間', async () => {
@@ -314,10 +314,10 @@ test('圖磚請求未命中快取時，OSM 與非 OSM 分別寫進各自的快�
   await env.triggerFetch(new FakeRequest(osmUrl, { destination: 'image' })).promise;
   await env.triggerFetch(new FakeRequest(wmtsUrl, { destination: 'image' })).promise;
 
-  assertTrue(!!env.getCacheEntry(OSM_TILE_CACHE, osmUrl), 'OSM 圖磚應該寫進 OSM_TILE_CACHE');
-  assertTrue(!env.getCacheEntry(TILE_CACHE, osmUrl), 'OSM 圖磚不應該同時出現在 TILE_CACHE');
-  assertTrue(!!env.getCacheEntry(TILE_CACHE, wmtsUrl), '歷史 WMTS 圖磚應該寫進 TILE_CACHE');
-  assertTrue(!env.getCacheEntry(OSM_TILE_CACHE, wmtsUrl), '歷史 WMTS 圖磚不應該同時出現在 OSM_TILE_CACHE');
+  expect(!!env.getCacheEntry(OSM_TILE_CACHE, osmUrl), 'OSM 圖磚應該寫進 OSM_TILE_CACHE').toBeTruthy();
+  expect(!env.getCacheEntry(TILE_CACHE, osmUrl), 'OSM 圖磚不應該同時出現在 TILE_CACHE').toBeTruthy();
+  expect(!!env.getCacheEntry(TILE_CACHE, wmtsUrl), '歷史 WMTS 圖磚應該寫進 TILE_CACHE').toBeTruthy();
+  expect(!env.getCacheEntry(OSM_TILE_CACHE, wmtsUrl), '歷史 WMTS 圖磚不應該同時出現在 OSM_TILE_CACHE').toBeTruthy();
 });
 
 test('activate：App Shell 改版清除舊快取時，完全不影響 OSM_TILE_CACHE 的內容', async () => {
@@ -328,9 +328,9 @@ test('activate：App Shell 改版清除舊快取時，完全不影響 OSM_TILE_C
   await env.triggerActivate();
 
   const names = env.getCacheNames();
-  assertTrue(!names.includes(OLD_APP_CACHE), '舊版 App Shell 快取應該被清掉');
-  assertTrue(names.includes(OSM_TILE_CACHE), 'tile-cache-osm-v1 不應該被 activate 誤刪整個 cache');
-  assertEqual(env.getCacheSize(OSM_TILE_CACHE), 1, 'tile-cache-osm-v1 裡原本的圖磚應該完整保留');
+  expect(!names.includes(OLD_APP_CACHE), '舊版 App Shell 快取應該被清掉').toBeTruthy();
+  expect(names.includes(OSM_TILE_CACHE), 'tile-cache-osm-v1 不應該被 activate 誤刪整個 cache').toBeTruthy();
+  expect(env.getCacheSize(OSM_TILE_CACHE), 'tile-cache-osm-v1 裡原本的圖磚應該完整保留').toBe(1);
 });
 
 /* ---------------------------------------------------------
@@ -347,9 +347,9 @@ test('衛星影像圖磚（server.arcgisonline.com）快取命中時走 SAT_TILE
   const { promise } = env.triggerFetch(request);
   const res = await promise;
 
-  assertEqual(await res.text(), '衛星圖磚', '衛星影像圖磚快取命中時應該直接回傳 SAT_TILE_CACHE 裡的內容');
-  assertEqual(env.getCacheSize(TILE_CACHE), 0, '衛星影像圖磚不應該寫進 TILE_CACHE');
-  assertEqual(env.getCacheSize(OSM_TILE_CACHE), 0, '衛星影像圖磚不應該寫進 OSM_TILE_CACHE');
+  expect(await res.text(), '衛星影像圖磚快取命中時應該直接回傳 SAT_TILE_CACHE 裡的內容').toBe('衛星圖磚');
+  expect(env.getCacheSize(TILE_CACHE), '衛星影像圖磚不應該寫進 TILE_CACHE').toBe(0);
+  expect(env.getCacheSize(OSM_TILE_CACHE), '衛星影像圖磚不應該寫進 OSM_TILE_CACHE').toBe(0);
 });
 
 test('圖磚請求未命中快取時，衛星影像／OSM／歷史 WMTS 三邊分別寫進各自的快取空間', async () => {
@@ -363,11 +363,11 @@ test('圖磚請求未命中快取時，衛星影像／OSM／歷史 WMTS 三邊�
   await env.triggerFetch(new FakeRequest(osmUrl, { destination: 'image' })).promise;
   await env.triggerFetch(new FakeRequest(wmtsUrl, { destination: 'image' })).promise;
 
-  assertTrue(!!env.getCacheEntry(SAT_TILE_CACHE, satUrl), '衛星影像圖磚應該寫進 SAT_TILE_CACHE');
-  assertTrue(!env.getCacheEntry(TILE_CACHE, satUrl), '衛星影像圖磚不應該同時出現在 TILE_CACHE');
-  assertTrue(!env.getCacheEntry(OSM_TILE_CACHE, satUrl), '衛星影像圖磚不應該同時出現在 OSM_TILE_CACHE');
-  assertTrue(!!env.getCacheEntry(OSM_TILE_CACHE, osmUrl), 'OSM 圖磚應該寫進 OSM_TILE_CACHE');
-  assertTrue(!!env.getCacheEntry(TILE_CACHE, wmtsUrl), '歷史 WMTS 圖磚應該寫進 TILE_CACHE');
+  expect(!!env.getCacheEntry(SAT_TILE_CACHE, satUrl), '衛星影像圖磚應該寫進 SAT_TILE_CACHE').toBeTruthy();
+  expect(!env.getCacheEntry(TILE_CACHE, satUrl), '衛星影像圖磚不應該同時出現在 TILE_CACHE').toBeTruthy();
+  expect(!env.getCacheEntry(OSM_TILE_CACHE, satUrl), '衛星影像圖磚不應該同時出現在 OSM_TILE_CACHE').toBeTruthy();
+  expect(!!env.getCacheEntry(OSM_TILE_CACHE, osmUrl), 'OSM 圖磚應該寫進 OSM_TILE_CACHE').toBeTruthy();
+  expect(!!env.getCacheEntry(TILE_CACHE, wmtsUrl), '歷史 WMTS 圖磚應該寫進 TILE_CACHE').toBeTruthy();
 });
 
 test('activate：App Shell 改版清除舊快取時，完全不影響 SAT_TILE_CACHE 的內容', async () => {
@@ -378,9 +378,9 @@ test('activate：App Shell 改版清除舊快取時，完全不影響 SAT_TILE_C
   await env.triggerActivate();
 
   const names = env.getCacheNames();
-  assertTrue(!names.includes(OLD_APP_CACHE), '舊版 App Shell 快取應該被清掉');
-  assertTrue(names.includes(SAT_TILE_CACHE), 'tile-cache-sat-v1 不應該被 activate 誤刪整個 cache');
-  assertEqual(env.getCacheSize(SAT_TILE_CACHE), 1, 'tile-cache-sat-v1 裡原本的圖磚應該完整保留');
+  expect(!names.includes(OLD_APP_CACHE), '舊版 App Shell 快取應該被清掉').toBeTruthy();
+  expect(names.includes(SAT_TILE_CACHE), 'tile-cache-sat-v1 不應該被 activate 誤刪整個 cache').toBeTruthy();
+  expect(env.getCacheSize(SAT_TILE_CACHE), 'tile-cache-sat-v1 裡原本的圖磚應該完整保留').toBe(1);
 });
 
 /* ---------------------------------------------------------
@@ -396,9 +396,9 @@ test('data/*.json：有網路時拿新版內容，且會更新 DATA_CACHE 裡的
   const { promise } = env.triggerFetch(request);
   const res = await promise;
 
-  assertEqual(await res.text(), '{"version":"新"}', 'Network-First 應該回傳網路上的新版 JSON');
+  expect(await res.text(), 'Network-First 應該回傳網路上的新版 JSON').toBe('{"version":"新"}');
   const cached = env.getCacheEntry(DATA_CACHE, url);
-  assertEqual(await cached.text(), '{"version":"新"}', '拿到新版後應該同步更新 DATA_CACHE');
+  expect(await cached.text(), '拿到新版後應該同步更新 DATA_CACHE').toBe('{"version":"新"}');
 });
 
 /* ---------------------------------------------------------
@@ -412,7 +412,7 @@ test('Network failure：index.html 與 data JSON 都能各自 fallback 回快取
   envHtml.setFetchImpl(async () => { throw new Error('網路離線'); });
   const { promise: htmlPromise } = envHtml.triggerFetch(new FakeRequest(htmlUrl, { mode: 'navigate' }));
   const htmlRes = await htmlPromise;
-  assertEqual(await htmlRes.text(), '<html>離線快取版</html>', 'index.html 離線時應該 fallback 回快取');
+  expect(await htmlRes.text(), 'index.html 離線時應該 fallback 回快取').toBe('<html>離線快取版</html>');
 
   // 6b：data JSON
   const envData = createSWEnv();
@@ -421,7 +421,7 @@ test('Network failure：index.html 與 data JSON 都能各自 fallback 回快取
   envData.setFetchImpl(async () => { throw new Error('網路離線'); });
   const { promise: dataPromise } = envData.triggerFetch(new FakeRequest(dataUrl));
   const dataRes = await dataPromise;
-  assertEqual(await dataRes.text(), '{"names":["舊"]}', 'data JSON 離線時應該 fallback 回快取');
+  expect(await dataRes.text(), 'data JSON 離線時應該 fallback 回快取').toBe('{"names":["舊"]}');
 });
 
 /* ---------------------------------------------------------
@@ -437,8 +437,8 @@ test('Hashed asset（script）：快取命中時 Cache-First 完全不呼叫 fet
   const { promise } = env.triggerFetch(request);
   const res = await promise;
 
-  assertEqual(await res.text(), 'console.log("cached")', 'Cache-First 命中時應該直接回傳快取內容');
-  assertEqual(env.getFetchCallCount(), 0, '快取命中時完全不應該呼叫到 fetch()');
+  expect(await res.text(), 'Cache-First 命中時應該直接回傳快取內容').toBe('console.log("cached")');
+  expect(env.getFetchCallCount(), '快取命中時完全不應該呼叫到 fetch()').toBe(0);
 });
 
 /* ---------------------------------------------------------
@@ -448,7 +448,7 @@ test('isOwnScriptRequest：對 /sw.js 的請求完全不呼叫 event.respondWith
   const env = createSWEnv();
   const request = new FakeRequest('https://example.local/sw.js');
   const { called } = env.triggerFetch(request);
-  assertTrue(!called, 'sw.js 自己的請求應該完全不套用任何快取策略，不能呼叫 respondWith()');
+  expect(!called, 'sw.js 自己的請求應該完全不套用任何快取策略，不能呼叫 respondWith()').toBeTruthy();
 });
 
 /* ---------------------------------------------------------
@@ -464,17 +464,17 @@ test('message CLEAR_TILE_CACHES：清掉 TILE_CACHE／OSM_TILE_CACHE／SAT_TILE_
   env.presetCache(DATA_CACHE, 'https://example.local/data/layers.bundle.json', new FakeResponse('{}'));
 
   const { waitUntilPromise, received } = env.triggerMessage({ type: 'CLEAR_TILE_CACHES' });
-  assertTrue(waitUntilPromise, 'message handler 應該呼叫 event.waitUntil()');
+  expect(waitUntilPromise, 'message handler 應該呼叫 event.waitUntil()').toBeTruthy();
   await waitUntilPromise;
 
   const names = env.getCacheNames();
-  assertTrue(!names.includes(TILE_CACHE), 'TILE_CACHE 應該被清除');
-  assertTrue(!names.includes(OSM_TILE_CACHE), 'OSM_TILE_CACHE 應該被清除');
-  assertTrue(!names.includes(SAT_TILE_CACHE), 'SAT_TILE_CACHE 應該被清除');
-  assertTrue(names.includes(APP_CACHE), 'APP_CACHE 不應該被這個訊息清掉');
-  assertTrue(names.includes(DATA_CACHE), 'DATA_CACHE 不應該被這個訊息清掉');
-  assertEqual(received.length, 1, '應該透過 port 回傳一次執行結果');
-  assertEqual(received[0].ok, true, '清除成功時應該回傳 { ok: true }');
+  expect(!names.includes(TILE_CACHE), 'TILE_CACHE 應該被清除').toBeTruthy();
+  expect(!names.includes(OSM_TILE_CACHE), 'OSM_TILE_CACHE 應該被清除').toBeTruthy();
+  expect(!names.includes(SAT_TILE_CACHE), 'SAT_TILE_CACHE 應該被清除').toBeTruthy();
+  expect(names.includes(APP_CACHE), 'APP_CACHE 不應該被這個訊息清掉').toBeTruthy();
+  expect(names.includes(DATA_CACHE), 'DATA_CACHE 不應該被這個訊息清掉').toBeTruthy();
+  expect(received.length, '應該透過 port 回傳一次執行結果').toBe(1);
+  expect(received[0].ok, '清除成功時應該回傳 { ok: true }').toBe(true);
 });
 
 test('message：非 CLEAR_TILE_CACHES 的訊息完全不處理，不呼叫 waitUntil、不動任何快取', () => {
@@ -482,9 +482,9 @@ test('message：非 CLEAR_TILE_CACHES 的訊息完全不處理，不呼叫 waitU
   env.presetCache(TILE_CACHE, 'https://gis.sinica.edu.tw/tile/1.png', new FakeResponse('WMTS圖磚'));
 
   const { waitUntilPromise, received } = env.triggerMessage({ type: 'SOME_OTHER_MESSAGE' });
-  assertTrue(!waitUntilPromise, '不認得的訊息類型不應該呼叫 event.waitUntil()');
-  assertEqual(received.length, 0, '不認得的訊息類型不應該透過 port 回覆任何內容');
-  assertEqual(env.getCacheSize(TILE_CACHE), 1, 'TILE_CACHE 內容應該完全不受影響');
+  expect(!waitUntilPromise, '不認得的訊息類型不應該呼叫 event.waitUntil()').toBeTruthy();
+  expect(received.length, '不認得的訊息類型不應該透過 port 回覆任何內容').toBe(0);
+  expect(env.getCacheSize(TILE_CACHE), 'TILE_CACHE 內容應該完全不受影響').toBe(1);
 });
 
 /* ---------------------------------------------------------
@@ -505,9 +505,9 @@ test('touchTileLRU()：超過上限時，最舊的項目會被逐出快取並從
   await ctx.touchTileLRU(cache, lruKey, 'url-d', 3); // 超過上限 3
 
   const list = await env.getCacheEntry(TILE_CACHE, lruKey).json();
-  assertEqual(list.length, 3, 'LRU 索引長度應該維持在上限');
-  assertTrue(!list.includes('url-a'), '最舊的 url-a 應該已經被移出索引');
-  assertTrue(!env.getCacheEntry(TILE_CACHE, 'url-a'), 'url-a 對應的圖磚快取本體也應該被真的 cache.delete() 移除');
+  expect(list.length, 'LRU 索引長度應該維持在上限').toBe(3);
+  expect(!list.includes('url-a'), '最舊的 url-a 應該已經被移出索引').toBeTruthy();
+  expect(!env.getCacheEntry(TILE_CACHE, 'url-a'), 'url-a 對應的圖磚快取本體也應該被真的 cache.delete() 移除').toBeTruthy();
 });
 
 test('touchTileLRU()：重複 touch 同一個 url 只會移到最新位置，不會佔用額外名額', async () => {
@@ -521,8 +521,6 @@ test('touchTileLRU()：重複 touch 同一個 url 只會移到最新位置，不
   await ctx.touchTileLRU(cache, lruKey, 'url-a', 3);
 
   const list = await env.getCacheEntry(TILE_CACHE, lruKey).json();
-  assertEqual(list.length, 2, '同一個 url 重複 touch 不應該讓索引長度增加');
-  assertEqual(list[list.length - 1], 'url-a', '重複 touch 的 url 應該被移到最新（陣列尾端）位置');
+  expect(list.length, '同一個 url 重複 touch 不應該讓索引長度增加').toBe(2);
+  expect(list[list.length - 1], '重複 touch 的 url 應該被移到最新（陣列尾端）位置').toBe('url-a');
 });
-
-await run();

@@ -1,5 +1,5 @@
 import '../env-stub.mjs';
-import { test, run, assertEqual, assertTrue } from '../assert.mjs';
+import { test, expect } from 'vitest';
 import { listLayers, buildWmtsEntryConfig, annotateLayersWithCompatibility, fetchCapabilities } from '../../src/features/wmtsImport.js';
 import { state as store, addCustomSource, clearCustomSources, toggleMultiOverlayLayer, clearMultiOverlayLayers } from '../../src/store.js';
 import { makeSourceForKey, setCustomSourcesProvider } from '../../src/data.js';
@@ -61,27 +61,27 @@ test('listLayers 會列出所有圖層，標題缺漏時退回用 identifier', (
   const capabilities = buildFakeCapabilities();
   capabilities.Contents.Layer.push({ Identifier: 'noTitle' });
   const layers = listLayers(capabilities);
-  assertEqual(layers.length, 4, '應該有 4 筆');
-  assertEqual(layers[0].title, '圖層 A（地形圖）', '有 Title 時使用 Title');
-  assertEqual(layers[3].title, 'noTitle', '沒有 Title 時退回用 Identifier');
+  expect(layers.length, '應該有 4 筆').toBe(4);
+  expect(layers[0].title, '有 Title 時使用 Title').toBe('圖層 A（地形圖）');
+  expect(layers[3].title, '沒有 Title 時退回用 Identifier').toBe('noTitle');
 });
 
 test('buildWmtsEntryConfig 對有相容 TileMatrixSet 的圖層，能正確抽出純資料設定', () => {
   const capabilities = buildFakeCapabilities();
   const config = buildWmtsEntryConfig(capabilities, 'layerA');
-  assertTrue(!!config, '應該成功建立設定');
-  assertEqual(config.layer, 'layerA', 'layer 識別碼正確');
-  assertEqual(config.matrixSet, 'GoogleMapsCompatible', 'matrixSet 正確');
-  assertEqual(config.projection, 'EPSG:3857', '座標系代碼要被展開成純字串，不是物件');
-  assertEqual(config.resolutions.length, 3, 'resolutions 陣列要被正確抽出');
-  assertEqual(config.matrixIds.length, 3, 'matrixIds 陣列要被正確抽出');
-  assertEqual(config.tileSize, 256, 'tileSize 正確');
+  expect(!!config, '應該成功建立設定').toBeTruthy();
+  expect(config.layer, 'layer 識別碼正確').toBe('layerA');
+  expect(config.matrixSet, 'matrixSet 正確').toBe('GoogleMapsCompatible');
+  expect(config.projection, '座標系代碼要被展開成純字串，不是物件').toBe('EPSG:3857');
+  expect(config.resolutions.length, 'resolutions 陣列要被正確抽出').toBe(3);
+  expect(config.matrixIds.length, 'matrixIds 陣列要被正確抽出').toBe(3);
+  expect(config.tileSize, 'tileSize 正確').toBe(256);
 });
 
 test('buildWmtsEntryConfig 對沒有相容座標系的圖層回傳 null（呼叫端要當成略過，不是錯誤）', () => {
   const capabilities = buildFakeCapabilities();
   const config = buildWmtsEntryConfig(capabilities, 'layerC');
-  assertEqual(config, null, '應該回傳 null');
+  expect(config, '應該回傳 null').toBe(null);
 });
 
 test('把 buildWmtsEntryConfig 的結果存進 customSources 後，makeSourceForKey 能直接重建出 WMTS source（不需要重新讀 capabilities）', () => {
@@ -90,12 +90,12 @@ test('把 buildWmtsEntryConfig 的結果存進 customSources 後，makeSourceFor
   const capabilities = buildFakeCapabilities();
   const config = buildWmtsEntryConfig(capabilities, 'layerB');
   const entry = addCustomSource({ type: 'wmts', name: '圖層 B（正射影像）', wmts: config, attribution: '' });
-  assertEqual(store.customSources[0].type, 'wmts', '型別應該是 wmts');
+  expect(store.customSources[0].type, '型別應該是 wmts').toBe('wmts');
 
   const source = makeSourceForKey(`custom:${entry.id}`);
-  assertTrue(!!source, '應該回傳一個 source 物件，不是 undefined/null');
-  assertEqual(source.opts.layer, 'layerB', 'ol.source.WMTS 應該收到正確的 layer 參數');
-  assertEqual(source.opts.matrixSet, 'GoogleMapsCompatible', 'ol.source.WMTS 應該收到正確的 matrixSet 參數');
+  expect(!!source, '應該回傳一個 source 物件，不是 undefined/null').toBeTruthy();
+  expect(source.opts.layer, 'ol.source.WMTS 應該收到正確的 layer 參數').toBe('layerB');
+  expect(source.opts.matrixSet, 'ol.source.WMTS 應該收到正確的 matrixSet 參數').toBe('GoogleMapsCompatible');
 });
 
 test('自訂 WMTS 圖層一樣可以透過 toggleMultiOverlayLayer 加入複合疊圖組合', () => {
@@ -106,17 +106,17 @@ test('自訂 WMTS 圖層一樣可以透過 toggleMultiOverlayLayer 加入複合�
   const entry = addCustomSource({ type: 'wmts', name: '圖層 A', wmts: config, attribution: '' });
   const key = `custom:${entry.id}`;
   toggleMultiOverlayLayer(key);
-  assertTrue(store.multiOverlayLayers.some(e => e.key === key), '應該已經加入疊圖組合');
+  expect(store.multiOverlayLayers.some(e => e.key === key), '應該已經加入疊圖組合').toBeTruthy();
 });
 
 test('annotateLayersWithCompatibility 會在渲染清單前就標示每張圖層是否相容，不用等加入才知道', () => {
   const capabilities = buildFakeCapabilities();
   const layers = listLayers(capabilities);
   const annotated = annotateLayersWithCompatibility(capabilities, layers);
-  assertEqual(annotated.length, 3, '應該保留全部 3 筆');
-  assertEqual(annotated.find(l => l.identifier === 'layerA').compatible, true, 'layerA 相容');
-  assertEqual(annotated.find(l => l.identifier === 'layerB').compatible, true, 'layerB 相容');
-  assertEqual(annotated.find(l => l.identifier === 'layerC').compatible, false, 'layerC 不相容，應標示為 false');
+  expect(annotated.length, '應該保留全部 3 筆').toBe(3);
+  expect(annotated.find(l => l.identifier === 'layerA').compatible, 'layerA 相容').toBe(true);
+  expect(annotated.find(l => l.identifier === 'layerB').compatible, 'layerB 相容').toBe(true);
+  expect(annotated.find(l => l.identifier === 'layerC').compatible, 'layerC 不相容，應標示為 false').toBe(false);
 });
 
 test('fetchCapabilities 對同一網址的快取有 TTL：期限內重複讀取用快取，過期後重新抓取', async () => {
@@ -133,14 +133,14 @@ test('fetchCapabilities 對同一網址的快取有 TTL：期限內重複讀取�
   try{
     const url = 'https://example.com/ttl-test-capabilities.xml';
     await fetchCapabilities(url);
-    assertEqual(fetchCallCount, 1, '第一次應該真的發送請求');
+    expect(fetchCallCount, '第一次應該真的發送請求').toBe(1);
 
     await fetchCapabilities(url);
-    assertEqual(fetchCallCount, 1, 'TTL 內重複讀同一網址應該直接用快取，不重新發送請求');
+    expect(fetchCallCount, 'TTL 內重複讀同一網址應該直接用快取，不重新發送請求').toBe(1);
 
     now += 6 * 60 * 1000; // 超過 5 分鐘 TTL
     await fetchCapabilities(url);
-    assertEqual(fetchCallCount, 2, '超過 TTL 後應該視為過期，重新發送請求');
+    expect(fetchCallCount, '超過 TTL 後應該視為過期，重新發送請求').toBe(2);
   }finally{
     globalThis.fetch = originalFetch;
     Date.now = originalDateNow;
@@ -163,8 +163,8 @@ test('fetchCapabilities()：直接 fetch 失敗時會自動改用代理伺服器
   };
   try{
     const caps = await fetchCapabilities(url);
-    assertTrue(!!caps, '應該透過代理成功拿到解析結果');
-    assertEqual(caps.Contents.Layer[0].Identifier, 'x', '解析結果應該來自代理伺服器回傳的內容');
+    expect(!!caps, '應該透過代理成功拿到解析結果').toBeTruthy();
+    expect(caps.Contents.Layer[0].Identifier, '解析結果應該來自代理伺服器回傳的內容').toBe('x');
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -180,11 +180,9 @@ test('fetchCapabilities()：直接 fetch 與代理伺服器都失敗時，錯誤
   try{
     let thrown = null;
     try{ await fetchCapabilities(url); }catch(e){ thrown = e; }
-    assertTrue(!!thrown, '應該拋出例外');
-    assertTrue(thrown.message.includes('代理失敗原因'), '錯誤訊息應該包含代理伺服器回傳的失敗原因');
+    expect(!!thrown, '應該拋出例外').toBeTruthy();
+    expect(thrown.message.includes('代理失敗原因'), '錯誤訊息應該包含代理伺服器回傳的失敗原因').toBeTruthy();
   } finally {
     globalThis.fetch = originalFetch;
   }
 });
-
-await run();
