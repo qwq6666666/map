@@ -16,14 +16,17 @@
 --------------------------------------------------------- */
 import { runtime } from '../runtime.js';
 import { geocodeAddress, reverseGeocode } from '../geocode.js';
-import { buildCategoryList, appendLayerList, buildAccordionHeadContent } from '../uiTree.js';
 import { map } from '../core/map.js';
 import { showLocateToast } from '../features/location.js';
-import { syncActiveLayerItemClasses, preloadOverlayKeys } from '../core/layerManager.js';
-import { findAvailableLayersAt, activateFromSearch, bumpSearchToken, isSearchStale, SEARCH_ZOOM, sortAvailableByYear, groupAvailableByType, splitAvailableByYearKnown, buildCoordInfoElement } from '../features/search.js';
+import { preloadOverlayKeys } from '../core/layerManager.js';
+import { findAvailableLayersAt, bumpSearchToken, isSearchStale, SEARCH_ZOOM, buildCoordInfoElement } from '../features/search.js';
 import { layerKey } from '../data.js';
-import { createCustomTimelineFromSelection, previewLayerOnMap, clearPreviewLayer } from '../features/customTimeline.js';
 import { findPlaceNameCandidates, findNearbyPlaceNamesAsync, setActivePlaceNameMatch, clearActivePlaceNameMatch, sourceTypeLabel } from '../features/placeNames.js';
+import { initPlaceNameCard, hidePlaceNameCard, renderPlaceNameCard, focusPlaceNameCard } from './placeNameCard.js';
+import { initAvailableLayers, renderAvailableLayers, exitSelectionMode, endSelectionSession, clearAvailableLayersPanel } from './availableLayers.js';
+
+// 既有的 import 路徑（main.js、tests）從這裡取這三個函式，re-export 讓它們不用改。
+export { hidePlaceNameCard, renderPlaceNameCard, focusPlaceNameCard };
 
 // 搜尋結果背景預載的圖層筆數上限，見 findAndRenderAvailableLayers() 內說明。
 const SEARCH_PRELOAD_CAP = 20;
@@ -35,21 +38,7 @@ const ADDRESS_SUGGEST_MIN_QUERY_LENGTH = 2;
 const ADDRESS_SUGGEST_DEBOUNCE_MS = 1000;
 
 let addressInput, addressSearchBtn, addressSuggestEl, addressInputClearBtn, locationResultEl, locationNameEl,
-    layerAvailPanelEl, clearLocationBtn, addressMarkerEl, addressMarkerOverlay, locateSearchBtn,
-    searchBatchBarEl, searchBatchCountEl, searchBatchConfirmBtn,
-    placeNameCardEl, placeNameCardToggleBtn, placeNameCardBodyEl;
-
-// 搜尋結果面板「自訂時間軸多選模式」用的跨 render 生命週期函式指標。
-// renderAvailableLayers() 每次新搜尋都會重新建立區域變數（available／
-// tabsEl／contentEl／selectedKeys...），但「輸入框打字」「按清除」
-// 「浮動操作列的全選／清除選取／確認建立」這幾個只綁一次事件的
-// handler 沒辦法直接拿到最新一次 render 的 closure，所以改成呼叫這幾個
-// 模組頂層指標（由 renderAvailableLayers() 內部隨時指到目前這輪的實作），
-// 沒有進行中的多選 session 時就是 null，呼叫端一律用 ?.() 呼叫。
-let exitSelectionModeFn = null;
-let selectAllFn = null;
-let clearSelectionFn = null;
-let confirmCustomTimelineFn = null;
+    layerAvailPanelEl, clearLocationBtn, addressMarkerEl, addressMarkerOverlay, locateSearchBtn;
 
 function showAddressMarker(coord){
   addressMarkerOverlay.setPosition(coord);
@@ -297,129 +286,6 @@ export function renderMergedSuggestList(placeCandidates, geocodeResults){
   addressSuggestEl.classList.add('show');
 }
 
-// 隱藏並清空「地名今昔對照卡」，同時把收合狀態重設回收合（目前的預設
-// 初始狀態），確保下次顯示時是乾淨的初始狀態。
-// 有 export：供 tests/specs/place-name-card-ui.test.mjs 直接呼叫驗證，
-// 純粹讓函式可測試化，不影響原本模組內部呼叫方式或行為。
-export function hidePlaceNameCard(){
-  if(!placeNameCardEl) return;
-  placeNameCardEl.hidden = true;
-  placeNameCardBodyEl.innerHTML = '';
-  placeNameCardEl.classList.add('collapsed');
-  placeNameCardToggleBtn?.setAttribute('aria-expanded', 'false');
-  if(placeNameCardToggleBtn) placeNameCardToggleBtn.textContent = '▸';
-}
-
-// 建立單一欄位列（label + value），value 可以是字串或已組好的元素。
-function buildPlaceNameRow(label, valueNode){
-  const row = document.createElement('div');
-  row.className = 'place-name-row';
-  const labelEl = document.createElement('span');
-  labelEl.className = 'place-name-row-label';
-  labelEl.textContent = label;
-  row.appendChild(labelEl);
-  if(typeof valueNode === 'string'){
-    const valueEl = document.createElement('span');
-    valueEl.className = 'place-name-row-value';
-    valueEl.textContent = valueNode;
-    row.appendChild(valueEl);
-  } else {
-    row.appendChild(valueNode);
-  }
-  return row;
-}
-
-// 「地名說明」欄位超過此字元數才截斷＋加「展開全文」按鈕。
-const PLACE_NAME_DESC_TRUNCATE_LENGTH = 100;
-
-// 建立「地名說明」欄位，長文字預設截斷並附「展開全文」按鈕，點擊切換
-// 全文／截斷版本；用一個布林旗標＋重繪這個欄位區塊即可，不用整張卡重繪。
-function buildPlaceNameDescriptionRow(description){
-  const row = document.createElement('div');
-  row.className = 'place-name-row';
-  const labelEl = document.createElement('span');
-  labelEl.className = 'place-name-row-label';
-  labelEl.textContent = '地名說明';
-  row.appendChild(labelEl);
-
-  const valueEl = document.createElement('span');
-  valueEl.className = 'place-name-row-value';
-  row.appendChild(valueEl);
-
-  const needsTruncate = description.length > PLACE_NAME_DESC_TRUNCATE_LENGTH;
-  if(!needsTruncate){
-    valueEl.textContent = description;
-    return row;
-  }
-
-  let expanded = false;
-  const toggleBtn = document.createElement('button');
-  toggleBtn.type = 'button';
-  toggleBtn.className = 'place-name-desc-toggle-btn';
-
-  function renderValue(){
-    valueEl.textContent = expanded ? description : `${description.slice(0, PLACE_NAME_DESC_TRUNCATE_LENGTH)}…`;
-    toggleBtn.textContent = expanded ? '收合' : '展開全文';
-  }
-  toggleBtn.addEventListener('click', ()=>{
-    expanded = !expanded;
-    renderValue();
-  });
-  renderValue();
-  row.appendChild(toggleBtn);
-  return row;
-}
-
-// 渲染「地名今昔對照卡」內容：現名（一定顯示）、別名／舊稱（僅
-// aliases 非空才顯示）、現代位置（一定顯示）、地名說明（僅 description
-// 非空字串才顯示，長文字可展開/收合）、資料來源（一定顯示）。
-// 卡片內容一律完整渲染好，但外層預設收合（避免跟定位結果列、可用圖層
-// 清單一次疊出過長內容），使用者點展開鈕時不需要重新渲染就能看到內容。
-// 有 export：供 tests/specs/place-name-card-ui.test.mjs 直接呼叫驗證，
-// 純粹讓函式可測試化，不影響原本模組內部呼叫方式或行為。
-export function renderPlaceNameCard(place){
-  if(!placeNameCardEl) return;
-  placeNameCardBodyEl.innerHTML = '';
-  placeNameCardEl.hidden = false;
-  placeNameCardEl.classList.add('collapsed');
-  placeNameCardToggleBtn?.setAttribute('aria-expanded', 'false');
-  if(placeNameCardToggleBtn) placeNameCardToggleBtn.textContent = '▸';
-
-  placeNameCardBodyEl.appendChild(buildPlaceNameRow('現名', place.name));
-
-  if(place.aliases && place.aliases.length > 0){
-    const aliasWrap = document.createElement('div');
-    aliasWrap.className = 'place-name-alias-list';
-    place.aliases.forEach(alias=>{
-      const tag = document.createElement('span');
-      tag.className = 'place-name-alias-tag';
-      tag.textContent = alias;
-      aliasWrap.appendChild(tag);
-    });
-    placeNameCardBodyEl.appendChild(buildPlaceNameRow('別名／舊稱', aliasWrap));
-  }
-
-  placeNameCardBodyEl.appendChild(buildPlaceNameRow('現代位置', `${place.county}${place.town || ''}`));
-
-  if(place.description){
-    placeNameCardBodyEl.appendChild(buildPlaceNameDescriptionRow(place.description));
-  }
-
-  placeNameCardBodyEl.appendChild(buildPlaceNameRow('資料來源', `臺灣地區地名資料（${sourceTypeLabel(place.sourceType)}類）`));
-}
-
-// 供 identifyPin.js 落點彈窗「查看地名沿革」按鈕呼叫（由 main.js 接進
-// initIdentifyPin() 的 onViewPlaceNameCard 參數），把目前顯示中的地名
-// 今昔對照卡展開並捲動進畫面。卡片本來就隱藏（例如使用者已清除搜尋、
-// 或目前作用中的比對點跟這次落點不同）時不做任何事。
-export function focusPlaceNameCard(){
-  if(!placeNameCardEl || placeNameCardEl.hidden) return;
-  placeNameCardEl.classList.remove('collapsed');
-  placeNameCardToggleBtn?.setAttribute('aria-expanded', 'true');
-  if(placeNameCardToggleBtn) placeNameCardToggleBtn.textContent = '▾';
-  placeNameCardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
 // 建立單一「附近歷史地名」項目 DOM（不負責 append），比照
 // buildPlaceNameSuggestItem() 的寫法；點擊時不是選定搜尋座標，而是就地
 // 展開該筆完整的今昔對照卡（重用既有 renderPlaceNameCard／
@@ -562,359 +428,6 @@ async function findAndRenderAvailableLayers(lon, lat, addr){
   );
 }
 
-// 篩選單一 group 底下「目前可用」的圖層；從 renderAllView() 的巢狀
-// map/filter 中抽出，降低巢狀層數。
-function filterGroupLayers(g, availableIdSet){
-  return { ...g, layers: g.layers.filter(ly => availableIdSet.has(ly.id)) };
-}
-
-// 篩選單一分類（含次分類 groups）底下「目前可用」的圖層，回傳篩後的
-// 分類物件，若該分類篩完沒有任何圖層則回傳 null。同樣是從 renderAllView()
-// 抽出的獨立函式，供 renderAllView() 的 .map(cat=>...) 呼叫。
-function filterCategoryForAvailable(cat, availableIdSet){
-  if(cat.groups){
-    const groups = cat.groups
-      .map(g => filterGroupLayers(g, availableIdSet))
-      .filter(g => g.layers.length > 0);
-    return groups.length ? { ...cat, groups } : null;
-  }
-  const layers = cat.layers.filter(ly => availableIdSet.has(ly.id));
-  return layers.length ? { ...cat, layers } : null;
-}
-
-function renderAvailableLayers(available, totalChecked){
-  // 每次重新搜尋都是全新一輪 render，不延續上一輪的多選 session。
-  exitSelectionModeFn = null;
-  selectAllFn = null;
-  clearSelectionFn = null;
-  confirmCustomTimelineFn = null;
-  layerAvailPanelEl.classList.remove('selection-mode');
-  searchBatchBarEl?.classList.remove('show');
-  // 避免上一輪搜尋若沒有正常經過 exitSelectionMode() 就跳下一輪搜尋，
-  // 殘留一張瞬態預覽圖層卡在地圖上。
-  clearPreviewLayer();
-
-  layerAvailPanelEl.innerHTML = '';
-  if(available.length === 0){
-    const empty = document.createElement('p');
-    empty.className = 'avail-empty';
-    empty.textContent = `已確認 ${totalChecked} 筆相關圖層，此地點目前沒有找到有資料的歷史地圖圖層。可能是這個地點在該圖資範圍之外，或該圖資此區塊尚未建置資料。`;
-    layerAvailPanelEl.appendChild(empty);
-    return;
-  }
-
-  const summaryRow = document.createElement('div');
-  summaryRow.className = 'avail-summary-row';
-  layerAvailPanelEl.appendChild(summaryRow);
-
-  const summary = document.createElement('p');
-  summary.className = 'avail-empty';
-  summary.textContent = `此地點目前可套疊 ${available.length} 筆歷史地圖圖層（已逐筆確認有資料）：`;
-  summaryRow.appendChild(summary);
-
-  const multiSelectBtn = document.createElement('button');
-  multiSelectBtn.type = 'button';
-  multiSelectBtn.className = 'avail-multiselect-btn';
-  multiSelectBtn.textContent = '＋ 自訂時間軸 (多選)';
-  summaryRow.appendChild(multiSelectBtn);
-
-  // 「全部／類型／年代」頁籤列：純前端在已取得的 available 陣列上重新
-  // 分組／排序、切換要顯示哪種瀏覽方式，不重新呼叫 findAvailableLayersAt、
-  // 不觸發任何新的網路請求，只重畫 contentEl。
-  const tabsEl = document.createElement('div');
-  tabsEl.className = 'avail-tabs';
-  layerAvailPanelEl.appendChild(tabsEl);
-
-  const contentEl = document.createElement('div');
-  layerAvailPanelEl.appendChild(contentEl);
-
-  let currentTab = 'all'; // 'all' | 'type' | 'year'
-  let yearSortDirection = 'desc'; // 'desc'新到舊(預設) / 'asc'舊到新，只在「年代」頁籤內使用
-
-  // 自訂時間軸多選模式狀態：只作用於這次搜尋命中的 available 清單，
-  // 跟「全部／類型／年代」三個既有頁籤各自獨立，互不影響。
-  let selectionMode = false;
-  const selectedKeys = new Set();
-  // 多選模式下「點卡片內容」觸發的地圖瞬態預覽，跟 checkbox 勾選狀態
-  // 完全分開：checkbox 只管要不要納入自訂時間軸，這裡記錄目前正在
-  // 地圖上預覽哪一筆，重繪清單（refreshSelectionList）時要跨重繪保留。
-  let previewedKey = null;
-
-  const TAB_DEFS = [['all', '全部'], ['type', '類型'], ['year', '年代']];
-  const tabButtons = new Map();
-  TAB_DEFS.forEach(([key, label])=>{
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'avail-tab-btn';
-    btn.textContent = label;
-    if(key === currentTab) btn.classList.add('active');
-    btn.addEventListener('click', ()=>{
-      if(currentTab === key) return;
-      currentTab = key;
-      tabButtons.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderTabContent();
-    });
-    tabButtons.set(key, btn);
-    tabsEl.appendChild(btn);
-  });
-
-  // 三個頁籤共用的「可收合區塊」：標題列沿用主清單既有的
-  // source-group/source-head/chevron/count 這套視覺語彙，維持整個
-  // 搜尋結果面板一致的手風琴外觀。buildBody(bodyEl) 負責把內容畫進區塊主體。
-  function buildAccordionBlock(container, label, count, buildBody, openInitially){
-    const wrap = document.createElement('div');
-    wrap.className = 'source-group';
-    if(openInitially) wrap.classList.add('open');
-
-    const head = document.createElement('button');
-    head.type = 'button';
-    head.className = 'source-head';
-    buildAccordionHeadContent(head, label, count);
-    head.addEventListener('click', ()=> wrap.classList.toggle('open'));
-
-    const body = document.createElement('div');
-    body.className = 'source-body';
-    buildBody(body);
-
-    wrap.appendChild(head);
-    wrap.appendChild(body);
-    container.appendChild(wrap);
-    return wrap;
-  }
-
-  // 【全部】頁籤：依「來源 → 分類 →（次分類 →）圖層」重建可用圖層的巢狀結構，
-  // 沿用主清單同一套 source-group/category 手風琴樣式與 buildCategoryList()，
-  // 讓搜尋結果維持原本的分類方式，可以逐層摺疊／展開，而不是攤平成一長串清單。
-  function renderAllView(){
-    const availableIdSet = new Set(available.map(c => c.layer.id));
-    const order = [];
-    const seenSrc = {};
-    available.forEach(c=>{
-      if(!seenSrc[c.src.id]){ seenSrc[c.src.id] = c.src; order.push(c.src.id); }
-    });
-
-    order.forEach(srcId=>{
-      const src = seenSrc[srcId];
-
-      const filteredCategories = src.categories
-        .map(cat => filterCategoryForAvailable(cat, availableIdSet))
-        .filter(Boolean);
-
-      if(filteredCategories.length === 0) return;
-
-      const total = filteredCategories.reduce((s,c)=> s + (c.groups ? c.groups.reduce((gs,g)=>gs+g.layers.length,0) : c.layers.length), 0);
-
-      buildAccordionBlock(contentEl, src.name, total, (srcBody)=>{
-        buildCategoryList(filteredCategories, srcBody, (layer)=> activateFromSearch(src, layer), false);
-      }, false); // 預設收合，行為與主清單一致，改由使用者點擊來源才展開
-    });
-  }
-
-  // 【類型】頁籤：依 SEARCH_RESULT_TYPES 分組（地形圖／地籍圖／海圖／
-  // 行政區劃圖／其他，見 features/search.js），跳過空群組，每組攤平列出
-  // 圖層（不再依來源／分類巢狀，因為使用者是依類型瀏覽，不是依來源瀏覽），
-  // 第一個非空群組預設展開。
-  function renderTypeView(){
-    const groups = groupAvailableByType(available).filter(g => g.items.length > 0);
-    groups.forEach((g, idx)=>{
-      const srcById = new Map(g.items.map(item => [item.layer.id, item.src]));
-      buildAccordionBlock(contentEl, g.type, g.items.length, (body)=>{
-        body.classList.add('avail-layer-list');
-        appendLayerList(body, g.items.map(item => item.layer), (layer)=>{
-          activateFromSearch(srcById.get(layer.id), layer);
-        });
-      }, idx === 0);
-    });
-  }
-
-  // 【年代】頁籤：年代已知的圖層依 yearSortDirection 排序後攤平列出；
-  // 年代不明的圖層收在最下方一個預設收合的區塊裡，維持原始順序。
-  function renderYearView(){
-    const { known, unknown } = splitAvailableByYearKnown(available);
-
-    const sortRow = document.createElement('div');
-    sortRow.className = 'avail-year-sort';
-    [['desc', '年代（新至舊）'], ['asc', '年代（舊至新）']].forEach(([key, label])=>{
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'avail-year-sort-btn';
-      btn.textContent = label;
-      if(key === yearSortDirection) btn.classList.add('active');
-      btn.addEventListener('click', ()=>{
-        if(yearSortDirection === key) return;
-        yearSortDirection = key;
-        renderTabContent();
-      });
-      sortRow.appendChild(btn);
-    });
-    contentEl.appendChild(sortRow);
-
-    const sorted = sortAvailableByYear(known, yearSortDirection);
-    const sortedSrcById = new Map(sorted.map(item => [item.layer.id, item.src]));
-    const listWrap = document.createElement('div');
-    listWrap.className = 'avail-layer-list';
-    appendLayerList(listWrap, sorted.map(item => item.layer), (layer)=>{
-      activateFromSearch(sortedSrcById.get(layer.id), layer);
-    });
-    contentEl.appendChild(listWrap);
-
-    if(unknown.length > 0){
-      const unknownSrcById = new Map(unknown.map(item => [item.layer.id, item.src]));
-      buildAccordionBlock(contentEl, '年代不明', unknown.length, (body)=>{
-        body.classList.add('avail-layer-list');
-        appendLayerList(body, unknown.map(item => item.layer), (layer)=>{
-          activateFromSearch(unknownSrcById.get(layer.id), layer);
-        });
-      }, false); // 預設收合
-    }
-  }
-
-  // 若目前已有套疊中的歷史圖層，於搜尋結果中同步標示為 active。搜尋結果
-  // 面板每次都是重新建立的 DOM，store 的 activeOverlayKey 不會因為重新
-  // 搜尋而改變，modeManager 的訂閱者不會被觸發，所以每次重畫 contentEl
-  // （不論是切頁籤還是切年代排序方向）都要手動呼叫一次跟主清單共用的
-  // 同步函式，補上剛建好的 DOM。
-  function renderTabContent(){
-    contentEl.innerHTML = '';
-    if(currentTab === 'all') renderAllView();
-    else if(currentTab === 'type') renderTypeView();
-    else renderYearView();
-    syncActiveLayerItemClasses();
-  }
-
-  // ---------------------------------------------------------------
-  // 自訂時間軸多選模式：獨立的扁平卡片清單，完全不透過 uiTree.js 的
-  // buildCategoryList/appendLayerList，只在 contentEl 裡渲染，退出時
-  // 呼叫既有的 renderTabContent() 換回原本的頁籤檢視。
-  // ---------------------------------------------------------------
-
-  function updateBatchBarCount(){
-    if(searchBatchCountEl) searchBatchCountEl.textContent = `已選取 ${selectedKeys.size} 筆圖資`;
-    if(searchBatchConfirmBtn) searchBatchConfirmBtn.disabled = selectedKeys.size === 0;
-  }
-
-  function toggleSelection(key, itemEl, cbEl){
-    if(cbEl.checked){ selectedKeys.add(key); itemEl.classList.add('checked'); }
-    else { selectedKeys.delete(key); itemEl.classList.remove('checked'); }
-    updateBatchBarCount();
-  }
-
-  function buildSelectionList(){
-    const listEl = document.createElement('div');
-    listEl.className = 'avail-select-list';
-
-    available.forEach(c=>{
-      const key = layerKey(c.src, c.layer);
-      const item = document.createElement('div');
-      item.className = 'avail-select-item';
-      if(selectedKeys.has(key)) item.classList.add('checked');
-      if(previewedKey === key) item.classList.add('is-previewing');
-
-      const cbWrap = document.createElement('span');
-      cbWrap.className = 'avail-select-checkbox-wrap';
-      const cb = document.createElement('input');
-      cb.type = 'checkbox';
-      cb.className = 'avail-select-checkbox';
-      cb.checked = selectedKeys.has(key);
-      cb.addEventListener('change', ()=> toggleSelection(key, item, cb));
-      cbWrap.appendChild(cb);
-
-      const info = document.createElement('div');
-      info.className = 'avail-select-info';
-      const title = document.createElement('div');
-      title.className = 'avail-select-title';
-      title.textContent = c.layer.title;
-      const meta = document.createElement('div');
-      meta.className = 'avail-select-meta';
-      meta.textContent = `${c.layer.year || '年代不明'} · ${c.src.name}`;
-      info.appendChild(title);
-      info.appendChild(meta);
-
-      item.appendChild(cbWrap);
-      item.appendChild(info);
-
-      // 點卡片內容（checkbox 以外的區域）改成觸發地圖「瞬態預覽」，
-      // 不切換勾選狀態；checkbox 區域交給它自己的 change 事件處理。
-      item.addEventListener('click', (e)=>{
-        if(e.target === cb || cbWrap.contains(e.target)) return;
-        const prev = contentEl.querySelector('.avail-select-item.is-previewing');
-        if(prev) prev.classList.remove('is-previewing');
-        previewLayerOnMap(c.src, c.layer);
-        item.classList.add('is-previewing');
-        previewedKey = key;
-      });
-
-      listEl.appendChild(item);
-    });
-
-    contentEl.appendChild(listEl);
-    // checkbox 的「平滑展開」動畫：先以收合寬度插入 DOM，下一影格再加
-    // .ready 觸發 CSS transition，避免用 display:none 硬切。
-    requestAnimationFrame(()=> listEl.classList.add('ready'));
-  }
-
-  function refreshSelectionList(){
-    contentEl.innerHTML = '';
-    buildSelectionList();
-    updateBatchBarCount();
-  }
-
-  function enterSelectionMode(){
-    selectionMode = true;
-    multiSelectBtn.innerHTML = '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg> 取消多選';
-    layerAvailPanelEl.classList.add('selection-mode');
-    tabsEl.style.display = 'none';
-    refreshSelectionList();
-    searchBatchBarEl?.classList.add('show');
-  }
-
-  function exitSelectionMode(){
-    clearPreviewLayer();
-    previewedKey = null;
-    selectionMode = false;
-    selectedKeys.clear();
-    multiSelectBtn.textContent = '＋ 自訂時間軸 (多選)';
-    layerAvailPanelEl.classList.remove('selection-mode');
-    tabsEl.style.display = '';
-    searchBatchBarEl?.classList.remove('show');
-    renderTabContent();
-  }
-
-  function selectAllCurrent(){
-    if(!selectionMode) return;
-    available.forEach(c => selectedKeys.add(layerKey(c.src, c.layer)));
-    refreshSelectionList();
-  }
-
-  function clearCurrentSelection(){
-    if(!selectionMode) return;
-    selectedKeys.clear();
-    refreshSelectionList();
-  }
-
-  function confirmCustomTimeline(){
-    if(!selectionMode || selectedKeys.size === 0) return;
-    const selected = available.filter(c => selectedKeys.has(layerKey(c.src, c.layer)));
-    exitSelectionMode(); // 一定要先執行，清掉多選期間的瞬態預覽跟多選 UI
-    createCustomTimelineFromSelection(selected); // 再開自訂時間軸 dock，dock 會顯示自己的第一張預覽
-  }
-
-  multiSelectBtn.addEventListener('click', ()=>{
-    if(selectionMode) exitSelectionMode();
-    else enterSelectionMode();
-  });
-
-  // 供 initSearchUI() 裡只綁一次事件的靜態元素（輸入框、清除按鈕、
-  // 浮動操作列按鈕）呼叫，讓它們能操作到「目前這一輪」render 的狀態。
-  exitSelectionModeFn = exitSelectionMode;
-  selectAllFn = selectAllCurrent;
-  clearSelectionFn = clearCurrentSelection;
-  confirmCustomTimelineFn = confirmCustomTimeline;
-
-  renderTabContent();
-}
-
 /* ---------------------------------------------------------
    進入點：所有依賴 LAYER_SOURCES／REGION_EXTENTS 已載入完成的
    初始化動作，由 main.js 在 loadAppData() 完成後呼叫。
@@ -928,23 +441,8 @@ export function initSearchUI(){
   locationNameEl = document.getElementById('locationName');
   layerAvailPanelEl = document.getElementById('layerAvailPanel');
   clearLocationBtn = document.getElementById('clearLocationBtn');
-  placeNameCardEl = document.getElementById('placeNameCard');
-  placeNameCardToggleBtn = document.getElementById('placeNameCardToggle');
-  placeNameCardBodyEl = document.getElementById('placeNameCardBody');
-  placeNameCardToggleBtn.addEventListener('click', ()=>{
-    const collapsed = placeNameCardEl.classList.toggle('collapsed');
-    placeNameCardToggleBtn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
-    placeNameCardToggleBtn.textContent = collapsed ? '▸' : '▾';
-  });
-
-  searchBatchBarEl = document.getElementById('searchBatchBar');
-  searchBatchCountEl = document.getElementById('searchBatchCount');
-  searchBatchConfirmBtn = document.getElementById('searchBatchConfirmBtn');
-  const searchBatchSelectAllBtn = document.getElementById('searchBatchSelectAllBtn');
-  const searchBatchClearBtn = document.getElementById('searchBatchClearBtn');
-  searchBatchSelectAllBtn.addEventListener('click', ()=> selectAllFn?.());
-  searchBatchClearBtn.addEventListener('click', ()=> clearSelectionFn?.());
-  searchBatchConfirmBtn.addEventListener('click', ()=> confirmCustomTimelineFn?.());
+  initPlaceNameCard();
+  initAvailableLayers();
 
   addressMarkerEl = document.getElementById('addressMarker');
   addressMarkerOverlay = new ol.Overlay({
@@ -955,7 +453,7 @@ export function initSearchUI(){
   map.addOverlay(addressMarkerOverlay);
 
   addressInput.addEventListener('input', ()=>{
-    exitSelectionModeFn?.();
+    exitSelectionMode();
     const q = addressInput.value.trim();
     if(addressInputClearBtn) addressInputClearBtn.hidden = (q.length === 0);
     if(runtime.addressDebounceTimer) clearTimeout(runtime.addressDebounceTimer);
@@ -1039,20 +537,14 @@ export function initSearchUI(){
   });
 
   clearLocationBtn.addEventListener('click', ()=>{
-    exitSelectionModeFn?.();
     // 避免殘留上一輪 render 的 closure：DOM 都清空了，狀態指標一併重設。
-    exitSelectionModeFn = null;
-    selectAllFn = null;
-    clearSelectionFn = null;
-    confirmCustomTimelineFn = null;
+    endSelectionSession();
     bumpSearchToken(); // 讓仍在進行中的逐筆確認直接放棄，不再更新畫面
     clearActivePlaceNameMatch();
     hidePlaceNameCard();
     hideAddressMarker();
     locationResultEl.style.display = 'none';
-    layerAvailPanelEl.innerHTML = '';
-    layerAvailPanelEl.classList.remove('selection-mode');
-    searchBatchBarEl?.classList.remove('show');
+    clearAvailableLayersPanel();
     addressInput.value = '';
     syncAddressInputClearBtn();
     hideSuggest();
