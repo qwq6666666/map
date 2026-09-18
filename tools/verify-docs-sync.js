@@ -10,9 +10,9 @@
 
    比對時刻意忽略兩種「與程式邏輯無關」的差異，否則在 Windows 開發
    （CRLF）、Linux CI（LF）之間會天天誤報：
-     - 文字檔的換行字元（\r\n 視為 \n）。已實測：JS／CSS／index.html
-       在兩種換行環境下 hash 檔名與內容完全一致，只有 sw.js、data/、
-       svg 這類「原樣複製」的檔案會因換行不同而位元組不同。
+     - 文字檔的換行字元（CRLF 與 LF 視為相同）。已實測：JS／CSS 在兩種
+       換行環境下 hash 檔名與內容完全一致；index.html、sw.js、data/、
+       svg 這類含換行的檔案則會因換行不同而位元組不同。
      - *.map（sourcemap 內嵌原始碼，換行被跳脫成字串，無法用上面的
        方式正規化；且 sourcemap 不影響使用者看到的功能）。
 
@@ -46,7 +46,9 @@ function listFiles(root){
 function readNormalized(filePath){
   const buf = fs.readFileSync(filePath);
   if(!TEXT_EXTENSIONS.has(path.extname(filePath))) return buf;
-  return Buffer.from(buf.toString('utf-8').replaceAll('\r\n', '\n'), 'utf-8');
+  // 直接移除所有 \r，而不是只把 \r\n 換成 \n：Vite 在 CRLF 的 index.html 裡
+  // 插入 <script> 標籤時會產生落單的 \r，只換 \r\n 清不乾淨（CI 曾因此誤報）
+  return Buffer.from(buf.toString('utf-8').replaceAll('\r', ''), 'utf-8');
 }
 
 function main(){
