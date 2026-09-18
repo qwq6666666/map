@@ -2353,6 +2353,7 @@
        initModeClassSync() 同步。 */
     body.mobile-mode-timeline #stamp,
     body.mobile-mode-multi #stamp,
+    body.mobile-mode-overlay #stamp,
     body.mobile-mode-timeline .floating-stack,
     body.mobile-mode-multi .floating-stack{
       display:none !important;
