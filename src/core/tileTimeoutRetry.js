@@ -18,7 +18,12 @@
        把它撥回 IDLE；差別是這裡要先等一段冷卻時間
        （TIMEOUT_RETRY_COOLDOWN_MS）才重試，且每顆圖磚只有這一次額外
        機會，避免對真的持續故障的主機做無限重試。明確 onerror 的失敗
-       不適用，繼續維持永久 ERROR。
+       不適用，繼續維持永久 ERROR。撥回 IDLE 有兩條並存的路徑：一是
+       tileLoadGuard.js 的 sweepStaleGuardedTiles()（掛在 moveend／
+       view change，比對目前可視範圍，先到的先撥）；二是這裡
+       registerTimeoutRetryCandidate() 內建的 setTimeout（冷卻時間一到
+       就直接撥，不依賴任何視角事件）——後者是為了涵蓋「使用者點一下
+       地圖後完全不再移動/縮放」的情境，見該函式上方的完整說明。
      - 最近圖磚載入失敗紀錄（recentTileFailures）：供「來源狀態」面板
        （ui/sourceStatusUI.js）顯示。
 
@@ -91,7 +96,7 @@ export function clearRecentTileFailures(){
 // 浪費請求名額、排擠其他正常圖磚。
 //
 // 跟 tileLoadGuard.js 的 attachStaleTileAbort()「視角過期」重置共用
-// 同一次 sweep（見該檔案 sweepStaleGuardedTiles()），但語意不同：那邊
+// 同一個 sweep（見該檔案 sweepStaleGuardedTiles()），但語意不同：那邊
 // 是「使用者根本還沒等到結果就已經換了視角」，這裡是「已經等到明確的
 // 逾時終局失敗」，需要額外一段冷卻時間（TIMEOUT_RETRY_COOLDOWN_MS）
 // 讓造成逾時的伺服器壅塞真的有機會消退，不能像 stale abort 那樣立刻
@@ -99,6 +104,13 @@ export function clearRecentTileFailures(){
 // abort 那套「先 setState(ERROR) 再 setState(IDLE)」的兩步走技巧——
 // OL 的序列檢查 `state!==ERROR && state>t` 在 state 已經是 ERROR 時
 // 本來就會放行。
+//
+// sweepStaleGuardedTiles() 只在使用者移動/縮放地圖時才會被觸發，如果
+// 使用者點一下地圖（例如 identifyPin.js 的落點探針）就不再互動，
+// 冷卻時間到了也沒有任何事件會去檢查這個 Set——所以
+// registerTimeoutRetryCandidate() 另外內建了一個不依賴視角事件的
+// setTimeout 自動撥回路徑（見該函式定義處），兩條路徑並存、先到的先
+// 把 entry 從這個 Set 移除，互不衝突。
 export const TIMEOUT_RETRY_REGISTRY_LIMIT = 200;
 export const timeoutFailedGuardedTiles = new Set();
 
@@ -130,14 +142,46 @@ export const TIMEOUT_RETRY_COOLDOWN_MS = 8000;
 // 平移到很遠的地方、大量逾時失敗的圖磚（可能再也不會被看到）永遠留在
 // 名單裡佔記憶體；捨棄的代價只是那筆圖磚少一次冷卻重試機會，等同
 // 退回「不會自動重試」的原始行為，不會更糟。
+// 使用者點一下地圖（例如 identifyPin.js 的落點探針）觸發逾時失敗後，
+// 如果之後完全不再移動/縮放地圖，sweepStaleGuardedTiles() 永遠不會被
+// 觸發——冷卻時間到了也沒有任何事件會把它撥回 IDLE，圖磚永久卡在畫面
+// 上空白，只能等使用者「剛好」再動一下地圖才被動撿回來。所以這裡額外
+// 排一個 setTimeout，冷卻時間一到就不依賴任何視角事件、直接把 entry
+// 撥回 IDLE：跟 sweepStaleGuardedTiles() 的差異只在於「不比對 bbox 是否
+// 在目前可視範圍」——這正是這條路徑存在的意義（要撥回的就是『不管使用者
+// 有沒有再看這裡』都該恢復的圖磚），而不是漏改；bbox 篩選是
+// sweepStaleGuardedTiles() 用來判斷「值不值得現在消耗這次機會」的優化，
+// 對這裡「反正冷卻已經到期、乾脆自己觸發」的兜底路徑沒有意義。
+//
+// callback 觸發時務必先確認 entry 是否還在 timeoutFailedGuardedTiles
+// 裡：sweepStaleGuardedTiles() 可能已經搶先（使用者剛好在冷卻到期前後
+// 動了地圖）處理掉同一個 entry，或者 entry 被 TIMEOUT_RETRY_REGISTRY_LIMIT
+// 擠掉——兩種情況下 entry 都已經不在 Set 裡，此時什麼都不做，避免對
+// 已經不相關（甚至已經被 GC／LRU 換掉 Tile 物件）的 entry 重複撥回或
+// 誤動作。不需要額外 clearTimeout：這個計時器只觸發一次、自然結束，
+// 不會累積成洩漏，被搶先處理的 entry 只是讓這次觸發變成一次沒有作用的
+// no-op。
 function registerTimeoutRetryCandidate(tile, tileBbox, z, sourceKey){
   if(cooldownRetriedTiles.has(tile)) return;
   cooldownRetriedTiles.add(tile);
-  timeoutFailedGuardedTiles.add({ tile, bbox: tileBbox, z, sourceKey, failedAt: Date.now() });
+  const entry = { tile, bbox: tileBbox, z, sourceKey, failedAt: Date.now() };
+  timeoutFailedGuardedTiles.add(entry);
   if(timeoutFailedGuardedTiles.size > TIMEOUT_RETRY_REGISTRY_LIMIT){
     const oldest = timeoutFailedGuardedTiles.values().next().value;
     timeoutFailedGuardedTiles.delete(oldest);
   }
+  const cooldownTimer = setTimeout(() => {
+    if(!timeoutFailedGuardedTiles.has(entry)) return;
+    entry.tile.setState(TILE_STATE.IDLE);
+    timeoutFailedGuardedTiles.delete(entry);
+  }, TIMEOUT_RETRY_COOLDOWN_MS);
+  // Node 的 setTimeout 回傳值預設會讓 process 在計時器觸發前不會自然
+  // 結束（在瀏覽器完全不是問題，頁面不會因為有 pending timer 而「不
+  // 結束」）；但這支模組同時也在 Node 測試環境下執行，unref() 讓這顆
+  // 計時器不會阻止測試檔案的 process 提早結束——只是不強制保活，時間到
+  // 該觸發還是照常觸發，不影響行為，只影響 process 存活判斷。瀏覽器的
+  // setTimeout 回傳純數字、沒有 unref 方法，防呆略過。
+  if(cooldownTimer && typeof cooldownTimer.unref === 'function') cooldownTimer.unref();
 }
 
 // 目前所有「已經送出 <img src>、還沒 resolve」的 guarded 請求，供

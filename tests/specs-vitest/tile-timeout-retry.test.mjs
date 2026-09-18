@@ -14,11 +14,16 @@
      3. 逾時終局失敗的冷卻重試候選名單（timeoutFailedGuardedTiles）：
         冷卻時間已過／還沒過的撥回 IDLE 行為、明確 onerror 永遠不撥回、
         每顆 tile 只有一次額外機會、abortInFlightForKey() 一併清掉屬於
-        該 key 的候選。這些行為的「撥回」動作實際是組合層
+        該 key 的候選。這些行為的「撥回」動作有兩條並存路徑：一是組合層
         core/tileLoadGuard.js 的 sweepStaleGuardedTiles()（透過
-        attachStaleTileAbort() 掛的 moveend 觸發）在做，但候選名單本身
-        （TIMEOUT_RETRY_COOLDOWN_MS／登記時機／每顆 tile 只有一次機會）
-        是 tileTimeoutRetry.js 的職責，所以測試留在這裡。
+        attachStaleTileAbort() 掛的 moveend／節流版 view change 觸發，
+        比對目前可視範圍）；二是 registerTimeoutRetryCandidate() 內建的
+        setTimeout（冷卻時間一到直接撥回、不比對可視範圍、不依賴任何
+        視角事件，修正「原地不動、不縮放的話永遠空白」——見「完全不觸發
+        moveend／view change 事件」那個案例）。候選名單本身
+        （TIMEOUT_RETRY_COOLDOWN_MS／登記時機／每顆 tile 只有一次機會／
+        兩條撥回路徑）都是 tileTimeoutRetry.js 的職責，所以測試留在
+        這裡。
      4. getRecentTileFailures()／clearRecentTileFailures()：供
         ui/sourceStatusUI.js「最近圖磚載入失敗」面板顯示的診斷紀錄。
 
@@ -134,6 +139,27 @@ function waitForState(tile, timeoutMs = 5000){
   }), timeoutMs, '圖磚一直沒有進入最終狀態（可能發生 deadlock）');
 }
 
+// 比照 tests/assert.mjs 的 waitFor()：輪詢直到 conditionFn() 回傳
+// truthy，或超過 timeoutMs 逾時。這裡的 vitest spec 沒有共用模組可以
+// import（舊框架的 tests/assert.mjs 是給 tests/specs/ 用的），所以就地
+// 補一個等價的最小實作，只給本檔案「不依賴視角事件的自動冷卻」案例用。
+function waitForCondition(conditionFn, { timeoutMs = 5000, intervalMs = 5, message } = {}){
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+    const check = () => {
+      let ok;
+      try{ ok = conditionFn(); }catch(err){ reject(err); return; }
+      if(ok){ resolve(); return; }
+      if(Date.now() - start >= timeoutMs){
+        reject(new Error(message || `等待條件成立逾時（超過 ${timeoutMs}ms）`));
+        return;
+      }
+      setTimeout(check, intervalMs);
+    };
+    check();
+  });
+}
+
 // 台北市中心一顆有效的 tile 座標，供不需要特別測邊界的案例共用
 const TAIPEI_TILE = lonLatToTileXY(121.5654, 25.0330, 15);
 const TAIPEI_BBOX = [119, 21, 123, 26]; // 概略涵蓋台灣本島
@@ -237,6 +263,36 @@ test('逾時終局失敗、冷卻時間已過、tile 仍在目前可視範圍內
     Date.now = originalDateNow;
   }
 });
+
+test('逾時終局失敗、完全不觸發 moveend／view change 事件，只等 TIMEOUT_RETRY_COOLDOWN_MS 時間到 -> 也會被自動撥回 IDLE（不依賴視角事件的 setTimeout 兜底路徑，修正「原地不動永遠空白」）', async () => {
+  const url = 'http://tile-timeout-retry/cooldown-retry-no-view-event';
+  urlResults[url] = 'timeout-always';
+  const tile = new FakeTile([TAIPEI_TILE.z, TAIPEI_TILE.x, TAIPEI_TILE.y]);
+
+  // 刻意不呼叫 attachStaleTileAbort()、不建立 fakeMap、不觸發任何
+  // moveend／change:center 事件——這裡要驗證的正是「使用者完全沒有再
+  // 動地圖」的情境下，registerTimeoutRetryCandidate() 內建的 setTimeout
+  // 本身就能在冷卻時間到期後把圖磚撥回 IDLE，不需要靠 sweep 這條路徑。
+  //
+  // 這裡刻意不 mock Date.now()：內部的冷卻計時器用的是真正的
+  // setTimeout，時間到期判斷跟 Date.now() 無關（不像 sweepStaleGuardedTiles()
+  // 是拿 Date.now() 跟 failedAt 相減比較），所以只能真的等待，這是這個
+  // 測試案例會花費將近 TIMEOUT_RETRY_COOLDOWN_MS 實際時間的原因；也因此
+  // 這裡明確把 vitest 的單一測試逾時上限拉高到 15000ms（比預設 5000ms
+  // 長，否則測試會被 vitest 自己判定逾時失敗，而不是真的等到條件成立或
+  // 真的失敗）。
+  const loadFn = createGuardedTileLoadFunction({ regionBbox: TAIPEI_BBOX, timeoutMs: 20 });
+  loadFn(tile, url);
+  const state = await waitForState(tile);
+  expect(state, '前置條件：逾時重試一次後仍逾時，應該終局判定 ERROR').toBe(TILE_STATE.ERROR);
+
+  await waitForCondition(() => tile.state === TILE_STATE.IDLE, {
+    timeoutMs: TIMEOUT_RETRY_COOLDOWN_MS + 3000,
+    intervalMs: 50,
+    message: `完全沒有觸發任何視角事件，等待超過 ${TIMEOUT_RETRY_COOLDOWN_MS + 3000}ms 後圖磚仍未自動撥回 IDLE`,
+  });
+  expect(tile.state, '沒有任何 moveend／view change 事件，冷卻時間一到仍應該被 setTimeout 兜底路徑自動撥回 IDLE').toBe(TILE_STATE.IDLE);
+}, 15000);
 
 test('abortInFlightForKey：圖層被移除時，也要清掉 timeoutFailedGuardedTiles 裡屬於這個 key 的冷卻重試候選（回歸：曾經只清 inFlightGuardedTiles，孤兒 entry 會留到冷卻時間到或名單滿了才消失）', async () => {
   const url = 'http://tile-timeout-retry/abort-by-key-cooldown';
