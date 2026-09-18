@@ -408,10 +408,10 @@ const KNOWN_PARTIAL_BBOX_SOURCES = { udd: { total: 54, withBbox: 42 } };
   }
 });
 
-test('全站 bbox 覆蓋率：總計圖層數應為 2425 筆（新增 southeast_asia 來源後同步更新）', () => {
+test('全站 bbox 覆蓋率：總計圖層數應為 2428 筆（新增 southeast_asia 來源後同步更新）', () => {
   let totalLayers = 0;
   (bundle.sources || []).forEach(src => { totalLayers += countBboxCoverage(src).total; });
-  expect(totalLayers, `全站圖層總數應為 2425 筆，實際 ${totalLayers} 筆（若有新增/移除圖層來源，請同步更新此測試）`).toBe(2425);
+  expect(totalLayers, `全站圖層總數應為 2428 筆，實際 ${totalLayers} 筆（若有新增/移除圖層來源，請同步更新此測試）`).toBe(2428);
 });
 
 test('全站 bbox 覆蓋率：有合法 bbox 的圖層總數應 >= 1885 筆（用 >= 而非寫死等於，避免未來補齊 udd 或新增來源時擋路，但仍能抓到既有來源退化的回歸）', () => {

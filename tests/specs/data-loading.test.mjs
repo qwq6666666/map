@@ -8,13 +8,13 @@ test('資料載入後，39 個 WMTS 來源都在（含後來新增的北京／�
   assertEqual(DATA.LAYER_SOURCES.length, 39, '來源數量');
 });
 
-test('資料載入後，總圖層數是 2425 筆（一筆都不能少）', () => {
+test('資料載入後，總圖層數是 2428 筆（一筆都不能少）', () => {
   let total = 0;
   DATA.LAYER_SOURCES.forEach(s => s.categories.forEach(c => {
     if(c.groups) c.groups.forEach(g => total += g.layers.length);
     else total += c.layers.length;
   }));
-  assertEqual(total, 2425, '總圖層數');
+  assertEqual(total, 2428, '總圖層數');
 });
 
 test('每個來源都有對應的地理範圍（REGION_EXTENTS）', () => {
