@@ -50,8 +50,8 @@
 <link rel="icon" type="image/svg+xml" href="./icon.svg">
 <meta name="theme-color" content="#8A6A2E">
 
-  <script type="module" crossorigin src="./assets/index-C5Xa1ERS.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-dWejECqt.css">
+  <script type="module" crossorigin src="./assets/index-DfZeLdnS.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DTu8nazV.css">
 </head>
 <body>
 
@@ -149,6 +149,10 @@
   <div class="mobile-mode-popover-title">工具</div>
   <!-- 轉呼叫既有 #drawToggleBtn 的 click()，不重新實作繪圖工具開關邏輯 -->
   <button type="button" class="mobile-mode-option mobile-mode-toggle" id="mobileDrawToggle">繪圖工具</button>
+  <!-- 轉呼叫既有 #locateBtn 的 click()，不重新實作定位/藍點顯示邏輯。
+       #locateBtn 手機版常駐浮動鈕被 CSS 隱藏（見 style.css .locate-btn{display:none}），
+       但 DOM 節點與事件監聽器仍在，.click() 一樣能觸發。 -->
+  <button type="button" class="mobile-mode-option" id="mobileLocateBtn"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> 定位</button>
   <div class="mobile-mode-popover-divider"></div>
   <div class="mobile-mode-popover-title">說明</div>
   <!-- 轉呼叫側邊欄裡原本的 #tourStartBtn／#guideOpenBtn／#shareLinkBtn／
