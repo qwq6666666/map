@@ -54,7 +54,7 @@ export const DEFAULT_TILE_LOAD_TIMEOUT_MS = 2000;
 // 使用者操作都會正常發生的預期行為（一次平移可能觸發幾十次 EMPTY），
 // 記進來只會洗掉真正的失敗訊號，不是故障。
 // ---------------------------------------------------------
-export const RECENT_TILE_FAILURE_LIMIT = 30;
+export const RECENT_TILE_FAILURE_LIMIT = 10;
 const recentTileFailures = [];
 
 function recordTileFailure(label, reason, z, x, y){
