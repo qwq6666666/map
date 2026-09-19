@@ -8,13 +8,14 @@
    只負責「編碼／解碼＋寫回 store／地圖視角」這件事本身，不碰任何
    DOM（複製成功/失敗的提示由呼叫端的按鈕自行決定要怎麼顯示）。
 --------------------------------------------------------- */
-import { state, setState } from '../store.js';
+import { state, setState, subscribe } from '../store.js';
 import { map } from '../core/map.js';
 import { DATA, findLayerById } from '../data.js';
 
 const DEFAULT_MODE = 'overlay';
 const DEFAULT_BASE = 'osm';
 const DEFAULT_SWIPE = 50;
+const DEFAULT_OVERLAY_OPACITY = 100;
 // 跨代理邊界重複維護的常數：這兩個值是抄寫自 core/map.js 初始 View 設定
 // （map-core-agent 權責），只用來判斷「目前視角是不是預設值、不用寫進
 // 分享網址」。core/map.js 目前沒有匯出對應常數可以直接 import（Grep 過
@@ -27,7 +28,10 @@ const DEFAULT_ZOOM = 8;
 const COORD_DECIMALS = 5; // 約 1 公尺精度，足夠還原畫面又不會讓網址過長
 const ZOOM_DECIMALS = 2;
 
-const VALID_MODES = ['overlay', 'compare', 'timeline', 'multi'];
+// 分享連結會讀寫的 query 參數名稱（即時同步網址列時，只動這批、不碰其他參數）
+const SHARE_PARAM_KEYS = ['mode', 'base', 'overlay', 'cmpA', 'cmpB', 'swipe', 'opacity', 'multi', 'lon', 'lat', 'zoom'];
+
+const VALID_MODES =['overlay', 'compare', 'timeline', 'multi'];
 
 function round(n, decimals){
   const f = 10 ** decimals;
@@ -88,10 +92,13 @@ export function shareStateHasCustomLayers(){
 }
 
 /* ---------------------------------------------------------
-   buildShareURL() — 把目前狀態編碼成完整分享網址
+   buildShareParams() — 把目前狀態編碼成 URLSearchParams
+   compact=true（網址列即時更新用）：非比對模式不寫 cmpA/cmpB，避免預設
+   狀態的網址列也被塞一串沒意義的參數；複製分享連結維持完整編碼。
 --------------------------------------------------------- */
-export function buildShareURL(){
+function buildShareParams({ compact = false } = {}){
   const params = new URLSearchParams();
+  const includeCompare = !compact || state.mode === 'compare';
 
   if(state.mode !== DEFAULT_MODE) params.set('mode', state.mode);
   if(state.baseLayer !== DEFAULT_BASE) params.set('base', state.baseLayer);
@@ -99,9 +106,13 @@ export function buildShareURL(){
   // 在 store 一律有預設 key，若比對預設會讓比對模式分享出去的連結漏帶資訊）。
   // 'custom:' 開頭一律不寫入（見 isCustomKey() 說明）。
   if(state.activeOverlayKey && !isCustomKey(state.activeOverlayKey)) params.set('overlay', state.activeOverlayKey);
-  if(state.compareA && !isCustomKey(state.compareA)) params.set('cmpA', state.compareA);
-  if(state.compareB && !isCustomKey(state.compareB)) params.set('cmpB', state.compareB);
+  if(includeCompare && state.compareA && !isCustomKey(state.compareA)) params.set('cmpA', state.compareA);
+  if(includeCompare && state.compareB && !isCustomKey(state.compareB)) params.set('cmpB', state.compareB);
   if(state.swipePercent !== DEFAULT_SWIPE) params.set('swipe', String(state.swipePercent));
+  // 單圖透明度只在疊圖／時間軸模式有意義（比對、複合疊圖不用這組滑桿）。
+  if((state.mode === 'overlay' || state.mode === 'timeline') && state.overlayOpacity !== DEFAULT_OVERLAY_OPACITY){
+    params.set('opacity', String(state.overlayOpacity));
+  }
   const shareableMultiLayers = state.multiOverlayLayers.filter(e => !isCustomKey(e.key));
   if(shareableMultiLayers.length > 0){
     params.set('multi', shareableMultiLayers.map(e => `${e.key},${e.opacity}`).join(';'));
@@ -124,9 +135,59 @@ export function buildShareURL(){
     if(zoomR !== DEFAULT_ZOOM) params.set('zoom', String(zoomR));
   }
 
+  return params;
+}
+
+/* ---------------------------------------------------------
+   buildShareURL() — 完整分享網址（含 origin）
+--------------------------------------------------------- */
+export function buildShareURL(){
   const base = location.origin + location.pathname;
-  const qs = params.toString();
+  const qs = buildShareParams().toString();
   return qs ? `${base}?${qs}` : base;
+}
+
+/* ---------------------------------------------------------
+   即時同步網址列：狀態或視角變動後（debounce）用 history.replaceState
+   把目前畫面寫回網址列，讓使用者直接複製網址列、加書籤、重新整理都能
+   回到同一個畫面。用 replaceState 而非 pushState，避免每次拖曳地圖都
+   在瀏覽器歷史堆出一筆、上一頁按到手軟。
+   非分享用的參數（例如 utm_*）與 hash 原樣保留。
+--------------------------------------------------------- */
+const LIVE_URL_DEBOUNCE_MS = 500;
+
+// 純函式：依目前狀態算出要寫進網址列的「path?query#hash」（不含 origin）。
+export function buildLiveShareURL(){
+  const current = new URLSearchParams(location.search);
+  SHARE_PARAM_KEYS.forEach(k => current.delete(k));
+  buildShareParams({ compact: true }).forEach((v, k) => current.set(k, v));
+  const qs = current.toString();
+  return location.pathname + (qs ? `?${qs}` : '') + (location.hash || '');
+}
+
+// 回傳 dispose()：取消訂閱並清掉待執行的計時器（主要給測試收尾用）。
+export function initLiveShareURL(){
+  if(typeof history === 'undefined' || !history.replaceState) return () => {};
+  let timer = null;
+  let disposed = false;
+  function schedule(){
+    if(disposed) return;
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      try{
+        history.replaceState(history.state, '', buildLiveShareURL());
+      }catch(err){
+        console.warn('更新網址列失敗', err); // 例如 sandbox iframe 禁止改網址，安靜略過
+      }
+    }, LIVE_URL_DEBOUNCE_MS);
+  }
+  const unsubscribe = subscribe(schedule);
+  map.on('moveend', schedule);
+  return () => {
+    disposed = true;
+    unsubscribe();
+    clearTimeout(timer);
+  };
 }
 
 /* ---------------------------------------------------------
@@ -170,8 +231,7 @@ export async function copyShareLink(){
 --------------------------------------------------------- */
 export function applyShareStateFromURL(){
   const params = new URLSearchParams(location.search);
-  const relevantKeys = ['mode', 'base', 'overlay', 'cmpA', 'cmpB', 'swipe', 'multi', 'lon', 'lat', 'zoom'];
-  if(!relevantKeys.some(k => params.has(k))) return false;
+  if(!SHARE_PARAM_KEYS.some(k => params.has(k))) return false;
 
   const patch = {};
   let applied = false;
@@ -189,6 +249,12 @@ export function applyShareStateFromURL(){
   if(swipeRaw !== null){
     const n = Number(swipeRaw);
     if(Number.isFinite(n)){ patch.swipePercent = clampInt(n, 0, 100); applied = true; }
+  }
+
+  const opacityRaw = params.get('opacity');
+  if(opacityRaw !== null){
+    const n = Number(opacityRaw);
+    if(Number.isFinite(n)){ patch.overlayOpacity = clampInt(n, 0, 100); applied = true; }
   }
 
   const multiRaw = params.get('multi');

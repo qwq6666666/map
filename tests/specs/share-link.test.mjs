@@ -1,12 +1,12 @@
 import '../env-stub.mjs';
-import { test, beforeEach, expect } from 'vitest';
+import { test, beforeEach, expect, vi } from 'vitest';
 import { loadAppData, DATA } from '../../src/data.js';
 import { initMapCore } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
 import { initSearchUI } from '../../src/searchUI.js';
 import { state as store, setState } from '../../src/store.js';
 import { map } from '../../src/core/map.js';
-import { buildShareURL, copyShareLink, applyShareStateFromURL, shareStateHasCustomLayers } from '../../src/features/shareLink.js';
+import { buildShareURL, copyShareLink, applyShareStateFromURL, shareStateHasCustomLayers, buildLiveShareURL, initLiveShareURL } from '../../src/features/shareLink.js';
 
 await loadAppData();
 initMapCore();
@@ -30,6 +30,7 @@ function resetToDefault(){
     compareA: 'hist:sinica:JM20K_1904:jpg',
     compareB: 'base:osm',
     swipePercent: 50,
+    overlayOpacity: 100,
     multiOverlayLayers: [],
   });
   map.getView().setCenter([120.9, 23.7]);
@@ -71,6 +72,17 @@ test('activeOverlayKey 有值時 overlay 參數會出現', () => {
   setState({ activeOverlayKey: keyA });
   const params = new URLSearchParams(buildShareURL().split('?')[1]);
   expect(params.get('overlay'), 'overlay 應該出現').toBe(keyA);
+});
+
+test('overlay/timeline 模式下 overlayOpacity 非預設才寫入 opacity；比對／複合疊圖模式不寫', () => {
+  expect(new URLSearchParams(buildShareURL().split('?')[1]).get('opacity'), '預設 100 不寫入').toBe(null);
+  setState({ overlayOpacity: 40 });
+  expect(new URLSearchParams(buildShareURL().split('?')[1]).get('opacity'), 'overlay 模式應該寫入').toBe('40');
+  setState({ mode: 'timeline' });
+  expect(new URLSearchParams(buildShareURL().split('?')[1]).get('opacity'), 'timeline 模式應該寫入').toBe('40');
+  setState({ mode: 'compare' });
+  expect(new URLSearchParams(buildShareURL().split('?')[1]).get('opacity'), 'compare 模式不寫').toBe(null);
+  setState({ mode: 'overlay' });
 });
 
 test('multiOverlayLayers 會編碼成 key,opacity 用分號串接的 multi 參數', () => {
@@ -171,6 +183,23 @@ test('不存在的 hist 圖層 key、custom: 開頭 key 都會被忽略，但同
   expect(store.baseLayer, 'base 是合法值，應該正常還原').toBe('sat');
 });
 
+test('opacity 參數能還原到 store，超出範圍 clamp，不是數字則忽略', () => {
+  location.search = `?overlay=${encodeURIComponent(keyA)}&opacity=35`;
+  expect(applyShareStateFromURL(), '應該回傳 true').toBeTruthy();
+  expect(store.overlayOpacity, 'opacity 正確還原').toBe(35);
+  expect(store.activeOverlayKey, '同批 overlay 一起還原').toBe(keyA);
+  location.search = '?opacity=250';
+  applyShareStateFromURL();
+  expect(store.overlayOpacity, '超過 100 應 clamp').toBe(100);
+  location.search = '?opacity=-5';
+  applyShareStateFromURL();
+  expect(store.overlayOpacity, '負數應 clamp 成 0').toBe(0);
+  setState({ overlayOpacity: 60 });
+  location.search = '?opacity=abc';
+  applyShareStateFromURL();
+  expect(store.overlayOpacity, '非數字忽略，維持原值').toBe(60);
+});
+
 test('multi 參數單筆壞掉只跳過那一筆，opacity 超出範圍會被 clamp', () => {
   location.search = `?multi=${encodeURIComponent(`${keyA},150;hist:sinica:not-real:jpg,50;${keyB},-20`)}`;
   const result = applyShareStateFromURL();
@@ -223,4 +252,53 @@ test('navigator.clipboard.writeText 失敗時退回 execCommand fallback，不�
   const result = await copyShareLink();
   expect(typeof result === 'boolean', '應該回傳 boolean，不噴例外').toBeTruthy();
   delete navigator.clipboard;
+});
+
+/* ---------------------------------------------------------
+   即時同步網址列（buildLiveShareURL／initLiveShareURL）
+--------------------------------------------------------- */
+
+test('buildLiveShareURL：預設狀態網址列乾淨（不帶 cmpA/cmpB），非分享參數與 hash 原樣保留', () => {
+  location.search = '?utm_source=x&zoom=3';
+  location.hash = '#top';
+  expect(buildLiveShareURL(), '分享參數被重算（預設值不寫入）、utm 與 hash 保留').toBe('/?utm_source=x#top');
+  location.hash = '';
+});
+
+test('buildLiveShareURL：比對模式才帶 cmpA/cmpB，切回疊圖模式後不帶', () => {
+  setState({ mode: 'compare' });
+  setState({ compareA: keyA }); // 切進比對模式時 enterCompareMode() 會重設左側，所以要等切完再指定
+  const inCompare = new URLSearchParams(buildLiveShareURL().split('?')[1]);
+  expect(inCompare.get('mode'), '比對模式帶 mode').toBe('compare');
+  expect(inCompare.get('cmpA'), '比對模式帶 cmpA').toBe(keyA);
+  setState({ mode: 'overlay' });
+  expect(buildLiveShareURL(), '疊圖模式預設狀態不帶任何參數').toBe('/');
+});
+
+test('initLiveShareURL：狀態變動或地圖 moveend 後 debounce 一次 replaceState，dispose 後不再更新', () => {
+  vi.useFakeTimers();
+  const replaceState = vi.fn();
+  globalThis.history = { state: null, replaceState };
+  const dispose = initLiveShareURL();
+  try{
+    setState({ activeOverlayKey: keyA });
+    setState({ overlayOpacity: 55 });
+    map._triggerMoveEnd();
+    expect(replaceState, 'debounce 期間不應立刻寫入').not.toHaveBeenCalled();
+    vi.advanceTimersByTime(600);
+    expect(replaceState, '連續變動只寫一次').toHaveBeenCalledTimes(1);
+    const url = replaceState.mock.calls[0][2];
+    const params = new URLSearchParams(url.split('?')[1]);
+    expect(params.get('overlay'), '網址列帶目前圖層').toBe(keyA);
+    expect(params.get('opacity'), '網址列帶透明度').toBe('55');
+
+    dispose();
+    setState({ overlayOpacity: 20 });
+    vi.advanceTimersByTime(600);
+    expect(replaceState, 'dispose 後不再寫入').toHaveBeenCalledTimes(1);
+  }finally{
+    dispose();
+    vi.useRealTimers();
+    delete globalThis.history;
+  }
 });

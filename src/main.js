@@ -18,7 +18,7 @@ import { getActivePlaceNameMatchAt } from './features/placeNames.js';
 import { initOnboarding } from './ui/onboarding.js';
 import { initSourceStatusUI } from './ui/sourceStatusUI.js';
 import { initMobileLayout } from './ui/mobileLayout.js';
-import { applyShareStateFromURL } from './features/shareLink.js';
+import { applyShareStateFromURL, initLiveShareURL } from './features/shareLink.js';
 
 // 用頂層 await 取代原本包一層 async function main(){...} 再呼叫的寫法
 // （SonarQube javascript:S7785）；index.html 是 `<script type="module">`，
@@ -50,6 +50,7 @@ if(dataLoaded){
   // 分享連結：所有 UI 都掛好訂閱後才還原網址帶入的狀態，確保 setState()
   // 廣播時每個模組都已經在聽，畫面才會真的照分享連結還原。
   applyShareStateFromURL();
+  initLiveShareURL(); // 還原完才開始把後續變動即時寫回網址列（避免還原過程本身被當成使用者操作）
 }
 
 // 只在正式建置（vite build）且瀏覽器支援時註冊 Service Worker，

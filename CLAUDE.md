@@ -65,6 +65,11 @@
 - **手機版「台灣」「中國」分頁三段式瀏覽**（`src/ui/mobileTwBrowse.js`／`src/ui/mobileCnBrowse.js`，架構、匯出介面、CSS class 完全對稱，共用 `mobile-tw-*` class）：國家篩選列選到「台灣」或「中國」且 `mq.matches`（<=768px）時取代原本「來源→分類→次分類→圖層」手風琴，`sidebarUI.js` 呼叫共用的 `initMobileCountryBrowse()`（`src/ui/mobileRegionBrowse.js`，跟 `multiOverlay.js`／`compareMode.js` 共用同一套邏輯）取得的 `mobileBrowse.sync()` 管顯示切換。三段式是「大區域→地區→圖層」：台灣「全國/北部/中部/南部/東部/離島」（地區合併同縣市多個來源），中國「全國/華北/華東/華中/華南/西南」（比照台灣只放實際有資料的大區域）。第三段重用 `sidebarUI.js` 的 `buildSourceGroup(src)`（與桌機共用建立分類/次分類/圖層區塊邏輯，依選中地區篩出來源後各自重建獨立 DOM）。來源→大區域對照表（`MACRO_REGION_MAP`）與地區標籤字尾規則（`regionLabelForSource()`）寫在各自檔案，新增/搬動來源時記得同步；`mobile-tw-browse.test.mjs`／`mobile-cn-browse.test.mjs` 各有全站 24 個 tw／11 個 cn 來源的分組總數回歸測試會抓漏改。
 - **手機版「其他」分頁二段式瀏覽**（`src/ui/mobileOtherBrowse.js`）：跟 tw/cn 不同，「其他」目前 4 個來源（`japan`／`korea`／`ls`／`southeast_asia`）彼此是不同國家/主題、無法合併成「地區」，所以省略大區域層，只有「來源→分類/圖層」二段——第一層是來源 chip 單選列，選中後下方直接顯示該來源的 `buildSourceGroup(src)`。沿用 `mobile-tw-*` 系列 class（沒有另開新 rootClassName），`layerCountForSource()` 沿用 `mobileRegionBrowse.js` 匯出的版本。`sidebarUI.js`／`src/features/multiOverlay.js`／`src/features/compareMode.js` 三處呼叫 `initMobileCountryBrowse()`／組 `MOBILE_BROWSE_CONFIGS` 的地方都要各自加上 `{ country: 'other', build: buildMobileOtherBrowseUI }`，漏改任一處會導致該手機版選單的「其他」分頁停留在舊手風琴縮小版、跟其他選單不一致。
 
+## 分享連結 (`src/features/shareLink.js`)
+- 用 query string（`?mode=&overlay=&opacity=&lon=&lat=&zoom=…`，參數名稱清單 `SHARE_PARAM_KEYS`）編碼畫面狀態；`buildShareURL()`（複製按鈕用，完整編碼）與 `buildLiveShareURL()`（網址列用，非比對模式不帶 `cmpA`/`cmpB`）共用 `buildShareParams()`。`custom:` 自訂圖層不編碼。
+- **單圖透明度存在 `store.overlayOpacity`（0~100）**，不再從 DOM 滑桿讀值：`core/layerManager.js` 的滑桿只呼叫 `setOverlayOpacity()`，兩顆滑桿與目前歷史圖層由 `initOpacityControls()` 內的 store 訂閱同步。只在 overlay／timeline 模式寫入 `opacity` 參數。
+- **網址列即時同步**：`initLiveShareURL()`（`main.js` 在 `applyShareStateFromURL()` 之後呼叫）訂閱 store＋`map.on('moveend')`，debounce 500ms 用 `history.replaceState` 寫回（不用 pushState，避免塞爆瀏覽器歷史）；非分享參數（utm 等）與 hash 原樣保留；回傳 `dispose()` 供測試收尾。測試：`tests/specs/share-link.test.mjs`。
+
 ## 地圖載入提示 (`body.map-ready`)
 `#map` 預設底色是 `var(--paper-dim)`，非純黑，避免瓦片載入完成前被誤認當機；`index.html` 的 `#mapLoading`（spinner＋文字）純靠 CSS 淡出、**沒有**自己的 JS 監聽。淡出時機是 `src/core/map.js` 在 `map.once('rendercomplete', ...)` 對 `document.body` 加 `map-ready` class，`style.css` 靠 `body.map-ready .map-loading{opacity:0; pointer-events:none;}` 反應——map-core-agent 只出訊號、ui-frontend-agent 全權處理視覺，**`map-ready` 是跨檔案契約，不要改名或另建第二套訊號**。
 
@@ -82,7 +87,7 @@
 - 測試：`place-names-data.test.mjs`（CSV 解析）、`place-names-matching.test.mjs`（比對邏輯）、`place-name-card-ui.test.mjs`（卡片渲染／收合／候選清單）、`identify-pin.test.mjs`（「歷史地名」小區塊案例）、`place-names-nearby.test.mjs`（`findNearbyPlaceNames` 距離/半徑/排序/邊界）、`nearby-place-names-ui.test.mjs`（附近地名清單渲染／點擊展開／清空／精確比對路徑不觸發）。
 
 ## 測試框架 (vitest)
-測試統一使用 vitest（`tests/specs/*.test.mjs`，53 支、610 個案例；設定 `vitest.config.js`）。原本並存的手刻框架（`tests/run-all.mjs`＋`tests/assert.mjs`）已在雙軌期間漏改案例（`multi-overlay` 拖曳排序測試只補在舊版）而移除，不要再新增第二套測試機制。改動測試時要注意：
+測試統一使用 vitest（`tests/specs/*.test.mjs`，53 支、615 個案例；設定 `vitest.config.js`）。原本並存的手刻框架（`tests/run-all.mjs`＋`tests/assert.mjs`）已在雙軌期間漏改案例（`multi-overlay` 拖曳排序測試只補在舊版）而移除，不要再新增第二套測試機制。改動測試時要注意：
 - 共用模組：`tests/env-stub.mjs`（手動塞 `globalThis` 模擬 `document`／`window`／`ol` 的假瀏覽器環境，vitest `environment` 維持預設 `'node'`，不要疊加 jsdom）、`tests/helpers.mjs`（`sleep()`／`waitFor()`）、`tests/tileImageStub.mjs`（假 `Image`）。
 - `tests/env-stub.mjs` 有一個關鍵相容性修正：`globalThis.URL` 必須保留 Node 原生建構子、只在上面附加 `createObjectURL`／`revokeObjectURL` 兩個靜態方法。若整個覆蓋成 `{ createObjectURL, revokeObjectURL }`，vitest 的模組載入器（vite-node）解析後續 `import` 時會拋 `TypeError: URL is not a constructor`。`src/features/sourceStatus.js`／`tests/specs/spatial-index.test.mjs` 裡當初因這個限制而寫的「不能用 `new URL()`」迴避寫法，其實現在可以移除（尚未動手）。
 - vitest 的 `test()` 是「先收集全部呼叫、模組載入完才統一執行」，**任何寫在模組頂層（不在 `test()`／`beforeEach()`／`afterEach()`／`afterAll()` 裡）、假設『在測試案例執行完之後才跑』的清理程式碼，語意會跑掉**（已踩過：`location-button.test.mjs` 清理 `runtime.locateToastTimer` 的程式碼放在模組頂層會在測試執行前就跑、清理失效，讓一顆 4.5 秒的真實計時器每次都拖到自然到期；修法是用 `afterAll()` 包起來）。

@@ -12,7 +12,7 @@
    之後不管是疊圖模式手動點選、還是時間軸播放來回切換，都直接沿用
    快取好的物件，只調整 opacity，不會重新對 WMTS 服務發送請求。
 --------------------------------------------------------- */
-import { state as store, clearOverlayLayer } from '../store.js';
+import { state as store, subscribe, clearOverlayLayer, setOverlayOpacity } from '../store.js';
 import { runtime } from '../runtime.js';
 import { resolveOverlayKey } from '../data.js';
 import { map } from './map.js';
@@ -127,7 +127,7 @@ export function applyActiveOverlayKey(){
     document.getElementById('stamp').classList.remove('show');
   } else {
     const { layer } = resolved;
-    const targetOpacity = Number.parseInt(document.getElementById('opacitySlider').value,10)/100;
+    const targetOpacity = store.overlayOpacity/100;
     const key = store.activeOverlayKey;
 
     const previousLayer = runtime.historyLayer;
@@ -205,8 +205,8 @@ export function syncActiveLayerItemClasses(){
 }
 
 /* ---------------------------------------------------------
-   透明度控制（不影響「顯示哪個圖層」，只是既有圖層的顯示參數，
-   所以不透過 store，直接對目前的 runtime.historyLayer 操作）
+   透明度控制：數值存在 store.overlayOpacity（讓分享連結能編碼），
+   滑桿只負責改 store，畫面同步（兩顆滑桿＋目前歷史圖層）由訂閱端處理。
 --------------------------------------------------------- */
 export function initOpacityControls(){
   const opacitySlider = document.getElementById('opacitySlider');
@@ -215,14 +215,21 @@ export function initOpacityControls(){
   const floatingOpacityVal = document.getElementById('floatingOpacityVal');
 
   // 側邊欄內與側邊欄收合後的浮動控制，兩顆滑桿共用同一份數值，
-  // 任一顆拖動都會同步另一顆並套用到目前的歷史圖層。
-  function setOverlayOpacity(v){
+  // store 一變就同步另一顆；同時套用到目前的歷史圖層。
+  function syncOpacityUI(v){
     opacitySlider.value = v;
     opacityVal.textContent = v + '%';
     floatingOpacitySlider.value = v;
     floatingOpacityVal.textContent = v + '%';
-    runtime.historyLayer?.setOpacity(v/100);
   }
+  syncOpacityUI(store.overlayOpacity);
+  subscribe((_state, _prev, changedKeys)=>{
+    if(!changedKeys.includes('overlayOpacity')) return;
+    syncOpacityUI(store.overlayOpacity);
+    // 同一批 setState 若連圖層也換了（例如分享連結還原），交給
+    // applyActiveOverlayKey() 的淡入動畫吃 store.overlayOpacity，這裡不搶著改。
+    if(!changedKeys.includes('activeOverlayKey')) runtime.historyLayer?.setOpacity(store.overlayOpacity/100);
+  });
   opacitySlider.addEventListener('input', ()=> setOverlayOpacity(Number.parseInt(opacitySlider.value,10)));
   floatingOpacitySlider.addEventListener('input', ()=> setOverlayOpacity(Number.parseInt(floatingOpacitySlider.value,10)));
 

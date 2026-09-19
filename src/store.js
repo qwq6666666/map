@@ -87,6 +87,7 @@ export const state = {
   compareA: 'hist:sinica:JM20K_1904:jpg', // 比對模式左側 key
   compareB: 'base:osm',                    // 比對模式右側 key
   swipePercent: 50,       // 比對模式分隔線位置（0~100）
+  overlayOpacity: 100,    // 疊圖／時間軸模式目前圖層的透明度（0~100 整數），側邊欄與浮動滑桿共用；放進 store 是為了讓分享連結能編碼
   // 複合疊圖模式：可同時勾選多張歷史圖層一起疊在地圖上，陣列順序＝
   // 疊放順序（index 越大＝疊在越上層，跟 z-index 的直覺一致）。跟
   // activeOverlayKey（單選）刻意分開存放，兩者互不影響，切換模式時
@@ -173,6 +174,10 @@ export function setCompareSide(side, key){
 
 export function setSwipePercent(percent){
   setState({ swipePercent: percent });
+}
+
+export function setOverlayOpacity(percent){
+  setState({ overlayOpacity: percent });
 }
 
 /* ---------------------------------------------------------
