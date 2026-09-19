@@ -1836,3 +1836,44 @@
     }
   }
   @keyframes tab-panel-in{ from{opacity:0;} }
+
+  /* ---------- 桌面版切換鈕「色塊滑動」（模式切換／底圖切換／國家篩選列） ----------
+     條件同前兩區：僅桌面（>=769px）、且使用者沒開「減少動態效果」。
+     選中鈕原本自己換成深色底；這裡改成容器內一塊 ::before 色塊（寬＝內容寬 ÷
+     按鈕數），依 .active 是第幾顆做 translateX，按鈕本身背景透明、只換字色。
+     全部按鈕 flex:1 等寬，所以純 CSS 就能定位，不需要 JS 量測，各模組
+     （modeManager／底圖切換／countryFilter／手機版轉發點擊）照舊只切 .active。
+     **按鈕數量寫在 --seg-n：.mode-switch 4、#baseSwitch 2、.country-filter 3
+     （見 src/ui/countryFilter.js 的 COUNTRY_LABELS）；增減按鈕要同步改這裡。**
+     --seg-pad：容器自己有 padding 時（比對模式圖層挑選面板裡的
+     .country-filter，見上方 .layer-picker-panel .country-filter），色塊要跟著
+     內縮才會對齊按鈕。
+     specificity：`.segmented button.active`（0,2,1）與原規則相同，靠「後宣告」
+     蓋過原本的 background:var(--ink)。 */
+  @media (min-width:769px) and (prefers-reduced-motion:no-preference){
+    .mode-switch{--seg-n:4;}
+    #baseSwitch{--seg-n:2;}
+    .country-filter{--seg-n:3;}
+    .layer-picker-panel .country-filter{--seg-pad:6px;}
+
+    .mode-switch, .segmented{position:relative;}
+    .mode-switch::before, .segmented::before{
+      content:""; position:absolute; pointer-events:none;
+      top:var(--seg-pad, 0px); bottom:var(--seg-pad, 0px); left:var(--seg-pad, 0px);
+      width:calc((100% - 2 * var(--seg-pad, 0px)) / var(--seg-n, 1));
+      background:var(--ink);
+      transition:transform .26s cubic-bezier(.2,.8,.2,1);
+    }
+    .mode-switch button, .segmented button{
+      position:relative; background:transparent;
+      transition:color .2s ease;
+    }
+    .mode-switch button.active, .segmented button.active{background:transparent; color:var(--paper);}
+
+    .mode-switch:has(> button:nth-child(2).active)::before,
+    .segmented:has(> button:nth-child(2).active)::before{transform:translateX(100%);}
+    .mode-switch:has(> button:nth-child(3).active)::before,
+    .segmented:has(> button:nth-child(3).active)::before{transform:translateX(200%);}
+    .mode-switch:has(> button:nth-child(4).active)::before,
+    .segmented:has(> button:nth-child(4).active)::before{transform:translateX(300%);}
+  }
