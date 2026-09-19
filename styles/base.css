@@ -1769,3 +1769,33 @@
   .legend-modal-img{max-width:100%; max-height:70vh; display:block;}
   .legend-modal-error{font-size:var(--fs-base); color:var(--ink); text-align:center; margin:0;}
 
+
+  /* ---------- 桌面版開關動畫（側邊欄收合／展開、右側抽屜滑入滑出） ----------
+     只在桌面（>=769px）且使用者沒開「減少動態效果」時生效；手機版 Bottom
+     Sheet 有自己的轉場（styles/mobile.css），不在這裡。
+     側邊欄：原本展開態用 top+bottom 撐高，收合態改成 bottom:auto + height:36px，
+     height 從 auto 值無法做轉場。所以展開態改成明確的 height:calc(100% - 32px)
+     （等同 top/bottom 各留 16px），收合態沿用既有的 height:36px，寬高、圓角
+     一起轉場。compact-mode（左右比對）高度是內容撐開的 auto，維持原樣、不做
+     轉場。內容區塊仍是 display:none 切換：展開時內容在寬度長大的過程中被
+     overflow:hidden 逐步「揭開」，收合時內容先消失、外殼再縮成圓鈕。
+     specificity 提醒：#sidebar.collapsed（1,1,0）已有 height:36px，這裡展開態
+     規則刻意用兩個 :not() 排除 .collapsed／.compact-mode，避免蓋過它。 */
+  @media (min-width:769px) and (prefers-reduced-motion:no-preference){
+    #sidebar{
+      transition:width .24s cubic-bezier(.2,.8,.2,1), height .24s cubic-bezier(.2,.8,.2,1),
+                 border-radius .24s cubic-bezier(.2,.8,.2,1), box-shadow .24s ease;
+    }
+    #sidebar:not(.collapsed):not(.compact-mode){
+      bottom:auto; height:calc(100% - 32px);
+    }
+
+    .guide-drawer-overlay{animation:drawer-overlay-in .2s ease-out backwards;}
+    .guide-drawer{animation:drawer-slide-in .26s cubic-bezier(.2,.8,.2,1) backwards;}
+    .guide-drawer-overlay.is-closing{animation:drawer-overlay-out .18s ease-in forwards;}
+    .guide-drawer.is-closing{animation:drawer-slide-out .2s ease-in forwards;}
+  }
+  @keyframes drawer-overlay-in{ from{opacity:0;} }
+  @keyframes drawer-overlay-out{ to{opacity:0;} }
+  @keyframes drawer-slide-in{ from{transform:translateX(100%);} }
+  @keyframes drawer-slide-out{ to{transform:translateX(100%);} }

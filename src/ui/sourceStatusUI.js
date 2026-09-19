@@ -16,6 +16,7 @@
 import { checkAllSourceStatuses, buildSourceStatusTargets } from '../features/sourceStatus.js';
 import { getRecentTileFailures, clearRecentTileFailures } from '../core/tileLoadGuard.js';
 import { showLocateToast } from '../features/location.js';
+import { removeDrawerAnimated } from './drawerClose.js';
 
 // icon 存 sprite symbol id（見 public/assets/map-emoji-style-a-icons.svg），
 // 消費端一律用 iconSvg() 組成 <svg><use> 字串，不能再用 textContent 賦值
@@ -214,8 +215,7 @@ function buildDrawer(){
   `;
 
   const close = () => {
-    overlay.remove();
-    drawer.remove();
+    removeDrawerAnimated(overlay, drawer);
     document.removeEventListener('keydown', onKeydown);
   };
   const onKeydown = (e) => { if(e.key === 'Escape') close(); };

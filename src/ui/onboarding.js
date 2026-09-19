@@ -4,6 +4,7 @@
 // 不呼叫地圖／模式切換／搜尋等模組的內部邏輯，只靠 localStorage 記錄已讀旗標。
 
 import { expandSidebar } from './sidebarToggle.js';
+import { removeDrawerAnimated } from './drawerClose.js';
 import { copyShareLink, shareStateHasCustomLayers } from '../features/shareLink.js';
 import { showLocateToast } from '../features/location.js';
 
@@ -355,9 +356,17 @@ function onTourReposition() {
   positionTourStep();
 }
 
+// 桌面版側邊欄展開有寬高轉場（styles/base.css 檔尾），導覽開始時才
+// expandSidebar()，量到的目標位置是轉場中途的；轉場結束再補一次定位。
+// transitionend 會從子元素（hover、箭頭轉動）冒泡上來，只認側邊欄自己。
+function onSidebarTransitionEnd(e) {
+  if (e.target === e.currentTarget) positionTourStep();
+}
+
 function bindReposition() {
   if (resizeBound) return;
   window.addEventListener('resize', onTourReposition);
+  document.getElementById('sidebar')?.addEventListener('transitionend', onSidebarTransitionEnd);
   const sidebarBody = document.querySelector('.sidebar-body');
   if (sidebarBody) sidebarBody.addEventListener('scroll', onTourReposition, { passive: true });
   resizeBound = true;
@@ -365,6 +374,7 @@ function bindReposition() {
 
 function unbindReposition() {
   window.removeEventListener('resize', onTourReposition);
+  document.getElementById('sidebar')?.removeEventListener('transitionend', onSidebarTransitionEnd);
   const sidebarBody = document.querySelector('.sidebar-body');
   if (sidebarBody) sidebarBody.removeEventListener('scroll', onTourReposition);
   resizeBound = false;
@@ -428,8 +438,7 @@ function buildGuideDrawer() {
   `;
 
   const close = () => {
-    overlay.remove();
-    drawer.remove();
+    removeDrawerAnimated(overlay, drawer);
     document.removeEventListener('keydown', onKeydown);
   };
   const onKeydown = (e) => {

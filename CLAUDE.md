@@ -87,7 +87,7 @@
 - 測試：`place-names-data.test.mjs`（CSV 解析）、`place-names-matching.test.mjs`（比對邏輯）、`place-name-card-ui.test.mjs`（卡片渲染／收合／候選清單）、`identify-pin.test.mjs`（「歷史地名」小區塊案例）、`place-names-nearby.test.mjs`（`findNearbyPlaceNames` 距離/半徑/排序/邊界）、`nearby-place-names-ui.test.mjs`（附近地名清單渲染／點擊展開／清空／精確比對路徑不觸發）。
 
 ## 測試框架 (vitest)
-測試統一使用 vitest（`tests/specs/*.test.mjs`，53 支、615 個案例；設定 `vitest.config.js`）。原本並存的手刻框架（`tests/run-all.mjs`＋`tests/assert.mjs`）已在雙軌期間漏改案例（`multi-overlay` 拖曳排序測試只補在舊版）而移除，不要再新增第二套測試機制。改動測試時要注意：
+測試統一使用 vitest（`tests/specs/*.test.mjs`，54 支、620 個案例；設定 `vitest.config.js`）。原本並存的手刻框架（`tests/run-all.mjs`＋`tests/assert.mjs`）已在雙軌期間漏改案例（`multi-overlay` 拖曳排序測試只補在舊版）而移除，不要再新增第二套測試機制。改動測試時要注意：
 - 共用模組：`tests/env-stub.mjs`（手動塞 `globalThis` 模擬 `document`／`window`／`ol` 的假瀏覽器環境，vitest `environment` 維持預設 `'node'`，不要疊加 jsdom）、`tests/helpers.mjs`（`sleep()`／`waitFor()`）、`tests/tileImageStub.mjs`（假 `Image`）。
 - `tests/env-stub.mjs` 有一個關鍵相容性修正：`globalThis.URL` 必須保留 Node 原生建構子、只在上面附加 `createObjectURL`／`revokeObjectURL` 兩個靜態方法。若整個覆蓋成 `{ createObjectURL, revokeObjectURL }`，vitest 的模組載入器（vite-node）解析後續 `import` 時會拋 `TypeError: URL is not a constructor`。`src/features/sourceStatus.js`／`tests/specs/spatial-index.test.mjs` 裡當初因這個限制而寫的「不能用 `new URL()`」迴避寫法，其實現在可以移除（尚未動手）。
 - vitest 的 `test()` 是「先收集全部呼叫、模組載入完才統一執行」，**任何寫在模組頂層（不在 `test()`／`beforeEach()`／`afterEach()`／`afterAll()` 裡）、假設『在測試案例執行完之後才跑』的清理程式碼，語意會跑掉**（已踩過：`location-button.test.mjs` 清理 `runtime.locateToastTimer` 的程式碼放在模組頂層會在測試執行前就跑、清理失效，讓一顆 4.5 秒的真實計時器每次都拖到自然到期；修法是用 `afterAll()` 包起來）。
