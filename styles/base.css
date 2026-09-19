@@ -1799,3 +1799,40 @@
   @keyframes drawer-overlay-out{ to{opacity:0;} }
   @keyframes drawer-slide-in{ from{transform:translateX(100%);} }
   @keyframes drawer-slide-out{ to{transform:translateX(100%);} }
+
+  /* ---------- 桌面版切換動畫（分頁底線滑動、分頁內容淡入、繪圖工具列開合） ----------
+     條件同上一區：僅桌面（>=769px）、且使用者沒開「減少動態效果」。
+     分頁底線：三顆 .sidebar-tab-btn 是 flex:1 等寬，所以一條共用底線
+     （.sidebar-tab-bar::after，寬 1/3）依 .active 是第幾顆做 translateX 即可，
+     不需要 JS 量測位置（收合／隱藏時量到 0 寬的問題就不存在）。
+     **分頁數量目前寫死 3**：新增／刪除分頁要同步改這裡的寬度與 :has() 清單。
+     原本每顆鈕自己的 border-bottom-color 換色在這裡設成透明、改由共用底線負責。
+     分頁內容淡入：切換是 hidden attribute，解除隱藏時 animation 會重新播放。
+     繪圖工具列：原本 display:none／flex 切換做不出轉場，桌面版改成永遠
+     display:flex，用 opacity／visibility／transform 開合；visibility 在收合時
+     延遲到淡出結束才變 hidden（展開時立即 visible），hidden 期間不可點擊、
+     不可 focus，行為跟 display:none 一致。 */
+  @media (min-width:769px) and (prefers-reduced-motion:no-preference){
+    .sidebar-tab-bar{position:relative;}
+    .sidebar-tab-btn.active{border-bottom-color:transparent;}
+    .sidebar-tab-bar::after{
+      content:""; position:absolute; left:0; bottom:-1px;
+      width:calc(100% / 3); height:2px; background:var(--brass-dark);
+      transition:transform .26s cubic-bezier(.2,.8,.2,1);
+    }
+    .sidebar-tab-bar:has(.sidebar-tab-btn:nth-child(2).active)::after{transform:translateX(100%);}
+    .sidebar-tab-bar:has(.sidebar-tab-btn:nth-child(3).active)::after{transform:translateX(200%);}
+
+    .sidebar-tab-panel:not([hidden]){animation:tab-panel-in .18s ease-out;}
+
+    .draw-toolbar{
+      display:flex; opacity:0; visibility:hidden; pointer-events:none;
+      transform:translateY(-6px) scale(.97); transform-origin:top right;
+      transition:opacity .18s ease, transform .2s cubic-bezier(.2,.8,.2,1), visibility 0s linear .2s;
+    }
+    .draw-toolbar.show{
+      opacity:1; visibility:visible; pointer-events:auto; transform:none;
+      transition:opacity .18s ease, transform .2s cubic-bezier(.2,.8,.2,1), visibility 0s;
+    }
+  }
+  @keyframes tab-panel-in{ from{opacity:0;} }
