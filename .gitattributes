@@ -1,0 +1,2 @@
+# hook 必須是 LF，否則 Windows 的 autocrlf 會讓 sh 讀到  而失敗
+.githooks/* text eol=lf

@@ -18,6 +18,10 @@
 - 完整資料建置流程（sinica WMTS bbox 索引＋udd bbox 索引＋打標＋打包一次跑完）：`npm run build:data`
 - 地名今昔對照資料重新產生：`npm run build:place-names`（讀工作區外的兩份內政部地名 CSV，輸出 `data/place-names.json`；預設路徑寫死在 `tools/build-place-names.js`，也可傳自訂 CSV 路徑；**不含**在 `build:data` 裡，因為那兩份 CSV 不在 repo、無法假設每台機器都有）
 
+## 本機 push 防護 (`.githooks/pre-push`)
+- 推送 **main** 前自動跑一次跟 CI 相同的 docs/ 同步驗證（`tools/pre-push-check.js`：備份 `docs/` → `npm run build` → `verify-docs-sync.js`，約 6 秒），改了原始碼卻忘了 build／commit `docs/` 會在 push 當下被攔下，不用等 CI。其他分支、刪除分支不檢查；工作區有未 commit 的異動也會被攔（檢查對象是工作區，與實際推送內容對不上）。通過會還原 build 對 `docs/` 造成的雜訊；失敗則保留新 build 的 `docs/`，直接 commit 即可。
+- **`core.hooksPath` 是本機 git 設定、不會隨 clone 帶走**：新機器／重新 clone 後要執行 `git config core.hooksPath .githooks` 才會生效。`.gitattributes` 強制 `.githooks/*` 為 LF（Windows `autocrlf=true` 下 CRLF 會讓 sh 讀到 `\r` 而失敗），不要移除。緊急繞過：`git push --no-verify`。測試：`tests/specs/pre-push-check.test.mjs`（只測 `pushesToMain()` 純函式）。
+
 ## CI 與上游監控 (`.github/workflows/`)
 - **`ci.yml`**（push 到 `main`／PR／手動觸發）：`npm ci` → `npm run lint` → `npm test` → 備份已 commit 的 `docs/` → `npm run build` → `tools/verify-docs-sync.js` 比對。只做檢查、不 commit 任何東西；部署仍是 Pages 直接發布 `main` 的 `docs/`。
 - **`docs/` 同步驗證（`tools/verify-docs-sync.js <已 commit 的 docs> <重新 build 的 docs>`）**：抓「改了原始碼卻忘了重新 build 並 commit `docs/`」。**刻意忽略文字檔換行差異（CRLF/LF）、`*.map`、`.gitkeep`**——已實測 Windows 開發／Linux CI 之間 JS／CSS／`index.html` 的 hash 檔名與內容一致，但 `sw.js`、`data/`、svg 這類原樣複製的檔案會因換行不同而位元組不同，逐位元組比對會天天誤報。**不要改成嚴格位元組比對。** 也**不檢查 `sw.js` 版本號有沒有遞增**：JS／CSS 是 hash 檔名 Cache-First、HTML 與 `data/*.json` 是 Network-First，`CACHE_VERSION` 只有快取結構本身變動時才需要手動遞增，強制每次都遞增沒有意義。
