@@ -15,6 +15,7 @@
 - 圖層類型自動打標：`node tools/tag-layer-types.js`（以 title/keywords/階層繼承判定 type，新增圖層後、打包 bundle 前執行）
 - WMTS bbox 空間索引重新產生：`node tools/fetch-wmts-bbox.js`（解析中研院各來源 WMTS Capabilities，寫入 `data/layers/<id>.json` 的 `layer.region.bbox`；只在建置階段執行，前端不重新下載解析）
 - udd 的 WMTS bbox 索引重新產生：`node tools/fetch-udd-bbox.js`（對 `historygis.udd.gov.taipei` 的 ArcGIS 服務逐圖層取 `WGS84BoundingBox`，寫入 `data/layers/udd.json`；只在建置階段執行）
+- 季度手動抽測 udd／nlsc 服務是否存活：`npm run check:spot`（`tools/spot-check-tiles.js`，約 5 秒；預設抽測台北市中心，可傳 `<經度> <緯度> [縮放層級]`。分「有圖／空白／異常」三類，只有異常會讓結束碼為 1；「空白」多半是該地點沒資料，如 `nlsc` 的 `DDEM052` 只涵蓋部分地區，不是故障。座標換算重用 `src/core/tileGeo.js`，不要在腳本裡手算）
 - 完整資料建置流程（sinica WMTS bbox 索引＋udd bbox 索引＋打標＋打包一次跑完）：`npm run build:data`
 - 地名今昔對照資料重新產生：`npm run build:place-names`（讀工作區外的兩份內政部地名 CSV，輸出 `data/place-names.json`；預設路徑寫死在 `tools/build-place-names.js`，也可傳自訂 CSV 路徑；**不含**在 `build:data` 裡，因為那兩份 CSV 不在 repo、無法假設每台機器都有）
 
@@ -25,7 +26,7 @@
 ## CI 與上游監控 (`.github/workflows/`)
 - **`ci.yml`**（push 到 `main`／PR／手動觸發）：`npm ci` → `npm run lint` → `npm test` → 備份已 commit 的 `docs/` → `npm run build` → `tools/verify-docs-sync.js` 比對。只做檢查、不 commit 任何東西；部署仍是 Pages 直接發布 `main` 的 `docs/`。
 - **`docs/` 同步驗證（`tools/verify-docs-sync.js <已 commit 的 docs> <重新 build 的 docs>`）**：抓「改了原始碼卻忘了重新 build 並 commit `docs/`」。**刻意忽略文字檔換行差異（CRLF/LF）、`*.map`、`.gitkeep`**——已實測 Windows 開發／Linux CI 之間 JS／CSS／`index.html` 的 hash 檔名與內容一致，但 `sw.js`、`data/`、svg 這類原樣複製的檔案會因換行不同而位元組不同，逐位元組比對會天天誤報。**不要改成嚴格位元組比對。** 也**不檢查 `sw.js` 版本號有沒有遞增**：JS／CSS 是 hash 檔名 Cache-First、HTML 與 `data/*.json` 是 Network-First，`CACHE_VERSION` 只有快取結構本身變動時才需要手動遞增，強制每次都遞增沒有意義。
-- **`upstream-health.yml`**（每週一 09:00 台灣時間＋手動觸發）：跑 `node tools/check-upstream-health.js`（也可在本機 `npm run check:upstream`）。來源清單從 `data/layers/*.json` 的 `provider.tileTemplate`（指向 `gis.sinica.edu.tw`）動態推導，新增來源不用改腳本；檢查 Capabilities 可連線，且「本地圖層 id 都還在上游」。異常時自動開 GitHub Issue（同名未關閉就補留言）並讓 workflow 顯示失敗；「上游新增、本地未收錄」只提示、不算故障。**不在檢查範圍**：`udd`（無統一 Capabilities 端點）、`nlsc`（非 sinica）、實際圖磚請求（`file-exists.php` 語意不同、易誤報）。GitHub 會停用「60 天沒有 repo 活動」的排程 workflow，久未更新時要回 Actions 頁面重新啟用。
+- **`upstream-health.yml`**（每週一 09:00 台灣時間＋手動觸發）：跑 `node tools/check-upstream-health.js`（也可在本機 `npm run check:upstream`）。來源清單從 `data/layers/*.json` 的 `provider.tileTemplate`（指向 `gis.sinica.edu.tw`）動態推導，新增來源不用改腳本；檢查 Capabilities 可連線，且「本地圖層 id 都還在上游」。異常時自動開 GitHub Issue（同名未關閉就補留言）並讓 workflow 顯示失敗；「上游新增、本地未收錄」只提示、不算故障。**不在檢查範圍**：`udd`（無統一 Capabilities 端點）、`nlsc`（非 sinica）、實際圖磚請求（`file-exists.php` 語意不同、易誤報）。`udd`／`nlsc` 改由每季手動跑 `npm run check:spot` 抽測（2026-09 首次抽測：udd 54／54、nlsc 49／50 有圖，其餘 1 個為空白圖磚、非故障）；刻意不自動化，避免多兩個外部依賴的誤報來源。GitHub 會停用「60 天沒有 repo 活動」的排程 workflow，久未更新時要回 Actions 頁面重新啟用。
 
 ## 體積評估與拆檔現況（2026-09 實測，避免重複評估）
 - **`docs/` 不改由 CI 部署（維持 commit `docs/`）**：實測 `.git` 全部只有約 14MB（128 個 commit、23 次 build），hash 檔名累積壓縮得很好，「repo 越來越肥」目前不是問題；改成 Actions 部署還需要使用者到 GitHub 設定頁把 Pages 來源改成「GitHub Actions」（我們動不了）、並推翻目前行之有效的流程。**`.git` 超過約 100MB 再重新評估。**
