@@ -414,10 +414,10 @@ test('全站 bbox 覆蓋率：總計圖層數應為 2428 筆（新增 southeast_
   expect(totalLayers, `全站圖層總數應為 2428 筆，實際 ${totalLayers} 筆（若有新增/移除圖層來源，請同步更新此測試）`).toBe(2428);
 });
 
-test('全站 bbox 覆蓋率：有合法 bbox 的圖層總數應 >= 1885 筆（用 >= 而非寫死等於，避免未來補齊 udd 或新增來源時擋路，但仍能抓到既有來源退化的回歸）', () => {
+test('全站 bbox 覆蓋率：有合法 bbox 的圖層總數應 >= 2416 筆（用 >= 而非寫死等於，避免未來補齊 udd 或新增來源時擋路，但仍能抓到既有來源退化的回歸）', () => {
   let totalWithBbox = 0;
   (bundle.sources || []).forEach(src => { totalWithBbox += countBboxCoverage(src).withBbox; });
-  expect(totalWithBbox >= 1885, `全站有 bbox 的圖層數應該 >= 1885，實際 ${totalWithBbox}（可能是某個來源的 bbox 資料整批消失了）`).toBeTruthy();
+  expect(totalWithBbox >= 2416, `全站有 bbox 的圖層數應該 >= 2416，實際 ${totalWithBbox}（可能是某個來源的 bbox 資料整批消失了）`).toBeTruthy();
 });
 
 test('全站 bbox 方向性：所有 region.bbox 都應該 minLat<=maxLat（曾發生上游 WMTS Capabilities 座標順序異常、緯度上下界顛倒導致圖層永遠不相交的真實案例，見 ccts/newtaipei/taipei/taoyuan 四筆修正）——經度不檢查方向性，minLon>maxLon 是跨越國際換日線的合法表示法，見 src/core/tileGeo.js 的 lonSubRanges()', () => {

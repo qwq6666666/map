@@ -6,7 +6,7 @@
    專案根目錄的 data/，而 Vite 只能設定「一個」publicDir，兩邊會衝突。
    所以這裡用一個極簡的自製 plugin（不額外裝套件）：
      - dev：middleware 直接把 /data/* 對應到 data/ 目錄底下的檔案。
-     - build：complete bundle 後把整個 data/ 目錄複製進 files/data/。
+     - build：complete bundle 後把整個 data/ 目錄複製進 docs/data/。
    這樣原本 data/layers.bundle.json、data/layers/*.json 等 fetch
    路徑完全不用改。
 --------------------------------------------------------- */

@@ -14,7 +14,8 @@
 - 圖資打包：`node tools/build-layers-bundle.js`
 - 圖層類型自動打標：`node tools/tag-layer-types.js`（以 title/keywords/階層繼承判定 type，新增圖層後、打包 bundle 前執行）
 - WMTS bbox 空間索引重新產生：`node tools/fetch-wmts-bbox.js`（解析中研院各來源 WMTS Capabilities，寫入 `data/layers/<id>.json` 的 `layer.region.bbox`；只在建置階段執行，前端不重新下載解析）
-- 完整資料建置流程（bbox 索引＋打標＋打包一次跑完）：`npm run build:data`
+- udd 的 WMTS bbox 索引重新產生：`node tools/fetch-udd-bbox.js`（對 `historygis.udd.gov.taipei` 的 ArcGIS 服務逐圖層取 `WGS84BoundingBox`，寫入 `data/layers/udd.json`；只在建置階段執行）
+- 完整資料建置流程（sinica WMTS bbox 索引＋udd bbox 索引＋打標＋打包一次跑完）：`npm run build:data`
 - 地名今昔對照資料重新產生：`npm run build:place-names`（讀工作區外的兩份內政部地名 CSV，輸出 `data/place-names.json`；預設路徑寫死在 `tools/build-place-names.js`，也可傳自訂 CSV 路徑；**不含**在 `build:data` 裡，因為那兩份 CSV 不在 repo、無法假設每台機器都有）
 
 ## CI 與上游監控 (`.github/workflows/`)
@@ -30,7 +31,7 @@
 
 ## 圖層空間索引 (WMTS bbox 空間篩選)
 搜尋流程已從「大量 WMTS file-exists probe 猜測圖層是否存在」改為「先用 bbox 本地篩選、只對少量候選圖層 probe」：
-- `tools/fetch-wmts-bbox.js`：建置階段解析各來源 WMTS Capabilities，寫入 `data/layers/<id>.json` 的 `region.bbox`（`[minLon,minLat,maxLon,maxLat]`）。全站 39 個來源中 38 個已 100% 覆蓋（見 `spatial-index.test.mjs`），只有 `udd`（都市地籍圖）沒有對應端點，維持 `region: null`。新增來源只需在 `AUTO_IDS` 加 id（前提是網址符合 `https://gis.sinica.edu.tw/<id>/wmts/1.0.0/WMTSCapabilities.xml`），並同步在 `data/source-map.json` 登記候選規則（`alwaysInclude`／`rules`），否則地址搜尋不會用到新來源（`ls`、`korea` 曾漏改）。
+- `tools/fetch-wmts-bbox.js`：建置階段解析各來源 WMTS Capabilities，寫入 `data/layers/<id>.json` 的 `region.bbox`（`[minLon,minLat,maxLon,maxLat]`）。全站 2428 筆圖層中 2416 筆有 bbox（99.5%，見 `spatial-index.test.mjs`）：38 個 sinica 來源 100% 覆蓋；`udd`（臺北市都發局歷史圖資展示系統，不在 gis.sinica.edu.tw、沒有單一 Capabilities 端點）改由 `tools/fetch-udd-bbox.js` 逐圖層還原 ArcGIS MapServer 路徑取得，54 筆中 42 筆有 bbox，其餘 12 筆（`History_TM47/58/69`、`Image_1945A/B`、`Image_1947/1948/1956/1963/1965/1967/1972`）在 `/arcgis/rest/services` 下找不到對應服務、維持 `region: null`（`udd` 來源層級另有 `region.bbox`）。新增來源只需在 `AUTO_IDS` 加 id（前提是網址符合 `https://gis.sinica.edu.tw/<id>/wmts/1.0.0/WMTSCapabilities.xml`），並同步在 `data/source-map.json` 登記候選規則（`alwaysInclude`／`rules`），否則地址搜尋不會用到新來源（`ls`、`korea` 曾漏改）。
 - `pointInBbox(lon, lat, bbox)`（`src/core/tileGeo.js`）：純幾何比對，bbox 缺失／格式錯誤一律 `return true`（fallback，不可誤排除）。
 - `filterCandidatesByBbox(candidates, tileBbox)`（`src/features/search.js`，已 export）：接在文字比對之後、`tileChecker.checkBatch()` 之前，用 `bboxIntersects()` 比對「實際要探測的那顆 `SEARCH_ZOOM` 圖磚範圍」（`tileXYToBbox()`，而非使用者座標單點——圖磚有面積，座標剛好落在圖層 bbox 外緣一點點時，圖磚範圍可能仍與 bbox 重疊，用點對點比對會誤篩掉這種候選），篩掉有合法 bbox 且確定不相交的候選；無索引的圖層一律保留。
 - `TileChecker`（`src/tileChecker.js`）的 `_probe()` 一律包在 `RequestPool.run()` 裡才送出 `Image` 請求，確保巢狀 fallback／timeout retry 不會讓併發數超上限。未傳入 `pool` 時各 instance 自建專屬 pool；`search.js`／`timelineMode.js` 明確共用 `globalTileRequestPool`（上限 `TILE_REQUEST_MAX_CONCURRENCY = 8`）。
@@ -102,4 +103,4 @@
 5. **Subagent 權責清單同步：** 上表是概略路由，各 subagent 實際遵守的是 `.claude/agents/<name>.md` 逐檔列舉的白名單——比本表嚴格，且不會因新檔案落在負責目錄下就自動視為已授權。新增 `src/features/`、`src/core/` 等目錄下的檔案時，主代理當下就要把路徑加進對應白名單，不要留到下一輪。若某 subagent 以「不在白名單」拒絕明明屬於其目錄的檔案（即使是自己前幾輪建立的），代表清單漏列而非任務指派錯誤：主代理應先補清單，而非重複口頭說服 subagent 擴權；急迫時可由主代理直接 `Edit` 完成，事後仍要補寫清單。
 6. **不劃給任何 subagent、由主代理直接 `Edit` 維護：** `src/main.js`（進入點／組合層，橫跨三個代理的初始化呼叫）；`package.json`、`vite.config.js`、`vitest.config.js`、`public/sw.js`、`public/manifest.webmanifest`（橫跨全站的建置／PWA／測試工具設定）。
    - `vite.config.js` 用內建 plugin 讓 `/data/*` 在 dev／build 都對應專案根目錄的 `data/`（Vite `publicDir` 只能設一個，設為預設 `public/` 放 `sw.js`／manifest），異動 `data/` 目錄結構前留意此對應。
-   - `public/sw.js` 走三種快取、版本號互相脫鉤（`CACHE_VERSION` 管 App Shell／Data，`TILE_CACHE_VERSION` 管圖磚）：`tile-cache-*` Cache-First+LRU；`data/*.json` 的 `data-*` Network-First（有網路拿新版並更新快取，離線才退回舊版）；App Shell `app-shell-*` 拆兩種——HTML（navigate）Network-First，JS/CSS（含 hash 檔名）Cache-First。`activate` 只清 `MANAGED_CACHE_PREFIXES`（`app-shell-`/`data-`，含舊命名）前綴且非目前版本的快取，`tile-cache-` 不在清單內，改版不會清掉使用者已下載的圖磚。只在 `import.meta.env.PROD` 才被 `src/main.js` 註冊，`npm run dev` 不啟用。測試：`tests/specs/service-worker.test.mjs`（`node:vm` 獨立假 SW 環境）。
+   - `public/sw.js` 走 App Shell／Data／圖磚三大類快取、版本號互相脫鉤（`CACHE_VERSION` 管 App Shell／Data，`TILE_CACHE_VERSION` 管圖磚）：`tile-cache-*` Cache-First+LRU（歷史圖磚 `tile-cache-`、OSM 底圖 `tile-cache-osm-`、衛星底圖 `tile-cache-sat-` 各自獨立一份快取與 LRU，避免地址搜尋的大量探測請求把常駐底圖排擠掉，三者共用 `TILE_CACHE_VERSION`）；`data/*.json` 的 `data-*` Network-First（有網路拿新版並更新快取，離線才退回舊版）；App Shell `app-shell-*` 拆兩種——HTML（navigate）Network-First，JS/CSS（含 hash 檔名）Cache-First。`activate` 只清 `MANAGED_CACHE_PREFIXES`（`app-shell-`/`data-`，含舊命名）前綴且非目前版本的快取，`tile-cache-` 不在清單內，改版不會清掉使用者已下載的圖磚。只在 `import.meta.env.PROD` 才被 `src/main.js` 註冊，`npm run dev` 不啟用。測試：`tests/specs/service-worker.test.mjs`（`node:vm` 獨立假 SW 環境）。
