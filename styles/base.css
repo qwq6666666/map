@@ -1877,3 +1877,36 @@
     .mode-switch:has(> button:nth-child(4).active)::before,
     .segmented:has(> button:nth-child(4).active)::before{transform:translateX(300%);}
   }
+
+  /* ---------- 桌面版提示小條（.locate-toast）淡入 ----------
+     出現時從透明淡入並上浮 6px；條件同前幾區（僅桌面、未開減少動態效果）。
+     .locate-toast 用 translateX(-50%) 置中，keyframes 起點必須帶著這個
+     translateX，否則動畫期間會短暫偏離中線；終點省略、沿用元素本身的 transform。
+     只做淡入：消失是各功能的計時器直接拿掉 .show（location.js／drawTool.js
+     等共用），要做淡出得改那些 JS，範圍較大，這次刻意不動。 */
+  @media (min-width:769px) and (prefers-reduced-motion:no-preference){
+    .locate-toast.show{animation:toast-in .22s ease-out;}
+  }
+  @keyframes toast-in{ from{opacity:0; transform:translateX(-50%) translateY(6px);} }
+
+  /* ---------- 桌面版「⋯ 更多」選單淡入 ----------
+     選單靠 hidden attribute 開合（src/ui/onboarding.js 的 initTourMoreMenu()），
+     解除隱藏時 animation 會重新播放：淡入並從按鈕下方往下滑 4px。條件同前幾區
+     （僅桌面、未開減少動態效果）。只做淡入：收起是 JS 直接設回 hidden，
+     要淡出得改關閉流程，這次刻意不動。 */
+  @media (min-width:769px) and (prefers-reduced-motion:no-preference){
+    .tour-more-menu:not([hidden]){animation:more-menu-in .18s ease-out;}
+  }
+  @keyframes more-menu-in{ from{opacity:0; transform:translateY(-4px);} }
+
+  /* ---------- 桌面版地址建議清單淡入 ----------
+     .address-suggest 靠 .show 切換 display:none／block（src/ui/search.js）；
+     display 從 none 變 block 時 animation 才會播，清單內容在打字過程中重新
+     渲染、.show 一直都在，不會每次更新都重播。條件同前幾區（僅桌面、未開減少
+     動態效果）。只做淡入：消失是 hideSuggest() 直接移除 .show，這次不動。
+     transform 只用 translateY，不影響 repositionSuggestBelowInputRow() 動態
+     改寫的 top。 */
+  @media (min-width:769px) and (prefers-reduced-motion:no-preference){
+    .address-suggest.show{animation:suggest-in .16s ease-out;}
+  }
+  @keyframes suggest-in{ from{opacity:0; transform:translateY(-4px);} }
