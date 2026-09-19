@@ -701,3 +701,40 @@
     .search-batch-bar{padding:7px 12px; gap:10px;}
     .search-batch-btn{padding:5px 9px; font-size:var(--fs-xs);}
   }
+
+/* ---------- 手機版「地圖工具」浮動選單（#mobileModePopover）淡入 ----------
+   選單靠 .open 切換 display:none／block，display 變 block 時 animation 才會播。
+   從按鈕方向（左下）淡入並輕微放大；positionPopover()（src/ui/mobileLayout.js）
+   用 offsetWidth／offsetHeight（版面尺寸，不含 transform）計算位置，動畫起點的
+   縮放與位移不會讓定位算錯。只做淡入：關閉是 JS 直接移除 .open，這次不動。
+   只在使用者沒開「減少動態效果」時生效。 */
+@media (max-width:768px) and (prefers-reduced-motion:no-preference){
+  #mobileModePopover.open{transform-origin:left bottom; animation:mobile-popover-in .18s ease-out;}
+}
+@keyframes mobile-popover-in{ from{opacity:0; transform:translateY(6px) scale(.96);} }
+
+/* ---------- 手機版「台灣／中國／其他」分頁三段式瀏覽進場動畫 ----------
+   src/ui/mobileRegionBrowse.js／mobileOtherBrowse.js：點大區域 → 下方地區 chip
+   列與來源清單，每次選擇都是 innerHTML 清空後重新建立子節點，所以純 CSS 只要
+   對「新建立的節點」掛進場動畫即可，不需要改 JS：
+   - 地區 chip（.mobile-tw-area-btn）：換大區域時整排重建，依序淡入上浮（前 8 顆
+     各錯開 25ms，之後不再累加延遲，避免地區很多時最後一顆等太久）。
+   - 來源清單（.mobile-tw-sources > .source-group）：換地區時整批重建，一起淡入。
+   - 大區域 chip（.mobile-tw-macro-btn）：只在切到該分頁、整塊由 hidden 變顯示時
+     播放；點大區域不會重建它們，所以不會每次點擊都閃。
+   展開／收合單一來源的手風琴是切 .open class、不重建節點，不會觸發動畫。
+   只用 opacity＋translateY（不動寬高）；動畫沒有 fill，結束後元素回到無 transform，
+   不影響來源標題列的 sticky 定位。只在使用者沒開「減少動態效果」時生效。 */
+@media (max-width:768px) and (prefers-reduced-motion:no-preference){
+  .mobile-tw-macro-btn,
+  .mobile-tw-area-btn,
+  .mobile-tw-sources > .source-group{animation:browse-item-in .2s ease-out backwards;}
+  .mobile-tw-area-btn:nth-child(2){animation-delay:25ms;}
+  .mobile-tw-area-btn:nth-child(3){animation-delay:50ms;}
+  .mobile-tw-area-btn:nth-child(4){animation-delay:75ms;}
+  .mobile-tw-area-btn:nth-child(5){animation-delay:100ms;}
+  .mobile-tw-area-btn:nth-child(6){animation-delay:125ms;}
+  .mobile-tw-area-btn:nth-child(7){animation-delay:150ms;}
+  .mobile-tw-area-btn:nth-child(n+8){animation-delay:175ms;}
+}
+@keyframes browse-item-in{ from{opacity:0; transform:translateY(8px);} }

@@ -1770,9 +1770,9 @@
   .legend-modal-error{font-size:var(--fs-base); color:var(--ink); text-align:center; margin:0;}
 
 
-  /* ---------- 桌面版開關動畫（側邊欄收合／展開、右側抽屜滑入滑出） ----------
+  /* ---------- 桌面版開關動畫（側邊欄收合／展開） ----------
      只在桌面（>=769px）且使用者沒開「減少動態效果」時生效；手機版 Bottom
-     Sheet 有自己的轉場（styles/mobile.css），不在這裡。
+     Sheet 有自己的轉場（styles/mobile.css），不在這裡。抽屜動畫在下方，桌面手機共用。
      側邊欄：原本展開態用 top+bottom 撐高，收合態改成 bottom:auto + height:36px，
      height 從 auto 值無法做轉場。所以展開態改成明確的 height:calc(100% - 32px)
      （等同 top/bottom 各留 16px），收合態沿用既有的 height:36px，寬高、圓角
@@ -1789,7 +1789,13 @@
     #sidebar:not(.collapsed):not(.compact-mode){
       bottom:auto; height:calc(100% - 32px);
     }
+  }
 
+  /* ---------- 右側抽屜滑入滑出（桌面＋手機共用） ----------
+     使用指南／圖資來源狀態抽屜。手機 <=640px 抽屜是全螢幕寬，同樣從右側滑入。
+     只在使用者沒開「減少動態效果」時生效；src/ui/drawerClose.js 靠 getComputedStyle
+     偵測 animationName 決定要不要等動畫，所以這裡有動畫、關閉就自動等滑出。 */
+  @media (prefers-reduced-motion:no-preference){
     .guide-drawer-overlay{animation:drawer-overlay-in .2s ease-out backwards;}
     .guide-drawer{animation:drawer-slide-in .26s cubic-bezier(.2,.8,.2,1) backwards;}
     .guide-drawer-overlay.is-closing{animation:drawer-overlay-out .18s ease-in forwards;}
@@ -1800,31 +1806,40 @@
   @keyframes drawer-slide-in{ from{transform:translateX(100%);} }
   @keyframes drawer-slide-out{ to{transform:translateX(100%);} }
 
-  /* ---------- 桌面版切換動畫（分頁底線滑動、分頁內容淡入、繪圖工具列開合） ----------
-     條件同上一區：僅桌面（>=769px）、且使用者沒開「減少動態效果」。
+  /* ---------- 分頁底線滑動＋分頁內容淡入（桌面＋手機共用） ----------
+     只在使用者沒開「減少動態效果」時生效。
      分頁底線：三顆 .sidebar-tab-btn 是 flex:1 等寬，所以一條共用底線
      （.sidebar-tab-bar::after，寬 1/3）依 .active 是第幾顆做 translateX 即可，
      不需要 JS 量測位置（收合／隱藏時量到 0 寬的問題就不存在）。
      **分頁數量目前寫死 3**：新增／刪除分頁要同步改這裡的寬度與 :has() 清單。
      原本每顆鈕自己的 border-bottom-color 換色在這裡設成透明、改由共用底線負責。
-     分頁內容淡入：切換是 hidden attribute，解除隱藏時 animation 會重新播放。
-     繪圖工具列：原本 display:none／flex 切換做不出轉場，桌面版改成永遠
-     display:flex，用 opacity／visibility／transform 開合；visibility 在收合時
-     延遲到淡出結束才變 hidden（展開時立即 visible），hidden 期間不可點擊、
-     不可 focus，行為跟 display:none 一致。 */
-  @media (min-width:769px) and (prefers-reduced-motion:no-preference){
-    .sidebar-tab-bar{position:relative;}
-    .sidebar-tab-btn.active{border-bottom-color:transparent;}
-    .sidebar-tab-bar::after{
-      content:""; position:absolute; left:0; bottom:-1px;
-      width:calc(100% / 3); height:2px; background:var(--brass-dark);
-      transition:transform .26s cubic-bezier(.2,.8,.2,1);
+     底線整段包在 @supports selector(:has(*))：不支援 :has() 的舊瀏覽器
+     （Firefox <121、iOS <15.4）底線無法跟著換位置，若照樣把 active 鈕的底線設成
+     透明就會整條消失，所以不支援時完全不套用、維持原本的換色底線。
+     分頁內容淡入：切換是 hidden attribute，解除隱藏時 animation 會重新播放。 */
+  @media (prefers-reduced-motion:no-preference){
+    @supports selector(:has(*)){
+      .sidebar-tab-bar{position:relative;}
+      .sidebar-tab-btn.active{border-bottom-color:transparent;}
+      .sidebar-tab-bar::after{
+        content:""; position:absolute; left:0; bottom:-1px;
+        width:calc(100% / 3); height:2px; background:var(--brass-dark);
+        transition:transform .26s cubic-bezier(.2,.8,.2,1);
+      }
+      .sidebar-tab-bar:has(.sidebar-tab-btn:nth-child(2).active)::after{transform:translateX(100%);}
+      .sidebar-tab-bar:has(.sidebar-tab-btn:nth-child(3).active)::after{transform:translateX(200%);}
     }
-    .sidebar-tab-bar:has(.sidebar-tab-btn:nth-child(2).active)::after{transform:translateX(100%);}
-    .sidebar-tab-bar:has(.sidebar-tab-btn:nth-child(3).active)::after{transform:translateX(200%);}
-
     .sidebar-tab-panel:not([hidden]){animation:tab-panel-in .18s ease-out;}
+  }
+  @keyframes tab-panel-in{ from{opacity:0;} }
 
+  /* ---------- 桌面版繪圖工具列開合動畫 ----------
+     僅桌面（>=769px）、且使用者沒開「減少動態效果」。
+     原本 display:none／flex 切換做不出轉場，桌面版改成永遠 display:flex，用
+     opacity／visibility／transform 開合；visibility 在收合時延遲到淡出結束才變
+     hidden（展開時立即 visible），hidden 期間不可點擊、不可 focus，行為跟
+     display:none 一致。手機版工具列有自己的顯示規則（styles/mobile.css），不動。 */
+  @media (min-width:769px) and (prefers-reduced-motion:no-preference){
     .draw-toolbar{
       display:flex; opacity:0; visibility:hidden; pointer-events:none;
       transform:translateY(-6px) scale(.97); transform-origin:top right;
@@ -1835,56 +1850,67 @@
       transition:opacity .18s ease, transform .2s cubic-bezier(.2,.8,.2,1), visibility 0s;
     }
   }
-  @keyframes tab-panel-in{ from{opacity:0;} }
 
-  /* ---------- 桌面版切換鈕「色塊滑動」（模式切換／底圖切換／國家篩選列） ----------
-     條件同前兩區：僅桌面（>=769px）、且使用者沒開「減少動態效果」。
+  /* ---------- 切換鈕「色塊滑動」（模式切換／底圖切換／浮動底圖切換／國家篩選列，桌面＋手機共用） ----------
+     只在使用者沒開「減少動態效果」、且瀏覽器支援 :has() 時生效（不支援時整段不套用，
+     選中鈕維持原本自己填深色底；否則選中鈕會變成淺色字配淺色底而看不見）。
      選中鈕原本自己換成深色底；這裡改成容器內一塊 ::before 色塊（寬＝內容寬 ÷
      按鈕數），依 .active 是第幾顆做 translateX，按鈕本身背景透明、只換字色。
-     全部按鈕 flex:1 等寬，所以純 CSS 就能定位，不需要 JS 量測，各模組
+     按鈕全部等寬（.floating-base-switch 在下方另外改成 grid 等寬欄），所以純 CSS 就能定位，不需要 JS 量測，各模組
      （modeManager／底圖切換／countryFilter／手機版轉發點擊）照舊只切 .active。
-     **按鈕數量寫在 --seg-n：.mode-switch 4、#baseSwitch 2、.country-filter 3
-     （見 src/ui/countryFilter.js 的 COUNTRY_LABELS）；增減按鈕要同步改這裡。**
+     **按鈕數量寫在 --seg-n：.mode-switch 4、#baseSwitch／.floating-base-switch 2、
+     .country-filter 3（見 src/ui/countryFilter.js 的 COUNTRY_LABELS）；增減按鈕要同步改這裡。**
      --seg-pad：容器自己有 padding 時（比對模式圖層挑選面板裡的
      .country-filter，見上方 .layer-picker-panel .country-filter），色塊要跟著
      內縮才會對齊按鈕。
      specificity：`.segmented button.active`（0,2,1）與原規則相同，靠「後宣告」
      蓋過原本的 background:var(--ink)。 */
-  @media (min-width:769px) and (prefers-reduced-motion:no-preference){
+  @media (prefers-reduced-motion:no-preference){
+   @supports selector(:has(*)){
     .mode-switch{--seg-n:4;}
-    #baseSwitch{--seg-n:2;}
+    #baseSwitch, .floating-base-switch{--seg-n:2;}
     .country-filter{--seg-n:3;}
     .layer-picker-panel .country-filter{--seg-pad:6px;}
 
-    .mode-switch, .segmented{position:relative;}
-    .mode-switch::before, .segmented::before{
+    .mode-switch, .segmented, .floating-base-switch{position:relative;}
+    .mode-switch::before, .segmented::before,
+    .floating-base-switch::before{
       content:""; position:absolute; pointer-events:none;
       top:var(--seg-pad, 0px); bottom:var(--seg-pad, 0px); left:var(--seg-pad, 0px);
       width:calc((100% - 2 * var(--seg-pad, 0px)) / var(--seg-n, 1));
       background:var(--ink);
       transition:transform .26s cubic-bezier(.2,.8,.2,1);
     }
-    .mode-switch button, .segmented button{
+    .mode-switch button, .segmented button,
+    .floating-base-switch button{
       position:relative; background:transparent;
       transition:color .2s ease;
     }
-    .mode-switch button.active, .segmented button.active{background:transparent; color:var(--paper);}
+    /* 浮動底圖切換原本按鈕是內容寬、非 flex:1；改成 grid 等寬欄（1fr＝取最寬標籤），
+       色塊的百分比平移才對得準，標籤字數不同也不會錯位或擠到換行。 */
+    .floating-base-switch{display:grid; grid-auto-flow:column; grid-auto-columns:1fr;}
+    .mode-switch button.active, .segmented button.active,
+    .floating-base-switch button.active{background:transparent; color:var(--paper);}
 
     .mode-switch:has(> button:nth-child(2).active)::before,
-    .segmented:has(> button:nth-child(2).active)::before{transform:translateX(100%);}
+    .segmented:has(> button:nth-child(2).active)::before,
+    .floating-base-switch:has(> button:nth-child(2).active)::before{transform:translateX(100%);}
     .mode-switch:has(> button:nth-child(3).active)::before,
-    .segmented:has(> button:nth-child(3).active)::before{transform:translateX(200%);}
+    .segmented:has(> button:nth-child(3).active)::before,
+    .floating-base-switch:has(> button:nth-child(3).active)::before{transform:translateX(200%);}
     .mode-switch:has(> button:nth-child(4).active)::before,
-    .segmented:has(> button:nth-child(4).active)::before{transform:translateX(300%);}
+    .segmented:has(> button:nth-child(4).active)::before,
+    .floating-base-switch:has(> button:nth-child(4).active)::before{transform:translateX(300%);}
+   }
   }
 
-  /* ---------- 桌面版提示小條（.locate-toast）淡入 ----------
-     出現時從透明淡入並上浮 6px；條件同前幾區（僅桌面、未開減少動態效果）。
+  /* ---------- 提示小條（.locate-toast）淡入（桌面＋手機共用） ----------
+     出現時從透明淡入並上浮 6px；只在未開「減少動態效果」時生效。
      .locate-toast 用 translateX(-50%) 置中，keyframes 起點必須帶著這個
      translateX，否則動畫期間會短暫偏離中線；終點省略、沿用元素本身的 transform。
      只做淡入：消失是各功能的計時器直接拿掉 .show（location.js／drawTool.js
      等共用），要做淡出得改那些 JS，範圍較大，這次刻意不動。 */
-  @media (min-width:769px) and (prefers-reduced-motion:no-preference){
+  @media (prefers-reduced-motion:no-preference){
     .locate-toast.show{animation:toast-in .22s ease-out;}
   }
   @keyframes toast-in{ from{opacity:0; transform:translateX(-50%) translateY(6px);} }
@@ -1899,14 +1925,15 @@
   }
   @keyframes more-menu-in{ from{opacity:0; transform:translateY(-4px);} }
 
-  /* ---------- 桌面版地址建議清單淡入 ----------
+  /* ---------- 地址建議清單淡入（桌面＋手機共用） ----------
      .address-suggest 靠 .show 切換 display:none／block（src/ui/search.js）；
      display 從 none 變 block 時 animation 才會播，清單內容在打字過程中重新
      渲染、.show 一直都在，不會每次更新都重播。條件同前幾區（僅桌面、未開減少
-     動態效果）。只做淡入：消失是 hideSuggest() 直接移除 .show，這次不動。
+     動態效果）。手機版清單被搬到頂部搜尋列下方（styles/mobile.css），同樣是 display
+     切換、同一份動畫。只做淡入：消失是 hideSuggest() 直接移除 .show，這次不動。
      transform 只用 translateY，不影響 repositionSuggestBelowInputRow() 動態
      改寫的 top。 */
-  @media (min-width:769px) and (prefers-reduced-motion:no-preference){
+  @media (prefers-reduced-motion:no-preference){
     .address-suggest.show{animation:suggest-in .16s ease-out;}
   }
   @keyframes suggest-in{ from{opacity:0; transform:translateY(-4px);} }
