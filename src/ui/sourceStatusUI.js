@@ -144,18 +144,37 @@ async function clearTileCaches(){
   showLocateToast(result?.ok ? '圖磚快取已清除' : '清除失敗，請稍後再試');
 }
 
-// navigator.storage.estimate() 在較舊的 iOS Safari 上不存在，抓不到就
-// 整個用量文字維持空白，不硬擠一個猜測值出來誤導使用者。
-async function updateCacheUsageText(el){
-  if(!el || !navigator.storage?.estimate) return;
+// 顯示「實際快取的圖磚張數」而非 navigator.storage.estimate() 的用量：
+// estimate() 涵蓋整個網站（含程式與資料快取，清圖磚也降不到零）、跨網域
+// 圖磚（opaque）又會被灌水計算，而且 caches.delete() 完成後仍會回傳舊數字，
+// 要等數秒才更新（實測清除前 30 MB → 剛清完仍 30 MB → 約 8 秒後 0.9 MB），
+// 使用者看到數字沒降就以為沒清掉。直接數 cache 裡的圖磚才是即時、準確的。
+// 只算跨網域請求：LRU 索引（tile-lru.local）與本站圖示 svg 也會被存進
+// tile cache（sw.js 以 destination === 'image' 判定），不是使用者要清的圖磚。
+const TILE_CACHE_NAME_PREFIX = 'tile-cache-';
+
+async function countCachedTiles(){
+  if(typeof caches === 'undefined') return null;
   try{
-    const { usage } = await navigator.storage.estimate();
-    el.textContent = typeof usage === 'number'
-      ? (usage < 1024 * 1024 ? '目前用量：<1 MB' : `目前用量：約 ${Math.round(usage / (1024 * 1024))} MB`)
-      : '';
+    const names = (await caches.keys()).filter(n => n.startsWith(TILE_CACHE_NAME_PREFIX));
+    let total = 0;
+    for(const name of names){
+      const requests = await (await caches.open(name)).keys();
+      total += requests.filter((req) => {
+        const { origin, hostname } = new URL(req.url);
+        return origin !== location.origin && hostname !== 'tile-lru.local';
+      }).length;
+    }
+    return total;
   }catch{
-    el.textContent = '';
+    return null;
   }
+}
+
+async function updateCacheUsageText(el){
+  if(!el) return;
+  const count = await countCachedTiles();
+  el.textContent = count === null ? '' : `已快取圖磚：${count.toLocaleString('zh-TW')} 張`;
 }
 
 function buildDrawer(){
