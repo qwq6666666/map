@@ -744,3 +744,22 @@
   .mobile-tw-area-btn:nth-child(n+8){animation-delay:175ms;}
 }
 @keyframes browse-item-in{ from{opacity:0; transform:translateY(8px);} }
+
+/* ---------- 手機版觸控「按下」回饋 ----------
+   手機沒有 hover，按鈕多半只有 :hover 樣式，點下去沒有任何即時反應，使用者不確定
+   有沒有按到。這裡按下時輕微縮小到 96%（放開即還原，不加 transition：這些按鈕
+   各自已有 color／background 的 transition，這裡若再宣告 transition 會整個蓋掉
+   它們）。只用 transform，不影響版面；#mobileModeBtn 拖曳是改 left／top（見
+   src/ui/mobileLayout.js），跟 transform 不衝突。只在使用者沒開「減少動態效果」時
+   生效。 */
+@media (max-width:768px) and (prefers-reduced-motion:no-preference){
+  #mobileModeBtn:active,
+  .mobile-mode-option:active,
+  .sidebar-tab-btn:active,
+  .segmented button:active,
+  .floating-base-switch button:active,
+  .avail-year-sort-btn:active,
+  .tour-btn-row-btn:active,
+  .address-search-btn:active,
+  .custom-source-add-btn:active{transform:scale(.96);}
+}

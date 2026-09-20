@@ -1946,3 +1946,23 @@
     .address-suggest.show{animation:suggest-in .16s ease-out;}
   }
   @keyframes suggest-in{ from{opacity:0; transform:translateY(-4px);} }
+
+  /* ---------- 歡迎視窗／圖例視窗／落點探針與定位彈窗 進場動畫（桌面＋手機共用） ----------
+     只在使用者沒開「減少動態效果」時生效；只做進場，關閉是各自 JS 直接移除或設回
+     hidden，不動。
+     - 歡迎視窗（.onboarding-modal-*）、圖例視窗（.legend-modal-*）：遮罩淡入、卡片
+       淡入並從 96% 放大；兩者建立時才加進 DOM，元素一出現動畫就播。
+     - .identify-popup（落點探針視窗 #identifyPopup、定位彈窗 #locatePopup 共用）：靠
+       hidden attribute 開合，解除隱藏時重播。它用 translateX(-50%) 置中、bottom 錨定在
+       標記上方，所以 keyframes 起點要帶著 translateX(-50%)（終點省略、沿用元素本身的
+       transform），transform-origin 設在底部中央（箭頭指向標記的一側）。 */
+  @media (prefers-reduced-motion:no-preference){
+    .onboarding-modal-overlay,
+    .legend-modal-overlay{animation:modal-overlay-in .2s ease-out;}
+    .onboarding-modal-card,
+    .legend-modal-card{animation:modal-card-in .24s cubic-bezier(.2,.8,.2,1);}
+    .identify-popup:not([hidden]){transform-origin:50% 100%; animation:popup-in .18s ease-out;}
+  }
+  @keyframes modal-overlay-in{ from{opacity:0;} }
+  @keyframes modal-card-in{ from{opacity:0; transform:translateY(8px) scale(.96);} }
+  @keyframes popup-in{ from{opacity:0; transform:translateX(-50%) translateY(6px) scale(.96);} }
