@@ -84,8 +84,20 @@
 - **「使用者移開了地圖」的偵測絕對不能靠時間窗口**（`Date.now() < 某時間` 這類「這段時間內的移動都算自己的」）：畫面暫停渲染（螢幕鎖定、切分頁）時 OpenLayers 動畫會晚很久才跑完，時間窗口早就過了，會誤判成使用者操作。實際做法三條路徑：① `map.on('pointerdrag')` 拖曳當下就暫停（等放開才判斷的話，拖到一半下一筆定位會在手指底下把地圖拉走）；② `followTo()` 發現地圖正被「不是我們發起的」動畫移動（例如地址搜尋飛到別處）→ 暫停、不搶回來（靠 `selfAnimate()` 記 `pendingSelfAnims`，`animate()` 的 callback 在結束或被打斷時都會被呼叫；沒有任何動畫在跑就歸零，計數不會卡住）；③ `map.on('moveend')` 且沒在動畫時，畫面中心離最後定位點超過 `FOLLOW_DRIFT_PX`（40px）→ 暫停（滾輪縮放、鍵盤等；縮放鈕繞中心縮放不位移，不會誤判）。使用者主動按「回到目前位置」用 `force` 略過②。追蹤中按一次性定位，那支置中動畫也走 `selfAnimate()`，才不會被當成別人的動畫。
 - **座標彈窗原地更新、不重建 DOM**：持續追蹤約每秒更新一次，重建會讓使用者正要按的「複製」鈕在手指底下被換掉。`buildCoordRow(label, text, getText)` 新增選填的 `getText`，複製時才即時取值（否則永遠複製建立那一列當下的舊座標）。**只有第一筆定位主動打開彈窗**，之後使用者關掉就不再跳出來。彈窗多一行精度（`describeAccuracy()`：超過 100 公尺標「訊號較弱」），一次性定位也會顯示。
 - **追蹤期間用 Screen Wake Lock 保持螢幕亮起**（走路時螢幕待機，瀏覽器會暫停定位）；頁面重新可見（`visibilitychange`）要重新申請，被拒絕（省電模式）不影響追蹤。權限被拒（`PERMISSION_DENIED`）自動停止；訊號暫時不穩（逾時／無法判斷）追蹤繼續、同一段連續失敗只提示一次。
-- **未做、之後可加**：裝置朝向（羅盤，iOS 要額外要權限）、軌跡記錄與匯出、精度圓圈。
+- **未做、之後可加**：裝置朝向（羅盤，iOS 要額外要權限）、精度圓圈。軌跡記錄見下一節。
 - 測試：`tests/specs/location-tracking.test.mjs`（`env-stub.mjs` 的 `FakeMap` 現在會記錄所有事件，`map._trigger(ev)` 可模擬 `pointerdrag`／`moveend`；假視角的 `animate()` 不會自己結束，用 `finishAnimations()` 模擬）；`location-button.test.mjs` 驗證一次性定位不受影響。**預覽窗格沒有真的 GPS，實測時要自己覆寫 `navigator.geolocation.watchPosition` 餵假座標。**
+
+## 軌跡記錄 (`src/features/track*.js` + `src/ui/trackRecorderUI.js`)
+疊在「持續追蹤」上的記錄器，**第一階段**：記錄、濾點、存檔、畫線、GPX／GeoJSON 匯出、斷線接續。入口在「⋯ 更多」選單（`#trackRecordBtn`／`#trackExportGpxBtn`／`#trackExportGeoJsonBtn`）與手機「地圖工具」選單（`data-help-action="trackRecord|trackExportGpx|trackExportGeoJson"`，由 `mobileLayout.js` 轉發 `.click()`，同分享按鈕做法）；記錄中地圖上方有常駐狀態條 `#trackRecordStatus`（位置是隱私資料，不能讓使用者忘了自己開著）。
+- **記錄是獨立開關、預設關，且與追蹤三態正交**：`location.js` 只多了 `addTrackListener({onFix,onStop})`／`ensureTracking()` 兩個掛勾（記錄器 import location，不是反過來，避免循環依賴）。拖曳地圖只是暫停跟隨、記錄照常；追蹤停止（含權限被拒）→ 記錄一併結束並存檔。
+- **資料模型分「段」**（`trackMath.js` 檔頭）：`track.segments` 是多段折線，每點 `[lon,lat,timestampMs,accuracyM]`。訊號中斷超過 `TRACK_GAP_MS`（2 分鐘）、接續舊軌跡、連續 3 筆「跳點」都另起一段，才不會憑空連出穿牆直線；GPX 每段一個 `<trkseg>`、GeoJSON 用 `MultiLineString`（單點的段略過）。
+- **濾點 `classifyFix()`**：精度 >50m 丟、離上一點 < `max(5m, 精度/2)`（原地抖動）丟、換算速度 >70 m/s（跳點）丟。**中斷判斷用「最後一筆精度合格定位的時間」**，含被判原地抖動略過的點——紅燈前站 3 分鐘不能被誤切段。第一個採用點若剛好是離群值，連續 3 筆跳點會改從目前位置重新起段，否則之後正確的點會永遠被丟。
+- **儲存用 IndexedDB**（`trackStore.js`，DB `hundredYearMap`／store `tracks`），不可用時退回記憶體 Map。**寫入間隔是 10 點或 10 秒**（`FLUSH_EVERY_*`），加上 `visibilitychange` hidden／`pagehide`。**實測 `location.reload()` 時 pagehide 裡才開始的 IndexedDB 寫入會丟**（最多丟最近 10 秒的點）；切到背景那次寫入則可靠。不要為了省效能把間隔拉回 30 秒。DB 連線不主動關閉，日後升 `DB_VERSION` 要留意多分頁 blocked。
+- **啟動接續**：`initTrackRecorderUI()` 讀最新一條，未結束且有點 → `showConfirm`「接續記錄／結束並保留」（不接續也**不刪除**）；未結束但 0 點 → 靜默丟棄；已結束的不畫在地圖上、但留給匯出鈕用。
+- **匯出**：手機（≤768px）先走 `shareFileNative()`，`shared`／`cancelled` 就結束，其餘退回 `downloadBlob()`（`drawTool.js` 新匯出）；桌面直接下載。少於 2 個點不匯出。
+- **電腦版沒有 GPS**：Wi-Fi／IP 定位精度常在數百公尺以上，全被濾掉。連續 3 筆精度不足 → `status.weakSignal`，狀態條改講「定位不夠準、暫時沒有記到點」並跳一次提示，不讓使用者以為在記錄。**瀏覽器切到背景／鎖屏時會暫停定位，Wake Lock 只保證螢幕不熄，記錄仍會出現空洞（另起一段）**，這是 PWA 先天限制。
+- **未做（第二階段）**：「我的軌跡」列表（顯示／隱藏、改名、刪除、多條）、匯入 GPX／GeoJSON 疊圖、「存成繪圖圖形」。目前 `trackStore` 已留 `listTracks()`／`deleteTrack()`，UI 只用到「最新一條」。
+- 測試：`track-math.test.mjs`（濾點／分段／統計／GPX／GeoJSON 純函式）、`track-recorder.test.mjs`（控制器，真的 `location.js`＋假 geolocation；`env-stub.mjs` 沒有 `ol.Feature`／`ol.geom`，測試檔自己補在 `globalThis.ol`）、`track-recorder-ui.test.mjs`（接線，記錄器／對話框／分享全 mock）。預覽窗格沒有 GPS，實測要覆寫 `navigator.geolocation.watchPosition` 餵座標。
 
 ## 地圖載入提示 (`body.map-ready`)
 `#map` 預設底色是 `var(--paper-dim)`，非純黑，避免瓦片載入完成前被誤認當機；`index.html` 的 `#mapLoading`（spinner＋文字）純靠 CSS 淡出、**沒有**自己的 JS 監聽。淡出時機是 `src/core/map.js` 在 `map.once('rendercomplete', ...)` 對 `document.body` 加 `map-ready` class，`style.css` 靠 `body.map-ready .map-loading{opacity:0; pointer-events:none;}` 反應——map-core-agent 只出訊號、ui-frontend-agent 全權處理視覺，**`map-ready` 是跨檔案契約，不要改名或另建第二套訊號**。
@@ -113,7 +125,7 @@
 - 測試：`tests/specs/export-info.test.mjs`；`draw-tool.test.mjs` 驗證開關與輸出尺寸；`place-name-card-ui.test.mjs` 驗證顯示中卡片狀態同步。
 
 ## 測試框架 (vitest)
-測試統一使用 vitest（`tests/specs/*.test.mjs`，60 支、727 個案例；設定 `vitest.config.js`）。原本並存的手刻框架（`tests/run-all.mjs`＋`tests/assert.mjs`）已在雙軌期間漏改案例（`multi-overlay` 拖曳排序測試只補在舊版）而移除，不要再新增第二套測試機制。改動測試時要注意：
+測試統一使用 vitest（`tests/specs/*.test.mjs`，63 支、761 個案例；設定 `vitest.config.js`）。原本並存的手刻框架（`tests/run-all.mjs`＋`tests/assert.mjs`）已在雙軌期間漏改案例（`multi-overlay` 拖曳排序測試只補在舊版）而移除，不要再新增第二套測試機制。改動測試時要注意：
 - 共用模組：`tests/env-stub.mjs`（手動塞 `globalThis` 模擬 `document`／`window`／`ol` 的假瀏覽器環境，vitest `environment` 維持預設 `'node'`，不要疊加 jsdom）、`tests/helpers.mjs`（`sleep()`／`waitFor()`）、`tests/tileImageStub.mjs`（假 `Image`）。
 - `tests/env-stub.mjs` 有一個關鍵相容性修正：`globalThis.URL` 必須保留 Node 原生建構子、只在上面附加 `createObjectURL`／`revokeObjectURL` 兩個靜態方法。若整個覆蓋成 `{ createObjectURL, revokeObjectURL }`，vitest 的模組載入器（vite-node）解析後續 `import` 時會拋 `TypeError: URL is not a constructor`。`src/features/sourceStatus.js`／`tests/specs/spatial-index.test.mjs` 裡當初因這個限制而寫的「不能用 `new URL()`」迴避寫法，其實現在可以移除（尚未動手）。
 - vitest 的 `test()` 是「先收集全部呼叫、模組載入完才統一執行」，**任何寫在模組頂層（不在 `test()`／`beforeEach()`／`afterEach()`／`afterAll()` 裡）、假設『在測試案例執行完之後才跑』的清理程式碼，語意會跑掉**（已踩過：`location-button.test.mjs` 清理 `runtime.locateToastTimer` 的程式碼放在模組頂層會在測試執行前就跑、清理失效，讓一顆 4.5 秒的真實計時器每次都拖到自然到期；修法是用 `afterAll()` 包起來）。

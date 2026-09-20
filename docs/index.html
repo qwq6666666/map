@@ -49,9 +49,9 @@
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="./icon.svg">
 <meta name="theme-color" content="#8A6A2E">
-
-  <script type="module" crossorigin src="./assets/index-3vPs3efB.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-D_JbwH6V.css">
+
+  <script type="module" crossorigin src="./assets/index-DCEHwASi.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DcrSCK3d.css">
 </head>
 <body>
 
@@ -83,6 +83,7 @@
   </svg>
 </button>
 <div id="locateToast" class="locate-toast"></div>
+<div id="trackRecordStatus" class="track-record-status" role="status" hidden><span class="track-record-dot" aria-hidden="true"></span><span id="trackRecordStatusText"></span></div>
 <div id="locateMarker" class="locate-marker">
   <div class="locate-marker-dot"></div>
   <div id="locatePopup" class="identify-popup locate-popup" hidden>
@@ -161,6 +162,11 @@
   <!-- 持續追蹤（跟隨我）：同樣只轉呼叫 #trackBtn 的 click()，文字與 active 狀態
        由 ui/mobileLayout.js 依 #trackBtn 目前狀態同步。 -->
   <button type="button" class="mobile-mode-option" id="mobileTrackBtn" aria-pressed="false"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> <span id="mobileTrackLabel">持續追蹤位置</span></button>
+  <!-- 記錄軌跡：同樣只轉呼叫「⋯ 更多」選單裡的 #trackRecordBtn／#trackExport*Btn，
+       文字、active 與匯出鈕顯示由 ui/trackRecorderUI.js 一併同步。 -->
+  <button type="button" class="mobile-mode-option" data-help-action="trackRecord" data-track-record aria-pressed="false"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> <span data-track-record-label>記錄軌跡</span></button>
+  <button type="button" class="mobile-mode-option" data-help-action="trackExportGpx" data-track-export="gpx" hidden><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 匯出軌跡 GPX</button>
+  <button type="button" class="mobile-mode-option" data-help-action="trackExportGeoJson" data-track-export="geojson" hidden><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 匯出軌跡 GeoJSON</button>
   <div class="mobile-mode-popover-divider"></div>
   <div class="mobile-mode-popover-title">說明</div>
   <!-- 轉呼叫側邊欄裡原本的 #tourStartBtn／#guideOpenBtn／#shareLinkBtn／
@@ -317,6 +323,9 @@
           <button type="button" id="shareLinkBtn" class="tour-more-menu-btn"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 分享連結</button>
           <button type="button" id="shareNativeLinkBtn" class="tour-more-menu-btn" data-native-share="link" hidden title="叫出系統分享面板，直接傳連結給 LINE、Instagram 等 App"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 傳送連結…</button>
           <button type="button" id="shareNativeImageBtn" class="tour-more-menu-btn" data-native-share="image" hidden title="把目前畫面（含出處資訊列）做成圖片，叫出系統分享面板直接傳送"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 傳送截圖…</button>
+          <button type="button" id="trackRecordBtn" class="tour-more-menu-btn" data-track-record title="把走過的路線記錄下來（需要持續定位，請保持頁面在前景）"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> <span data-track-record-label>記錄軌跡</span></button>
+          <button type="button" id="trackExportGpxBtn" class="tour-more-menu-btn" data-track-export="gpx" hidden title="把記錄的軌跡存成 GPX（Strava、Garmin、OsmAnd、QGIS 等都能開）"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 匯出軌跡（GPX）</button>
+          <button type="button" id="trackExportGeoJsonBtn" class="tour-more-menu-btn" data-track-export="geojson" hidden title="把記錄的軌跡存成 GeoJSON（QGIS、geojson.io 等 GIS 軟體通用）"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 匯出軌跡（GeoJSON）</button>
           <button type="button" id="sourceStatusBtn" class="tour-more-menu-btn" title="檢查各圖資來源主機目前是否能正常讀取、清除已下載的地圖圖磚快取"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#source-status"></use></svg> 來源狀態／快取</button>
         </div>
       </div>
@@ -516,6 +525,6 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/ol@v9.2.4/dist/ol.js" integrity="sha384-ginU7U5lJ0DtYjPE3de0rz6w4YtkmQDW3pbsZBFbOzhX+Hnd9kY4K2vrL2iiqXed" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/ol@v9.2.4/dist/ol.js" integrity="sha384-ginU7U5lJ0DtYjPE3de0rz6w4YtkmQDW3pbsZBFbOzhX+Hnd9kY4K2vrL2iiqXed" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -253,6 +253,8 @@
     }
 
     .locate-toast{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 10px); max-width:80vw;}
+    /* 記錄軌跡狀態條：放在頂部搜尋列下方，避開底部的提示條與 Bottom Sheet。 */
+    .track-record-status{top:calc(var(--mobile-topbar-h) + env(safe-area-inset-top) + 8px);}
 
     /* ---------- 日期印章：縮小並疊到左右比對浮動選單（#compareWrapB）
        正上方，維持跟桌面版一樣在右下角，但避開同一欄的其他控制項。 ---------- */
@@ -372,6 +374,9 @@
       width:min(220px, calc(100vw - 32px));
       background:var(--paper); border:1px solid var(--rule); border-radius:var(--radius-md);
       box-shadow:0 8px 24px rgba(0,0,0,.35); padding:8px;
+      /* 項目多（含記錄軌跡）時矮螢幕手機放不下，超出就自己捲動，不要讓上面的項目跑出畫面外。 */
+      max-height:calc(var(--vvh, 100svh) - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+      overflow-y:auto; -webkit-overflow-scrolling:touch;
     }
     #mobileModePopover.open{display:block;}
     .mobile-mode-popover-title{

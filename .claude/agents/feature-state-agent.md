@@ -14,6 +14,7 @@ model: sonnet
 - 進階比對與多層疊加：`src/features/compareMode.js`、`src/features/multiOverlay.js`、`src/core/multiOverlayManager.js`
 - 繪圖工具與位置功能：`src/drawTool.js`、`src/features/location.js`
 - 原生分享面板（Web Share API）：`src/features/nativeShare.js`（`canShareLink`／`canShareFiles`／`shareLinkNative`／`shareFileNative`，結果統一成字串、不丟例外，只被 `drawTool.js` 的 `shareImage()` 與 `src/ui/nativeShareUI.js` 呼叫）
+- 軌跡記錄：`src/features/trackMath.js`（濾點／分段／統計／GPX／GeoJSON 純函式）、`src/features/trackStore.js`（IndexedDB 存取，不可用時退回記憶體）、`src/features/trackRecorder.js`（記錄控制器＋地圖折線圖層 zIndex 49；透過 `location.js` 的 `addTrackListener()`／`ensureTracking()` 掛勾，記錄與追蹤三態正交）；`src/features/placeNames.js` 匯出的 `haversineDistanceMeters` 給軌跡里程共用
 - 截圖「出處資訊列」：`src/features/exportInfo.js`（`collectExportInfo()` 純函式整理圖層／來源／地名卡摘要文字，`layoutInfoBand()` 用 canvas 2D 量測排版；只被 `drawTool.js` 的 `doCapture()` 呼叫，不碰 DOM）
 - 外部圖資匯入與搜尋：`src/features/wmtsImport.js`、`src/features/search.js`、`src/features/layerSearch.js`（圖資搜尋的 metadata 索引/排序/模式感知啟用邏輯，純函式、不碰 DOM，跟 `search.js` 的地址搜尋邏輯完全獨立——兩者不共用輸入值、不互相觸發，只在啟用圖層時共用 `activateFromSearch()`）
 - 地圖點位互動：`src/features/identifyPin.js`（免開關落點探針 Identify Pin，含三態點擊防禦狀態機）

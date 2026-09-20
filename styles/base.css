@@ -586,6 +586,23 @@
   }
   .locate-toast.show{display:block;}
 
+  /* 記錄軌跡狀態條：記錄中常駐在地圖上，讓使用者隨時看得到「正在記錄」。
+     用 class 控制顯示、不用 ID 選擇器，避免蓋過 [hidden]（見 CLAUDE.md 的 specificity 陷阱）。 */
+  .track-record-status{
+    position:absolute; top:12px; left:50%; transform:translateX(-50%); z-index:9;
+    display:none; align-items:center; gap:8px; max-width:80vw;
+    background:rgba(23,33,29,.92); color:var(--paper);
+    font-family:var(--sans); font-size:var(--fs-sm); line-height:1.4; padding:6px 12px; border-radius:999px;
+    box-shadow:0 4px 12px rgba(0,0,0,.3);
+  }
+  .track-record-status:not([hidden]){display:flex;}
+  .track-record-dot{flex:none; width:10px; height:10px; border-radius:50%; background:#e03131;}
+  .track-record-status.weak .track-record-dot{background:#f59f00;}
+  @media (prefers-reduced-motion:no-preference){
+    .track-record-dot{animation:track-record-blink 1.4s ease-in-out infinite;}
+  }
+  @keyframes track-record-blink{50%{opacity:.35;}}
+
   /* .draw-storage-toast 不再另外改位置，沿用 .locate-toast 的中下置中，
      兩顆提示視覺統一（見 index.html：class="locate-toast draw-storage-toast"）。 */
 

@@ -152,7 +152,7 @@ export async function findPlaceNameCandidates(query){
 const EARTH_RADIUS_METERS = 6371000;
 
 // haversine 公式：兩組經緯度（十進位度）之間的球面距離（公尺）。
-function haversineDistanceMeters(lon1, lat1, lon2, lat2){
+export function haversineDistanceMeters(lon1, lat1, lon2, lat2){
   const toRad = (deg) => (deg * Math.PI) / 180;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);

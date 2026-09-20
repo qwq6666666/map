@@ -147,6 +147,28 @@ function setTrackState(next){
   trackBtn.title = TRACK_TITLES[next];
 }
 
+// 給軌跡記錄器（features/trackRecorder.js）掛勾：每筆追蹤定位、追蹤停止都通知一次。
+// 記錄器 import 這支檔案、不是反過來，才不會循環依賴；監聽器丟例外也不能拖垮追蹤。
+const trackFixListeners = new Set();
+const trackStopListeners = new Set();
+
+export function addTrackListener({ onFix, onStop } = {}){
+  if(onFix) trackFixListeners.add(onFix);
+  if(onStop) trackStopListeners.add(onStop);
+  return () => { trackFixListeners.delete(onFix); trackStopListeners.delete(onStop); };
+}
+
+function notifyTrackListeners(listeners, arg){
+  for(const fn of listeners){
+    try{ fn(arg); }catch(err){ console.error('追蹤監聽器失敗', err); }
+  }
+}
+
+// 記錄軌跡需要持續定位：追蹤還沒開就幫忙開，已經在追蹤（含 paused）則不動。
+export function ensureTracking(){
+  if(trackState === 'off') startTracking();
+}
+
 function pauseFollowing(){
   setTrackState(nextTrackState(trackState, 'userMoved'));
 }
@@ -200,6 +222,7 @@ function onTrackFix(pos){
   trackBtn?.classList.remove('acquiring');
   locateOverlay.setPosition(coord);
   locateMarkerEl.classList.add('show');
+  notifyTrackListeners(trackFixListeners, pos);
 
   const first = trackFirstFix;
   trackFirstFix = false;
@@ -257,6 +280,7 @@ function stopTracking(){
   trackBtn?.classList.remove('acquiring');
   releaseWakeLock();
   setTrackState(nextTrackState(trackState, 'stop'));
+  notifyTrackListeners(trackStopListeners);
 }
 
 function onTrackButtonClick(){
