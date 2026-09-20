@@ -170,7 +170,7 @@ main.js                      進入點，依序 initXxx()
 - **`map.once('rendercomplete', ...)` 可能永遠不觸發**：如果地圖畫面跟上次比對完全沒有變化，OpenLayers 有時候不會觸發這個事件。`drawTool.js` 的 `exportImage()` 因此加了 400ms 逾時保險，不能只依賴這個事件。
 - **截圖畫質要乘上 `devicePixelRatio`**：不這樣做的話，Retina 螢幕匯出的圖片解析度會被砍到只剩 CSS 像素尺寸，明顯比螢幕上看到的模糊。
 - **`syncActiveLayerItemClasses()` 在時間軸模式下不展開側邊欄分類**：因為時間軸模式會自動收合側邊欄，如果每次選圖層都展開背景的分類手風琴，使用者之後手動展開側邊欄會發現分類莫名其妙已經被展開過。
-- **繪圖工具的命名輸入用瀏覽器原生 `prompt()`**：能動，但跟網站其他部分的視覺風格不一致，是刻意先求有再求好的取捨。
+- **站內對話框取代原生 `alert()`／`confirm()`／`prompt()`（`src/ui/dialog.js`）**：`showAlert`／`showConfirm`／`showPrompt` 回傳 Promise，同一時間只顯示一個、多個呼叫排隊。原生對話框在手機瀏覽器（尤其 iOS PWA）表現不穩，視覺也不一致。踩過的細節：Enter 要略過輸入法選字（`isComposing`／`keyCode 229`）；prompt 點遮罩不關閉，且要擋 overlay 的 `mousedown` 預設行為，否則輸入框失焦後 Enter 送不出；overlay 高度吃 `--vvh`。`drawTool.js` 的 `drawend` 因此是非同步：顏色與量測值先同步寫入，等名稱回來才補 `name`／`label`，`persistFeatures()` 一律在 `await` 之後（OL 的 `drawend` 在圖形加進 source「之前」觸發，事件當下存檔會漏掉剛畫的那筆）。測試用 `vi.mock('../../src/ui/dialog.js')` 換成假實作，對話框本身見 `dialog.test.mjs`。
 
 ## 測試（`tests/`）
 

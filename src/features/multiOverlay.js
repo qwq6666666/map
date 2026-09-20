@@ -46,6 +46,7 @@ import {
 import { DATA, layerKey, titleForKey, setCustomSourcesProvider } from '../data.js';
 import { buildCategoryList } from '../uiTree.js';
 import { createCountryFilterBar } from '../ui/countryFilter.js';
+import { showAlert, showConfirm } from '../ui/dialog.js';
 import { buildMobileTwBrowseUI } from '../ui/mobileTwBrowse.js';
 import { buildMobileCnBrowseUI } from '../ui/mobileCnBrowse.js';
 import { buildMobileOtherBrowseUI } from '../ui/mobileOtherBrowse.js';
@@ -172,7 +173,7 @@ function handleAddCustomSource(){
     return;
   }
   if(!urlTemplate.includes('{z}') || !urlTemplate.includes('{x}') || !urlTemplate.includes('{y}')){
-    alert('網址樣板需要包含 {z}、{x}、{y} 三個佔位符，例如：\nhttps://example.com/tiles/{z}/{x}/{y}.png');
+    showAlert('網址樣板需要包含 {z}、{x}、{y} 三個佔位符，例如：\nhttps://example.com/tiles/{z}/{x}/{y}.png');
     return;
   }
   const entry = addCustomSource({
@@ -196,11 +197,13 @@ function initCustomSourcesUI(){
     attribution: document.getElementById('customSourceAttribution')
   };
   document.getElementById('customSourceAddBtn').addEventListener('click', handleAddCustomSource);
-  document.getElementById('customSourceClearAllBtn').addEventListener('click', ()=>{
+  document.getElementById('customSourceClearAllBtn').addEventListener('click', async ()=>{
     if(store.customSources.length === 0) return;
-    if(!confirm('清除全部自訂圖層？這會一併從目前的疊圖組合移除，且無法復原。')) return;
-    // 清空前先記下 id，clearCustomSources() 執行後 store.customSources
-    // 就是空陣列了，之後才呼叫 removeCachedLayer() 會找不到要清誰。
+    const ok = await showConfirm('清除全部自訂圖層？這會一併從目前的疊圖組合移除，且無法復原。', { confirmText: '清除', danger: true });
+    if(!ok) return;
+    // 清空前先記下 id（且要在對話框確認之後才讀，期間清單可能已變動），
+    // clearCustomSources() 執行後 store.customSources 就是空陣列了，
+    // 之後才呼叫 removeCachedLayer() 會找不到要清誰。
     const idsToRemove = store.customSources.map(s => s.id);
     clearCustomSources();
     idsToRemove.forEach(id => removeCachedLayer(`custom:${id}`));

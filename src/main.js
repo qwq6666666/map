@@ -19,6 +19,7 @@ import { initOnboarding } from './ui/onboarding.js';
 import { initSourceStatusUI } from './ui/sourceStatusUI.js';
 import { initMobileLayout } from './ui/mobileLayout.js';
 import { applyShareStateFromURL, initLiveShareURL } from './features/shareLink.js';
+import { showAlert } from './ui/dialog.js';
 
 // 用頂層 await 取代原本包一層 async function main(){...} 再呼叫的寫法
 // （SonarQube javascript:S7785）；index.html 是 `<script type="module">`，
@@ -28,7 +29,7 @@ try{
   await loadAppData();
 }catch(err){
   console.error('資料載入失敗', err);
-  alert('圖層資料載入失敗，請重新整理頁面再試一次。');
+  showAlert('圖層資料載入失敗，請重新整理頁面再試一次。');
   dataLoaded = false;
 }
 

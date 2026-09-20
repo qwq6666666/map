@@ -1606,6 +1606,49 @@
   }
   .onboarding-modal-btn.text:hover{color:var(--stamp);}
 
+  /* -- 站內對話框（src/ui/dialog.js，取代原生 alert／confirm／prompt） --
+     z-index 蓋過歡迎視窗(120)、導覽聚光燈(130)、抽屜(200)。overlay 高度優先吃
+     --vvh（手機可視高度，鍵盤彈出時會縮小），輸入框才不會被虛擬鍵盤蓋住。
+     輸入框字級 16px：iOS Safari 對小於 16px 的輸入框聚焦時會自動放大頁面。 */
+  .app-dialog-overlay{
+    position:fixed; top:0; left:0; right:0; height:var(--vvh, 100%);
+    background:rgba(15,15,10,.55);
+    display:flex; align-items:center; justify-content:center;
+    z-index:300; padding:16px;
+  }
+  .app-dialog-card{
+    width:100%; max-width:380px; max-height:100%; overflow-y:auto;
+    background:var(--paper); border:1px solid var(--rule);
+    border-radius:var(--radius-4); box-shadow:0 12px 32px rgba(0,0,0,.4); padding:20px 20px 16px;
+  }
+  .app-dialog-title{
+    font-family:var(--serif); font-weight:700; font-size:17px; color:var(--ink);
+    margin:0 0 8px; line-height:1.4;
+  }
+  .app-dialog-message{
+    margin:0 0 16px; font-size:var(--fs-md); color:var(--ink); line-height:1.6;
+    white-space:pre-line; overflow-wrap:anywhere;
+  }
+  .app-dialog-input{
+    width:100%; box-sizing:border-box; margin:0 0 16px; padding:9px 10px;
+    font-family:var(--sans); font-size:16px; color:var(--ink);
+    background:#fff; border:1px solid var(--rule); border-radius:var(--radius-sm);
+  }
+  .app-dialog-input:focus{outline:2px solid var(--brass-dark); outline-offset:1px;}
+  .app-dialog-actions{display:flex; justify-content:flex-end; gap:8px;}
+  .app-dialog-btn{
+    min-width:84px; min-height:40px; padding:8px 16px; border-radius:var(--radius-sm);
+    font-family:var(--sans); font-size:var(--fs-base); font-weight:700; cursor:pointer;
+    border:1px solid var(--rule);
+  }
+  .app-dialog-btn.primary{background:var(--brass-dark); border-color:var(--brass-dark); color:var(--paper);}
+  .app-dialog-btn.primary:hover{background:var(--ink); border-color:var(--ink);}
+  .app-dialog-btn.danger{background:var(--danger); border-color:var(--danger); color:#fff;}
+  .app-dialog-btn.danger:hover{background:#8f1e17; border-color:#8f1e17;}
+  .app-dialog-btn.secondary{background:var(--paper); color:var(--ink);}
+  .app-dialog-btn.secondary:hover{background:var(--paper-dim); border-color:var(--brass-dark);}
+  .app-dialog-btn:focus-visible{outline:2px solid var(--ink); outline-offset:2px;}
+
   /* -- 5 步聚光燈導覽 -- */
   .tour-highlight{
     position:fixed; z-index:130; border:2px solid var(--brass-dark); border-radius:var(--radius-4);
@@ -1958,9 +2001,11 @@
        transform），transform-origin 設在底部中央（箭頭指向標記的一側）。 */
   @media (prefers-reduced-motion:no-preference){
     .onboarding-modal-overlay,
-    .legend-modal-overlay{animation:modal-overlay-in .2s ease-out;}
+    .legend-modal-overlay,
+    .app-dialog-overlay{animation:modal-overlay-in .2s ease-out;}
     .onboarding-modal-card,
-    .legend-modal-card{animation:modal-card-in .24s cubic-bezier(.2,.8,.2,1);}
+    .legend-modal-card,
+    .app-dialog-card{animation:modal-card-in .24s cubic-bezier(.2,.8,.2,1);}
     .identify-popup:not([hidden]){transform-origin:50% 100%; animation:popup-in .18s ease-out;}
   }
   @keyframes modal-overlay-in{ from{opacity:0;} }

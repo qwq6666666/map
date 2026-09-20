@@ -10,17 +10,17 @@
    之上（zIndex 較高），跟目前選了疊圖／比對／時間軸哪個模式無關，
    任何模式下都看得到、都能繼續畫。
 
-   這是第一版：點／線／面的名稱都用瀏覽器原生 prompt() 輸入，不是
-   自訂的輸入框 UI，功能上沒問題，但視覺風格跟網站其他部分不太一致，
-   之後如果想做成跟搜尋框一樣風格的輸入介面，可以再調整。線／面留空
-   不輸入名稱時，只顯示自動算出的長度／面積（跟原本行為一致）；輸入
-   了名稱則顯示「名稱（長度／面積）」，兩者一起看得到。
+   點／線／面畫完後用站內對話框（ui/dialog.js 的 showPrompt）輸入名稱，
+   提示與清除確認也都走同一套，不用瀏覽器原生 prompt／confirm／alert。
+   線／面留空或按「略過」不輸入名稱時，只顯示自動算出的長度／面積；
+   輸入了名稱則顯示「名稱（長度／面積）」，兩者一起看得到。
 --------------------------------------------------------- */
 import { map } from './mapCore.js';
 import { saveUserFeatures, loadUserFeatures, clearUserFeatures } from './features/storage.js';
 import { state as store } from './store.js';
 import { resolveOverlayKey, attributionForKey } from './data.js';
 import { runtime } from './runtime.js';
+import { showAlert, showConfirm, showPrompt } from './ui/dialog.js';
 
 let vectorSource = null;
 let vectorLayer = null;
@@ -191,30 +191,43 @@ function setTool(tool){
   if(currentTool === 'point') geometryType = 'Point';
   else if(currentTool === 'line') geometryType = 'LineString';
   activeDrawInteraction = new ol.interaction.Draw({ source: vectorSource, type: geometryType });
-  activeDrawInteraction.on('drawend', (e) => {
-    const feature = e.feature;
-    feature.set('kind', currentTool);
-    applyColorToFeature(feature, currentColor);
-    if(currentTool === 'point'){
-      const name = prompt('這個標記點的說明文字（可留空）：', '');
-      feature.set('name', name || '');
-      feature.set('label', name || '');
-    } else if(currentTool === 'line'){
-      const measure = formatLength(ol.sphere.getLength(feature.getGeometry()));
-      const name = prompt('這條線的名稱（可留空，只顯示長度）：', '');
-      feature.set('name', name || '');
-      feature.set('measure', measure);
-      feature.set('label', name ? `${name}（${measure}）` : measure);
-    } else if(currentTool === 'polygon'){
-      const measure = formatArea(ol.sphere.getArea(feature.getGeometry()));
-      const name = prompt('這個區域的名稱（可留空，只顯示面積）：', '');
-      feature.set('name', name || '');
-      feature.set('measure', measure);
-      feature.set('label', name ? `${name}（${measure}）` : measure);
-    }
-    persistFeatures();
-  });
+  activeDrawInteraction.on('drawend', (e) => finishDrawnFeature(e.feature, currentTool, currentColor));
   map.addInteraction(activeDrawInteraction);
+}
+
+const NAME_PROMPT_MESSAGES = {
+  point: '這個標記點的說明文字（可留空）：',
+  line: '這條線的名稱（可留空，只顯示長度）：',
+  polygon: '這個區域的名稱（可留空，只顯示面積）：'
+};
+
+// 圖形一畫完就先套上顏色與自動量測值（名稱對話框是非同步的，輸入前
+// 圖形就該先看得到），再等站內對話框回傳名稱補上 name／label。
+// kind／color 由呼叫端在事件當下傳入，不能在 await 之後才讀
+// currentTool／currentColor——對話框開著時使用者可能已經切換。
+// persistFeatures() 一律放在 await 之後：OL 的 drawend 是在圖形加進
+// vectorSource「之前」觸發，事件當下存檔會漏掉剛畫好的這一筆。
+async function finishDrawnFeature(feature, kind, color){
+  feature.set('kind', kind);
+  applyColorToFeature(feature, color);
+  let measure = '';
+  if(kind === 'line') measure = formatLength(ol.sphere.getLength(feature.getGeometry()));
+  else if(kind === 'polygon') measure = formatArea(ol.sphere.getArea(feature.getGeometry()));
+  if(measure) feature.set('measure', measure);
+  feature.set('name', '');
+  feature.set('label', measure);
+
+  const name = await showPrompt(NAME_PROMPT_MESSAGES[kind], {
+    confirmText: '完成',
+    cancelText: '略過',
+    maxLength: 60
+  });
+  const trimmed = (name || '').trim();
+  if(trimmed){ // 略過或留空：維持只顯示量測值
+    feature.set('name', trimmed);
+    feature.set('label', measure ? `${trimmed}（${measure}）` : trimmed);
+  }
+  persistFeatures();
 }
 
 function deleteSelected(){
@@ -231,8 +244,9 @@ function deleteSelected(){
   persistFeatures();
 }
 
-function clearAll(){
-  if(!confirm('確定要清除全部繪製內容嗎？這個動作無法復原。')) return;
+async function clearAll(){
+  const ok = await showConfirm('確定要清除全部繪製內容嗎？這個動作無法復原。', { confirmText: '清除', danger: true });
+  if(!ok) return;
   vectorSource.clear();
   closeFeatureEditPopup();
   clearUserFeatures();
@@ -293,7 +307,7 @@ function persistFeatures(){
  */
 export function exportGeoJSON(){
   const features = vectorSource.getFeatures();
-  if(features.length === 0){ alert('目前沒有任何繪製內容可以匯出。'); return; }
+  if(features.length === 0){ showAlert('目前沒有任何繪製內容可以匯出。'); return; }
   const format = new ol.format.GeoJSON();
   const geojsonStr = format.writeFeatures(features, {
     featureProjection: 'EPSG:3857', // 地圖內部使用的座標系
@@ -321,7 +335,7 @@ export function importGeoJSON(input){
     });
   }catch(err){
     console.error('匯入 GeoJSON 失敗', err);
-    alert('匯入失敗：檔案格式不是有效的 GeoJSON。');
+    showAlert('匯入失敗：檔案格式不是有效的 GeoJSON。');
     return 0;
   }
   features.forEach(feature => {
@@ -404,11 +418,11 @@ function doCapture(){
   try{
     mapCanvas.toBlob((blob) => {
       if(blob) downloadBlob(blob, `地圖截圖_${timestamp()}.png`);
-      else alert('圖片匯出失敗：圖層可能來自不允許跨網域讀取的伺服器（CORS 限制），請再試一次。');
+      else showAlert('圖片匯出失敗：圖層可能來自不允許跨網域讀取的伺服器（CORS 限制），請再試一次。');
     });
   }catch(err){
     console.error('地圖截圖失敗', err);
-    alert('圖片匯出失敗：目前畫面上的圖層來自不允許跨網域讀取像素的伺服器（CORS 限制），瀏覽器基於安全考量擋下了這次匯出。');
+    showAlert('圖片匯出失敗：目前畫面上的圖層來自不允許跨網域讀取像素的伺服器（CORS 限制），瀏覽器基於安全考量擋下了這次匯出。');
   }
 }
 

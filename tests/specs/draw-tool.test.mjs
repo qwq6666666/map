@@ -1,5 +1,6 @@
 import '../env-stub.mjs';
-import { test, expect } from 'vitest';
+import { test, expect, vi } from 'vitest';
+import { sleep } from '../helpers.mjs';
 import { loadAppData } from '../../src/data.js';
 import { initMapCore, map } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
@@ -7,6 +8,16 @@ import { initSearchUI } from '../../src/searchUI.js';
 import { initDrawTool, exportGeoJSON, exportImage } from '../../src/drawTool.js';
 import { setRendercompleteAutoFire } from '../env-stub.mjs';
 import { runtime } from '../../src/runtime.js';
+
+// 站內對話框（ui/dialog.js）在假 DOM 裡沒有人會去點按鈕，這裡換成可控的
+// 假實作：dialogMock.answer 就是使用者在名稱對話框輸入的文字（null＝略過）。
+// 對話框本身的行為由 dialog.test.mjs 驗證。
+const dialogMock = vi.hoisted(() => ({ answer: '', lastMessage: null }));
+vi.mock('../../src/ui/dialog.js', () => ({
+  showPrompt: async (message) => { dialogMock.lastMessage = message; return dialogMock.answer; },
+  showConfirm: async () => true,
+  showAlert: async () => {},
+}));
 
 await loadAppData();
 initMapCore();
@@ -51,44 +62,88 @@ test('點擊「線」工具後，地圖上會加上對應的繪圖 interaction',
   expect(map._interactions.length > before, '應該多一個 interaction').toBeTruthy();
 });
 
-test('畫完一條線，自動算出長度並顯示（例如 1234.5 公尺 → 1.23 公里）', () => {
-  globalThis.prompt = () => ''; // 不輸入名稱
+test('畫完一條線，自動算出長度並顯示（例如 1234.5 公尺 → 1.23 公里）', async () => {
+  dialogMock.answer = ''; // 不輸入名稱
   ensureToolActive('line');
   const drawInteraction = map._interactions[map._interactions.length - 1];
   const feature = makeFakeFeature({ _length: 1234.5 });
   drawInteraction.simulateDrawEnd(feature);
+  await sleep(0);
   expect(feature.get('kind'), 'kind').toBe('line');
   expect(feature.get('label'), 'label 應該是自動算出的長度').toBe('1.23 公里');
 });
 
-test('畫線時輸入名稱，會跟長度合併顯示成「名稱（長度）」', () => {
-  globalThis.prompt = () => '西門溝';
+test('畫線時輸入名稱，會跟長度合併顯示成「名稱（長度）」', async () => {
+  dialogMock.answer = '西門溝';
   ensureToolActive('line');
   const drawInteraction = map._interactions[map._interactions.length - 1];
   const feature = makeFakeFeature({ _length: 500 });
   drawInteraction.simulateDrawEnd(feature);
+  await sleep(0);
   expect(feature.get('name'), 'name').toBe('西門溝');
   expect(feature.get('label'), 'label 應該合併名稱與長度').toBe('西門溝（500.0 公尺）');
 });
 
-test('畫完一個面，自動算出面積（25000 平方公尺 → 2.50 公頃）', () => {
-  globalThis.prompt = () => '';
+test('名稱對話框還沒回應時，圖形已經先有量測值；按「略過」（null）維持只顯示量測值', async () => {
+  dialogMock.answer = null;
+  ensureToolActive('line');
+  const drawInteraction = map._interactions[map._interactions.length - 1];
+  const feature = makeFakeFeature({ _length: 500 });
+  drawInteraction.simulateDrawEnd(feature);
+  expect(feature.get('label'), '對話框 await 之前就該有量測值').toBe('500.0 公尺');
+  await sleep(0);
+  expect(feature.get('name'), '略過後不該有名稱').toBe('');
+  expect(feature.get('label'), '略過後仍只顯示量測值').toBe('500.0 公尺');
+});
+
+test('名稱前後空白會被去掉；全空白視同沒輸入', async () => {
+  ensureToolActive('line');
+  const drawInteraction = map._interactions[map._interactions.length - 1];
+
+  dialogMock.answer = '  舊鐵道  ';
+  const named = makeFakeFeature({ _length: 500 });
+  drawInteraction.simulateDrawEnd(named);
+  await sleep(0);
+  expect(named.get('name'), 'name 應去除前後空白').toBe('舊鐵道');
+
+  dialogMock.answer = '   ';
+  const blank = makeFakeFeature({ _length: 500 });
+  drawInteraction.simulateDrawEnd(blank);
+  await sleep(0);
+  expect(blank.get('name'), '全空白視同沒輸入').toBe('');
+});
+
+test('畫完一個面，自動算出面積（25000 平方公尺 → 2.50 公頃）', async () => {
+  dialogMock.answer = '';
   ensureToolActive('polygon');
   const drawInteraction = map._interactions[map._interactions.length - 1];
   const feature = makeFakeFeature({ _area: 25000 });
   drawInteraction.simulateDrawEnd(feature);
+  await sleep(0);
   expect(feature.get('kind'), 'kind').toBe('polygon');
   expect(feature.get('label'), 'label 應該是自動算出的面積').toBe('2.50 公頃');
 });
 
-test('畫點時輸入的說明文字，直接當作 label', () => {
-  globalThis.prompt = () => '這是一個標記';
+test('畫點時輸入的說明文字，直接當作 label', async () => {
+  dialogMock.answer = '這是一個標記';
   ensureToolActive('point');
   const drawInteraction = map._interactions[map._interactions.length - 1];
   const feature = makeFakeFeature({});
   drawInteraction.simulateDrawEnd(feature);
+  await sleep(0);
   expect(feature.get('kind'), 'kind').toBe('point');
   expect(feature.get('label'), 'label').toBe('這是一個標記');
+});
+
+test('名稱對話框開著時切換工具，圖形的 kind 仍是畫的當下那個（不受之後切換影響）', async () => {
+  dialogMock.answer = '';
+  ensureToolActive('line');
+  const drawInteraction = map._interactions[map._interactions.length - 1];
+  const feature = makeFakeFeature({ _length: 100 });
+  drawInteraction.simulateDrawEnd(feature);
+  ensureToolActive('point'); // 對話框還沒回應（await 之前）就切換工具
+  await sleep(0);
+  expect(feature.get('kind'), 'kind 應維持 line').toBe('line');
 });
 
 test('匯出 GeoJSON 會產生正確的座標系設定（EPSG:3857 -> EPSG:4326）', () => {

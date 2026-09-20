@@ -1,5 +1,5 @@
 import '../env-stub.mjs';
-import { test, expect } from 'vitest';
+import { test, expect, vi } from 'vitest';
 import { loadAppData } from '../../src/data.js';
 import { initMapCore, map } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
@@ -14,6 +14,14 @@ import {
   DEFAULT_COLOR,
 } from '../../src/drawTool.js';
 import { runtime } from '../../src/runtime.js';
+
+// 站內對話框在假 DOM 裡沒人會點按鈕，換成立刻回覆「不輸入名稱」的假實作
+// （本檔只驗證顏色屬性，顏色是在名稱對話框 await 之前同步寫入的）。
+vi.mock('../../src/ui/dialog.js', () => ({
+  showPrompt: async () => '',
+  showConfirm: async () => true,
+  showAlert: async () => {},
+}));
 
 await loadAppData();
 initMapCore();
@@ -73,7 +81,6 @@ function selectColor(color){
 /* ---------- 1. 建立時寫入 SimpleStyle 屬性 ---------- */
 
 test('選了靛藍色票後畫點，marker-color 會是選到的顏色', () => {
-  globalThis.prompt = () => '';
   selectColor('#2980B9');
   ensureToolActive('point');
   const drawInteraction = map._interactions[map._interactions.length - 1];
@@ -83,7 +90,6 @@ test('選了靛藍色票後畫點，marker-color 會是選到的顏色', () => {
 });
 
 test('選了靛藍色票後畫線，stroke/stroke-width/stroke-opacity 正確', () => {
-  globalThis.prompt = () => '';
   selectColor('#2980B9');
   ensureToolActive('line');
   const drawInteraction = map._interactions[map._interactions.length - 1];
@@ -95,7 +101,6 @@ test('選了靛藍色票後畫線，stroke/stroke-width/stroke-opacity 正確', 
 });
 
 test('選了靛藍色票後畫面，stroke/fill/fill-opacity 正確', () => {
-  globalThis.prompt = () => '';
   selectColor('#2980B9');
   ensureToolActive('polygon');
   const drawInteraction = map._interactions[map._interactions.length - 1];
@@ -107,7 +112,6 @@ test('選了靛藍色票後畫面，stroke/fill/fill-opacity 正確', () => {
 });
 
 test('不特別選色時，預設用 DEFAULT_COLOR（朱紅）畫點', () => {
-  globalThis.prompt = () => '';
   selectColor(DEFAULT_COLOR); // 明確切回預設色，避免受前面測試殘留的 currentColor 影響
   ensureToolActive('point');
   const drawInteraction = map._interactions[map._interactions.length - 1];
@@ -137,7 +141,6 @@ test('applyColorToFeature 二次改色會覆寫既有 SimpleStyle 屬性（不�
 /* ---------- 3. 匯出 GeoJSON 包含正確顏色屬性 ---------- */
 
 test('匯出 GeoJSON 會包含畫圖時各自選用的正確顏色屬性', () => {
-  globalThis.prompt = () => '';
 
   selectColor('#D35400'); // 南瓜橘
   ensureToolActive('point');
