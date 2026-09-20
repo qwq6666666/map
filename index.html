@@ -163,29 +163,24 @@
     <div class="mobile-mode-grid">
       <!-- 轉呼叫既有 #drawToggleBtn 的 click()，不重新實作繪圖工具開關邏輯 -->
       <button type="button" class="mobile-mode-option mobile-mode-toggle" id="mobileDrawToggle"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#draw"></use></svg> 繪圖工具</button>
-      <!-- 轉呼叫既有 #locateBtn 的 click()，不重新實作定位/藍點顯示邏輯。
-           #locateBtn 手機版常駐浮動鈕被 CSS 隱藏（見 style.css .locate-btn{display:none}），
-           但 DOM 節點與事件監聽器仍在，.click() 一樣能觸發。 -->
-      <button type="button" class="mobile-mode-option" id="mobileLocateBtn"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> 定位</button>
-      <!-- 持續追蹤（跟隨我）：同樣只轉呼叫 #trackBtn 的 click()，文字與 active 狀態
-           由 ui/mobileLayout.js 依 #trackBtn 目前狀態同步。 -->
-      <button type="button" class="mobile-mode-option" id="mobileTrackBtn" aria-pressed="false"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> <span id="mobileTrackLabel">持續追蹤位置</span></button>
+      <!-- 定位＋持續追蹤合併成這一顆：只轉呼叫 #trackBtn 的 click()（watchPosition）。第一筆定位
+           就會置中並顯示座標彈窗，拖曳地圖會自動暫停跟隨，所以不另留一次性的「定位」磚
+           （電腦版浮動的 #locateBtn 不受影響）。文字與 active 狀態由 ui/mobileLayout.js
+           依 #trackBtn 目前狀態同步。 -->
+      <button type="button" class="mobile-mode-option" id="mobileTrackBtn" aria-pressed="false" title="定位並持續追蹤目前位置（螢幕會保持亮起，拖曳地圖可暫停跟隨）"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> <span id="mobileTrackLabel">定位追蹤</span></button>
       <!-- 記錄軌跡留在主頁：走路中要開始／結束，不該藏在次頁。同樣只轉呼叫
            「⋯ 更多」選單裡的 #trackRecordBtn，文字與 active 由 ui/trackRecorderUI.js 同步。 -->
       <button type="button" class="mobile-mode-option" data-help-action="trackRecord" data-track-record aria-pressed="false"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> <span data-track-record-label>記錄軌跡</span></button>
+      <button type="button" class="mobile-mode-option" data-help-action="trackList"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#layers"></use></svg> 我的軌跡</button>
     </div>
     <button type="button" class="mobile-mode-option mobile-mode-more" data-popover-go="more">
       <span class="mobile-mode-more-label">更多</span>
-      <span class="mobile-mode-more-hint">我的軌跡・分享・說明</span>
+      <span class="mobile-mode-more-hint">分享・截圖・說明</span>
       <span class="mobile-mode-more-arrow" aria-hidden="true">›</span>
     </button>
   </div>
   <div class="mobile-mode-page" data-page="more">
     <button type="button" class="mobile-mode-option mobile-mode-back" data-popover-go="main"><span class="mobile-mode-more-arrow" aria-hidden="true">‹</span> 返回</button>
-    <div class="mobile-mode-popover-title">軌跡</div>
-    <div class="mobile-mode-grid">
-      <button type="button" class="mobile-mode-option" data-help-action="trackList"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#layers"></use></svg> 我的軌跡</button>
-    </div>
     <div class="mobile-mode-popover-title">分享與截圖</div>
     <div class="mobile-mode-grid">
       <button type="button" class="mobile-mode-option" data-help-action="share"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 分享連結</button>
@@ -240,6 +235,13 @@
   </svg>
 </button>
 <div id="drawToolbar" class="draw-toolbar">
+  <!-- 手機專屬標題列＋關閉鈕（桌面隱藏，見 styles/base.css／mobile.css）：手機的
+       #drawToggleBtn 浮動鈕被 CSS 藏起來，原本要關閉繪圖只能再打開「地圖工具」選單
+       點一次「繪圖工具」。關閉邏輯仍是 drawTool.js 的 setToolbarOpen(false)。 -->
+  <div class="draw-toolbar-header">
+    <span class="draw-toolbar-title">繪圖工具</span>
+    <button type="button" id="drawToolbarCloseBtn" class="draw-toolbar-close" title="關閉繪圖工具" aria-label="關閉繪圖工具">✕</button>
+  </div>
   <div class="draw-toolbar-row">
     <button type="button" class="draw-tool-btn" data-tool="select" title="選取／編輯已畫的圖形">選取</button>
     <button type="button" class="draw-tool-btn" data-tool="point" title="標記點（可加文字說明）">點</button>

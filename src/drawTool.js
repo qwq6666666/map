@@ -776,4 +776,6 @@ export function initDrawTool(){
 
   toggleBtn = document.getElementById('drawToggleBtn');
   toggleBtn.addEventListener('click', () => setToolbarOpen(!toolbarOpen));
+  // 手機專屬的工具列標題列關閉鈕（手機的 #drawToggleBtn 浮動鈕被隱藏）；桌面版該列不顯示。
+  document.getElementById('drawToolbarCloseBtn')?.addEventListener('click', () => setToolbarOpen(false));
 }

@@ -235,10 +235,36 @@
       top:calc(env(safe-area-inset-top) + var(--mobile-topbar-h) + 10px);
       right:calc(10px + env(safe-area-inset-right));
       max-height:min(420px, 58vh); overflow-y:auto; -webkit-overflow-scrolling:touch;
+      /* 寬度要放得下一整排 7 顆色票（6 色＋自訂色）：7×28＋6×5＝226px，扣掉 padding／框線
+         約需 246px；原本 200～208px 會把最後一顆擠到下一行。 */
+      width:min(260px, calc(100vw - 20px));
     }
+    /* 標題列＋關閉鈕：手機的 #drawToggleBtn 浮動鈕被藏起來，工具列自己要有關閉的地方。
+       sticky：Bottom Sheet 展開時工具列可用高度很小、內容要捲動，關閉鈕不能跟著捲走。 */
+    .draw-toolbar-header{
+      display:flex; align-items:center; justify-content:space-between; gap:8px;
+      position:sticky; top:0; z-index:1; background:var(--paper);
+    }
+    .draw-toolbar-title{font-size:var(--fs-sm); font-weight:700; color:var(--ink); padding-left:2px;}
+    .draw-toolbar-close{
+      flex-shrink:0; min-width:44px; min-height:44px; padding:0; line-height:1;
+      background:none; border:none; border-radius:var(--radius-md);
+      font-size:var(--fs-base); color:var(--rule-text); cursor:pointer;
+    }
+    .draw-toolbar-close:active{background:var(--paper-dim);}
     .draw-tool-btn{padding:9px 4px; min-height:44px;}
     .draw-check-row{min-height:44px;}
-    .draw-color-swatch, .draw-color-custom{width:26px; height:26px;}
+    /* 手機的截圖入口在「地圖工具」選單的「更多」頁（下載截圖／傳送截圖），繪圖工具列裡
+       這顆重複，藏起來。只是隱藏、DOM 與 drawTool.js 的事件綁定都還在（電腦版照舊）；
+       「截圖附出處資訊列」勾選列保留，它同時控制下載與傳送截圖是否附出處資訊列。 */
+    #drawExportImageBtn{display:none;}
+    /* 色票永遠排成一整排（nowrap）；空間不夠時色票等比例縮小（最小 20px）而不是換行。
+       繪圖工具列與「要素編輯彈窗」（min-width 220px，放不下 7×28）共用這組樣式。 */
+    .draw-color-palette{flex-wrap:nowrap;}
+    .draw-color-swatch, .draw-color-custom,
+    input[type="color"].draw-color-custom{ /* 最後一個選擇器要跟 base.css 的同款，否則 height 會被那條蓋回 20px、變橢圓 */
+      flex:0 1 28px; width:28px; height:auto; aspect-ratio:1; min-width:20px;
+    }
 
     /* Bottom Sheet 展開(75vh)時，繪圖工具面板下半部按鈕（刪除／清空／
        匯出GeoJSON／地圖截圖／匯入GeoJSON）會被 Sheet 頭部區域疊住或裁切
@@ -754,7 +780,7 @@
     #stamp{width:52px; height:52px;}
     #stamp .stamp-year{font-size:var(--fs-base);}
     #stamp .stamp-label{display:none;} /* 過窄螢幕上省略文字，只留年份，避免跟工具按鈕擠在一起 */
-    .draw-toolbar{width:min(200px, calc(100vw - 20px));}
+    .draw-toolbar{width:min(260px, calc(100vw - 20px));}
     #mobileModePopover{width:min(280px, calc(100vw - 20px));}
     .layer-search-item, .favorites-item, .recent-item, .avail-select-item{padding-left:8px; padding-right:8px;}
     .search-batch-bar{padding:7px 12px; gap:10px;}

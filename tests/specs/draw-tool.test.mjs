@@ -299,6 +299,28 @@ test('shareImage 與「地圖截圖」走同一條截圖流程：出處資訊列
   expect(withBand > withoutBand, `有資訊列 ${withBand} 應大於純地圖 ${withoutBand}`).toBe(true);
 });
 
+// 手機專屬：工具列標題列的關閉鈕（#drawToolbarCloseBtn）。手機的 #drawToggleBtn 浮動鈕
+// 被 CSS 藏起來，原本要關閉繪圖只能再打開「地圖工具」選單點一次；現在工具列自己就能關。
+test('工具列關閉鈕：關掉工具列、浮動鈕回到非啟用，並結束目前選的繪圖工具', () => {
+  const toggleBtn = document.getElementById('drawToggleBtn');
+  const closeBtn = document.getElementById('drawToolbarCloseBtn');
+  expect(closeBtn._listeners?.click?.length, '關閉鈕應該綁了點擊事件').toBeGreaterThan(0);
+
+  if(!toolbar.classList.contains('show')) toggleBtn._listeners['click'][0]();
+  expect(toolbar.classList.contains('show')).toBe(true);
+  ensureToolActive('line');
+  expect(toolBtns.line.classList.contains('active')).toBe(true);
+
+  closeBtn._listeners['click'][0]();
+  expect(toolbar.classList.contains('show'), '工具列應該關閉').toBe(false);
+  expect(toggleBtn.classList.contains('active'), '浮動鈕不再是啟用狀態').toBe(false);
+  expect(toolBtns.line.classList.contains('active'), '目前工具應該一併結束').toBe(false);
+
+  // 已經關著再點關閉鈕不會又打開（不是切換，是「關閉」）
+  closeBtn._listeners['click'][0]();
+  expect(toolbar.classList.contains('show')).toBe(false);
+});
+
 // 刪除/清空快取等操作會觸發 drawTool.js 的 showStorageToast()，留下一顆
 // 真實的 setTimeout(2500ms)。不清掉的話 Node process 要等它自然到期
 // 才會結束，讓這支測試檔平白多花 2.5 秒 wall time 卻沒有驗證任何額外

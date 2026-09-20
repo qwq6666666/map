@@ -437,6 +437,9 @@
 
   /* 「輸出／匯入」分組標題與「截圖附出處資訊列」勾選列。勾選列是按鈕（JS 切 .active），
      用 ☐／☑ 表示狀態，不沿用 .draw-tool-btn.active 的深色底（那是「目前工具」的意思）。 */
+  /* 手機專屬的標題列＋關閉鈕：桌面有 #drawToggleBtn 浮動鈕可以開關，這列預設藏起來，
+     手機版在 styles/mobile.css 才顯示。 */
+  .draw-toolbar-header{display:none;}
   .draw-toolbar-group-title{
     font-size:var(--fs-2xs); font-weight:700; color:var(--rule-text); letter-spacing:.03em;
     margin-top:2px; padding-top:6px; border-top:1px solid var(--rule);

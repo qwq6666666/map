@@ -384,8 +384,6 @@ function initModePopover(){
   const popover = document.getElementById('mobileModePopover');
   const drawToggleOption = document.getElementById('mobileDrawToggle');
   const realDrawToggleBtn = document.getElementById('drawToggleBtn');
-  const locateOption = document.getElementById('mobileLocateBtn');
-  const realLocateBtn = document.getElementById('locateBtn');
   if(!btn || !popover) return;
 
   function closePopover(){
@@ -454,20 +452,15 @@ function initModePopover(){
     realDrawToggleBtn?.click();
     closePopover();
   });
-  // 定位純轉呼叫 #locateBtn 的 click()，不重新實作定位/藍點顯示邏輯（見
-  // src/features/location.js）。額外收合 Bottom Sheet：#locateBtn 觸發後
-  // 會把地圖視角置中到使用者座標（螢幕正中央），Sheet 展開態(75vh)會蓋住
-  // 畫面下 75%，置中點會落在 Sheet 底下看不見；收合成 peek 態(60px)才能
-  // 確保藍點與彈窗（#locatePopup，錨定在藍點正上方）都在可視地圖範圍內。
-  locateOption?.addEventListener('click', ()=>{
-    realLocateBtn?.click();
-    collapseSidebar();
-    closePopover();
-  });
-  // 持續追蹤同樣只轉呼叫 #trackBtn；一樣收合 Sheet，理由同上（跟隨中的藍點
-  // 會被置中，Sheet 展開會蓋住它）。選項文字／active 依 #trackBtn 目前的
-  // class 同步（.tracking／.paused），用 MutationObserver 涵蓋所有改變狀態的
-  // 途徑（例如定位被拒絕而自動停止）。
+  // 「定位追蹤」磚＝原本的一次性「定位」與「持續追蹤」合併：只轉呼叫 #trackBtn 的
+  // click()，不重新實作追蹤邏輯（見 src/features/location.js）。第一筆定位就會置中並
+  // 顯示座標彈窗、拖曳地圖會自動暫停跟隨，涵蓋一次性定位的用途，所以手機選單不再
+  // 另留 #locateBtn 的轉發（電腦版浮動的 #locateBtn 不受影響）。
+  // 額外收合 Bottom Sheet：追蹤會把地圖視角置中到使用者座標（螢幕正中央），Sheet
+  // 展開態(75vh)會蓋住畫面下 75%，藍點與彈窗（#locatePopup，錨定在藍點正上方）
+  // 會落在 Sheet 底下看不見；收合成 peek 態(60px)才看得到。選項文字／active 依
+  // #trackBtn 目前的 class 同步（.tracking／.paused），用 MutationObserver 涵蓋所有
+  // 改變狀態的途徑（例如定位被拒絕而自動停止）。
   const trackOption = document.getElementById('mobileTrackBtn');
   const trackLabel = document.getElementById('mobileTrackLabel');
   const realTrackBtn = document.getElementById('trackBtn');
@@ -475,7 +468,7 @@ function initModePopover(){
     if(!trackOption || !realTrackBtn) return;
     const following = realTrackBtn.classList.contains('tracking');
     const paused = realTrackBtn.classList.contains('paused');
-    if(trackLabel) trackLabel.textContent = following ? '停止追蹤位置' : (paused ? '回到我的位置' : '持續追蹤位置');
+    if(trackLabel) trackLabel.textContent = following ? '停止追蹤' : (paused ? '回到我的位置' : '定位追蹤');
     trackOption.classList.toggle('active', following || paused);
     trackOption.setAttribute('aria-pressed', (following || paused) ? 'true' : 'false');
   }
