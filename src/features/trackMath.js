@@ -60,10 +60,13 @@ export function trackPointCount(track){
 }
 
 // 有效經過時間（毫秒）：每一段自己的頭尾相減後加總，中斷期間不算。
+// 匯入的檔案不一定有時間戳，缺時間的段不算（整條都沒有就是 0）。
 export function trackDurationMs(track){
-  return track.segments.reduce((sum, seg) => (
-    seg.length > 1 ? sum + (seg[seg.length - 1][2] - seg[0][2]) : sum
-  ), 0);
+  return track.segments.reduce((sum, seg) => {
+    if(seg.length < 2) return sum;
+    const span = seg[seg.length - 1][2] - seg[0][2];
+    return Number.isFinite(span) && span > 0 ? sum + span : sum;
+  }, 0);
 }
 
 export function formatDistance(meters){
@@ -77,10 +80,15 @@ export function formatDuration(ms){
   return `${Math.floor(totalMin / 60)} 小時 ${totalMin % 60} 分`;
 }
 
-// 預設軌跡名稱：「軌跡 2026-09-20 14:05」（本機時間）。
+// 「2026-09-20 14:05」（本機時間）。
+export function formatTrackDate(ms){
+  const d = new Date(ms);
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+}
+
+// 預設軌跡名稱：「軌跡 2026-09-20 14:05」。
 export function defaultTrackName(startedAt){
-  const d = new Date(startedAt);
-  return `軌跡 ${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  return `軌跡 ${formatTrackDate(startedAt)}`;
 }
 
 // 檔名用的時間戳，跟 drawTool 的匯出檔名一致（YYYYMMDD_HHmm）。
@@ -96,14 +104,16 @@ function escapeXml(text){
 }
 
 const iso = (ms) => new Date(ms).toISOString();
+const timeTag = (t) => (Number.isFinite(t) ? `<time>${iso(t)}</time>` : '');
 
 // GPX 1.1：戶外 App（Strava、Garmin、Gaia GPS、OsmAnd…）與 QGIS 都能讀。
 // 每一段輸出成一個 <trkseg>，單點的段也照實輸出（不像 GeoJSON 的 LineString 有點數限制）。
+// 沒有時間戳的點（匯入的檔案）不輸出 <time>，不要編造 1970 年。
 export function trackToGpx(track){
   const lines = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<gpx version="1.1" creator="百年歷史地圖" xmlns="http://www.topografix.com/GPX/1/1">',
-    `  <metadata><name>${escapeXml(track.name)}</name><time>${iso(track.startedAt)}</time></metadata>`,
+    `  <metadata><name>${escapeXml(track.name)}</name>${timeTag(track.startedAt)}</metadata>`,
     '  <trk>',
     `    <name>${escapeXml(track.name)}</name>`
   ];
@@ -111,7 +121,7 @@ export function trackToGpx(track){
     if(!seg.length) continue;
     lines.push('    <trkseg>');
     for(const [lon, lat, t] of seg){
-      lines.push(`      <trkpt lat="${lat.toFixed(7)}" lon="${lon.toFixed(7)}"><time>${iso(t)}</time></trkpt>`);
+      lines.push(`      <trkpt lat="${lat.toFixed(7)}" lon="${lon.toFixed(7)}">${timeTag(t)}</trkpt>`);
     }
     lines.push('    </trkseg>');
   }
@@ -125,7 +135,9 @@ export function trackToGpx(track){
 export function trackToGeoJSON(track){
   const segs = track.segments.filter((seg) => seg.length > 1);
   const coords = segs.map((seg) => seg.map(([lon, lat]) => [lon, lat]));
-  const times = segs.map((seg) => seg.map(([, , t]) => iso(t)));
+  // 只要有任何一個點沒有時間，整條就不輸出 times（陣列長度必須跟座標一一對應）。
+  const hasTimes = segs.length > 0 && segs.every((seg) => seg.every((pt) => Number.isFinite(pt[2])));
+  const times = hasTimes ? segs.map((seg) => seg.map(([, , t]) => iso(t))) : null;
   const single = coords.length === 1;
   return {
     type: 'FeatureCollection',
@@ -133,14 +145,39 @@ export function trackToGeoJSON(track){
       type: 'Feature',
       properties: {
         name: track.name,
-        startedAt: iso(track.startedAt),
-        endedAt: track.endedAt ? iso(track.endedAt) : null,
+        startedAt: Number.isFinite(track.startedAt) ? iso(track.startedAt) : null,
+        endedAt: Number.isFinite(track.endedAt) ? iso(track.endedAt) : null,
         distanceMeters: Math.round(trackDistance(track)),
-        coordinateProperties: { times: single ? times[0] : times }
+        ...(times ? { coordinateProperties: { times: single ? times[0] : times } } : {})
       },
       geometry: single
         ? { type: 'LineString', coordinates: coords[0] }
         : { type: 'MultiLineString', coordinates: coords }
     }]
+  };
+}
+
+// 「存成繪圖圖形」：轉成繪圖工具（drawTool.js importGeoJSON）認得的 FeatureCollection——
+// 每一段一條線（kind:'line'），帶 SimpleStyle 顏色與「名稱（長度）」標籤，之後就是
+// 一般的繪圖線條，可以編輯、改色、隨繪圖一起匯出。單點的段略過。
+export function trackToDrawingGeoJSON(track, color){
+  const segs = track.segments.filter((seg) => seg.length > 1);
+  return {
+    type: 'FeatureCollection',
+    features: segs.map((seg, i) => {
+      const name = segs.length > 1 ? `${track.name} ${i + 1}` : track.name;
+      return {
+        type: 'Feature',
+        properties: {
+          kind: 'line',
+          name,
+          label: `${name}（${formatDistance(segmentDistance(seg))}）`,
+          stroke: color,
+          'stroke-width': 3,
+          'stroke-opacity': 0.8
+        },
+        geometry: { type: 'LineString', coordinates: seg.map(([lon, lat]) => [lon, lat]) }
+      };
+    })
   };
 }

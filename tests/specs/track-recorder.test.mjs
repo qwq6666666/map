@@ -11,17 +11,14 @@ navigator.geolocation = {
   getCurrentPosition(){}
 };
 
-// env-stub 沒有 ol.Feature／ol.geom：補最小假物件，讓記錄器的折線圖層跑得起來。
-class FakeGeom { constructor(c){ this.coords = c; } setCoordinates(c){ this.coords = c; } }
-globalThis.ol.geom = { MultiLineString: FakeGeom };
-globalThis.ol.Feature = class { constructor(g){ this.geom = g; } getGeometry(){ return this.geom; } };
-
 import { initLocateButton, getTrackState } from '../../src/features/location.js';
 import {
   initTrackRecorder, startRecording, stopRecording, resumeRecording, finishSavedTrack,
-  discardTrack, getTrackStatus, getCurrentTrack, onTrackChange, _resetTrackRecorderForTests
+  discardTrack, renameTrack, listAllTracks, addImportedTracks, isRecordingTrack,
+  getTrackStatus, getCurrentTrack, onTrackChange, _resetTrackRecorderForTests
 } from '../../src/features/trackRecorder.js';
-import { loadTrack, loadLatestTrack, saveTrack, _resetTrackStoreForTests } from '../../src/features/trackStore.js';
+import { loadTrack, saveTrack, listTracks, _resetTrackStoreForTests } from '../../src/features/trackStore.js';
+import { isTrackShown, _resetTrackLayerForTests } from '../../src/features/trackLayer.js';
 import { TRACK_GAP_MS } from '../../src/features/trackMath.js';
 
 initLocateButton();
@@ -43,6 +40,7 @@ beforeEach(() => {
   if(getTrackState() === 'following') trackBtn.click(); // 會通知記錄器「追蹤停止」
   _resetTrackRecorderForTests();
   _resetTrackStoreForTests();
+  _resetTrackLayerForTests();
   watchCalls = 0;
 });
 
@@ -65,7 +63,7 @@ test('沒按開始記錄之前，追蹤收到的定位一概不記', () => {
   trackBtn.click(); // 只有持續追蹤
   feed(0, 0);
   expect(getCurrentTrack()).toBe(null);
-  expect(getTrackStatus().hasTrack).toBe(false);
+  expect(getTrackStatus().pointCount).toBe(0);
 });
 
 test('濾點：精度差、原地抖動、跳點都不會進軌跡，合理位移才會', () => {
@@ -78,7 +76,6 @@ test('濾點：精度差、原地抖動、跳點都不會進軌跡，合理位�
   expect(lens()).toEqual([2]);
   expect(getTrackStatus().pointCount).toBe(2);
   expect(getTrackStatus().distanceMeters).toBeGreaterThan(50);
-  expect(getTrackStatus().canExport).toBe(true);
 });
 
 test('中斷超過門檻另起一段；紅燈前站著不動（被略過的點）不會被誤判成中斷', () => {
@@ -145,7 +142,7 @@ test('追蹤被停止（含權限被拒自動停止）時，記錄跟著結束�
   expect(getTrackStatus().recording).toBe(false);
   expect(getCurrentTrack().done).toBe(true);
   await Promise.resolve();
-  expect((await loadLatestTrack()).done).toBe(true);
+  expect((await listTracks())[0].done).toBe(true);
 });
 
 test('結束後又來的定位不再記錄', () => {
@@ -179,22 +176,98 @@ test('接續舊軌跡：保留舊的段，第一筆新定位另起一段（不�
   expect(lens()).toEqual([2, 2]);
 });
 
-test('啟動時讀回最新軌跡：未完成的回傳給 UI 詢問；「結束並保留」標成完成；捨棄會刪除', async () => {
+test('記錄中的軌跡一律顯示在地圖上，並被判定為「正在記錄」', () => {
+  startRecording();
+  const id = getCurrentTrack().id;
+  expect(isRecordingTrack(id)).toBe(true);
+  expect(isTrackShown(id)).toBe(true);
+  stopRecording();
+  expect(isRecordingTrack(id)).toBe(false);
+});
+
+test('啟動時回傳「沒有正常結束」的那一條；已結束或匯入的不算；記錄中就不回傳', async () => {
+  await saveTrack({
+    id: 'tdone', name: '完成的', startedAt: T0 + 5000, endedAt: T0 + 6000, done: true,
+    segments: [[[121.5, 25, T0, 10], [121.5, 25.0005, T0 + 30000, 10]]]
+  });
+  expect(await initTrackRecorder()).toBe(null);
+
   await saveTrack({
     id: 'tunfinished', name: '軌跡', startedAt: T0, endedAt: null, done: false,
     segments: [[[121.5, 25, T0, 10], [121.5, 25.0005, T0 + 30000, 10]]]
   });
-  const latest = await initTrackRecorder();
-  expect(latest.id).toBe('tunfinished');
-  expect(latest.done).toBe(false);
-  expect(getTrackStatus().canExport, '已讀回的軌跡可直接匯出').toBe(true);
+  const unfinished = await initTrackRecorder();
+  expect(unfinished.id).toBe('tunfinished'); // 即使有更新的軌跡（startedAt 較晚），也要找到沒結束的
 
-  await finishSavedTrack(latest);
-  expect(getCurrentTrack().done).toBe(true);
-  expect(getCurrentTrack().endedAt).toBe(T0 + 30000);
-  expect((await loadTrack('tunfinished')).done).toBe(true);
+  startRecording();
+  expect(await initTrackRecorder()).toBe(null);
+});
 
-  await discardTrack('tunfinished');
+test('「結束並保留」標成完成、時間取最後一個點；捨棄會刪除', async () => {
+  const saved = {
+    id: 'tunfinished', name: '軌跡', startedAt: T0, endedAt: null, done: false,
+    segments: [[[121.5, 25, T0, 10], [121.5, 25.0005, T0 + 30000, 10]]]
+  };
+  await saveTrack(saved);
+  await finishSavedTrack(saved);
+  const stored = await loadTrack('tunfinished');
+  expect(stored.done).toBe(true);
+  expect(stored.endedAt).toBe(T0 + 30000);
+
+  expect(await discardTrack('tunfinished')).toBe(true);
   expect(await loadTrack('tunfinished')).toBe(null);
-  expect(getCurrentTrack()).toBe(null);
+});
+
+/* ---------- 軌跡庫（我的軌跡列表） ---------- */
+
+const importedTrack = (id, startedAt) => ({
+  id, name: id, startedAt, endedAt: startedAt, done: true, imported: true,
+  segments: [[[121.5, 25, null, null], [121.5, 25.001, null, null]]]
+});
+
+test('listAllTracks：新的在前；記錄中那條用記憶體版本（含還沒寫入儲存的點）', async () => {
+  await saveTrack(importedTrack('old', T0 - 100000));
+  startRecording();
+  feed(0, 0);
+  feed(0.0005, 30);
+  const all = await listAllTracks();
+  expect(all.map((t) => t.id)).toEqual([getCurrentTrack().id, 'old']);
+  expect(all[0].segments[0]).toHaveLength(2); // 儲存裡還是舊快照（0 點），列表要看到最新
+});
+
+test('匯入的軌跡：存進儲存、立刻顯示在地圖上，且不影響目前記錄', async () => {
+  await addImportedTracks([importedTrack('i1', T0), importedTrack('i2', T0 + 1)]);
+  expect(isTrackShown('i1')).toBe(true);
+  expect(isTrackShown('i2')).toBe(true);
+  expect((await loadTrack('i1')).imported).toBe(true);
+  expect(getTrackStatus().recording).toBe(false);
+});
+
+test('改名：不是記錄中的直接改儲存；記錄中的改記憶體並寫入（否則下一次寫入會把舊名蓋回去）', async () => {
+  await saveTrack(importedTrack('i1', T0));
+  expect(await renameTrack('i1', '  淡水河岸  ')).toBe(true);
+  expect((await loadTrack('i1')).name).toBe('淡水河岸');
+  expect(await renameTrack('i1', '   ')).toBe(false); // 空白名稱不接受
+  expect(await renameTrack('nope', 'x')).toBe(false);
+
+  startRecording();
+  const id = getCurrentTrack().id;
+  await renameTrack(id, '晨跑');
+  feed(0, 0);
+  feed(0.0005, 30);
+  await stopRecording();
+  expect((await loadTrack(id)).name).toBe('晨跑');
+});
+
+test('刪除：連地圖上的折線一起移除；正在記錄的那條不能刪', async () => {
+  await addImportedTracks([importedTrack('i1', T0)]);
+  expect(await discardTrack('i1')).toBe(true);
+  expect(isTrackShown('i1')).toBe(false);
+  expect(await loadTrack('i1')).toBe(null);
+
+  startRecording();
+  const id = getCurrentTrack().id;
+  expect(await discardTrack(id)).toBe(false);
+  expect(getTrackStatus().recording).toBe(true);
+  expect(isTrackShown(id)).toBe(true);
 });

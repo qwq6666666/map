@@ -22,6 +22,7 @@ import { applyShareStateFromURL, initLiveShareURL } from './features/shareLink.j
 import { showAlert } from './ui/dialog.js';
 import { initNativeShareUI } from './ui/nativeShareUI.js';
 import { initTrackRecorderUI } from './ui/trackRecorderUI.js';
+import { initTrackListUI } from './ui/trackListUI.js';
 
 // 用頂層 await 取代原本包一層 async function main(){...} 再呼叫的寫法
 // （SonarQube javascript:S7785）；index.html 是 `<script type="module">`，
@@ -49,6 +50,7 @@ if(dataLoaded){
   initOnboarding(); // 新手導覽／使用指南（獨立疊加層，不依賴地圖或側欄初始化狀態）
   initNativeShareUI(); // 「傳送連結／截圖」原生分享面板按鈕（環境不支援就維持隱藏）
   initTrackRecorderUI(); // 「記錄軌跡／匯出軌跡」按鈕與狀態條；啟動時若上次記錄到一半被關掉會詢問接續
+  initTrackListUI(); // 「我的軌跡」列表抽屜（顯示／匯出／存成繪圖／改名／刪除／匯入 GPX、GeoJSON）
   initSourceStatusUI(); // 圖資來源狀態抽屜（一鍵探測各主機是否正常，跟 initOnboarding 一樣是獨立疊加層）
   initMobileLayout(); // 手機版 (<=768px) Bottom Sheet／頂部搜尋列協調，>768px 為 no-op
 

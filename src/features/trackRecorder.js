@@ -13,10 +13,10 @@
    折線畫在獨立圖層（zIndex 49，繪圖圖層 50 之下），不混進繪圖圖層，才不會被
    「清除繪圖」誤刪。
 --------------------------------------------------------- */
-import { map } from '../core/map.js';
 import { addTrackListener, ensureTracking } from './location.js';
 import { classifyFix, defaultTrackName, trackDistance, trackDurationMs, trackPointCount } from './trackMath.js';
-import { saveTrack, loadLatestTrack, deleteTrack } from './trackStore.js';
+import { saveTrack, listTracks, deleteTrack } from './trackStore.js';
+import { setTrackCoords, showTrack, hideTrack, projectSegments } from './trackLayer.js';
 
 // 寫入不能等太久：重新整理/關閉分頁時 pagehide 裡才開始的 IndexedDB 寫入不保證來得及完成（實測 location.reload() 會丟），
 // 所以最多只能丟掉最近這幾個點；切到背景（visibilitychange）那次寫入則很可靠。
@@ -27,9 +27,8 @@ const FLUSH_EVERY_MS = 10000;
 const MAX_JUMP_STREAK = 3;
 // 連續這麼多筆精度都不合格，就對使用者說明「這裡的定位不夠準、沒有記到東西」，而不是讓他以為在記錄。
 const WEAK_SIGNAL_STREAK = 3;
-const TRACK_Z_INDEX = 49;
 
-let track = null;            // 最新的一條軌跡（記錄中、剛結束、或啟動時從儲存讀回來的）
+let track = null;            // 正在記錄（或剛記錄完）的那一條；列表上其他軌跡不在這裡，直接讀儲存
 let recording = false;
 let lastGoodT = NaN;
 let forceNewSegment = false; // 接續舊軌跡時，第一筆定位一定要另起一段
@@ -39,8 +38,6 @@ let dirty = 0;
 let lastFlushAt = 0;
 let hooksInstalled = false;
 
-let layer = null;
-let feature = null;
 let segsXY = [];             // 已投影成地圖座標的各段，跟 track.segments 一一對應
 
 const listeners = new Set();
@@ -60,8 +57,6 @@ export function getTrackStatus(){
   return {
     recording,
     weakSignal: recording && inaccurateStreak >= WEAK_SIGNAL_STREAK,
-    hasTrack: !!track && trackPointCount(track) > 0,
-    canExport: !!track && trackPointCount(track) > 1,
     distanceMeters: track ? trackDistance(track) : 0,
     durationMs: track ? trackDurationMs(track) : 0,
     pointCount: track ? trackPointCount(track) : 0
@@ -70,30 +65,14 @@ export function getTrackStatus(){
 
 export function getCurrentTrack(){ return track; }
 
-/* ---------- 地圖上的折線 ---------- */
-
-function ensureLayer(){
-  if(layer) return;
-  feature = new ol.Feature(new ol.geom.MultiLineString([]));
-  layer = new ol.layer.Vector({
-    source: new ol.source.Vector({ features: [feature] }),
-    zIndex: TRACK_Z_INDEX,
-    style: [
-      new ol.style.Style({ stroke: new ol.style.Stroke({ color: '#ffffff', width: 7, lineCap: 'round', lineJoin: 'round' }) }),
-      new ol.style.Style({ stroke: new ol.style.Stroke({ color: '#d9480f', width: 4, lineCap: 'round', lineJoin: 'round' }) })
-    ]
-  });
-  map.addLayer(layer);
-}
+/* ---------- 地圖上的折線（共用 trackLayer，記錄中的軌跡一律顯示） ---------- */
 
 function redrawLine(){
-  ensureLayer();
-  // 單點的段畫不成線，OpenLayers 對只有一個座標的 LineString 行為不定，直接略過。
-  feature.getGeometry().setCoordinates(segsXY.filter((seg) => seg.length > 1));
+  setTrackCoords(track.id, segsXY);
 }
 
 function rebuildProjection(){
-  segsXY = track.segments.map((seg) => seg.map(([lon, lat]) => ol.proj.fromLonLat([lon, lat])));
+  segsXY = projectSegments(track);
 }
 
 /* ---------- 寫入儲存 ---------- */
@@ -160,7 +139,6 @@ export function startRecording(){
   forceNewSegment = false;
   jumpStreak = 0;
   inaccurateStreak = 0;
-  ensureLayer();
   redrawLine();
   ensureTracking();
   flush();
@@ -196,30 +174,68 @@ export function stopRecording(){
   return saved;
 }
 
-// 啟動時發現的未結束軌跡，使用者選「儲存」：直接標成完成。
+// 啟動時發現的未結束軌跡，使用者選「結束並保留」：直接標成完成。
 export async function finishSavedTrack(saved){
   const segs = saved.segments;
   const lastSeg = segs[segs.length - 1];
-  track = { ...saved, done: true, endedAt: lastSeg?.length ? lastSeg[lastSeg.length - 1][2] : saved.startedAt };
-  await saveTrack(track);
+  await saveTrack({ ...saved, done: true, endedAt: lastSeg?.length ? lastSeg[lastSeg.length - 1][2] : saved.startedAt });
   emit();
 }
 
-export async function discardTrack(id){
-  await deleteTrack(id);
+/* ---------- 軌跡庫（「我的軌跡」列表用；記錄中的那條以記憶體版本為準） ---------- */
+
+export const isRecordingTrack = (id) => recording && track?.id === id;
+
+// 全部軌跡，新的在前。記錄中的那條還有沒寫入儲存的點，用記憶體版本取代儲存裡的舊快照。
+export async function listAllTracks(){
+  const saved = await listTracks();
+  const merged = track && !saved.some((t) => t.id === track.id) ? [track, ...saved] : saved;
+  return merged
+    .map((t) => (track && t.id === track.id ? track : t))
+    .sort((a, b) => b.startedAt - a.startedAt);
+}
+
+// 匯入的軌跡直接存進儲存並顯示在地圖上（使用者剛匯入就是要看）。
+export async function addImportedTracks(tracks){
+  for(const t of tracks){
+    await saveTrack(t);
+    showTrack(t);
+  }
+  emit();
+}
+
+export async function renameTrack(id, name){
+  const trimmed = String(name ?? '').trim();
+  if(!trimmed) return false;
   if(track?.id === id){
-    if(recording) recording = false;
+    track.name = trimmed; // 記錄器之後的 flush 會寫整個 track，只改儲存的話下一次 flush 會把舊名字蓋回去
+    await flush();
+  } else {
+    const saved = (await listTracks()).find((t) => t.id === id);
+    if(!saved) return false;
+    await saveTrack({ ...saved, name: trimmed });
+  }
+  emit();
+  return true;
+}
+
+// 刪除一條軌跡（含地圖上的折線）。正在記錄的那條不能刪，要先結束記錄。
+export async function discardTrack(id){
+  if(isRecordingTrack(id)) return false;
+  await deleteTrack(id);
+  hideTrack(id);
+  if(track?.id === id){
     track = null;
     segsXY = [];
-    if(layer) redrawLine();
-    emit();
   }
+  emit();
+  return true;
 }
 
 /**
- * main.js 啟動流程呼叫一次。回傳啟動時從儲存讀到的最新軌跡（沒有＝null）：
- * 沒結束的由 UI 詢問接續／儲存／捨棄；已結束的先不畫在地圖上（重新整理
- * 就是乾淨的地圖），但保留下來讓匯出鈕可以用。
+ * main.js 啟動流程呼叫一次。回傳啟動時儲存裡「沒有正常結束」的那一條（沒有＝null），
+ * 由 UI 詢問接續或結束並保留。已結束的軌跡一律不自動畫在地圖上（重新整理就是乾淨
+ * 的地圖），要看再從「我的軌跡」打開。
  */
 export async function initTrackRecorder(){
   if(!hooksInstalled){
@@ -232,12 +248,8 @@ export async function initTrackRecorder(){
     globalThis.addEventListener?.('pagehide', () => { if(dirty > 0) flush(); });
   }
 
-  const latest = await loadLatestTrack();
-  if(latest && !recording){
-    track = latest;
-    emit();
-  }
-  return latest;
+  if(recording) return null; // 載入儲存的那幾毫秒內使用者已經自己開始新記錄
+  return (await listTracks()).find((t) => !t.done) ?? null;
 }
 
 // 測試用：重置模組內部狀態（不動已建立的圖層）。

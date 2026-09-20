@@ -1784,6 +1784,38 @@
   .guide-acc-body ol{margin:6px 0 4px; padding-left:1.5em; white-space:normal;}
   .guide-acc-body li{margin:2px 0;}
 
+  /* -- 我的軌跡抽屜（共用 .guide-drawer* 殼；按鈕一律用 class 選擇器，不用 ID，
+        避免蓋過 [hidden]／:disabled 的視覺，見 CLAUDE.md specificity 陷阱） -- */
+  .track-list-intro{font-size:var(--fs-sm); line-height:1.6; color:var(--ink); margin:0 0 12px;}
+  .track-list-import-row{margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid var(--rule);}
+  .track-list-import{
+    padding:8px 12px; background:var(--paper-dim); border:1px solid var(--rule); border-radius:var(--radius-sm);
+    font-family:var(--sans); font-size:var(--fs-sm); font-weight:700; color:var(--ink); cursor:pointer;
+  }
+  .track-list-import:hover{background:var(--brass-dark); border-color:var(--brass-dark); color:var(--paper);}
+  .track-list-empty{font-size:var(--fs-sm); line-height:1.6; color:var(--rule-text); margin:8px 0;}
+  .track-item{padding:12px 0; border-bottom:1px dashed var(--paper-dim);}
+  .track-item:last-child{border-bottom:none;}
+  .track-item-head{display:flex; align-items:center; gap:8px; min-width:0;}
+  .track-item-swatch{flex:none; width:14px; height:14px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 1px var(--rule);}
+  .track-item-name{flex:1 1 auto; min-width:0; font-weight:700; font-size:var(--fs-base); color:var(--ink); overflow-wrap:anywhere;}
+  .track-item-badge{
+    flex:none; font-size:var(--fs-2xs); font-weight:700; padding:1px 7px; border-radius:var(--radius-pill);
+    background:var(--paper-dim); color:var(--rule-text); border:1px solid var(--rule);
+  }
+  .track-item-badge.recording{background:#e03131; border-color:#e03131; color:#fff;}
+  .track-item-meta{margin:4px 0 8px 22px; font-size:var(--fs-xs); color:var(--rule-text);}
+  .track-item-actions{display:flex; flex-wrap:wrap; gap:6px; margin-left:22px;}
+  .track-item-btn{
+    padding:5px 10px; background:var(--paper); border:1px solid var(--rule); border-radius:var(--radius-sm);
+    font-family:var(--sans); font-size:var(--fs-xs); font-weight:600; color:var(--ink); cursor:pointer;
+  }
+  .track-item-btn:hover:not(:disabled){background:var(--paper-dim); border-color:var(--brass-dark);}
+  .track-item-btn.primary{background:var(--brass-dark); border-color:var(--brass-dark); color:var(--paper);}
+  .track-item-btn.primary:hover:not(:disabled){background:var(--brass-dark); opacity:.9;}
+  .track-item-btn.danger{color:#c92a2a;}
+  .track-item-btn:disabled{opacity:.45; cursor:default;}
+
   /* -- 圖資來源狀態抽屜（共用 .guide-drawer* 殼，內容不一樣） -- */
   .source-status-cache-section{margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--rule);}
   .source-status-cache-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}

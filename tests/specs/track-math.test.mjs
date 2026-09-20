@@ -3,7 +3,7 @@ import { test, expect } from 'vitest';
 import {
   classifyFix, segmentDistance, trackDistance, trackDurationMs, trackPointCount,
   formatDistance, formatDuration, defaultTrackName, trackFileStamp,
-  trackToGpx, trackToGeoJSON,
+  trackToGpx, trackToGeoJSON, trackToDrawingGeoJSON, formatTrackDate,
   TRACK_MAX_ACCURACY_M, TRACK_GAP_MS
 } from '../../src/features/trackMath.js';
 
@@ -111,4 +111,48 @@ test('GeoJSON：單點的段畫不成線，直接略過（不會把它變成只�
   const gj = trackToGeoJSON(trackOf([[point(0, 0), point(0.0005, 60)], [point(0.01, 1000)]]));
   expect(gj.features[0].geometry.type).toBe('LineString');
   expect(gj.features[0].geometry.coordinates).toHaveLength(2);
+});
+
+/* ---------- 匯入的軌跡沒有時間戳 ---------- */
+
+const noTimes = () => ({
+  id: 'i1', name: '匯入的', startedAt: T0, endedAt: T0, done: true, imported: true,
+  segments: [[[121.5, 25, null, null], [121.5, 25.0005, null, null]]]
+});
+
+test('沒有時間戳：有效時間是 0、不會變成 NaN；GPX 不輸出 <time>；GeoJSON 不輸出 times', () => {
+  const t = noTimes();
+  expect(trackDurationMs(t)).toBe(0);
+  const gpx = trackToGpx(t);
+  expect(gpx).toContain('<trkpt lat="25.0000000" lon="121.5000000"></trkpt>');
+  expect(gpx).not.toContain('1970');
+  const props = trackToGeoJSON(t).features[0].properties;
+  expect(props.coordinateProperties).toBeUndefined();
+  expect(Number.isFinite(props.distanceMeters)).toBe(true);
+});
+
+test('只有部分點有時間：整條不輸出 times（陣列長度必須跟座標一一對應）', () => {
+  const t = noTimes();
+  t.segments[0][0][2] = T0;
+  expect(trackToGeoJSON(t).features[0].properties.coordinateProperties).toBeUndefined();
+});
+
+test('formatTrackDate：本機時間 YYYY-MM-DD HH:mm', () => {
+  expect(formatTrackDate(T0)).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/);
+  expect(defaultTrackName(T0)).toBe(`軌跡 ${formatTrackDate(T0)}`);
+});
+
+/* ---------- 存成繪圖圖形 ---------- */
+
+test('trackToDrawingGeoJSON：每一段一條 kind:line，帶顏色與「名稱（長度）」標籤；單點的段略過', () => {
+  const track = trackOf([[point(0, 0), point(0.0005, 60)], [point(0.01, 1000), point(0.0105, 1060)], [point(0.02, 2000)]]);
+  const fc = trackToDrawingGeoJSON(track, '#1971c2');
+  expect(fc.features).toHaveLength(2);
+  const [f1, f2] = fc.features;
+  expect(f1.geometry.type).toBe('LineString');
+  expect(f1.properties).toMatchObject({ kind: 'line', name: '測試 1', stroke: '#1971c2' });
+  expect(f1.properties.label).toMatch(/^測試 1（\d+ 公尺）$/);
+  expect(f2.properties.name).toBe('測試 2');
+  const single = trackToDrawingGeoJSON(trackOf([[point(0, 0), point(0.0005, 60)]]), '#000');
+  expect(single.features[0].properties.name).toBe('測試'); // 只有一段就不加序號
 });

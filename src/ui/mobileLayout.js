@@ -491,8 +491,7 @@ function initModePopover(){
       else if(action === 'shareNativeLink') document.getElementById('shareNativeLinkBtn')?.click();
       else if(action === 'shareNativeImage') document.getElementById('shareNativeImageBtn')?.click();
       else if(action === 'trackRecord') document.getElementById('trackRecordBtn')?.click();
-      else if(action === 'trackExportGpx') document.getElementById('trackExportGpxBtn')?.click();
-      else if(action === 'trackExportGeoJson') document.getElementById('trackExportGeoJsonBtn')?.click();
+      else if(action === 'trackList') document.getElementById('trackListBtn')?.click();
       else if(action === 'sourceStatus') document.getElementById('sourceStatusBtn')?.click();
       closePopover();
     });

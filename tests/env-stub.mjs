@@ -631,4 +631,20 @@ globalThis.document.createElement = function(tag){
   return el;
 };
 
+// 軌跡圖層（features/trackLayer.js）用到的最小假 ol.Feature／ol.geom：
+// Feature 只存 geometry 與屬性，MultiLineString 只存座標，夠測「有沒有畫、畫了什麼座標」。
+globalThis.ol.geom = {
+  MultiLineString: class {
+    constructor(coords){ this.coords = coords; }
+    setCoordinates(coords){ this.coords = coords; }
+    getCoordinates(){ return this.coords; }
+  }
+};
+globalThis.ol.Feature = class {
+  constructor(geometry){ this.geom = geometry; this.props = {}; }
+  getGeometry(){ return this.geom; }
+  set(key, value){ this.props[key] = value; }
+  get(key){ return this.props[key]; }
+};
+
 export { elementCache };
