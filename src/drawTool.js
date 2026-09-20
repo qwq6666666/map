@@ -23,6 +23,7 @@ import { runtime } from './runtime.js';
 import { showAlert, showConfirm, showPrompt } from './ui/dialog.js';
 import { collectExportInfo, layoutInfoBand } from './features/exportInfo.js';
 import { getDisplayedPlaceNameCard } from './features/placeNames.js';
+import { shareFileNative } from './features/nativeShare.js';
 
 let vectorSource = null;
 let vectorLayer = null;
@@ -399,6 +400,29 @@ export function importGeoJSON(input){
  * OpenLayers 官方文件建議的匯出圖片做法。
  */
 export function exportImage(){
+  captureMap((blob) => downloadBlob(blob, `地圖截圖_${timestamp()}.png`));
+}
+
+/**
+ * 跟 exportImage() 產生同一張圖（含出處資訊列），但不下載，而是叫出
+ * 系統分享面板直接傳給其他 App（見 features/nativeShare.js）。
+ * 分享一定要在使用者手勢內呼叫；截圖是非同步產生的，手勢偶爾會過期
+ * （尤其 iOS Safari）或環境根本不支援，這兩種情況都改成直接下載圖片
+ * 並告知使用者，不讓這次操作白做。使用者自己關掉分享面板不算失敗。
+ */
+export function shareImage(){
+  captureMap(async (blob) => {
+    const filename = `地圖截圖_${timestamp()}.png`;
+    const file = new File([blob], filename, { type: 'image/png' });
+    const result = await shareFileNative(file, { title: '百年歷史地圖' });
+    if(result === 'shared' || result === 'cancelled') return;
+    downloadBlob(blob, filename);
+    showAlert('無法開啟分享面板，已改為下載圖片。');
+  });
+}
+
+// 等地圖這一幀畫完後擷取，把 PNG blob 交給 onBlob（下載或分享由呼叫端決定）。
+function captureMap(onBlob){
   // map.once('rendercomplete', ...) 理論上會在下一次渲染完成時觸發，但如果
   // 地圖畫面跟上次比對完全沒有變化，OpenLayers 有時候會判斷「沒有新的東西
   // 要重繪」而完全不觸發這個事件，導致監聽器卡住、擷取變得像「只能按一次」
@@ -409,14 +433,14 @@ export function exportImage(){
   const capture = () => {
     if(done) return;
     done = true;
-    doCapture();
+    doCapture(onBlob);
   };
   map.once('rendercomplete', capture);
   map.renderSync();
   setTimeout(capture, 400);
 }
 
-function doCapture(){
+function doCapture(onBlob){
   // 瀏覽器內部（尤其是 Retina／高解析度螢幕）常常會用比 CSS 顯示尺寸
   // 更高的實際像素去畫圖磚，畫面才會看起來清晰銳利。如果輸出的 canvas
   // 只開到 CSS 尺寸（例如螢幕上看到 800×600），等於把這些多出來的細節
@@ -470,7 +494,7 @@ function doCapture(){
   // try/catch，讓使用者至少看得到「為什麼失敗」，不會什麼都沒發生。
   try{
     mapCanvas.toBlob((blob) => {
-      if(blob) downloadBlob(blob, `地圖截圖_${timestamp()}.png`);
+      if(blob) onBlob(blob);
       else showAlert('圖片匯出失敗：圖層可能來自不允許跨網域讀取的伺服器（CORS 限制），請再試一次。');
     });
   }catch(err){

@@ -70,6 +70,23 @@
 - **單圖透明度存在 `store.overlayOpacity`（0~100）**，不再從 DOM 滑桿讀值：`core/layerManager.js` 的滑桿只呼叫 `setOverlayOpacity()`，兩顆滑桿與目前歷史圖層由 `initOpacityControls()` 內的 store 訂閱同步。只在 overlay／timeline 模式寫入 `opacity` 參數。
 - **網址列即時同步**：`initLiveShareURL()`（`main.js` 在 `applyShareStateFromURL()` 之後呼叫）訂閱 store＋`map.on('moveend')`，debounce 500ms 用 `history.replaceState` 寫回（不用 pushState，避免塞爆瀏覽器歷史）；非分享參數（utm 等）與 hash 原樣保留；回傳 `dispose()` 供測試收尾。測試：`tests/specs/share-link.test.mjs`。
 
+## 原生分享面板 (`src/features/nativeShare.js` + `src/ui/nativeShareUI.js`)
+「⋯ 更多」選單與手機「地圖工具」浮動選單各有「傳送連結…」「傳送截圖…」兩個入口，叫出系統分享面板（Web Share API），**跟既有「分享連結」（複製到剪貼簿）並存、不取代**。
+- **環境不支援就整個藏起來**：按鈕預設 `hidden`，`initNativeShareUI()`（`main.js` 在 `initOnboarding()` 之後呼叫）依 `canShareLink()`／`canShareFiles()` 決定顯示；四顆按鈕都帶 `data-native-share="link|image"`。檔案分享要用 `navigator.canShare({files})` 拿假檔案實際問過才準（桌面 Chrome 常常有 `share` 卻不能分享檔案）。**目前的預覽窗格（Electron）沒有 `navigator.share`，按鈕會是隱藏的，測的時候要自己攔截 `navigator.share`。**
+- **手機浮動選單的入口由 `ui/mobileLayout.js` 轉發 `.click()` 給更多選單裡的按鈕**（比照「分享連結」既有做法），所以真正綁事件的只有 `#shareNativeLinkBtn`／`#shareNativeImageBtn` 兩顆。`.mobile-mode-option` 設了 `display:flex` 會蓋過 `hidden` 屬性，`mobile.css` 補了 `.mobile-mode-option[hidden]{display:none}`。
+- **`nativeShare.js` 把結果統一成字串**（`shared`／`cancelled`／`blocked`／`unsupported`／`failed`），呼叫端不用處理例外：使用者自己關掉面板（`AbortError`）是 `cancelled`、不算錯誤；`NotAllowedError` 是 `blocked`。
+- **截圖分享 `drawTool.shareImage()` 與「地圖截圖」共用 `captureMap(onBlob)`**（同一套含出處資訊列的流程，只是最後一步一個下載、一個分享）。截圖是非同步產生的，使用者手勢可能過期（iOS Safari 較嚴），所以 `blocked`／`unsupported`／`failed` 一律**改為下載圖片並跳提示**，不讓這次操作白做。
+- 測試：`native-share.test.mjs`（偵測與結果對應）、`native-share-ui.test.mjs`（按鈕顯示／隱藏與點擊接線；假 DOM 節點跨測試共用，`setupButtons()` 要清 `_listeners`，否則監聽器會累積）、`draw-tool.test.mjs`（`shareImage()` 各路徑）。
+
+## 持續定位追蹤 (`src/features/location.js`：`#trackBtn`)
+定位鈕左邊的「持續追蹤」鈕（`watchPosition`，地圖跟著藍點走），跟一次性定位（`#locateBtn`，`getCurrentPosition`）並存、互不取代。手機版兩顆浮動鈕都被 CSS 隱藏，入口在「地圖工具」浮動選單的「持續追蹤位置」（`#mobileTrackBtn`，只轉發 `.click()` 給 `#trackBtn`，文字與 active 由 `mobileLayout.js` 的 MutationObserver 依 `#trackBtn` 的 class 同步）。
+- **三態 `off`／`following`／`paused`**，轉換是純函式 `nextTrackState(state, event)`：`toggle`（off→following、paused→following、following→off）、`userMoved`（僅 following→paused）、`denied`／`stop`（→off）。按鈕外觀：追蹤中＝實心藍（`.tracking`）、暫停＝藍框淺底（`.paused`，按下「回到目前位置」）、等第一筆定位＝圖示旋轉（`.acquiring`）。
+- **「使用者移開了地圖」的偵測絕對不能靠時間窗口**（`Date.now() < 某時間` 這類「這段時間內的移動都算自己的」）：畫面暫停渲染（螢幕鎖定、切分頁）時 OpenLayers 動畫會晚很久才跑完，時間窗口早就過了，會誤判成使用者操作。實際做法三條路徑：① `map.on('pointerdrag')` 拖曳當下就暫停（等放開才判斷的話，拖到一半下一筆定位會在手指底下把地圖拉走）；② `followTo()` 發現地圖正被「不是我們發起的」動畫移動（例如地址搜尋飛到別處）→ 暫停、不搶回來（靠 `selfAnimate()` 記 `pendingSelfAnims`，`animate()` 的 callback 在結束或被打斷時都會被呼叫；沒有任何動畫在跑就歸零，計數不會卡住）；③ `map.on('moveend')` 且沒在動畫時，畫面中心離最後定位點超過 `FOLLOW_DRIFT_PX`（40px）→ 暫停（滾輪縮放、鍵盤等；縮放鈕繞中心縮放不位移，不會誤判）。使用者主動按「回到目前位置」用 `force` 略過②。追蹤中按一次性定位，那支置中動畫也走 `selfAnimate()`，才不會被當成別人的動畫。
+- **座標彈窗原地更新、不重建 DOM**：持續追蹤約每秒更新一次，重建會讓使用者正要按的「複製」鈕在手指底下被換掉。`buildCoordRow(label, text, getText)` 新增選填的 `getText`，複製時才即時取值（否則永遠複製建立那一列當下的舊座標）。**只有第一筆定位主動打開彈窗**，之後使用者關掉就不再跳出來。彈窗多一行精度（`describeAccuracy()`：超過 100 公尺標「訊號較弱」），一次性定位也會顯示。
+- **追蹤期間用 Screen Wake Lock 保持螢幕亮起**（走路時螢幕待機，瀏覽器會暫停定位）；頁面重新可見（`visibilitychange`）要重新申請，被拒絕（省電模式）不影響追蹤。權限被拒（`PERMISSION_DENIED`）自動停止；訊號暫時不穩（逾時／無法判斷）追蹤繼續、同一段連續失敗只提示一次。
+- **未做、之後可加**：裝置朝向（羅盤，iOS 要額外要權限）、軌跡記錄與匯出、精度圓圈。
+- 測試：`tests/specs/location-tracking.test.mjs`（`env-stub.mjs` 的 `FakeMap` 現在會記錄所有事件，`map._trigger(ev)` 可模擬 `pointerdrag`／`moveend`；假視角的 `animate()` 不會自己結束，用 `finishAnimations()` 模擬）；`location-button.test.mjs` 驗證一次性定位不受影響。**預覽窗格沒有真的 GPS，實測時要自己覆寫 `navigator.geolocation.watchPosition` 餵假座標。**
+
 ## 地圖載入提示 (`body.map-ready`)
 `#map` 預設底色是 `var(--paper-dim)`，非純黑，避免瓦片載入完成前被誤認當機；`index.html` 的 `#mapLoading`（spinner＋文字）純靠 CSS 淡出、**沒有**自己的 JS 監聽。淡出時機是 `src/core/map.js` 在 `map.once('rendercomplete', ...)` 對 `document.body` 加 `map-ready` class，`style.css` 靠 `body.map-ready .map-loading{opacity:0; pointer-events:none;}` 反應——map-core-agent 只出訊號、ui-frontend-agent 全權處理視覺，**`map-ready` 是跨檔案契約，不要改名或另建第二套訊號**。
 
@@ -80,6 +97,7 @@
 - **延遲載入**：`src/features/placeNames.js` 只在使用者第一次搜尋（`findPlaceNameCandidates()`）時才 `fetch()` 這份 10MB 檔案、之後吃記憶體快取，不放進 app 啟動流程（比照 `data/presets/` 的規劃慣例——該目錄目前仍是空的，功能尚未實作，見 DEVELOPMENT.md）。
 - **比對規則**：現名或別名**精確相符**（非模糊比對），只保留有經緯度的候選（約 3.5 萬筆）；`matchPlaceNames(places, query)` 是不碰 fetch 的純函式版本，單元測試優先呼叫。
 - **搜尋流程**（`src/ui/search.js` 的 `runImmediateSearch()`）：0 筆才退回 `geocodeAddress`；1 筆直接定位＋顯示卡片；多筆重用既有 `#addressSuggest` 列候選（**不要**另建獨立容器，否則手機版 `relocateSearchBar()` 不會搬到頂部搜尋列）。debounce 建議清單同樣並行查 `findPlaceNameCandidates()`，用 `renderMergedSuggestList()` 把地名候選（`.place-name-suggest-item`）釘在地址建議（`.address-suggest-item`）上方，Enter／debounce 兩條路徑行為一致。`renderPlaceNameCard()` 預設收合（`.collapsed`，內容照常渲染只是 CSS 隱藏），避免選到候選後一次全部展開太長；`focusPlaceNameCard()`（identify pin「查看地名沿革」）例外強制展開。
+- **卡片精簡版面（`src/ui/placeNameCard.js`）**：現名＋現代位置併同一列（現名粗體、位置小字，不再有「現代位置」標籤）；別名標籤；地名說明預設只顯示「一句話摘要」（`summarizeDescription()`，`placeNames.js` 純函式：≤60 字全文直接顯示——實測有說明的 2 萬筆中位數 30 字、75% 在 57 字內；超過取第一句到 。！？； 為止，第一句太長或沒句號就在 60 字內最後一個逗號／頓號斷開、逗號太靠前（不到 30 字）就硬切，加「…」）＋「展開全文」；資料來源降為淡色單行註腳（`.place-name-source-note`，文字仍是「資料來源：臺灣地區地名資料（○○類）」）。**收合時標題列右側有一行預覽**（`#placeNameCardTeaser`，優先舊稱、其次說明摘要、再其次位置），展開後由 CSS 隱藏；**整條標題列可點**收合／展開（`initPlaceNameCard()` 轉發給 `#placeNameCardToggle`，點到圓鈕本身不轉發，否則切兩次等於沒動）。截圖資訊列（`exportInfo.js`）與這張卡是各自組文字，改卡片版面不影響它。
 - **已踩過的坑**：`#addressSuggest` 桌面版 CSS 是 `position:absolute; top:100%` 相對 `.search-block` 定位，此祖先同時包住 `#locationResult`——已有搜尋結果展開時容器被撐高，建議/候選清單會被推到捲動範圍外看不到。已在 `renderSuggestList()`／`renderPlaceNameCandidateList()` 開頭呼叫 `repositionSuggestBelowInputRow()` 動態改寫 `top`（只在桌面版生效），之後在 `.search-block` 新增類似浮動元素記得比照辦理。
 - **點位資訊視窗整合**：`initIdentifyPin({ getPlaceNameMatch, onViewPlaceNameCard })` 兩個可選參數。誤差容許 `1e-4` 度（約 11 公尺）才視為同一點，刻意保守——只有剛透過搜尋選定過地名、且點擊座標精準落在附近時才顯示「歷史地名」提示列，不對任意點擊做地名反查。
 - **附近歷史地名（空間鄰近搜尋）**：精確比對是「打對字才找得到」，`findNearbyPlaceNames(places, lon, lat, { radiusMeters=800, limit=5 })`／`findNearbyPlaceNamesAsync(lon, lat, opts)`（`src/features/placeNames.js`，純函式＋async 包裝比照 `matchPlaceNames`／`findPlaceNameCandidates` 寫法）補上反向管道——用 haversine 算距離，線性掃描全部有座標候選（35,270 筆在 JS 內是毫秒等級，沒建空間索引）。**只掛在 `selectGeocodeResult()`（一般地址 geocoding 命中）這條路徑**，`selectPlaceNameCandidate()`（精確比對到古地名）不觸發，避免打對古地名時畫面疊加兩份。`src/ui/search.js` 的 `renderNearbyPlaceNames()` 查無結果安靜不顯示（不跳「查無」訊息），有結果就插進 `#locationResult`（座標資訊之後、可用圖層清單之前），點擊項目重用既有 `renderPlaceNameCard()`／`focusPlaceNameCard()` 展開卡片，不重刻渲染邏輯；`showLocationAndFindLayers()` 開頭統一清舊的 `.nearby-place-names`，三條落點路徑（地址搜尋／地名比對／定位）都不會殘留上一輪清單。半徑 800m／上限 5 筆是初版預設值，資料密度不均（市區密、山區可能方圓數公里內都沒資料），之後如果使用回饋覺得太鬆或太緊，回來調這兩個參數即可。
@@ -95,7 +113,7 @@
 - 測試：`tests/specs/export-info.test.mjs`；`draw-tool.test.mjs` 驗證開關與輸出尺寸；`place-name-card-ui.test.mjs` 驗證顯示中卡片狀態同步。
 
 ## 測試框架 (vitest)
-測試統一使用 vitest（`tests/specs/*.test.mjs`，57 支、666 個案例；設定 `vitest.config.js`）。原本並存的手刻框架（`tests/run-all.mjs`＋`tests/assert.mjs`）已在雙軌期間漏改案例（`multi-overlay` 拖曳排序測試只補在舊版）而移除，不要再新增第二套測試機制。改動測試時要注意：
+測試統一使用 vitest（`tests/specs/*.test.mjs`，60 支、727 個案例；設定 `vitest.config.js`）。原本並存的手刻框架（`tests/run-all.mjs`＋`tests/assert.mjs`）已在雙軌期間漏改案例（`multi-overlay` 拖曳排序測試只補在舊版）而移除，不要再新增第二套測試機制。改動測試時要注意：
 - 共用模組：`tests/env-stub.mjs`（手動塞 `globalThis` 模擬 `document`／`window`／`ol` 的假瀏覽器環境，vitest `environment` 維持預設 `'node'`，不要疊加 jsdom）、`tests/helpers.mjs`（`sleep()`／`waitFor()`）、`tests/tileImageStub.mjs`（假 `Image`）。
 - `tests/env-stub.mjs` 有一個關鍵相容性修正：`globalThis.URL` 必須保留 Node 原生建構子、只在上面附加 `createObjectURL`／`revokeObjectURL` 兩個靜態方法。若整個覆蓋成 `{ createObjectURL, revokeObjectURL }`，vitest 的模組載入器（vite-node）解析後續 `import` 時會拋 `TypeError: URL is not a constructor`。`src/features/sourceStatus.js`／`tests/specs/spatial-index.test.mjs` 裡當初因這個限制而寫的「不能用 `new URL()`」迴避寫法，其實現在可以移除（尚未動手）。
 - vitest 的 `test()` 是「先收集全部呼叫、模組載入完才統一執行」，**任何寫在模組頂層（不在 `test()`／`beforeEach()`／`afterEach()`／`afterAll()` 裡）、假設『在測試案例執行完之後才跑』的清理程式碼，語意會跑掉**（已踩過：`location-button.test.mjs` 清理 `runtime.locateToastTimer` 的程式碼放在模組頂層會在測試執行前就跑、清理失效，讓一顆 4.5 秒的真實計時器每次都拖到自然到期；修法是用 `afterAll()` 包起來）。

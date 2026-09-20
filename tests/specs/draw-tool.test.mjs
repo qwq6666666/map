@@ -5,18 +5,18 @@ import { loadAppData } from '../../src/data.js';
 import { initMapCore, map } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
 import { initSearchUI } from '../../src/searchUI.js';
-import { initDrawTool, exportGeoJSON, exportImage } from '../../src/drawTool.js';
+import { initDrawTool, exportGeoJSON, exportImage, shareImage } from '../../src/drawTool.js';
 import { setRendercompleteAutoFire } from '../env-stub.mjs';
 import { runtime } from '../../src/runtime.js';
 
 // 站內對話框（ui/dialog.js）在假 DOM 裡沒有人會去點按鈕，這裡換成可控的
 // 假實作：dialogMock.answer 就是使用者在名稱對話框輸入的文字（null＝略過）。
 // 對話框本身的行為由 dialog.test.mjs 驗證。
-const dialogMock = vi.hoisted(() => ({ answer: '', lastMessage: null }));
+const dialogMock = vi.hoisted(() => ({ answer: '', lastMessage: null, alerts: [] }));
 vi.mock('../../src/ui/dialog.js', () => ({
   showPrompt: async (message) => { dialogMock.lastMessage = message; return dialogMock.answer; },
   showConfirm: async () => true,
-  showAlert: async () => {},
+  showAlert: async (message) => { dialogMock.alerts.push(message); },
 }));
 
 await loadAppData();
@@ -232,6 +232,71 @@ test('截圖預設附出處資訊列（輸出圖片比純地圖畫面高）；�
   toggle.click(); // 還原，不影響其他測試
   expect(localStorage.getItem('hundredYearMap:exportInfoBand')).toBe('1');
   expect(captureExportedSize()).toBe(withBand);
+});
+
+/* ---------- shareImage()：叫出系統分享面板傳送截圖 ---------- */
+
+const errorNamed = (name) => Object.assign(new Error(name), { name });
+
+// 攔下下載（URL.createObjectURL）與分享（navigator.share）兩條出口，回傳結果供斷言。
+// share=null 代表環境完全沒有 navigator.share。
+async function runShareImage({ share }){
+  const originalCreateObjectURL = globalThis.URL.createObjectURL;
+  const out = { downloads: 0, shared: null, blobSize: null };
+  globalThis.URL.createObjectURL = (blob) => { out.downloads++; out.blobSize = blob.size; return 'blob:fake'; };
+  if(share){
+    navigator.share = async (data) => { out.shared = data; await share(data); };
+    navigator.canShare = () => true;
+  }
+  dialogMock.alerts.length = 0;
+  try{
+    shareImage();
+    await sleep(20); // 截圖 → File → navigator.share → 備援，全是微任務，給一點時間跑完
+  } finally {
+    globalThis.URL.createObjectURL = originalCreateObjectURL;
+    delete navigator.share;
+    delete navigator.canShare;
+  }
+  return out;
+}
+
+test('shareImage：支援檔案分享時把 PNG 交給分享面板，不下載也不跳提示', async () => {
+  const r = await runShareImage({ share: async () => {} });
+  expect(r.shared.files.length).toBe(1);
+  expect(r.shared.files[0].type).toBe('image/png');
+  expect(r.shared.files[0].name).toMatch(/^地圖截圖_\d{8}_\d{4}\.png$/);
+  expect(r.downloads).toBe(0);
+  expect(dialogMock.alerts).toEqual([]);
+});
+
+test('shareImage：使用者關掉分享面板（AbortError）＝取消，不下載也不提示', async () => {
+  const r = await runShareImage({ share: async () => { throw errorNamed('AbortError'); } });
+  expect(r.downloads).toBe(0);
+  expect(dialogMock.alerts).toEqual([]);
+});
+
+test('shareImage：手勢過期被擋下（NotAllowedError）時改為下載圖片並告知', async () => {
+  const r = await runShareImage({ share: async () => { throw errorNamed('NotAllowedError'); } });
+  expect(r.downloads).toBe(1);
+  expect(dialogMock.alerts.length).toBe(1);
+  expect(dialogMock.alerts[0]).toContain('已改為下載圖片');
+});
+
+test('shareImage：環境不支援分享（沒有 navigator.share）時改為下載圖片並告知', async () => {
+  const r = await runShareImage({ share: null });
+  expect(r.shared).toBeNull();
+  expect(r.downloads).toBe(1);
+  expect(dialogMock.alerts[0]).toContain('已改為下載圖片');
+});
+
+test('shareImage 與「地圖截圖」走同一條截圖流程：出處資訊列開關同樣影響分享的圖片尺寸', async () => {
+  // FakeCanvas 的 blob 大小＝寬×高。走下載備援（share:null）才拿得到 blob 尺寸。
+  const toggle = document.getElementById('drawExportInfoToggle');
+  const withBand = (await runShareImage({ share: null })).blobSize;
+  toggle.click(); // 關閉資訊列
+  const withoutBand = (await runShareImage({ share: null })).blobSize;
+  toggle.click(); // 還原
+  expect(withBand > withoutBand, `有資訊列 ${withBand} 應大於純地圖 ${withoutBand}`).toBe(true);
 });
 
 // 刪除/清空快取等操作會觸發 drawTool.js 的 showStorageToast()，留下一顆

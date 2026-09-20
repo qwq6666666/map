@@ -228,7 +228,7 @@
        （#mobileDrawToggle，見 index.html／src/ui/mobileLayout.js），
        預設不開啟，跟桌面版一樣，只是入口換位置。放大縮小按鈕也收起來，
        手機直接用雙指縮放即可（見使用者回報）。 ---------- */
-    .locate-btn, .draw-toggle-btn, .ol-zoom{
+    .locate-btn, .track-btn, .draw-toggle-btn, .ol-zoom{
       display:none;
     }
     .draw-toolbar{
@@ -385,6 +385,10 @@
       font-family:var(--sans); font-size:var(--fs-base); color:var(--ink); text-align:left; cursor:pointer;
     }
     .mobile-mode-option:last-child{margin-bottom:0;}
+    /* 上面 .mobile-mode-option 設了 display:flex，會蓋過 hidden 屬性預設的
+       display:none（見 CLAUDE.md 的 specificity 陷阱），「傳送連結／截圖」這類
+       依環境支援才顯示的選項要靠這條補回來。 */
+    .mobile-mode-option[hidden]{display:none;}
     .mobile-mode-option:hover{background:var(--paper-dim);}
     .mobile-mode-option::before{
       content:"○"; color:var(--rule-text); font-size:var(--fs-sm); flex-shrink:0;

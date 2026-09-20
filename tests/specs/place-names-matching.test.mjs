@@ -1,6 +1,6 @@
 import '../env-stub.mjs';
 import { test, expect } from 'vitest';
-import { matchPlaceNames, getActivePlaceNameMatchAt, setActivePlaceNameMatch, clearActivePlaceNameMatch, sourceTypeLabel } from '../../src/features/placeNames.js';
+import { matchPlaceNames, getActivePlaceNameMatchAt, setActivePlaceNameMatch, clearActivePlaceNameMatch, sourceTypeLabel, summarizeDescription, SUMMARY_MAX_CHARS } from '../../src/features/placeNames.js';
 
 /* ---------------------------------------------------------
    tests/specs/place-names-matching.test.mjs
@@ -136,4 +136,53 @@ test('sourceTypeLabel：admin 對應「行政區域」', () => {
 test('sourceTypeLabel：未知值回傳空字串', () => {
   expect(sourceTypeLabel('unknown-type')).toBe('');
   expect(sourceTypeLabel(undefined)).toBe('');
+});
+
+/* ---------- summarizeDescription：地名卡的一句話摘要 ---------- */
+
+test('summarizeDescription：60 字以內原文直接回傳、不標記截斷', () => {
+  const text = '因聚落位置適在水里溪曲流凸岸上，故名';
+  expect(summarizeDescription(text)).toEqual({ summary: text, truncated: false });
+  const exactly60 = '字'.repeat(SUMMARY_MAX_CHARS);
+  expect(summarizeDescription(exactly60).truncated).toBe(false);
+});
+
+test('summarizeDescription：空值與只有空白回傳空摘要', () => {
+  expect(summarizeDescription('')).toEqual({ summary: '', truncated: false });
+  expect(summarizeDescription(null)).toEqual({ summary: '', truncated: false });
+  expect(summarizeDescription('   ')).toEqual({ summary: '', truncated: false });
+});
+
+test('summarizeDescription：超過 60 字時取第一句（含句尾標點），不加省略號', () => {
+  const first = '新街地名有二義，其一指聚落名稱，是由彰化市進入名間鄉的第一個聚落。';
+  const r = summarizeDescription(first + '漢人入墾初期，此地原為閩籍陳姓族人產業，後又售予其他閩籍移民，故名福興庄。');
+  expect(r.summary).toBe(first);
+  expect(r.truncated).toBe(true);
+});
+
+test('summarizeDescription：分號、驚嘆號、問號也視為句尾', () => {
+  const s = '甲'.repeat(20);
+  expect(summarizeDescription(`${s}；${'乙'.repeat(60)}`).summary).toBe(`${s}；`);
+  expect(summarizeDescription(`${s}！${'乙'.repeat(60)}`).summary).toBe(`${s}！`);
+  expect(summarizeDescription(`${s}？${'乙'.repeat(60)}`).summary).toBe(`${s}？`);
+});
+
+test('summarizeDescription：第一句超過 60 字時，在上限內最後一個逗號處斷開並加「…」', () => {
+  const clause = '甲'.repeat(24);
+  const r = summarizeDescription(`${clause}，${clause}，${clause}，${clause}。`);
+  // 上限 60 字內最後的逗號在第 50 字（索引 49）：前兩段各 24 字＋逗號，共 50 字
+  expect(r.summary).toBe(`${clause}，${clause}…`);
+  expect(r.truncated).toBe(true);
+});
+
+test('summarizeDescription：逗號太靠前（不到上限一半）就不在那斷開，避免摘要過短', () => {
+  const r = summarizeDescription(`短，${'乙'.repeat(100)}`);
+  expect(Array.from(r.summary).length).toBe(SUMMARY_MAX_CHARS + 1); // 60 字＋「…」
+  expect(r.summary.endsWith('…')).toBe(true);
+});
+
+test('summarizeDescription：完全沒有標點的長文字硬切在 60 字並加「…」', () => {
+  const r = summarizeDescription('丙'.repeat(200));
+  expect(r.summary).toBe(`${'丙'.repeat(SUMMARY_MAX_CHARS)}…`);
+  expect(r.truncated).toBe(true);
 });

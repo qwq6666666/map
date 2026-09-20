@@ -458,12 +458,38 @@ function initModePopover(){
     collapseSidebar();
     closePopover();
   });
+  // 持續追蹤同樣只轉呼叫 #trackBtn；一樣收合 Sheet，理由同上（跟隨中的藍點
+  // 會被置中，Sheet 展開會蓋住它）。選項文字／active 依 #trackBtn 目前的
+  // class 同步（.tracking／.paused），用 MutationObserver 涵蓋所有改變狀態的
+  // 途徑（例如定位被拒絕而自動停止）。
+  const trackOption = document.getElementById('mobileTrackBtn');
+  const trackLabel = document.getElementById('mobileTrackLabel');
+  const realTrackBtn = document.getElementById('trackBtn');
+  function syncTrackOption(){
+    if(!trackOption || !realTrackBtn) return;
+    const following = realTrackBtn.classList.contains('tracking');
+    const paused = realTrackBtn.classList.contains('paused');
+    if(trackLabel) trackLabel.textContent = following ? '停止追蹤位置' : (paused ? '回到我的位置' : '持續追蹤位置');
+    trackOption.classList.toggle('active', following || paused);
+    trackOption.setAttribute('aria-pressed', (following || paused) ? 'true' : 'false');
+  }
+  trackOption?.addEventListener('click', ()=>{
+    realTrackBtn?.click();
+    collapseSidebar();
+    closePopover();
+  });
+  if(realTrackBtn){
+    new MutationObserver(syncTrackOption).observe(realTrackBtn, { attributes:true, attributeFilter:['class'] });
+  }
+  syncTrackOption();
   popover.querySelectorAll('.mobile-mode-option[data-help-action]').forEach(optBtn=>{
     optBtn.addEventListener('click', ()=>{
       const action = optBtn.dataset.helpAction;
       if(action === 'tour') document.getElementById('tourStartBtn')?.click();
       else if(action === 'guide') document.getElementById('guideOpenBtn')?.click();
       else if(action === 'share') document.getElementById('shareLinkBtn')?.click();
+      else if(action === 'shareNativeLink') document.getElementById('shareNativeLinkBtn')?.click();
+      else if(action === 'shareNativeImage') document.getElementById('shareNativeImageBtn')?.click();
       else if(action === 'sourceStatus') document.getElementById('sourceStatusBtn')?.click();
       closePopover();
     });

@@ -199,6 +199,30 @@ export async function findNearbyPlaceNamesAsync(lon, lat, opts){
   return findNearbyPlaceNames(loadedPlaces, lon, lat, opts);
 }
 
+// 地名說明的「一句話摘要」：地名卡預設只顯示這段，全文要按「展開全文」。
+// 資料實測（有座標且有說明的 2 萬筆）：中位數 30 字、75% 在 57 字內、
+// 但長尾可到上千字，所以 60 字以內直接全文顯示（不用多按一下）；超過時
+// 優先取第一句（到 。！？； 為止），第一句仍太長或沒有句號就在上限內
+// 找最後一個逗號／頓號斷開（太靠前就不用，避免摘要過短），都沒有才硬切。
+// 非空且被截短時 truncated 為 true，呼叫端據此決定要不要顯示展開鈕。
+export const SUMMARY_MAX_CHARS = 60;
+
+export function summarizeDescription(description){
+  const full = String(description || '').trim();
+  const chars = Array.from(full);
+  if(chars.length <= SUMMARY_MAX_CHARS) return { summary: full, truncated: false };
+
+  const sentenceEnd = chars.findIndex(c => '。！？；'.includes(c));
+  if(sentenceEnd >= 0 && sentenceEnd + 1 <= SUMMARY_MAX_CHARS){
+    return { summary: chars.slice(0, sentenceEnd + 1).join(''), truncated: true };
+  }
+
+  const head = chars.slice(0, SUMMARY_MAX_CHARS);
+  const comma = Math.max(head.lastIndexOf('，'), head.lastIndexOf('、'));
+  const cut = comma >= SUMMARY_MAX_CHARS / 2 ? head.slice(0, comma) : head;
+  return { summary: `${cut.join('')}…`, truncated: true };
+}
+
 // 「目前作用中的比對結果」：記錄使用者剛剛從候選清單選定、顯示在地圖上
 // 的 place，供 identifyPin.js 在同一個點落點時顯示「歷史地名」小卡，
 // 不需要 identifyPin.js 自己重新做一次地名比對。

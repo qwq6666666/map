@@ -152,6 +152,69 @@ test('點擊「展開全文」按鈕後顯示完整全文，按鈕文字變成�
   expect(toggleBtn.textContent, '按鈕文字應該變成「收合」').toBe('收合');
 });
 
+/* ---------- 精簡版卡片：現名與位置同列、一句話摘要、標題列預覽、淡色註腳 ---------- */
+
+const teaserEl = document.getElementById('placeNameCardTeaser');
+const findNodes = (root, pred) => {
+  const out = [];
+  (function walk(n){ if(pred(n)) out.push(n); (n.children || []).forEach(walk); })(root);
+  return out;
+};
+
+test('現名與現代位置併在同一列（現名粗體、位置小字），不再有獨立的「現代位置」標籤', () => {
+  renderPlaceNameCard(place);
+  expect(cardText().includes('現代位置'), '不該再有「現代位置」標籤').toBe(false);
+  const headingRow = placeNameCardBodyEl.children[0];
+  const [nameEl] = findNodes(headingRow, n => n.className === 'place-name-current');
+  const [locEl] = findNodes(headingRow, n => n.className === 'place-name-loc');
+  expect(nameEl.textContent).toBe('德化社');
+  expect(locEl.textContent).toBe('南投縣魚池鄉');
+});
+
+test('county／town 缺值時不會出現 "undefined"，且沒有位置就不建立位置元素', () => {
+  renderPlaceNameCard({ ...place, county: undefined, town: undefined });
+  expect(cardText().includes('undefined')).toBe(false);
+  expect(findNodes(placeNameCardBodyEl, n => n.className === 'place-name-loc').length).toBe(0);
+});
+
+test('地名說明在 60 字內直接全文顯示，不出現「展開全文」', () => {
+  renderPlaceNameCard({ ...place, description: '日月潭邊的邵族聚落，日治時期曾稱化番社。' });
+  expect(cardText().includes('日月潭邊的邵族聚落，日治時期曾稱化番社。')).toBe(true);
+  expect(cardText().includes('展開全文')).toBe(false);
+});
+
+test('地名說明較長時預設只顯示第一句，展開全文後才看到後面的句子', () => {
+  const first = '這裡原為平埔族聚落。';
+  const rest = '後來漢人入墾，因水利開發而逐漸繁榮，日治時期改隸為庄，戰後併入鄉鎮，後來又歷經數次行政區調整，沿革十分複雜。';
+  renderPlaceNameCard({ ...place, description: first + rest });
+  expect(cardText().includes(first)).toBe(true);
+  expect(cardText().includes('日治時期改隸為庄'), '預設不該顯示後面的句子').toBe(false);
+  const [btn] = findNodes(placeNameCardBodyEl, n => n.tag === 'button' && n.textContent === '展開全文');
+  btn.click();
+  expect(cardText().includes('日治時期改隸為庄')).toBe(true);
+});
+
+test('資料來源是單行淡色註腳（固定格式，含「資料來源：」前綴）', () => {
+  renderPlaceNameCard(place);
+  const notes = findNodes(placeNameCardBodyEl, n => n.className === 'place-name-source-note');
+  expect(notes.length).toBe(1);
+  expect(notes[0].textContent).toBe('資料來源：臺灣地區地名資料（聚落類）');
+});
+
+test('標題列預覽：有舊稱顯示舊稱；沒舊稱顯示說明摘要；兩者都沒有顯示現代位置；隱藏卡片後清空', () => {
+  renderPlaceNameCard(place);
+  expect(teaserEl.textContent).toBe('舊稱：卜吉、化番社');
+
+  renderPlaceNameCard({ ...place, aliases: [] });
+  expect(teaserEl.textContent).toBe('日月潭邊的邵族聚落，日治時期曾稱化番社。');
+
+  renderPlaceNameCard(placeNoAlias);
+  expect(teaserEl.textContent).toBe('南投縣竹山鎮');
+
+  hidePlaceNameCard();
+  expect(teaserEl.textContent).toBe('');
+});
+
 test('收合按鈕（#placeNameCardToggle）點擊後，#placeNameCard 移除 collapsed class（展開）', () => {
   renderPlaceNameCard(place); // 渲染後預設是收合狀態
   expect(placeNameCardEl.classList.contains('collapsed'), '前置條件：卡片預設應該是收合狀態').toBeTruthy();

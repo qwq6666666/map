@@ -518,6 +518,7 @@ class FakeMap {
     // 沒辦法測出「有改動縮放」的分支）。
     this._zoom = opts.view?.opts?.zoom !== undefined ? opts.view.opts.zoom : 8;
     this._moveendHandlers = [];
+    this._eventHandlers = {}; // 其餘事件（movestart 等）也記下來，供測試用 _trigger() 模擬
     this._interactions = [];
     this._layers = [];
     this._viewport = new FakeNode('div');
@@ -545,7 +546,11 @@ class FakeMap {
     if(rendercompleteAutoFire) fn();
     else pendingRendercompleteCallbacks.push(fn);
   }
-  on(ev, fn){ if(ev === 'moveend') this._moveendHandlers.push(fn); }
+  on(ev, fn){
+    if(ev === 'moveend') this._moveendHandlers.push(fn);
+    (this._eventHandlers[ev] = this._eventHandlers[ev] || []).push(fn);
+  }
+  _trigger(ev, e){ (this._eventHandlers[ev] || []).forEach(fn => fn(e)); }
   _triggerMoveEnd(){ this._moveendHandlers.forEach(fn => fn()); }
 }
 

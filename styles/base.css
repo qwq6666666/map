@@ -547,6 +547,35 @@
   .locate-btn.loading svg{animation:locate-spin 1s linear infinite;}
   @keyframes locate-spin{ to{ transform:rotate(360deg); } }
 
+  /* 持續追蹤鈕：放在定位鈕左邊（不動右側既有的繪圖按鈕／工具列位置）。
+     三態用顏色區分，配色呼應地圖上的藍點：
+       .tracking 追蹤中且地圖跟隨（實心藍）
+       .paused   仍在追蹤、但使用者移開了地圖（藍框淺底，按下回到目前位置）
+       .acquiring 已開始追蹤、還在等第一筆定位（圖示旋轉） */
+  .track-btn{
+    position:absolute; top:16px; right:62px; z-index:9;
+    width:38px; height:38px; border-radius:50%;
+    background:rgba(23,33,29,.88); border:1px solid var(--brass); color:var(--paper);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    box-shadow:0 4px 10px rgba(0,0,0,.3);
+  }
+  .track-btn:hover{background:rgba(23,33,29,1); border-color:var(--stamp);}
+  .track-btn svg{width:18px; height:18px;}
+  .track-btn.tracking{background:#2f6fed; border-color:#fff; color:#fff;}
+  .track-btn.paused{background:var(--paper); border-color:#2f6fed; color:#2f6fed;}
+  .track-btn.acquiring svg{animation:locate-spin 1s linear infinite;}
+  /* 追蹤中藍點外圈脈動，讓人一眼看出「這顆點正在動」；只在使用者沒開
+     「減少動態效果」時播放。 */
+  @media (prefers-reduced-motion:no-preference){
+    .locate-marker.tracking .locate-marker-dot{animation:locate-track-pulse 2s ease-out infinite;}
+  }
+  @keyframes locate-track-pulse{
+    from{box-shadow:0 0 0 4px rgba(47,111,237,.5);}
+    to{box-shadow:0 0 0 20px rgba(47,111,237,0);}
+  }
+  .locate-accuracy{margin-top:4px; font-size:var(--fs-xs); color:var(--rule-text);}
+  .locate-accuracy:empty{display:none;}
+
   .locate-toast{
     position:absolute; bottom:16px; left:50%; transform:translateX(-50%); z-index:9;
     max-width:260px; background:rgba(23,33,29,.92); color:var(--paper);
@@ -646,12 +675,19 @@
     background:rgba(181,140,74,.08);
   }
   .place-name-card-head{
-    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    display:flex; align-items:center; justify-content:space-between; gap:8px; cursor:pointer;
   }
   .place-name-card-title{
+    flex-shrink:0;
     font-family:var(--serif); font-size:var(--fs-sm); font-weight:600; color:var(--brass-dark-text);
   }
-  .place-name-card-toggle{
+  /* 收合時標題列上的一行預覽（舊稱／說明摘要／位置），展開後由內容區取代，
+     不再重複顯示。單行省略號，不撐高標題列。 */
+  .place-name-card-teaser{
+    flex:1 1 0; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    font-size:var(--fs-xs); color:var(--rule-text);
+  }
+  .place-name-card:not(.collapsed) .place-name-card-teaser{display:none;}  .place-name-card-toggle{
     flex-shrink:0; background:none; border:1px solid var(--rule); color:var(--ink);
     width:20px; height:20px; border-radius:50%; cursor:pointer; font-size:var(--fs-xs); line-height:1;
   }
@@ -664,6 +700,10 @@
     color:var(--brass-dark-text); font-weight:600; font-size:var(--fs-xs); letter-spacing:.02em; margin-right:4px;
   }
   .place-name-row-value{word-break:break-word;}
+  .place-name-current{font-size:var(--fs-base); font-weight:700;}
+  .place-name-loc{margin-left:8px; font-size:var(--fs-xs); color:var(--rule-text);}
+  /* 資料來源是每張卡都一樣的固定註腳，降為淡色小字，不跟內容搶視線 */
+  .place-name-source-note{margin-top:2px; font-size:var(--fs-xs); color:var(--rule-text); line-height:1.5;}
   .place-name-alias-list{display:flex; flex-wrap:wrap; gap:4px; margin-top:2px;}
   .place-name-alias-tag{
     display:inline-block; padding:1px 7px; border:1px solid var(--rule); border-radius:var(--radius-10);

@@ -76,6 +76,11 @@
     <path d="M12 1.5v3.5M12 19v3.5M1.5 12h3.5M19 12h3.5"></path>
   </svg>
 </button>
+<button type="button" id="trackBtn" class="track-btn" aria-pressed="false" title="持續追蹤目前位置（地圖會跟著你移動）" aria-label="持續追蹤目前位置（地圖會跟著你移動）">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 11l19-9-9 19-2-8-8-2z"></path>
+  </svg>
+</button>
 <div id="locateToast" class="locate-toast"></div>
 <div id="locateMarker" class="locate-marker">
   <div class="locate-marker-dot"></div>
@@ -152,6 +157,9 @@
        #locateBtn 手機版常駐浮動鈕被 CSS 隱藏（見 style.css .locate-btn{display:none}），
        但 DOM 節點與事件監聽器仍在，.click() 一樣能觸發。 -->
   <button type="button" class="mobile-mode-option" id="mobileLocateBtn"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> 定位</button>
+  <!-- 持續追蹤（跟隨我）：同樣只轉呼叫 #trackBtn 的 click()，文字與 active 狀態
+       由 ui/mobileLayout.js 依 #trackBtn 目前狀態同步。 -->
+  <button type="button" class="mobile-mode-option" id="mobileTrackBtn" aria-pressed="false"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> <span id="mobileTrackLabel">持續追蹤位置</span></button>
   <div class="mobile-mode-popover-divider"></div>
   <div class="mobile-mode-popover-title">說明</div>
   <!-- 轉呼叫側邊欄裡原本的 #tourStartBtn／#guideOpenBtn／#shareLinkBtn／
@@ -162,6 +170,8 @@
   <button type="button" class="mobile-mode-option" data-help-action="tour"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#tour"></use></svg> 新手導覽</button>
   <button type="button" class="mobile-mode-option" data-help-action="guide"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#guide"></use></svg> 使用指南</button>
   <button type="button" class="mobile-mode-option" data-help-action="share"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 分享連結</button>
+  <button type="button" class="mobile-mode-option" data-help-action="shareNativeLink" data-native-share="link" hidden><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 傳送連結…</button>
+  <button type="button" class="mobile-mode-option" data-help-action="shareNativeImage" data-native-share="image" hidden><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 傳送截圖…</button>
   <button type="button" class="mobile-mode-option" data-help-action="sourceStatus"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#source-status"></use></svg> 來源狀態／快取</button>
 </div>
 
@@ -304,6 +314,8 @@
         <button type="button" id="tourMoreBtn" class="tour-btn-row-btn" aria-haspopup="true" aria-expanded="false">⋯ 更多</button>
         <div class="tour-more-menu" id="tourMoreMenu" hidden>
           <button type="button" id="shareLinkBtn" class="tour-more-menu-btn"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 分享連結</button>
+          <button type="button" id="shareNativeLinkBtn" class="tour-more-menu-btn" data-native-share="link" hidden title="叫出系統分享面板，直接傳連結給 LINE、Instagram 等 App"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 傳送連結…</button>
+          <button type="button" id="shareNativeImageBtn" class="tour-more-menu-btn" data-native-share="image" hidden title="把目前畫面（含出處資訊列）做成圖片，叫出系統分享面板直接傳送"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 傳送截圖…</button>
           <button type="button" id="sourceStatusBtn" class="tour-more-menu-btn" title="檢查各圖資來源主機目前是否能正常讀取、清除已下載的地圖圖磚快取"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#source-status"></use></svg> 來源狀態／快取</button>
         </div>
       </div>
@@ -373,6 +385,7 @@
         <div id="placeNameCard" class="place-name-card" hidden>
           <div class="place-name-card-head">
             <span class="place-name-card-title"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#scroll"></use></svg> 地名今昔對照</span>
+            <span id="placeNameCardTeaser" class="place-name-card-teaser"></span>
             <button type="button" id="placeNameCardToggle" class="place-name-card-toggle" aria-expanded="true" aria-label="收合／展開地名今昔對照">▾</button>
           </div>
           <div id="placeNameCardBody" class="place-name-card-body"></div>

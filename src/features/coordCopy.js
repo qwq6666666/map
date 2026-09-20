@@ -40,7 +40,9 @@ export function copyCoordText(text, btn){
 
 // 一列座標資訊（label + 值 + 複製按鈕），純 DOM 工廠函式，呼叫端決定
 // 要 append 到哪裡（搜尋結果卡片、地圖 Pin 彈窗、定位彈窗皆可共用）。
-export function buildCoordRow(label, text){
+// getText（選填）：複製時才即時取值。座標會隨持續定位不斷更新的列（定位
+// 彈窗）要用它，否則按鈕會一直複製「建立這一列當下」的舊座標。
+export function buildCoordRow(label, text, getText){
   const row = document.createElement('div');
   row.className = 'coord-info-row';
   row.innerHTML = `<span class="coord-info-label">${label}</span><span class="coord-info-value">${text}</span>`;
@@ -48,7 +50,7 @@ export function buildCoordRow(label, text){
   btn.type = 'button';
   btn.className = 'coord-copy-btn';
   btn.textContent = '複製';
-  btn.addEventListener('click', ()=> copyCoordText(text, btn));
+  btn.addEventListener('click', ()=> copyCoordText(getText ? getText() : text, btn));
   row.appendChild(btn);
   return row;
 }
