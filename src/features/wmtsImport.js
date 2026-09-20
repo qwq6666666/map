@@ -19,7 +19,7 @@
         ol.tilegrid.WMTS 物件「拆開」成純資料（resolutions／matrixIds／
         origin…），因為 store.customSources 要能存進 localStorage
         （JSON），沒辦法直接塞一個 OL 物件實例進去。
-        這樣设計的好處：往後每次要建立這張圖層（data.js 的
+        這樣設計的好處：往後每次要建立這張圖層（data.js 的
         makeWmtsSourceFromEntry()）都是純資料組裝，不需要也不依賴
         使用者匯入當下那個 GetCapabilities 網址之後還連得到、還能
         再抓一次——服務商改版、網址失效都不影響已經匯入的圖層。

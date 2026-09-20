@@ -37,7 +37,7 @@ function makeImageClass(){
       liveImages++;
       if(liveImages > maxLiveImages) maxLiveImages = liveImages;
     },
-    // 這裡的 liveImages-- 只代表「模擬網路層在 DELAY_MS 後给出結果」，
+    // 這裡的 liveImages-- 只代表「模擬網路層在 DELAY_MS 後給出結果」，
     // 不代表 pool slot 何時真的釋放（timeout 情境下 pool 要等
     // TileChecker 自己的 timeoutMs 逾時機制判定失敗才會釋放，比
     // DELAY_MS 晚很多）——所以 maxLiveImages 只當作下限的輔助佐證，
