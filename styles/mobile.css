@@ -575,7 +575,12 @@
        搶同一塊位置（實機回報「圖資名稱遮擋時間軸」）。印章純裝飾用途、
        .floating-stack 裡的內容在時間軸模式下本來就能從年份刻度看出
        目前套疊哪一張，兩者在這兩個模式下都先藏起來，非操作入口，不
-       影響功能完整性。藏整個 .floating-stack（含 .floating-base-switch
+       影響功能完整性。
+       左右比對模式（.mobile-mode-compare）同理：右下角的底圖切換會壓在左右兩個
+       圖層選單（#compareWrapA／#compareWrapB）上方、遮住比對畫面（實機回報），而比對模式
+       左側圖層選單本身就有「現代地圖／衛星影像」可選（src/features/compareMode.js
+       的 base:osm／base:sat），底圖切換在這個模式下是重複入口，藏起來不少功能。
+       藏整個 .floating-stack（含 .floating-base-switch
        跟 .floating-opacity）而不是只藏 .floating-opacity，是因為底圖
        切換不受「有沒有疊圖層」限制、兩個模式下都會渲染，一樣會跟這兩條
        浮動列搶位置。body class 由 src/ui/mobileLayout.js 的
@@ -584,7 +589,8 @@
     body.mobile-mode-multi #stamp,
     body.mobile-mode-overlay #stamp,
     body.mobile-mode-timeline .floating-stack,
-    body.mobile-mode-multi .floating-stack{
+    body.mobile-mode-multi .floating-stack,
+    body.mobile-mode-compare .floating-stack{
       display:none !important;
     }
     /* 頂部搜尋列僅透明疊圖模式常駐，其他模式先隱藏，畫面更單純
