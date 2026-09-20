@@ -154,7 +154,7 @@ const GUIDE_SECTIONS = [
   {
     icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#source-status"></use></svg>',
     title: '來源狀態／快取',
-    body: '頂部「⋯ 更多」選單裡的「來源狀態／快取」可以檢查各圖資來源主機目前是否正常回應、查看最近讀取失敗的圖磚記錄，也能一鍵清除瀏覽器已下載的圖磚與資料快取。圖層長時間空白、或懷疑資料沒更新時可以先來這裡看看。',
+    body: '頂部「⋯ 更多」選單裡的「來源狀態／快取」可以檢查各圖資來源主機目前是否正常回應、查看最近讀取失敗的圖磚記錄，也能一鍵清除瀏覽器已下載的圖磚快取（圖層資料本身不受影響，下次瀏覽同一區域會重新下載圖磚）。圖層長時間空白、或懷疑資料沒更新時可以先來這裡看看。',
   },
   {
     icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#favorite"></use></svg>',
