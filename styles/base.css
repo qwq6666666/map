@@ -1679,6 +1679,10 @@
     white-space:pre-line; /* 內容字串用 \n\n 分段（見 src/ui/onboarding.js 的 GUIDE_SECTIONS），交給 CSS 保留斷行，不用另外拼 <p>/<br> 標籤 */
   }
   .guide-acc-item.open .guide-acc-body{display:block;}
+  /* 步驟條列（<ol>）：pre-line 只作用在文字節點，<ol>／<li> 自己用 normal，避免
+     把標籤之間的縮排空白當成斷行。 */
+  .guide-acc-body ol{margin:6px 0 4px; padding-left:1.5em; white-space:normal;}
+  .guide-acc-body li{margin:2px 0;}
 
   /* -- 圖資來源狀態抽屜（共用 .guide-drawer* 殼，內容不一樣） -- */
   .source-status-cache-section{margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--rule);}
@@ -1740,8 +1744,13 @@
 
   @media (max-width:640px){
     .tour-tooltip{width:calc(100vw - 32px);}
-    .guide-drawer{width:100vw; max-width:100vw;}
     .onboarding-modal-card{padding:18px 16px 14px;}
+  }
+  /* 抽屜（使用指南／來源狀態）滿版斷點跟全站手機版 Bottom Sheet 佈局的 768px
+     對齊（styles/mobile.css）；原本是 640px，641~768px 寬的裝置會出現「手機版
+     佈局＋桌面版 380px 窄抽屜」不一致的畫面。 */
+  @media (max-width:768px){
+    .guide-drawer{width:100vw; max-width:100vw;}
   }
 
   /* ---------- 圖例預覽 Modal（src/uiTree.js buildLayerItem） ----------

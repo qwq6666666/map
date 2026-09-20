@@ -114,32 +114,42 @@ const GUIDE_SECTIONS = [
   {
     icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#search"></use></svg>',
     title: '搜尋定位',
-    body: '輸入地名或地標，建議清單會即時列出；按旁邊的📍圖示可改用目前位置定位，不用自己打地址。若打對古地名（例如日治堡里名、清代舊稱），會直接開啟「地名今昔對照卡」顯示新舊名稱與沿革；一般地址命中後，若附近有記錄到的歷史地名，也會另外列出「附近歷史地名」供點選查看。定焦後側邊欄會列出「此地點可用圖層」，可切換全部／類型／年代三種排序。「圖資搜尋」是完全獨立的另一個搜尋框，直接用圖層名稱、年份、來源或分類找圖層，不做定位，兩邊搜尋結果互不影響。',
+    body: '輸入地名或地標，建議清單會即時列出；也可按輸入框旁的「使用目前位置」按鈕，改用目前所在位置定位，不用自己打地址。\n\n若輸入的是古地名（例如日治堡里名、清代舊稱），會直接開啟「地名今昔對照卡」顯示新舊名稱與沿革；一般地址命中後，若附近有記錄到的歷史地名，也會另外列出「附近歷史地名」供點選查看。\n\n定焦後側邊欄會列出「此地點可用圖層」，可切換「全部」「類型」「年代」三種排序。\n\n「圖資搜尋」是完全獨立的另一個搜尋框，直接用圖層名稱、年份、來源或分類找圖層，不做定位，兩邊搜尋結果互不影響。',
   },
   {
     icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#map"></use></svg>',
     title: '基礎比對',
-    body: '「透明疊圖」把歷史地圖蓋在現代底圖（或衛星影像）上，拖曳透明度拉桿即可看出地景變化，喜歡的圖層可按☆收藏。「左右比對」用可拖曳的分割線並排兩張地圖，左右圖層各自由浮動選單挑選、底圖與歷史圖層可任意搭配，適合觀察差異明顯的區域。',
+    body: '「透明疊圖」把歷史地圖蓋在現代底圖（或衛星影像）上，拖曳透明度拉桿即可看出地景變化，喜歡的圖層可按「收藏」星號（☆）收藏。「左右比對」用可拖曳的分割線並排兩張地圖，左右圖層各自由浮動選單挑選、底圖與歷史圖層可任意搭配，適合觀察差異明顯的區域。',
   },
   {
     icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#timeline"></use></svg>',
     title: '時間軸切換指南',
-    body: '「時間軸」模式依目前地圖中心點列出可用年份，下方刻度可切換比例尺（1:25,000／1:50,000／混合）：拖曳滑桿、點年份圓點，或按「播放」自動依序切換；地圖移動後要按「重新整理」才會依新位置重新列年份。\n\n另有獨立的「自訂時間軸」：在可用圖層清單按「＋ 自訂時間軸 (多選)」勾選想比較的圖層、按「確認建立」即可依年代開啟專屬浮動面板瀏覽，跟時間軸模式互不影響、可以同時操作。',
+    body: '「時間軸」模式依目前地圖中心點列出可用年份，下方刻度可切換比例尺（1:25,000／1:50,000／混合）：拖曳滑桿、點年份圓點，或按「播放」自動依序切換。<strong>地圖移動後要按「重新整理」，才會依新位置重新列出年份。</strong>\n\n另有獨立的「自訂時間軸」，跟「時間軸」模式互不影響、可以同時操作：<ol><li>在「此地點可用圖層」清單按「＋ 自訂時間軸 (多選)」</li><li>勾選想比較的圖層</li><li>按「確認建立」，即可依年代開啟專屬浮動面板瀏覽</li></ol>',
   },
   {
     icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#layers"></use></svg>',
-    title: '進階功能說明',
-    body: '「複合疊圖」可一次勾選多張歷史圖層疊加，各自調整透明度、拖曳排序或移除，也能在此加入自訂圖層（見下方說明）。\n\n繪圖工具（畫筆圖示開關）可標點（能附加文字）、畫線（自動算長度）、畫面（自動算面積），六色票或自訂顏色可選；「選取」工具可改名／改色／刪除。另有刪除、清空、匯出／匯入 GeoJSON（可與 QGIS／ArcGIS 互通）、地圖截圖，繪製內容不受模式切換影響。\n\n「自訂 WMTS／XYZ 圖層」可加入中研院以外的圖資：「手動貼網址」適合已知 {z}/{x}/{y} 網址樣板的單張圖層；「從 WMTS 服務匯入」貼上該服務的 GetCapabilities 網址即可一次勾選多張加入（只列出跟本站座標系統 EPSG:3857 相容的圖層），若服務不開放跨網域讀取會顯示錯誤，可改試手動貼網址。',
+    title: '複合疊圖',
+    body: '「複合疊圖」可一次勾選多張歷史圖層疊加，各自調整透明度、拖曳排序或移除，也能在此加入自訂圖層（見「自訂圖層匯入」）。',
+  },
+  {
+    icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#draw"></use></svg>',
+    title: '繪圖工具',
+    body: '按地圖右側的「繪圖工具」按鈕（畫筆圖示）開關工具列，手機版在「地圖工具」選單裡。可標點（能附加文字）、畫線（自動算長度）、畫面（自動算面積），六色票或自訂顏色可選；「選取」工具可改名／改色／刪除。\n\n另有「刪除」、「清空」、匯出／匯入 GeoJSON（可與 QGIS／ArcGIS 互通）、地圖截圖，繪製內容不受模式切換影響。\n\n「清空」會刪除全部繪製內容（按下後會先跳出確認視窗），<strong>這個動作無法復原</strong>。繪製內容只存在這台裝置的瀏覽器裡，<strong>換裝置或清瀏覽器資料就會消失，不是雲端同步保存</strong>。',
+  },
+  {
+    icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#guide"></use></svg>',
+    title: '自訂圖層匯入',
+    body: '在「複合疊圖」模式的「自訂 WMTS／XYZ 圖層」區塊，可以加入中研院以外的圖資，有兩種方式：\n\n「手動貼網址」適合單張圖層，或不是標準 WMTS 服務的圖磚來源：<ol><li>填入「名稱」與含 {z}/{x}/{y} 的「網址樣板」（「格式」「版權標示」為選填）</li><li>按「加入」</li></ol>\n「從 WMTS 服務匯入」可一次加入多張圖層：<ol><li>貼上該服務的 GetCapabilities 網址</li><li>按「讀取圖層清單」（服務需開放跨網域讀取；若顯示錯誤，可改用「手動貼網址」）</li><li>勾選要加入的圖層，可用「全選／取消全選」（只列出跟本站座標系統 EPSG:3857 相容的圖層）</li><li>按「加入勾選的圖層」</li></ol>\n<strong>自訂圖層只存在您自己的瀏覽器裡，換裝置或清瀏覽器資料就會消失，也不會包含在分享連結內。</strong>',
   },
   {
     icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg>',
     title: '落點探針',
-    body: '「歷史疊圖」模式下點地圖任意處會釘上標記，顯示座標（WGS84／TWD97）與反查地址，並有「搜尋涵蓋此點之歷史圖層」按鈕可直接找圖層；若座標剛好命中剛搜尋過的歷史地名，還會顯示「歷史地名」小卡與「查看地名沿革」按鈕。點空白處只會關閉資訊視窗，標記不會消失；要清除請按視窗裡的「清除點位」（桌面版也可對標記按右鍵：先關視窗，再次右鍵才會真的清除）。',
+    body: '在「透明疊圖」模式下點地圖任意處會釘上標記，顯示座標（WGS84／TWD97）與反查地址，並有「搜尋涵蓋此點之歷史圖層」按鈕可直接找圖層；若座標剛好命中剛搜尋過的歷史地名，還會顯示「歷史地名」小卡與「查看地名沿革」按鈕。\n\n點空白處只會關閉資訊視窗，標記不會消失。要清除標記，可按視窗裡的「清除點位」；桌面版也可以對標記按右鍵：<ol><li>第一次按右鍵：先關閉資訊視窗</li><li>再按一次右鍵：才會真的清除標記</li></ol>',
   },
   {
     icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg>',
     title: '分享連結',
-    body: '側邊欄「🔗 分享連結」把目前模式、底圖、圖層與地圖位置打包進網址並自動複製，貼給朋友、對方打開就能還原同一畫面。請留意自訂 WMTS／XYZ 圖層只存在您自己的瀏覽器裡，不會包含在分享連結內。',
+    body: '在頂部「⋯ 更多」選單按「分享連結」（手機版在「地圖工具」選單裡），會把目前模式、底圖、圖層與地圖位置打包進網址並自動複製，貼給朋友、對方打開就能還原同一畫面。\n\n<strong>自訂 WMTS／XYZ 圖層只存在您自己的瀏覽器裡，不會包含在分享連結內。</strong>',
   },
   {
     icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#source-status"></use></svg>',
@@ -149,12 +159,14 @@ const GUIDE_SECTIONS = [
   {
     icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#favorite"></use></svg>',
     title: '收藏與最近使用圖層',
-    body: '「目前圖層」欄位旁的☆可以收藏正在檢視的圖層，收藏清單顯示在側邊欄「⭐ 收藏」，點項目可直接套用不用重新搜尋。「🕘 最近使用」自動記錄近期選過的圖層，可按「清除紀錄」一次清空。兩份清單都存在瀏覽器 localStorage，換裝置或清瀏覽器資料不會保留。',
+    body: '「目前圖層」欄位旁的「收藏」星號（☆）可以收藏正在檢視的圖層，收藏清單顯示在側邊欄的「收藏」分頁，點項目可直接套用，不用重新搜尋。\n\n「最近使用」分頁會自動記錄近期選過的圖層，可按「清除紀錄」一次清空。\n\n<strong>兩份清單都只存在這台裝置的瀏覽器（localStorage），換裝置或清瀏覽器資料就會消失，不是雲端同步保存。</strong>',
   },
   {
-    icon: '📱',
+    // sprite（map-emoji-style-a-icons.svg）裡沒有語意相近的手機圖示，刻意留空、只放文字標題，
+    // 比繼續用 📱 emoji 跟其他段落的單色線條圖示更一致；新增圖示後再補上。
+    icon: '',
     title: '手機版操作方式',
-    body: '手機（寬度 768px 以下）以地圖為主，側邊欄變成可拖曳的下方面板：頂端把手可點一下或拖曳，在「收合（露出一小角）」與「展開（約螢幕 3/4 高）」間切換，閒置 15 秒沒互動會自動收成圓鈕。畫面上方合併搜尋框預設是地址搜尋，按📍/🗺可切換成圖資搜尋，兩邊結果互不影響。右下角浮動「地圖工具」按鈕可切換瀏覽模式、開關繪圖工具，或找到導覽／指南／分享連結，本身也能拖到喜歡的位置。國家篩選選到「台灣」或「中國」時，圖層清單會改成三段式瀏覽（大區域→地區→來源）；選「其他」則維持跟電腦版一樣的來源→分類→圖層手風琴。',
+    body: '手機（寬度 768px 以下）以地圖為主，側邊欄變成可拖曳的下方面板。頂端把手可點一下或拖曳，在「收合」（只露出一小角）與「展開」（約螢幕 3/4 高）之間切換。\n\n畫面上方的合併搜尋列預設是地址搜尋，按搜尋列右側的切換鈕（提示文字為「切換成圖資搜尋」）可改成圖資搜尋，兩邊結果互不影響；閒置 15 秒沒互動會自動收成圓鈕。\n\n畫面左側預設有浮動的「地圖工具」按鈕，可切換瀏覽模式、開關「繪圖工具」、「定位」，也能找到「新手導覽」「使用指南」「分享連結」「來源狀態／快取」；按鈕本身可以拖到喜歡的位置。\n\n國家篩選選到「台灣」或「中國」時，圖層清單會改成三段式瀏覽（大區域→地區→來源）；選「其他」則是二段式（先選來源，再看該來源的分類與圖層）。',
   },
   {
     icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#library"></use></svg>',
@@ -164,7 +176,7 @@ const GUIDE_SECTIONS = [
   {
     icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#info"></use></svg>',
     title: '常見問題',
-    body: '<strong>Q：為什麼這個地方完全沒有歷史地圖可以疊？</strong>\nA：老地圖的掃描／測繪範圍本來就有限，不是每個角落都收錄，純粹是資料沒涵蓋到，不是系統故障。\n\n<strong>Q：圖層一直讀取失敗或空白，是不是壞掉了？</strong>\nA：多半是來源主機暫時壅塞或逾時，可以到「⋯ 更多→來源狀態／快取」檢查主機是否正常回應，或清除快取後重新整理再試一次。\n\n<strong>Q：分享連結給朋友，為什麼他看到的複合疊圖組合少了幾張？</strong>\nA：自訂 WMTS／XYZ 圖層只存在您自己瀏覽器的紀錄裡，分享連結不會帶過去，對方需要自己重新加入。\n\n<strong>Q：搜尋不到某個舊地名或古地名，怎麼辦？</strong>\nA：地名今昔對照是精確比對資料庫既有收錄的地名，沒收錄就搜不到；可以改用一般地址搜尋定焦附近，再看看「附近歷史地名」清單有沒有相近的紀錄。\n\n<strong>Q：重新整理頁面後，我畫的圖形或加入的自訂圖層不見了？</strong>\nA：這些資料只存在瀏覽器本機（localStorage），沒清瀏覽器資料就會留著；換裝置、換瀏覽器或清除資料就會消失，不是雲端同步保存。\n\n<strong>Q：這些歷史地圖可以下載或引用嗎？授權為何？</strong>\nA：各圖層版權以其詳細資訊中標示的原始來源與版權聲明為準，學術引用請照該處標示的出處註記，不同來源授權條件可能不同。',
+    body: '<strong>Q：為什麼這個地方完全沒有歷史地圖可以疊？</strong>\nA：老地圖的掃描／測繪範圍本來就有限，不是每個角落都收錄，純粹是資料沒涵蓋到，不是系統故障。\n\n<strong>Q：圖層一直讀取失敗或空白，是不是壞掉了？</strong>\nA：多半是來源主機暫時壅塞或逾時，可以到「⋯ 更多」→「來源狀態／快取」檢查主機是否正常回應，或清除快取後重新整理再試一次。\n\n<strong>Q：分享連結給朋友，為什麼他看到的複合疊圖組合少了幾張？</strong>\nA：自訂 WMTS／XYZ 圖層只存在您自己瀏覽器的紀錄裡，分享連結不會帶過去，對方需要自己重新加入。\n\n<strong>Q：搜尋不到某個舊地名或古地名，怎麼辦？</strong>\nA：地名今昔對照是精確比對資料庫既有收錄的地名，沒收錄就搜不到；可以改用一般地址搜尋定焦附近，再看看「附近歷史地名」清單有沒有相近的紀錄。\n\n<strong>Q：重新整理頁面後，我畫的圖形或加入的自訂圖層不見了？</strong>\nA：這些資料只存在瀏覽器本機（localStorage），沒清瀏覽器資料就會留著；換裝置、換瀏覽器或清除資料就會消失，不是雲端同步保存。\n\n<strong>Q：這些歷史地圖可以下載或引用嗎？授權為何？</strong>\nA：各圖層版權以其詳細資訊中標示的原始來源與版權聲明為準，學術引用請照該處標示的出處註記，不同來源授權條件可能不同。',
   },
 ];
 
@@ -411,7 +423,12 @@ function endTour() {
 
 /* ---------------- 使用指南抽屜 ---------------- */
 
+// 每次建立抽屜遞增，讓 aria-controls 指向的 id 在同一頁面上永遠唯一
+// （關閉動畫進行中若再次開啟，新舊兩份 DOM 會短暫並存）。
+let guideDrawerSeq = 0;
+
 function buildGuideDrawer() {
+  const drawerId = ++guideDrawerSeq;
   const overlay = document.createElement('div');
   overlay.className = 'guide-drawer-overlay';
 
@@ -420,14 +437,22 @@ function buildGuideDrawer() {
   drawer.setAttribute('role', 'dialog');
   drawer.setAttribute('aria-modal', 'true');
 
-  const itemsHtml = GUIDE_SECTIONS.map((section, i) => `
-    <div class="guide-acc-item${i === 0 ? ' open' : ''}">
-      <button type="button" class="guide-acc-head" data-acc-index="${i}">
-        <span>${section.icon} ${section.title}</span>
+  // aria-expanded／aria-controls：展開狀態原本只靠 .open class 表達，螢幕閱讀器
+  // 讀不到；渲染與 toggle 時都要同步維護（見下方 click handler）。
+  // icon 為空字串（sprite 裡沒有語意相近的圖示，例如「手機版操作方式」）時只放標題，
+  // 不留前導空白。
+  const itemsHtml = GUIDE_SECTIONS.map((section, i) => {
+    const bodyId = `guide-acc-body-${drawerId}-${i}`;
+    const isOpen = i === 0;
+    return `
+    <div class="guide-acc-item${isOpen ? ' open' : ''}">
+      <button type="button" class="guide-acc-head" data-acc-index="${i}" aria-expanded="${isOpen}" aria-controls="${bodyId}">
+        <span>${section.icon ? `${section.icon} ` : ''}${section.title}</span>
       </button>
-      <div class="guide-acc-body">${section.body}</div>
+      <div class="guide-acc-body" id="${bodyId}">${section.body}</div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 
   drawer.innerHTML = `
     <div class="guide-drawer-header">
@@ -449,7 +474,8 @@ function buildGuideDrawer() {
   drawer.querySelector('.guide-drawer-close').addEventListener('click', close);
   drawer.querySelectorAll('.guide-acc-head').forEach((head) => {
     head.addEventListener('click', () => {
-      head.closest('.guide-acc-item').classList.toggle('open');
+      const isOpen = head.closest('.guide-acc-item').classList.toggle('open');
+      head.setAttribute('aria-expanded', String(isOpen));
     });
   });
   document.addEventListener('keydown', onKeydown);
