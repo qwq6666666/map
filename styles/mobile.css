@@ -237,6 +237,7 @@
       max-height:min(420px, 58vh); overflow-y:auto; -webkit-overflow-scrolling:touch;
     }
     .draw-tool-btn{padding:9px 4px; min-height:44px;}
+    .draw-check-row{min-height:44px;}
     .draw-color-swatch, .draw-color-custom{width:26px; height:26px;}
 
     /* Bottom Sheet 展開(75vh)時，繪圖工具面板下半部按鈕（刪除／清空／
@@ -255,6 +256,7 @@
     .locate-toast{bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 10px); max-width:80vw;}
     /* 記錄軌跡狀態條：放在頂部搜尋列下方，避開底部的提示條與 Bottom Sheet。 */
     .track-record-status{top:calc(var(--mobile-topbar-h) + env(safe-area-inset-top) + 8px);}
+    .track-record-stop-btn{min-height:32px; padding:4px 14px;}
 
     /* ---------- 日期印章：縮小並疊到左右比對浮動選單（#compareWrapB）
        正上方，維持跟桌面版一樣在右下角，但避開同一欄的其他控制項。 ---------- */
@@ -364,6 +366,17 @@
     #mobileModeBtn:active{cursor:grabbing;}
     #mobileModeBtn svg{width:20px; height:20px;}
     #mobileModeBtn.active{background:var(--stamp); border-color:var(--stamp);}
+    /* 右上角小圓點：記錄軌跡（紅、閃爍，跟狀態條的圓點一致）／持續追蹤（銅色）。
+       data-live 由 src/ui/mobileLayout.js 的 syncModeBtnBadge() 設定；按鈕是 position:fixed，
+       ::after 的 absolute 以它為定位基準。 */
+    #mobileModeBtn[data-live]::after{
+      content:""; position:absolute; top:-3px; right:-3px; width:14px; height:14px;
+      border-radius:50%; border:2px solid var(--paper); background:var(--brass);
+    }
+    #mobileModeBtn[data-live="rec"]::after{background:#e03131;}
+    @media (prefers-reduced-motion:no-preference){
+      #mobileModeBtn[data-live="rec"]::after{animation:track-record-blink 1.4s ease-in-out infinite;}
+    }
     #mobileModePopover{
       display:none; position:fixed; z-index:50;
       /* 預設位置只在 JS 還沒開過選單前的保險，實際每次開啟都會由
@@ -371,7 +384,7 @@
          （可能已被拖到別處）重新計算 left/top。 */
       left:calc(10px + env(safe-area-inset-left));
       bottom:calc(var(--mobile-sheet-peek) + env(safe-area-inset-bottom) + 112px);
-      width:min(220px, calc(100vw - 32px));
+      width:min(272px, calc(100vw - 32px));
       background:var(--paper); border:1px solid var(--rule); border-radius:var(--radius-md);
       box-shadow:0 8px 24px rgba(0,0,0,.35); padding:8px;
       /* 項目多（含記錄軌跡）時矮螢幕手機放不下，超出就自己捲動，不要讓上面的項目跑出畫面外。 */
@@ -401,7 +414,38 @@
     .mobile-mode-option.active{background:var(--paper-dim); font-weight:700; color:var(--brass-dark-text);}
     .mobile-mode-option.active::before{content:"●"; color:var(--brass-dark-text);}
 
-    .mobile-mode-popover-divider{height:1px; background:var(--rule); opacity:.35; margin:4px 2px 6px;}
+    /* 選項分組成雙欄圖示磚（模式／工具／軌跡／分享／說明）。原本 15 列單欄約 800px，
+       超過多數手機可視高度得在浮動窗裡捲動；雙欄後約一半。
+       下面的規則都要用「.mobile-mode-grid .mobile-mode-option」（2 個 class）才蓋得過上面
+       單 class 的 .mobile-mode-option；::before 的圓點／方塊標記在磚上不需要，
+       選中狀態改用邊框標示（sprite 圖示是寫死深色，不能拿深色底反白）。 */
+    .mobile-mode-grid{display:grid; grid-template-columns:1fr 1fr; gap:4px;}
+    .mobile-mode-grid + .mobile-mode-popover-title{margin-top:6px;}
+    .mobile-mode-grid .mobile-mode-option{
+      margin-bottom:0; min-width:0; padding:8px;
+      border:1px solid var(--rule); font-size:var(--fs-sm); line-height:1.2;
+    }
+    .mobile-mode-grid .mobile-mode-option::before,
+    .mobile-mode-grid .mobile-mode-option.active::before{content:none;}
+    .mobile-mode-grid .mobile-mode-option.active{border-color:var(--brass-dark); box-shadow:inset 0 0 0 1px var(--brass-dark);}
+    .mobile-mode-grid .ui-icon{flex-shrink:0;}
+
+    /* 選單分兩頁：#mobileModePopover[data-view] 表示目前是哪一頁（src/ui/mobilePopoverView.js），
+       另一頁整個藏起來；每次開啟都回主頁。 */
+    #mobileModePopover[data-view="main"] .mobile-mode-page[data-page="more"],
+    #mobileModePopover[data-view="more"] .mobile-mode-page[data-page="main"]{display:none;}
+    /* 「更多」入口與「返回」：不在 grid 裡，跟 .mobile-mode-option 的 ○ 標記無關，要關掉；
+       選擇器與基礎規則同為 1 個 class，靠「寫在後面」蓋過。 */
+    .mobile-mode-more::before, .mobile-mode-back::before{content:none;}
+    .mobile-mode-more{margin-top:8px; margin-bottom:0; border:1px solid var(--rule); gap:6px;}
+    .mobile-mode-more-label{font-weight:700; flex-shrink:0;}
+    .mobile-mode-more-hint{
+      flex:1; min-width:0; font-size:var(--fs-xs); color:var(--rule-text);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .mobile-mode-more-arrow{flex-shrink:0; font-size:var(--fs-lg, 18px); line-height:1; color:var(--rule-text);}
+    .mobile-mode-back{font-weight:700; color:var(--brass-dark-text); gap:4px; margin-bottom:0;}
+    .mobile-mode-back .mobile-mode-more-arrow{color:inherit;}
     /* 繪圖工具是開關（可多次切換），不是單選，用方塊勾選視覺跟上面的
        模式單選圓點區隔開；.active 代表繪圖工具目前是開啟狀態。 */
     .mobile-mode-toggle::before{content:"☐"; font-size:var(--fs-base);}
@@ -711,7 +755,7 @@
     #stamp .stamp-year{font-size:var(--fs-base);}
     #stamp .stamp-label{display:none;} /* 過窄螢幕上省略文字，只留年份，避免跟工具按鈕擠在一起 */
     .draw-toolbar{width:min(200px, calc(100vw - 20px));}
-    #mobileModePopover{width:min(200px, calc(100vw - 20px));}
+    #mobileModePopover{width:min(280px, calc(100vw - 20px));}
     .layer-search-item, .favorites-item, .recent-item, .avail-select-item{padding-left:8px; padding-right:8px;}
     .search-batch-bar{padding:7px 12px; gap:10px;}
     .search-batch-btn{padding:5px 9px; font-size:var(--fs-xs);}

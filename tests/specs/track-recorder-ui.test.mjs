@@ -51,6 +51,7 @@ function setup(){
     record: make('trackRecordBtn', { trackRecord: '' }),
     mobileRecord: make('mobileTrackRecord', { trackRecord: '' }),
     bar: make('trackRecordStatus'),
+    stopBtn: make('trackRecordStopBtn'),
     barText: make('trackRecordStatusText'),
     label: make('trackRecordLabel', { trackRecordLabel: '' }),
     mobileLabel: make('mobileTrackRecordLabel', { trackRecordLabel: '' })
@@ -123,6 +124,20 @@ test('記錄中再點：結束記錄，並告知里程與到「我的軌跡」�
   await vi.waitFor(() => expect(mocks.toast).toHaveBeenCalled());
   expect(mocks.stopRecording).toHaveBeenCalled();
   expect(mocks.toast.mock.calls[0][0]).toContain('800 公尺');
+  expect(mocks.toast.mock.calls[0][0]).toContain('我的軌跡');
+});
+
+test('狀態條上的「結束」鈕：跟選單那顆同一條路，直接結束記錄', async () => {
+  const el = setup();
+  mocks.status = { ...base, recording: true };
+  await initTrackRecorderUI();
+  mocks.stopRecording.mockImplementationOnce(async () => {
+    mocks.status = { ...base, pointCount: 12, distanceMeters: 800, durationMs: 10 * 60000 };
+  });
+  el.stopBtn.click();
+  await vi.waitFor(() => expect(mocks.toast).toHaveBeenCalled());
+  expect(mocks.stopRecording).toHaveBeenCalledTimes(1);
+  expect(mocks.startRecording).not.toHaveBeenCalled();
   expect(mocks.toast.mock.calls[0][0]).toContain('我的軌跡');
 });
 

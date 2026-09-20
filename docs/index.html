@@ -50,8 +50,8 @@
 <link rel="icon" type="image/svg+xml" href="./icon.svg">
 <meta name="theme-color" content="#8A6A2E">
 
-  <script type="module" crossorigin src="./assets/index-CPWzxMg5.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-DdI-pVTz.css">
+  <script type="module" crossorigin src="./assets/index-Cf5AidZ5.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DGWYiJic.css">
 </head>
 <body>
 
@@ -83,7 +83,7 @@
   </svg>
 </button>
 <div id="locateToast" class="locate-toast"></div>
-<div id="trackRecordStatus" class="track-record-status" role="status" hidden><span class="track-record-dot" aria-hidden="true"></span><span id="trackRecordStatusText"></span></div>
+<div id="trackRecordStatus" class="track-record-status" role="status" hidden><span class="track-record-dot" aria-hidden="true"></span><span id="trackRecordStatusText"></span><button type="button" id="trackRecordStopBtn" class="track-record-stop-btn" title="結束記錄軌跡並存檔">結束</button></div>
 <div id="locateMarker" class="locate-marker">
   <div class="locate-marker-dot"></div>
   <div id="locatePopup" class="identify-popup locate-popup" hidden>
@@ -145,40 +145,66 @@
     <line x1="16" y1="6" x2="16" y2="22"></line>
   </svg>
 </button>
-<div id="mobileModePopover" class="mobile-mode-popover">
-  <div class="mobile-mode-popover-title">地圖模式</div>
-  <button type="button" class="mobile-mode-option" data-mode="overlay" title="將歷史地圖疊加在現代底圖上，用透明度拉桿比較古今差異"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#overlay"></use></svg> 透明疊圖</button>
-  <button type="button" class="mobile-mode-option" data-mode="compare" title="左右拖曳分割線，並排比對兩張地圖的差異"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#compare"></use></svg> 左右比對</button>
-  <button type="button" class="mobile-mode-option" data-mode="timeline" title="依年代播放或拖曳瀏覽同系列歷史地形圖"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#timeline"></use></svg> 時間軸</button>
-  <button type="button" class="mobile-mode-option" data-mode="multi" title="同時疊加多張歷史圖層，各自調整透明度與順序"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#layers"></use></svg> 複合疊圖</button>
-  <div class="mobile-mode-popover-divider"></div>
-  <div class="mobile-mode-popover-title">工具</div>
-  <!-- 轉呼叫既有 #drawToggleBtn 的 click()，不重新實作繪圖工具開關邏輯 -->
-  <button type="button" class="mobile-mode-option mobile-mode-toggle" id="mobileDrawToggle">繪圖工具</button>
-  <!-- 轉呼叫既有 #locateBtn 的 click()，不重新實作定位/藍點顯示邏輯。
-       #locateBtn 手機版常駐浮動鈕被 CSS 隱藏（見 style.css .locate-btn{display:none}），
-       但 DOM 節點與事件監聽器仍在，.click() 一樣能觸發。 -->
-  <button type="button" class="mobile-mode-option" id="mobileLocateBtn"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> 定位</button>
-  <!-- 持續追蹤（跟隨我）：同樣只轉呼叫 #trackBtn 的 click()，文字與 active 狀態
-       由 ui/mobileLayout.js 依 #trackBtn 目前狀態同步。 -->
-  <button type="button" class="mobile-mode-option" id="mobileTrackBtn" aria-pressed="false"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> <span id="mobileTrackLabel">持續追蹤位置</span></button>
-  <!-- 記錄軌跡／我的軌跡：同樣只轉呼叫「⋯ 更多」選單裡的 #trackRecordBtn／#trackListBtn，
-       記錄鈕的文字與 active 由 ui/trackRecorderUI.js 一併同步。 -->
-  <button type="button" class="mobile-mode-option" data-help-action="trackRecord" data-track-record aria-pressed="false"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> <span data-track-record-label>記錄軌跡</span></button>
-  <button type="button" class="mobile-mode-option" data-help-action="trackList"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#layers"></use></svg> 我的軌跡</button>
-  <div class="mobile-mode-popover-divider"></div>
-  <div class="mobile-mode-popover-title">說明</div>
-  <!-- 轉呼叫側邊欄裡原本的 #tourStartBtn／#guideOpenBtn／#shareLinkBtn／
-       #sourceStatusBtn（.tour-btn-row 手機版整排隱藏，不是從 DOM 移除），
-       不重新實作導覽/指南/分享連結/來源狀態/清除快取邏輯，「清除快取」
-       已併入 #sourceStatusBtn 開啟的抽屜內，見 src/ui/onboarding.js／
-       src/ui/sourceStatusUI.js -->
-  <button type="button" class="mobile-mode-option" data-help-action="tour"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#tour"></use></svg> 新手導覽</button>
-  <button type="button" class="mobile-mode-option" data-help-action="guide"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#guide"></use></svg> 使用指南</button>
-  <button type="button" class="mobile-mode-option" data-help-action="share"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 分享連結</button>
-  <button type="button" class="mobile-mode-option" data-help-action="shareNativeLink" data-native-share="link" hidden><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 傳送連結…</button>
-  <button type="button" class="mobile-mode-option" data-help-action="shareNativeImage" data-native-share="image" hidden><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 傳送截圖…</button>
-  <button type="button" class="mobile-mode-option" data-help-action="sourceStatus"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#source-status"></use></svg> 來源狀態／快取</button>
+<div id="mobileModePopover" class="mobile-mode-popover" data-view="main">
+  <!-- 兩頁：主頁（模式＋高頻工具）與「更多」（軌跡管理／分享／說明）。目前是哪一頁
+       由 data-view 表示，顯示切換純靠 CSS；帶 data-popover-go 的按鈕負責換頁
+       （見 src/ui/mobilePopoverView.js），每次開啟選單都回主頁。
+       每組是雙欄圖示磚（.mobile-mode-grid），分類名稱跟電腦版「⋯ 更多」選單一致。
+       所有功能按鈕仍只轉發 .click()，JS 用 .mobile-mode-option 加 data-mode／
+       data-help-action／id 選取，包幾層 div 不影響。 -->
+  <div class="mobile-mode-page" data-page="main">
+    <div class="mobile-mode-popover-title">地圖模式</div>
+    <div class="mobile-mode-grid">
+      <button type="button" class="mobile-mode-option" data-mode="overlay" title="將歷史地圖疊加在現代底圖上，用透明度拉桿比較古今差異"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#overlay"></use></svg> 透明疊圖</button>
+      <button type="button" class="mobile-mode-option" data-mode="compare" title="左右拖曳分割線，並排比對兩張地圖的差異"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#compare"></use></svg> 左右比對</button>
+      <button type="button" class="mobile-mode-option" data-mode="timeline" title="依年代播放或拖曳瀏覽同系列歷史地形圖"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#timeline"></use></svg> 時間軸</button>
+      <button type="button" class="mobile-mode-option" data-mode="multi" title="同時疊加多張歷史圖層，各自調整透明度與順序"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#layers"></use></svg> 複合疊圖</button>
+    </div>
+    <div class="mobile-mode-popover-title">工具</div>
+    <div class="mobile-mode-grid">
+      <!-- 轉呼叫既有 #drawToggleBtn 的 click()，不重新實作繪圖工具開關邏輯 -->
+      <button type="button" class="mobile-mode-option mobile-mode-toggle" id="mobileDrawToggle"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#draw"></use></svg> 繪圖工具</button>
+      <!-- 轉呼叫既有 #locateBtn 的 click()，不重新實作定位/藍點顯示邏輯。
+           #locateBtn 手機版常駐浮動鈕被 CSS 隱藏（見 style.css .locate-btn{display:none}），
+           但 DOM 節點與事件監聽器仍在，.click() 一樣能觸發。 -->
+      <button type="button" class="mobile-mode-option" id="mobileLocateBtn"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> 定位</button>
+      <!-- 持續追蹤（跟隨我）：同樣只轉呼叫 #trackBtn 的 click()，文字與 active 狀態
+           由 ui/mobileLayout.js 依 #trackBtn 目前狀態同步。 -->
+      <button type="button" class="mobile-mode-option" id="mobileTrackBtn" aria-pressed="false"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> <span id="mobileTrackLabel">持續追蹤位置</span></button>
+      <!-- 記錄軌跡留在主頁：走路中要開始／結束，不該藏在次頁。同樣只轉呼叫
+           「⋯ 更多」選單裡的 #trackRecordBtn，文字與 active 由 ui/trackRecorderUI.js 同步。 -->
+      <button type="button" class="mobile-mode-option" data-help-action="trackRecord" data-track-record aria-pressed="false"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> <span data-track-record-label>記錄軌跡</span></button>
+    </div>
+    <button type="button" class="mobile-mode-option mobile-mode-more" data-popover-go="more">
+      <span class="mobile-mode-more-label">更多</span>
+      <span class="mobile-mode-more-hint">我的軌跡・分享・說明</span>
+      <span class="mobile-mode-more-arrow" aria-hidden="true">›</span>
+    </button>
+  </div>
+  <div class="mobile-mode-page" data-page="more">
+    <button type="button" class="mobile-mode-option mobile-mode-back" data-popover-go="main"><span class="mobile-mode-more-arrow" aria-hidden="true">‹</span> 返回</button>
+    <div class="mobile-mode-popover-title">軌跡</div>
+    <div class="mobile-mode-grid">
+      <button type="button" class="mobile-mode-option" data-help-action="trackList"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#layers"></use></svg> 我的軌跡</button>
+    </div>
+    <div class="mobile-mode-popover-title">分享</div>
+    <div class="mobile-mode-grid">
+      <button type="button" class="mobile-mode-option" data-help-action="share"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 分享連結</button>
+      <button type="button" class="mobile-mode-option" data-help-action="shareNativeLink" data-native-share="link" hidden><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 傳送連結…</button>
+      <button type="button" class="mobile-mode-option" data-help-action="shareNativeImage" data-native-share="image" hidden><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 傳送截圖…</button>
+    </div>
+    <div class="mobile-mode-popover-title">說明</div>
+    <div class="mobile-mode-grid">
+      <!-- 轉呼叫側邊欄裡原本的 #tourStartBtn／#guideOpenBtn／#shareLinkBtn／
+           #sourceStatusBtn（.tour-btn-row 手機版整排隱藏，不是從 DOM 移除），
+           不重新實作導覽/指南/分享連結/來源狀態/清除快取邏輯，「清除快取」
+           已併入 #sourceStatusBtn 開啟的抽屜內，見 src/ui/onboarding.js／
+           src/ui/sourceStatusUI.js -->
+      <button type="button" class="mobile-mode-option" data-help-action="tour"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#tour"></use></svg> 新手導覽</button>
+      <button type="button" class="mobile-mode-option" data-help-action="guide"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#guide"></use></svg> 使用指南</button>
+      <button type="button" class="mobile-mode-option" data-help-action="sourceStatus"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#source-status"></use></svg> 來源狀態／快取</button>
+    </div>
+  </div>
 </div>
 
 <div class="compare-float-item" id="compareWrapA">
@@ -233,14 +259,17 @@
   <div class="draw-toolbar-row">
     <button type="button" id="drawDeleteBtn" class="draw-tool-btn" title="刪除目前選取的圖形">刪除</button>
     <button type="button" id="drawClearBtn" class="draw-tool-btn draw-tool-btn-danger" title="清除全部繪製內容">清空</button>
-    <button type="button" id="drawExportGeoJSONBtn" class="draw-tool-btn draw-tool-btn-wrap" title="匯出成 GeoJSON 檔案並下載，可匯入 QGIS／ArcGIS 等 GIS 軟體">匯出<br>GeoJSON</button>
   </div>
+  <!-- 輸出／匯入獨立成一組：這幾顆是檔案操作，不是繪圖動作。 -->
+  <div class="draw-toolbar-group-title">輸出／匯入</div>
   <div class="draw-toolbar-row">
     <button type="button" id="drawExportImageBtn" class="draw-tool-btn draw-tool-btn-wrap" title="把目前地圖畫面（含底圖與繪製內容）匯出成 PNG 圖片並下載">地圖<br>截圖</button>
-    <button type="button" id="drawExportInfoToggle" class="draw-tool-btn draw-tool-btn-wrap active" aria-pressed="true" title="截圖時在圖片下方附上「出處資訊列」：圖層名稱與年代、圖資來源、目前的地名卡摘要、匯出時間。關閉則只輸出地圖畫面">附出處<br>資訊列</button>
+    <button type="button" id="drawExportGeoJSONBtn" class="draw-tool-btn draw-tool-btn-wrap" title="匯出成 GeoJSON 檔案並下載，可匯入 QGIS／ArcGIS 等 GIS 軟體">匯出<br>GeoJSON</button>
     <button type="button" id="drawImportGeoJSONBtn" class="draw-tool-btn draw-tool-btn-wrap" title="匯入 GeoJSON 檔案（會保留原有顏色樣式）">匯入<br>GeoJSON</button>
     <input type="file" id="drawImportFileInput" accept=".geojson,application/geo+json,application/json" hidden aria-label="匯入 GeoJSON 檔案">
   </div>
+  <!-- 截圖的選項，不是獨立動作，所以做成勾選列；開關邏輯仍在 src/drawTool.js（切換 .active＋aria-pressed）。 -->
+  <button type="button" id="drawExportInfoToggle" class="draw-check-row active" aria-pressed="true" title="截圖時在圖片下方附上「出處資訊列」：圖層名稱與年代、圖資來源、目前的地名卡摘要、匯出時間。關閉則只輸出地圖畫面">截圖附出處資訊列</button>
 </div>
 <div id="drawStorageToast" class="locate-toast draw-storage-toast"></div>
 
@@ -319,11 +348,14 @@
       <div class="tour-more-wrap">
         <button type="button" id="tourMoreBtn" class="tour-btn-row-btn" aria-haspopup="true" aria-expanded="false">⋯ 更多</button>
         <div class="tour-more-menu" id="tourMoreMenu" hidden>
+          <div class="tour-more-menu-title">分享</div>
           <button type="button" id="shareLinkBtn" class="tour-more-menu-btn"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 分享連結</button>
           <button type="button" id="shareNativeLinkBtn" class="tour-more-menu-btn" data-native-share="link" hidden title="叫出系統分享面板，直接傳連結給 LINE、Instagram 等 App"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 傳送連結…</button>
           <button type="button" id="shareNativeImageBtn" class="tour-more-menu-btn" data-native-share="image" hidden title="把目前畫面（含出處資訊列）做成圖片，叫出系統分享面板直接傳送"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 傳送截圖…</button>
+          <div class="tour-more-menu-title">軌跡</div>
           <button type="button" id="trackRecordBtn" class="tour-more-menu-btn" data-track-record title="把走過的路線記錄下來（需要持續定位，請保持頁面在前景）"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> <span data-track-record-label>記錄軌跡</span></button>
           <button type="button" id="trackListBtn" class="tour-more-menu-btn" title="管理記錄下來或匯入的軌跡：顯示在地圖上、匯出 GPX／GeoJSON、存成繪圖圖形、匯入別處的軌跡"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#layers"></use></svg> 我的軌跡…</button>
+          <div class="tour-more-menu-divider" role="separator"></div>
           <button type="button" id="sourceStatusBtn" class="tour-more-menu-btn" title="檢查各圖資來源主機目前是否能正常讀取、清除已下載的地圖圖磚快取"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#source-status"></use></svg> 來源狀態／快取</button>
         </div>
       </div>

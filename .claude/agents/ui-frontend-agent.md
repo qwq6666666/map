@@ -24,6 +24,7 @@ model: sonnet
 - 軌跡記錄按鈕與狀態條：`src/ui/trackRecorderUI.js`（「⋯ 更多」選單的「記錄軌跡」＋手機「地圖工具」選單轉發＋地圖上 `#trackRecordStatus` 狀態條；純接線，記錄邏輯在 `src/features/trackRecorder.js`）
 - 「我的軌跡」列表抽屜與匯出：`src/ui/trackListUI.js`（沿用 `.guide-drawer*` 殼、DOM 一律 createElement＋textContent，軌跡名稱是不可信內容）、`src/ui/trackExport.js`（GPX／GeoJSON 匯出：手機先走分享面板、退回下載）；樣式在 `styles/base.css` 的 `.track-list-*`／`.track-item-*`
 - 手機版 (<=768px) 版面協調：`src/ui/mobileLayout.js`（Bottom Sheet 二態拖曳／頂部搜尋列 DOM 搬移／「地圖工具」快速模式選單／「目前圖層」浮動列展開；只轉發既有事件與搬移既有 DOM 節點，不重新實作搜尋／模式切換／圖層邏輯本身）
+- 手機「地圖工具」浮動選單的兩頁切換（主頁／「更多」）與浮動按鈕狀態角標：`src/ui/mobilePopoverView.js`（`initPopoverViews`／`liveBadgeKind`，只管 `data-view` 與換頁按鈕、不碰功能轉發；被 `mobileLayout.js` 呼叫）
 - 手機版「瀏覽全部圖資」台灣分頁三段式瀏覽（大區域→地區→來源手風琴）：`src/ui/mobileTwBrowse.js`（純函式大區域分組／地區標籤推導 + 手機版三段式 UI 建構，只在 `src/sidebarUI.js` 依 `mq.matches` 分流時被呼叫，`>768px` 不受影響）
 - 手機版「瀏覽全部圖資」中國分頁三段式瀏覽（大區域→地區→來源手風琴，跟台灣分頁同一套結構）：`src/ui/mobileCnBrowse.js`
 - 手機版「瀏覽全部圖資」台灣／中國分頁共用的三段式瀏覽底層邏輯（`layerCountForSource`／`sourcesForMacro`／`sourcesForArea`／`guessRegionFromLastLocation`／`buildMobileRegionBrowseUI` DOM 建構）：`src/ui/mobileRegionBrowse.js`（只被 `mobileTwBrowse.js`／`mobileCnBrowse.js` import，各自的大區域對照表／地區標籤規則仍留在各自檔案）

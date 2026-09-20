@@ -435,6 +435,21 @@
 
   }
 
+  /* 「輸出／匯入」分組標題與「截圖附出處資訊列」勾選列。勾選列是按鈕（JS 切 .active），
+     用 ☐／☑ 表示狀態，不沿用 .draw-tool-btn.active 的深色底（那是「目前工具」的意思）。 */
+  .draw-toolbar-group-title{
+    font-size:var(--fs-2xs); font-weight:700; color:var(--rule-text); letter-spacing:.03em;
+    margin-top:2px; padding-top:6px; border-top:1px solid var(--rule);
+  }
+  .draw-check-row{
+    display:flex; align-items:center; gap:6px; width:100%; padding:2px;
+    background:none; border:none; font-family:var(--sans); font-size:var(--fs-xs);
+    color:var(--ink); text-align:left; cursor:pointer;
+  }
+  .draw-check-row::before{content:"☐"; font-size:var(--fs-base); color:var(--rule-text); flex-shrink:0;}
+  .draw-check-row.active::before{content:"☑"; color:var(--brass-dark-text);}
+  .draw-check-row:hover{color:var(--brass-dark-text);}
+
   /* ---------- 繪圖顏色色票（工具列預設色 ＋ 要素編輯彈窗共用） ---------- */
   .draw-color-palette{display:flex; align-items:center; gap:5px; flex-wrap:wrap;}
   .draw-color-swatch{
@@ -591,6 +606,8 @@
   .track-record-status{
     position:absolute; top:12px; left:50%; transform:translateX(-50%); z-index:9;
     display:none; align-items:center; gap:8px; max-width:80vw;
+    /* left:50% 讓收縮寬度只剩半個容器，加了「結束」鈕後文字會被擠成兩行；改依內容撐寬（仍受 max-width 限制）。 */
+    width:max-content;
     background:rgba(23,33,29,.92); color:var(--paper);
     font-family:var(--sans); font-size:var(--fs-sm); line-height:1.4; padding:6px 12px; border-radius:999px;
     box-shadow:0 4px 12px rgba(0,0,0,.3);
@@ -598,6 +615,12 @@
   .track-record-status:not([hidden]){display:flex;}
   .track-record-dot{flex:none; width:10px; height:10px; border-radius:50%; background:#e03131;}
   .track-record-status.weak .track-record-dot{background:#f59f00;}
+  .track-record-stop-btn{
+    flex:none; margin-left:2px; padding:2px 10px; background:none; color:inherit;
+    border:1px solid rgba(234,227,211,.55); border-radius:999px;
+    font:inherit; font-size:var(--fs-xs); cursor:pointer;
+  }
+  .track-record-stop-btn:hover{background:rgba(234,227,211,.18);}
   @media (prefers-reduced-motion:no-preference){
     .track-record-dot{animation:track-record-blink 1.4s ease-in-out infinite;}
   }
@@ -1629,6 +1652,13 @@
     cursor:pointer; text-align:left; white-space:nowrap;
   }
   .tour-more-menu-btn:hover{background:var(--paper-dim); color:var(--brass-dark-text);}
+  /* 分組標題／分隔線：分類名稱（分享／軌跡）與手機「地圖工具」選單一致 */
+  .tour-more-menu-title{
+    font-size:var(--fs-2xs); font-weight:700; color:var(--rule-text); letter-spacing:.03em;
+    padding:6px 10px 2px;
+  }
+  .tour-more-menu-title:first-child{padding-top:2px;}
+  .tour-more-menu-divider{height:1px; background:var(--rule); opacity:.35; margin:4px 2px;}
 
   /* -- Welcome Modal -- */
   .onboarding-modal-overlay{

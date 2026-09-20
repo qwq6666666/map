@@ -6,7 +6,8 @@
    兩組都用 data-track-record／data-track-record-label 標記，文字與 active
    在這裡一次同步。匯出、改名、刪除等管理動作在「我的軌跡」列表
    （ui/trackListUI.js），不在這裡。地圖上另有一條狀態條（#trackRecordStatus），
-   記錄中隨時看得到「正在記錄」——位置是隱私資料，不能讓使用者忘了自己開著。
+   記錄中隨時看得到「正在記錄」——位置是隱私資料，不能讓使用者忘了自己開著；
+   條上有「結束」鈕（#trackRecordStopBtn），不用開選單就能停。
 --------------------------------------------------------- */
 import {
   initTrackRecorder, startRecording, stopRecording, resumeRecording, finishSavedTrack,
@@ -85,6 +86,9 @@ async function offerResume(saved){
 /** main.js 啟動流程呼叫一次（不需要 await：接續詢問的對話框會自己排隊顯示）。 */
 export function initTrackRecorderUI(){
   document.getElementById('trackRecordBtn')?.addEventListener('click', onRecordClick);
+  // 狀態條上的「結束」：記錄中隨手就能停，不必開選單。狀態條只在記錄中才顯示，
+  // 所以這裡點到一定是「結束」；仍走同一個函式，提示與行為跟選單那顆完全一致。
+  document.getElementById('trackRecordStopBtn')?.addEventListener('click', onRecordClick);
   onTrackChange(render);
   render(getTrackStatus());
 

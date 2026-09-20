@@ -44,6 +44,7 @@
 --------------------------------------------------------- */
 import { state as store, subscribe } from '../store.js';
 import { collapseSidebar, expandSidebar } from './sidebarToggle.js';
+import { initPopoverViews, liveBadgeKind } from './mobilePopoverView.js';
 
 const MOBILE_QUERY = '(max-width:768px)';
 const MOBILE_PLACEHOLDER = '🔍 搜尋地址、地點……';
@@ -412,7 +413,12 @@ function initModePopover(){
     popover.style.right = 'auto';
     popover.style.bottom = 'auto';
   }
+  // 選單分主頁／「更多」兩頁；換頁後高度不同，開著時要重新定位。
+  const views = initPopoverViews(popover, {
+    onChange: () => { if(popover.classList.contains('open')) positionPopover(); }
+  });
   function openPopover(){
+    views.reset(); // 每次開啟都回主頁（此時還沒 open，不會多定位一次）
     popover.classList.add('open');
     positionPopover();
     btn.classList.add('active');
@@ -482,6 +488,24 @@ function initModePopover(){
     new MutationObserver(syncTrackOption).observe(realTrackBtn, { attributes:true, attributeFilter:['class'] });
   }
   syncTrackOption();
+  // 選單收起來時，浮動按鈕右上角的小圓點提醒「位置功能還開著」：記錄軌跡（紅）優先，
+  // 其次是持續追蹤（銅色）。狀態取自選單裡兩顆磚的 .active（各自由 location.js／
+  // trackRecorderUI.js 同步），用 MutationObserver 盯 class，涵蓋所有改變狀態的途徑。
+  const recordOption = popover.querySelector('[data-track-record]');
+  function syncModeBtnBadge(){
+    const kind = liveBadgeKind({
+      recording: !!recordOption?.classList.contains('active'),
+      tracking: !!trackOption?.classList.contains('active')
+    });
+    if(kind) btn.dataset.live = kind; else delete btn.dataset.live;
+    const note = kind === 'rec' ? '（記錄軌跡中）' : (kind === 'track' ? '（持續追蹤中）' : '');
+    btn.setAttribute('aria-label', `地圖工具${note}`);
+    btn.title = `地圖工具${note}`;
+  }
+  [trackOption, recordOption].forEach((el)=>{
+    if(el) new MutationObserver(syncModeBtnBadge).observe(el, { attributes:true, attributeFilter:['class'] });
+  });
+  syncModeBtnBadge();
   popover.querySelectorAll('.mobile-mode-option[data-help-action]').forEach(optBtn=>{
     optBtn.addEventListener('click', ()=>{
       const action = optBtn.dataset.helpAction;
