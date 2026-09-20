@@ -512,8 +512,8 @@ function initModePopover(){
       if(action === 'tour') document.getElementById('tourStartBtn')?.click();
       else if(action === 'guide') document.getElementById('guideOpenBtn')?.click();
       else if(action === 'share') document.getElementById('shareLinkBtn')?.click();
-      else if(action === 'shareNativeLink') document.getElementById('shareNativeLinkBtn')?.click();
       else if(action === 'shareNativeImage') document.getElementById('shareNativeImageBtn')?.click();
+      else if(action === 'downloadImage') document.getElementById('downloadImageBtn')?.click();
       else if(action === 'trackRecord') document.getElementById('trackRecordBtn')?.click();
       else if(action === 'trackList') document.getElementById('trackListBtn')?.click();
       else if(action === 'sourceStatus') document.getElementById('sourceStatusBtn')?.click();

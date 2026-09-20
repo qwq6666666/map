@@ -20,10 +20,11 @@ model: sonnet
 - 圖資來源狀態／清除快取抽屜：`src/ui/sourceStatusUI.js`（純介面渲染，探測邏輯在 `src/features/sourceStatus.js`——feature-state-agent 權責，這裡只呼叫並畫結果；清除快取的 `postMessage` 給 `sw.js` 直接內聯處理，不算獨立 feature 模組）
 - 新手導覽／使用指南：`src/ui/onboarding.js`（側邊欄「🧭 新手導覽」「❔ 使用指南」按鈕、首訪 Welcome Modal、5 步聚光燈導覽、使用指南手風琴抽屜；純 DOM 疊加層與 `localStorage` 已讀旗標，不呼叫地圖／模式切換的內部邏輯，只讀取既有元素的 `getBoundingClientRect()` 做定位）
 - 站內對話框（取代原生 alert／confirm／prompt）：`src/ui/dialog.js`（`showAlert`／`showConfirm`／`showPrompt` 回傳 Promise、排隊顯示；純 DOM 疊加層，被 `drawTool.js`／`features/multiOverlay.js`／`main.js` 呼叫，樣式在 `styles/base.css` 的 `.app-dialog-*`）
-- 原生分享面板按鈕：`src/ui/nativeShareUI.js`（「傳送連結…」「傳送截圖…」，環境不支援就維持 `hidden`；純接線，偵測與分享邏輯在 `src/features/nativeShare.js`）
+- 原生分享面板按鈕：`src/ui/nativeShareUI.js`（「分享連結」〔觸控裝置叫系統面板、桌面／失敗直接複製〕「傳送截圖…」〔環境不支援就維持 `hidden`〕「下載截圖」；純接線，偵測與分享邏輯在 `src/features/nativeShare.js`）
 - 軌跡記錄按鈕與狀態條：`src/ui/trackRecorderUI.js`（「⋯ 更多」選單的「記錄軌跡」＋手機「地圖工具」選單轉發＋地圖上 `#trackRecordStatus` 狀態條；純接線，記錄邏輯在 `src/features/trackRecorder.js`）
 - 「我的軌跡」列表抽屜與匯出：`src/ui/trackListUI.js`（沿用 `.guide-drawer*` 殼、DOM 一律 createElement＋textContent，軌跡名稱是不可信內容）、`src/ui/trackExport.js`（GPX／GeoJSON 匯出：手機先走分享面板、退回下載）；樣式在 `styles/base.css` 的 `.track-list-*`／`.track-item-*`
 - 手機版 (<=768px) 版面協調：`src/ui/mobileLayout.js`（Bottom Sheet 二態拖曳／頂部搜尋列 DOM 搬移／「地圖工具」快速模式選單／「目前圖層」浮動列展開；只轉發既有事件與搬移既有 DOM 節點，不重新實作搜尋／模式切換／圖層邏輯本身）
+- 搜尋結果「可用圖層」面板的收合狀態：`src/ui/availCollapse.js`（`bindAvailCollapse`／`isAvailCollapsed`，收合偏好整個 session 記住；只吃傳入節點、被 `src/ui/availableLayers.js` 呼叫）
 - 手機「地圖工具」浮動選單的兩頁切換（主頁／「更多」）與浮動按鈕狀態角標：`src/ui/mobilePopoverView.js`（`initPopoverViews`／`liveBadgeKind`，只管 `data-view` 與換頁按鈕、不碰功能轉發；被 `mobileLayout.js` 呼叫）
 - 手機版「瀏覽全部圖資」台灣分頁三段式瀏覽（大區域→地區→來源手風琴）：`src/ui/mobileTwBrowse.js`（純函式大區域分組／地區標籤推導 + 手機版三段式 UI 建構，只在 `src/sidebarUI.js` 依 `mq.matches` 分流時被呼叫，`>768px` 不受影響）
 - 手機版「瀏覽全部圖資」中國分頁三段式瀏覽（大區域→地區→來源手風琴，跟台灣分頁同一套結構）：`src/ui/mobileCnBrowse.js`

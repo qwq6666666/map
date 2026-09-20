@@ -5,8 +5,6 @@
 
 import { expandSidebar } from './sidebarToggle.js';
 import { removeDrawerAnimated } from './drawerClose.js';
-import { copyShareLink, shareStateHasCustomLayers } from '../features/shareLink.js';
-import { showLocateToast } from '../features/location.js';
 
 const STORAGE_KEY = 'has_seen_map_tour';
 
@@ -532,20 +530,10 @@ export function initOnboarding() {
   initTourMoreMenu();
   const tourStartBtn = document.getElementById('tourStartBtn');
   const guideOpenBtn = document.getElementById('guideOpenBtn');
-  const shareLinkBtn = document.getElementById('shareLinkBtn');
 
+  // 「分享連結」按鈕的行為（手機叫系統分享面板、桌面直接複製）在 ui/nativeShareUI.js。
   if (tourStartBtn) tourStartBtn.addEventListener('click', () => startTour());
   if (guideOpenBtn) guideOpenBtn.addEventListener('click', () => openGuideDrawer());
-  if (shareLinkBtn) {
-    shareLinkBtn.addEventListener('click', async () => {
-      const ok = await copyShareLink();
-      if(ok && shareStateHasCustomLayers()){
-        showLocateToast('連結已複製（自訂圖層不會包含在分享連結內）');
-      }else{
-        showLocateToast(ok ? '連結已複製' : '複製失敗，請手動複製網址列');
-      }
-    });
-  }
 
   if (!hasSeenTour()) {
     openWelcomeModal();

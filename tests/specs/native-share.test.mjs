@@ -3,6 +3,7 @@ import { test, expect, afterEach } from 'vitest';
 import {
   canShareLink,
   canShareFiles,
+  prefersNativeShare,
   shareLinkNative,
   shareFileNative
 } from '../../src/features/nativeShare.js';
@@ -83,4 +84,42 @@ test('其他錯誤回傳 failed，不會把例外丟出去', async () => {
   navigator.share = async () => { throw errorNamed('DataError'); };
   navigator.canShare = () => true;
   expect(await shareLinkNative({ url: 'u', title: 't' })).toBe('failed');
+});
+
+// prefersNativeShare：只有「支援分享」且「觸控為主」的裝置才優先叫系統分享面板，
+// 桌面即使有 navigator.share（Windows 版 Chrome／Edge）也維持直接複製。
+test('prefersNativeShare：觸控裝置＋支援分享才是 true', () => {
+  const orig = window.matchMedia;
+  try{
+    window.matchMedia = (q) => ({ matches: q === '(pointer: coarse)' });
+    expect(prefersNativeShare()).toBe(false); // 觸控，但沒有 navigator.share
+    navigator.share = async () => {};
+    expect(prefersNativeShare()).toBe(true);
+  }finally{
+    window.matchMedia = orig;
+  }
+});
+
+test('prefersNativeShare：桌面（非觸控）即使有 navigator.share 也是 false', () => {
+  const orig = window.matchMedia;
+  try{
+    window.matchMedia = () => ({ matches: false });
+    navigator.share = async () => {};
+    expect(prefersNativeShare()).toBe(false);
+  }finally{
+    window.matchMedia = orig;
+  }
+});
+
+test('prefersNativeShare：matchMedia 不存在或丟例外時保守回 false（退回複製）', () => {
+  const orig = window.matchMedia;
+  try{
+    navigator.share = async () => {};
+    window.matchMedia = undefined;
+    expect(prefersNativeShare()).toBe(false);
+    window.matchMedia = () => { throw new Error('boom'); };
+    expect(prefersNativeShare()).toBe(false);
+  }finally{
+    window.matchMedia = orig;
+  }
 });

@@ -22,6 +22,18 @@ export function canShareLink(){
   return typeof navigator !== 'undefined' && typeof navigator.share === 'function';
 }
 
+// 「分享連結」要不要優先叫出系統分享面板：只有觸控為主的裝置（手機／平板）才要。
+// 桌面即使有 navigator.share（例如 Windows 版 Chrome／Edge）也維持直接複製——
+// 一鍵就好、比較快，而且桌面的分享面板裡不一定有「複製」。
+export function prefersNativeShare(){
+  if(!canShareLink() || typeof window === 'undefined') return false;
+  try{
+    return window.matchMedia?.('(pointer: coarse)')?.matches === true;
+  }catch{
+    return false;
+  }
+}
+
 // 不是每個支援 share() 的瀏覽器都能分享檔案（桌面 Chrome 就常常不行），
 // 要用 canShare() 拿一個假檔案實際問過才準。
 export function canShareFiles(){

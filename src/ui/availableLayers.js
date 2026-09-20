@@ -17,6 +17,7 @@ import { syncActiveLayerItemClasses } from '../core/layerManager.js';
 import { activateFromSearch, sortAvailableByYear, groupAvailableByType, splitAvailableByYearKnown } from '../features/search.js';
 import { layerKey } from '../data.js';
 import { createCustomTimelineFromSelection, previewLayerOnMap, clearPreviewLayer } from '../features/customTimeline.js';
+import { bindAvailCollapse } from './availCollapse.js';
 
 let layerAvailPanelEl, searchBatchBarEl, searchBatchCountEl, searchBatchConfirmBtn;
 let exitSelectionModeFn = null;
@@ -108,6 +109,15 @@ export function renderAvailableLayers(available, totalChecked){
   summary.textContent = `此地點目前可套疊 ${available.length} 筆歷史地圖圖層（已逐筆確認有資料）：`;
   summaryRow.appendChild(summary);
 
+  // 收合鈕：把頁籤與清單藏起來、只留這一列摘要，讓下方的圖資搜尋／地圖模式／圖資清單
+  // 不必捲很遠才看得到。放在說明文字旁（而不是自訂時間軸鈕旁），窄側邊欄換行時
+  // 兩者仍各占一行。
+  const collapseBtn = document.createElement('button');
+  collapseBtn.type = 'button';
+  collapseBtn.className = 'avail-collapse-btn';
+  summaryRow.appendChild(collapseBtn);
+  const collapse = bindAvailCollapse(layerAvailPanelEl, collapseBtn);
+
   const multiSelectBtn = document.createElement('button');
   multiSelectBtn.type = 'button';
   multiSelectBtn.className = 'avail-multiselect-btn';
@@ -121,7 +131,10 @@ export function renderAvailableLayers(available, totalChecked){
   tabsEl.className = 'avail-tabs';
   layerAvailPanelEl.appendChild(tabsEl);
 
+  // .avail-content：桌面版有高度上限、超過在面板內自己捲動（見 styles/base.css），
+  // 展開很多層時不會把側邊欄其餘部分無限往下推。
   const contentEl = document.createElement('div');
+  contentEl.className = 'avail-content';
   layerAvailPanelEl.appendChild(contentEl);
 
   let currentTab = 'all'; // 'all' | 'type' | 'year'
@@ -358,6 +371,7 @@ export function renderAvailableLayers(available, totalChecked){
 
   function enterSelectionMode(){
     selectionMode = true;
+    collapse.expand(); // 多選要操作清單，被收合時先展開
     multiSelectBtn.innerHTML = '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#close"></use></svg> 取消多選';
     layerAvailPanelEl.classList.add('selection-mode');
     tabsEl.style.display = 'none';

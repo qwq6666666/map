@@ -50,8 +50,8 @@
 <link rel="icon" type="image/svg+xml" href="./icon.svg">
 <meta name="theme-color" content="#8A6A2E">
 
-  <script type="module" crossorigin src="./assets/index-Cf5AidZ5.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-DGWYiJic.css">
+  <script type="module" crossorigin src="./assets/index-BrJ9keSp.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DR6IVG0n.css">
 </head>
 <body>
 
@@ -187,11 +187,11 @@
     <div class="mobile-mode-grid">
       <button type="button" class="mobile-mode-option" data-help-action="trackList"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#layers"></use></svg> 我的軌跡</button>
     </div>
-    <div class="mobile-mode-popover-title">分享</div>
+    <div class="mobile-mode-popover-title">分享與截圖</div>
     <div class="mobile-mode-grid">
       <button type="button" class="mobile-mode-option" data-help-action="share"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 分享連結</button>
-      <button type="button" class="mobile-mode-option" data-help-action="shareNativeLink" data-native-share="link" hidden><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 傳送連結…</button>
       <button type="button" class="mobile-mode-option" data-help-action="shareNativeImage" data-native-share="image" hidden><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 傳送截圖…</button>
+      <button type="button" class="mobile-mode-option" data-help-action="downloadImage"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#map"></use></svg> 下載截圖</button>
     </div>
     <div class="mobile-mode-popover-title">說明</div>
     <div class="mobile-mode-grid">
@@ -348,10 +348,10 @@
       <div class="tour-more-wrap">
         <button type="button" id="tourMoreBtn" class="tour-btn-row-btn" aria-haspopup="true" aria-expanded="false">⋯ 更多</button>
         <div class="tour-more-menu" id="tourMoreMenu" hidden>
-          <div class="tour-more-menu-title">分享</div>
-          <button type="button" id="shareLinkBtn" class="tour-more-menu-btn"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 分享連結</button>
-          <button type="button" id="shareNativeLinkBtn" class="tour-more-menu-btn" data-native-share="link" hidden title="叫出系統分享面板，直接傳連結給 LINE、Instagram 等 App"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 傳送連結…</button>
+          <div class="tour-more-menu-title">分享與截圖</div>
+          <button type="button" id="shareLinkBtn" class="tour-more-menu-btn" title="複製分享連結；手機會叫出系統分享面板（面板裡也能複製）"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 分享連結</button>
           <button type="button" id="shareNativeImageBtn" class="tour-more-menu-btn" data-native-share="image" hidden title="把目前畫面（含出處資訊列）做成圖片，叫出系統分享面板直接傳送"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 傳送截圖…</button>
+          <button type="button" id="downloadImageBtn" class="tour-more-menu-btn" title="把目前地圖畫面（含出處資訊列）存成 PNG 圖片下載，不需要先打開繪圖工具"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#map"></use></svg> 下載截圖</button>
           <div class="tour-more-menu-title">軌跡</div>
           <button type="button" id="trackRecordBtn" class="tour-more-menu-btn" data-track-record title="把走過的路線記錄下來（需要持續定位，請保持頁面在前景）"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg> <span data-track-record-label>記錄軌跡</span></button>
           <button type="button" id="trackListBtn" class="tour-more-menu-btn" title="管理記錄下來或匯入的軌跡：顯示在地圖上、匯出 GPX／GeoJSON、存成繪圖圖形、匯入別處的軌跡"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#layers"></use></svg> 我的軌跡…</button>

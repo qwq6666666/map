@@ -831,7 +831,9 @@
     display:flex; align-items:center; justify-content:space-between;
     gap:8px; flex-wrap:wrap; margin:0 0 4px;
   }
-  .avail-summary-row .avail-empty{margin:0; flex:1 1 auto; min-width:120px;}
+  /* basis 用 120px 而不是 auto：說明文字可以收縮換行，右側的收合鈕才會留在同一行，
+     不會因為文字太長被擠到下一行。 */
+  .avail-summary-row .avail-empty{margin:0; flex:1 1 120px; min-width:120px;}
   .avail-multiselect-btn{
     flex-shrink:0; font-size:var(--fs-xs); font-weight:600; padding:5px 10px;
     background:var(--paper); color:var(--brass-dark-text); border:1px solid var(--brass-dark);
@@ -889,6 +891,27 @@
   .avail-tab-btn:last-child{border-right:none;}
   .avail-tab-btn:hover{background:var(--paper-dim);}
   .avail-tab-btn.active{background:var(--ink); color:var(--paper);}
+
+  /* 收合鈕（樣式比照圖資搜尋面板的 .layer-search-collapse-btn）：收合時藏頁籤與清單，
+     只留摘要列。桌面版 .avail-content 另有高度上限：實測搜尋後結果區塊不收合就約 +430px、
+     來源群組全展開可到 +1200px，會把圖資搜尋／地圖模式／圖資清單整個推出畫面，
+     超過上限改在面板內捲動。手機版結果在 Bottom Sheet 裡本來就有自己的捲動，不加上限。 */
+  .avail-collapse-btn{
+    flex-shrink:0; width:22px; height:22px; padding:0; line-height:1;
+    background:none; border:1px solid var(--rule); border-radius:var(--radius-sm);
+    font-size:var(--fs-2xs); color:var(--rule-text); cursor:pointer;
+  }
+  .avail-collapse-btn:hover{border-color:var(--brass-dark); color:var(--brass-dark-text);}
+  .layer-avail-panel.avail-collapsed .avail-tabs,
+  .layer-avail-panel.avail-collapsed .avail-content{display:none;}
+  /* 收合時連「自訂時間軸」鈕一起藏（它需要清單），摘要列縮成一行說明＋收合鈕；
+     要用多選就先展開（enterSelectionMode 也會自動展開）。 */
+  .layer-avail-panel.avail-collapsed .avail-multiselect-btn{display:none;}
+  @media (min-width:769px){
+    .avail-content{
+      max-height:min(40vh, 360px); overflow-y:auto; overscroll-behavior:contain;
+    }
+  }
 
   /* 「年代」頁籤內自己的排序切換（新至舊／舊至新），比頁籤本身淡一階 */
   .avail-year-sort{display:flex; flex-wrap:wrap; gap:6px; margin:0 0 8px;}
