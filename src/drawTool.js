@@ -21,6 +21,8 @@ import { state as store } from './store.js';
 import { resolveOverlayKey, attributionForKey } from './data.js';
 import { runtime } from './runtime.js';
 import { showAlert, showConfirm, showPrompt } from './ui/dialog.js';
+import { collectExportInfo, layoutInfoBand } from './features/exportInfo.js';
+import { getDisplayedPlaceNameCard } from './features/placeNames.js';
 
 let vectorSource = null;
 let vectorLayer = null;
@@ -31,6 +33,39 @@ let currentTool = null;
 let toolbarEl = null;
 let toggleBtn = null;
 let toolbarOpen = false;
+
+// 截圖是否附「出處資訊列」（features/exportInfo.js）。預設開：這是給報告
+// 用的圖，沒有出處的圖轉貼後找不到來源；需要純地圖畫面（例如要拿去做
+// 後續影像處理）再自己關掉。偏好存 localStorage，讀寫都要防呆——無痕
+// 模式或被封鎖時會丟例外，這時就維持預設值、不影響截圖本身。
+const EXPORT_INFO_BAND_KEY = 'hundredYearMap:exportInfoBand';
+let exportInfoBandEnabled = true;
+
+function loadExportInfoBandPref(){
+  try{ exportInfoBandEnabled = localStorage.getItem(EXPORT_INFO_BAND_KEY) !== '0'; }
+  catch{ exportInfoBandEnabled = true; }
+}
+
+function saveExportInfoBandPref(){
+  try{ localStorage.setItem(EXPORT_INFO_BAND_KEY, exportInfoBandEnabled ? '1' : '0'); }
+  catch{ /* 存不進去就算了，只是下次開啟回到預設值 */ }
+}
+
+function initExportInfoBandToggle(){
+  const btn = document.getElementById('drawExportInfoToggle');
+  if(!btn) return; // index.html 沒有這個按鈕時靜默跳過
+  loadExportInfoBandPref();
+  const sync = () => {
+    btn.classList.toggle('active', exportInfoBandEnabled);
+    btn.setAttribute('aria-pressed', exportInfoBandEnabled ? 'true' : 'false');
+  };
+  sync();
+  btn.addEventListener('click', () => {
+    exportInfoBandEnabled = !exportInfoBandEnabled;
+    saveExportInfoBandPref();
+    sync();
+  });
+}
 
 // 繪圖顏色選擇：工具列色票（6 色）+ 自訂色，畫下一個圖形時採用
 // currentColor；既有圖形則各自把顏色寫進 SimpleStyle 屬性裡（見
@@ -391,8 +426,24 @@ function doCapture(){
   const pixelRatio = window.devicePixelRatio || 1;
   const mapCanvas = document.createElement('canvas');
   const size = map.getSize();
+  const mapPixelHeight = size[1] * pixelRatio;
+
+  // 出資訊列：接在地圖畫面「下方」（不蓋住圖資），要先量出高度才知道輸出
+  // canvas 該多高；量測用另一張暫時的 canvas，因為 canvas 一改寬高就會
+  // 重置 context，不能拿最終那張來量。
+  let infoBand = null;
+  if(exportInfoBandEnabled){
+    const info = collectExportInfo({
+      store,
+      place: getDisplayedPlaceNameCard(),
+      now: new Date(),
+      pageUrl: globalThis.location ? `${location.origin}${location.pathname}` : ''
+    });
+    infoBand = layoutInfoBand(document.createElement('canvas').getContext('2d'), info, size[0] * pixelRatio, pixelRatio);
+  }
+
   mapCanvas.width = size[0] * pixelRatio;
-  mapCanvas.height = size[1] * pixelRatio;
+  mapCanvas.height = mapPixelHeight + (infoBand ? Math.ceil(infoBand.height) : 0);
   const mapContext = mapCanvas.getContext('2d');
 
   const canvases = map.getViewport().querySelectorAll('.ol-layer canvas, canvas.ol-layer');
@@ -403,13 +454,15 @@ function doCapture(){
     // 不管來源 canvas 原本的實際像素尺寸是多少，直接等比例縮放畫滿到
     // 目前這張放大過的目標 canvas，畫面靜止（沒有正在拖曳／縮放動畫）
     // 時這樣最穩妥，不用另外解析 CSS transform 矩陣。
-    mapContext.drawImage(canvas, 0, 0, mapCanvas.width, mapCanvas.height);
+    mapContext.drawImage(canvas, 0, 0, mapCanvas.width, mapPixelHeight);
   });
 
   mapContext.globalAlpha = 1;
   mapContext.setTransform(1, 0, 0, 1, 0, 0);
 
-  drawAttributionAndStamp(mapContext, pixelRatio);
+  // 有資訊列時，來源文字由資訊列負責，地圖上只留圓章（不重複寫兩次）。
+  drawAttributionAndStamp(mapContext, pixelRatio, mapPixelHeight, !infoBand);
+  if(infoBand) infoBand.draw(mapContext, mapPixelHeight);
 
   // 圖磚來自外部伺服器，如果該伺服器沒有明確允許跨網域讀取像素資料
   // （CORS），canvas 合成完的內容會被瀏覽器標記成「不能再讀出」，
@@ -434,27 +487,27 @@ function doCapture(){
  * 一份，其餘模式只在右下角畫當前疊圖那一份，跟畫面上 #stamp 的位置
  * 一致。
  */
-function drawAttributionAndStamp(ctx, scale){
-  const { width, height } = ctx.canvas;
+function drawAttributionAndStamp(ctx, scale, height, withAttribution = true){
+  const { width } = ctx.canvas;
   const margin = 22 * scale;
   const stampOffset = 54 * scale + margin;
   const bottomY = height - 8 * scale;
 
   if(store.mode === 'compare'){
-    drawSideLabel(ctx, store.compareA, stampOffset, height - stampOffset, 'left', bottomY, scale);
-    drawSideLabel(ctx, store.compareB, width - stampOffset, height - stampOffset, 'right', bottomY, scale);
+    drawSideLabel(ctx, store.compareA, stampOffset, height - stampOffset, 'left', bottomY, scale, withAttribution);
+    drawSideLabel(ctx, store.compareB, width - stampOffset, height - stampOffset, 'right', bottomY, scale, withAttribution);
     return;
   }
-  drawSideLabel(ctx, store.activeOverlayKey, width - stampOffset, height - stampOffset, 'right', bottomY, scale);
+  drawSideLabel(ctx, store.activeOverlayKey, width - stampOffset, height - stampOffset, 'right', bottomY, scale, withAttribution);
 }
 
 // key 對不到歷史圖層（純看底圖、或比對模式該側選的是底圖／自訂匯入
 // 圖層）時不畫圓章，只標一行來源文字；兩者都查不到就什麼都不畫。
-function drawSideLabel(ctx, key, stampX, stampY, align, bottomY, scale){
+function drawSideLabel(ctx, key, stampX, stampY, align, bottomY, scale, withAttribution){
   if(!key) return;
   const attribution = attributionForKey(key);
   const anchorX = align === 'left' ? 12 * scale : ctx.canvas.width - 12 * scale;
-  if(attribution) drawAttributionText(ctx, attribution, anchorX, bottomY, align, scale);
+  if(attribution && withAttribution) drawAttributionText(ctx, attribution, anchorX, bottomY, align, scale);
   const resolved = resolveOverlayKey(key);
   if(resolved) drawLayerStamp(ctx, stampX, stampY, resolved.layer.year, resolved.layer.title, scale);
 }
@@ -695,6 +748,7 @@ export function initDrawTool(){
 
   initColorPalette();
   initFeatureEditPopup();
+  initExportInfoBandToggle();
 
   toggleBtn = document.getElementById('drawToggleBtn');
   toggleBtn.addEventListener('click', () => setToolbarOpen(!toolbarOpen));

@@ -212,6 +212,20 @@ export function clearActivePlaceNameMatch(){
   setActivePlaceNameMatch(null);
 }
 
+// 「目前畫面上顯示中的地名今昔對照卡」：跟 activeMatch 是兩回事——點選
+// 「附近歷史地名」項目也會展開卡片，但那不是搜尋比對結果、不該讓落點探針
+// 誤判，所以另存一份。供截圖資訊列（exportInfo.js）寫入卡片摘要，由
+// ui/placeNameCard.js 在渲染／隱藏卡片時同步。
+let displayedCardPlace = null;
+
+export function setDisplayedPlaceNameCard(place){
+  displayedCardPlace = place || null;
+}
+
+export function getDisplayedPlaceNameCard(){
+  return displayedCardPlace;
+}
+
 // 誤差容許值：約 1e-4 度（約 11 公尺），刻意保守，寧可少觸發也不要把
 // 同鄉鎮內不相干的聚落誤判成同一個地點。
 const MATCH_TOLERANCE_DEG = 1e-4;

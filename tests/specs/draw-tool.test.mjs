@@ -204,6 +204,36 @@ test('exportImage()：rendercomplete 事件正常觸發時，會立即擷取畫�
   }
 });
 
+// 截圖「出處資訊列」：輸出圖片比純地圖畫面更高；開關偏好存 localStorage。
+// FakeCanvas.toBlob 回傳 { size: 寬×高 }，經 downloadBlob() 傳給
+// URL.createObjectURL，這裡攔下來就能比較輸出尺寸。
+function captureExportedSize(){
+  const originalCreateObjectURL = globalThis.URL.createObjectURL;
+  let size = null;
+  globalThis.URL.createObjectURL = (blob) => { size = blob.size; return 'blob:fake'; };
+  try{ exportImage(); } // rendercomplete 預設同步觸發
+  finally{ globalThis.URL.createObjectURL = originalCreateObjectURL; }
+  return size;
+}
+
+test('截圖預設附出處資訊列（輸出圖片比純地圖畫面高）；按「附出處資訊列」關閉後恢復純地圖尺寸並記住偏好', () => {
+  const toggle = document.getElementById('drawExportInfoToggle');
+  expect(toggle.classList.contains('active'), '預設開啟').toBe(true);
+  expect(toggle.getAttribute('aria-pressed')).toBe('true');
+  const withBand = captureExportedSize();
+
+  toggle.click();
+  expect(toggle.classList.contains('active'), '關閉後取消 active').toBe(false);
+  expect(toggle.getAttribute('aria-pressed')).toBe('false');
+  expect(localStorage.getItem('hundredYearMap:exportInfoBand')).toBe('0');
+  const withoutBand = captureExportedSize();
+  expect(withBand > withoutBand, `有資訊列 ${withBand} 應大於純地圖 ${withoutBand}`).toBe(true);
+
+  toggle.click(); // 還原，不影響其他測試
+  expect(localStorage.getItem('hundredYearMap:exportInfoBand')).toBe('1');
+  expect(captureExportedSize()).toBe(withBand);
+});
+
 // 刪除/清空快取等操作會觸發 drawTool.js 的 showStorageToast()，留下一顆
 // 真實的 setTimeout(2500ms)。不清掉的話 Node process 要等它自然到期
 // 才會結束，讓這支測試檔平白多花 2.5 秒 wall time 卻沒有驗證任何額外

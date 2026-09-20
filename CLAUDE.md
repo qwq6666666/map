@@ -86,8 +86,16 @@
 - **已知限制**：別名取自 `AnotherName` 欄位＋`PlaceMean` 沿革文字的保守前導語句抽取（見上），不是完整的舊名反推，仍可能有漏抓／誤抓（見上一點）；代表點是資料庫座標點，非歷史行政界線；總共約 1.1 萬筆無座標、不會出現在搜尋結果，其中行政區域類佔大宗（8,589 筆裡僅 2,629 筆有座標，覆蓋率約 3 成，遠低於聚落類的 86.6%）。
 - 測試：`place-names-data.test.mjs`（CSV 解析）、`place-names-matching.test.mjs`（比對邏輯）、`place-name-card-ui.test.mjs`（卡片渲染／收合／候選清單）、`identify-pin.test.mjs`（「歷史地名」小區塊案例）、`place-names-nearby.test.mjs`（`findNearbyPlaceNames` 距離/半徑/排序/邊界）、`nearby-place-names-ui.test.mjs`（附近地名清單渲染／點擊展開／清空／精確比對路徑不觸發）。
 
+## 截圖出處資訊列 (`src/features/exportInfo.js`)
+繪圖工具列「地圖截圖」輸出的 PNG，在地圖畫面**下方**接一條資訊列（不蓋在地圖上）：目前圖層（年代＋名稱＋透明度，依 overlay／timeline／compare／multi 模式各自寫法）、圖資來源（含底圖，去重）、顯示中的地名今昔對照卡摘要、匯出時間＋網站網址。工具列「附出處資訊列」鈕（`#drawExportInfoToggle`，預設開）可關閉，偏好存 `localStorage` 的 `hundredYearMap:exportInfoBand`（`'0'`＝關）。
+- **兩層拆開**：`collectExportInfo()` 純函式只讀 store／資料表；`layoutInfoBand(ctx, info, width, scale)` 只用 canvas 量測、回傳 `{height, draw(ctx, top)}`。`doCapture()` 要先量出高度才能決定輸出 canvas 多高，量測用另一張暫時 canvas（canvas 一改寬高 context 就重置）。
+- **資訊列開啟時，地圖上不再重複畫來源文字**（`drawAttributionAndStamp(..., withAttribution=false)`），只留右下圓章；關閉時行為與原本完全相同。
+- **「顯示中的地名卡」是獨立狀態**（`placeNames.js` 的 `setDisplayedPlaceNameCard`／`getDisplayedPlaceNameCard`，由 `ui/placeNameCard.js` 在 render／hide 時同步），**不是** `activeMatch`：點「附近歷史地名」項目也會展開卡片，但那不是搜尋比對結果，不能讓落點探針誤判。
+- 地名卡要等地址搜尋的圖層探測（`findAndRenderAvailableLayers`）跑完才會渲染，匯出前若卡片還沒出現，資訊列就不會有地名區塊。
+- 測試：`tests/specs/export-info.test.mjs`；`draw-tool.test.mjs` 驗證開關與輸出尺寸；`place-name-card-ui.test.mjs` 驗證顯示中卡片狀態同步。
+
 ## 測試框架 (vitest)
-測試統一使用 vitest（`tests/specs/*.test.mjs`，56 支、647 個案例；設定 `vitest.config.js`）。原本並存的手刻框架（`tests/run-all.mjs`＋`tests/assert.mjs`）已在雙軌期間漏改案例（`multi-overlay` 拖曳排序測試只補在舊版）而移除，不要再新增第二套測試機制。改動測試時要注意：
+測試統一使用 vitest（`tests/specs/*.test.mjs`，57 支、666 個案例；設定 `vitest.config.js`）。原本並存的手刻框架（`tests/run-all.mjs`＋`tests/assert.mjs`）已在雙軌期間漏改案例（`multi-overlay` 拖曳排序測試只補在舊版）而移除，不要再新增第二套測試機制。改動測試時要注意：
 - 共用模組：`tests/env-stub.mjs`（手動塞 `globalThis` 模擬 `document`／`window`／`ol` 的假瀏覽器環境，vitest `environment` 維持預設 `'node'`，不要疊加 jsdom）、`tests/helpers.mjs`（`sleep()`／`waitFor()`）、`tests/tileImageStub.mjs`（假 `Image`）。
 - `tests/env-stub.mjs` 有一個關鍵相容性修正：`globalThis.URL` 必須保留 Node 原生建構子、只在上面附加 `createObjectURL`／`revokeObjectURL` 兩個靜態方法。若整個覆蓋成 `{ createObjectURL, revokeObjectURL }`，vitest 的模組載入器（vite-node）解析後續 `import` 時會拋 `TypeError: URL is not a constructor`。`src/features/sourceStatus.js`／`tests/specs/spatial-index.test.mjs` 裡當初因這個限制而寫的「不能用 `new URL()`」迴避寫法，其實現在可以移除（尚未動手）。
 - vitest 的 `test()` 是「先收集全部呼叫、模組載入完才統一執行」，**任何寫在模組頂層（不在 `test()`／`beforeEach()`／`afterEach()`／`afterAll()` 裡）、假設『在測試案例執行完之後才跑』的清理程式碼，語意會跑掉**（已踩過：`location-button.test.mjs` 清理 `runtime.locateToastTimer` 的程式碼放在模組頂層會在測試執行前就跑、清理失效，讓一顆 4.5 秒的真實計時器每次都拖到自然到期；修法是用 `afterAll()` 包起來）。

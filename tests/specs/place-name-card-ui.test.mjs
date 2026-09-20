@@ -1,6 +1,7 @@
 import '../env-stub.mjs';
 import { test, expect } from 'vitest';
 import { loadAppData } from '../../src/data.js';
+import { getDisplayedPlaceNameCard } from '../../src/features/placeNames.js';
 import { initMapCore } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
 import { initSearchUI, renderPlaceNameCard, renderPlaceNameCandidateList, renderMergedSuggestList, hidePlaceNameCard } from '../../src/ui/search.js';
@@ -80,6 +81,13 @@ test('renderPlaceNameCard()：呼叫後 #placeNameCard.hidden 變成 false，內
   renderPlaceNameCard(place);
   expect(placeNameCardEl.hidden, '渲染後卡片應該顯示').toBe(false);
   expect(cardText().includes('德化社'), '應該包含現名「德化社」').toBeTruthy();
+});
+
+test('renderPlaceNameCard()／hidePlaceNameCard()：同步「顯示中的卡片」狀態（供截圖資訊列使用）', () => {
+  renderPlaceNameCard(place);
+  expect(getDisplayedPlaceNameCard()).toBe(place);
+  hidePlaceNameCard();
+  expect(getDisplayedPlaceNameCard()).toBeNull();
 });
 
 test('renderPlaceNameCard()：呼叫後預設是收合狀態（collapsed class／aria-expanded=false／▸）', () => {

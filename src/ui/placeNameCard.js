@@ -8,7 +8,7 @@
    ui/search.js 有 re-export hidePlaceNameCard／renderPlaceNameCard／
    focusPlaceNameCard，既有的 import 路徑（main.js、tests）不用改。
 --------------------------------------------------------- */
-import { sourceTypeLabel } from '../features/placeNames.js';
+import { sourceTypeLabel, setDisplayedPlaceNameCard } from '../features/placeNames.js';
 
 let placeNameCardEl, placeNameCardToggleBtn, placeNameCardBodyEl;
 
@@ -29,6 +29,7 @@ export function initPlaceNameCard(){
 // 有 export：供 tests/specs/place-name-card-ui.test.mjs 直接呼叫驗證，
 // 純粹讓函式可測試化，不影響原本模組內部呼叫方式或行為。
 export function hidePlaceNameCard(){
+  setDisplayedPlaceNameCard(null);
   if(!placeNameCardEl) return;
   placeNameCardEl.hidden = true;
   placeNameCardBodyEl.innerHTML = '';
@@ -106,6 +107,7 @@ function buildPlaceNameDescriptionRow(description){
 // 純粹讓函式可測試化，不影響原本模組內部呼叫方式或行為。
 export function renderPlaceNameCard(place){
   if(!placeNameCardEl) return;
+  setDisplayedPlaceNameCard(place);
   placeNameCardBodyEl.innerHTML = '';
   placeNameCardEl.hidden = false;
   placeNameCardEl.classList.add('collapsed');
