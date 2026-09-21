@@ -7,7 +7,7 @@
    `btn.style.pointerEvents = 'auto'`，實際上已由 CSS 規則生效）。
    抽成這支共用模組，兩邊都改成 import，避免日後各自修改走鐘。
 --------------------------------------------------------- */
-import { toTWD97, formatWGS84, formatTWD97 } from '../core/tileGeo.js';
+import { toTWD97, twd97Label, formatWGS84, formatTWD97 } from '../core/tileGeo.js';
 
 // 複製座標文字到剪貼簿，並讓按鈕短暫顯示 .copied 視覺回饋（1.5 秒後移除）。
 // navigator.clipboard 在非安全上下文（例如 http）可能不存在，退回舊式
@@ -60,7 +60,7 @@ export function buildCoordInfoElement(lat, lon){
   const wrap = document.createElement('div');
   wrap.className = 'coord-info';
   wrap.appendChild(buildCoordRow('WGS84', formatWGS84(lat, lon)));
-  const { x, y } = toTWD97(lat, lon);
-  wrap.appendChild(buildCoordRow('TWD97', formatTWD97(x, y)));
+  const { x, y, zone } = toTWD97(lat, lon);
+  wrap.appendChild(buildCoordRow(twd97Label(zone), formatTWD97(x, y)));
   return wrap;
 }

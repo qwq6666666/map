@@ -1,6 +1,6 @@
 import '../env-stub.mjs';
 import { test, expect } from 'vitest';
-import { toTWD97, formatWGS84, formatTWD97, tileXYToBbox, lonLatToTileXY, pointInBbox, bboxIntersects } from '../../src/core/tileGeo.js';
+import { toTWD97, twd97ZoneFor, twd97Label, formatWGS84, formatTWD97, tileXYToBbox, lonLatToTileXY, pointInBbox, bboxIntersects } from '../../src/core/tileGeo.js';
 import { buildCoordInfoElement } from '../../src/features/search.js';
 
 // 誤差容許：1 公尺以內（依任務需求的精度基準）
@@ -94,6 +94,13 @@ test('buildCoordInfoElement：內容包含正確換算後的 WGS84／TWD97 座�
   expect(htmlAll.includes(expectedTWD97), `應包含 TWD97 格式化字串：${expectedTWD97}`).toBeTruthy();
 });
 
+test('buildCoordInfoElement：離島座標的 TWD97 列標明 119° 帶，本島維持「TWD97」', () => {
+  const htmlOf = (lat, lon) => buildCoordInfoElement(lat, lon).querySelectorAll('.coord-info-row').map(r => r.innerHTML).join('|');
+  expect(htmlOf(23.5657, 119.5793), '澎湖馬公').toContain('TWD97（119°帶）');
+  expect(htmlOf(25.0478, 121.5170), '台北車站').not.toContain('119°帶');
+  expect(htmlOf(25.0478, 121.5170), '台北車站標籤').toContain('>TWD97<');
+});
+
 /* ---------------------------------------------------------
    tileXYToBbox：lonLatToTileXY 的反函式
 --------------------------------------------------------- */
@@ -163,4 +170,58 @@ test('pointInBbox／bboxIntersects：minLat>maxLat 是緯度方向顛倒的錯�
   const invertedLatBbox = [119, 26, 123, 21]; // minLat(26) > maxLat(21)，緯度上下界顛倒
   expect(pointInBbox(121, 23, invertedLatBbox), 'minLat>maxLat 視為格式不合法，應該 fallback 為 true').toBeTruthy();
   expect(bboxIntersects(invertedLatBbox, [119, 21, 123, 26]), 'minLat>maxLat 視為格式不合法，應該 fallback 為 true').toBeTruthy();
+});
+
+/* ---------------------------------------------------------
+   TWD97 分帶：本島與其餘離島 121°E（EPSG:3826），澎湖、金門（含烏坵）、
+   馬祖 119°E（EPSG:3825）
+--------------------------------------------------------- */
+test('twd97ZoneFor：本島各縣市與蘭嶼、綠島、釣魚台方向都是 121° 帶', () => {
+  const main = [
+    ['台北車站', 25.0478, 121.5170], ['高雄', 22.6273, 120.3014], ['台南', 22.9999, 120.2270],
+    ['本島最西附近（七股）', 23.15, 120.03], ['本島最北（富貴角）', 25.30, 121.54],
+    ['蘭嶼', 22.05, 121.55], ['綠島', 22.66, 121.49], ['花蓮', 23.9871, 121.6015],
+  ];
+  main.forEach(([name, lat, lng]) => expect(twd97ZoneFor(lat, lng), name).toBe(121));
+});
+
+test('twd97ZoneFor：澎湖、金門、烏坵、馬祖是 119° 帶', () => {
+  const islands = [
+    ['澎湖馬公', 23.5657, 119.5793], ['澎湖望安', 23.36, 119.50], ['金門金城', 24.4322, 118.3170],
+    ['烏坵', 24.99, 119.45], ['馬祖南竿', 26.16, 119.95], ['馬祖莒光', 25.96, 119.99],
+    ['馬祖東引', 26.3665, 120.4913],
+  ];
+  islands.forEach(([name, lat, lng]) => expect(twd97ZoneFor(lat, lng), name).toBe(119));
+});
+
+test('toTWD97：回傳實際使用的分帶（zone）', () => {
+  expect(toTWD97(25.0478, 121.5170).zone).toBe(121);
+  expect(toTWD97(23.5657, 119.5793).zone).toBe(119);
+});
+
+test('toTWD97：119° 帶中央經線上的點 Easting 貼近 250000（跟 121° 帶的性質一致）', () => {
+  const { x, zone } = toTWD97(23.5, 119.0);
+  expect(zone).toBe(119);
+  expect(Math.abs(x - 250000), '中央經線正上方').toBeLessThanOrEqual(1);
+});
+
+test('toTWD97：離中央經線相同偏移的點，兩個分帶算出相同的座標（證明各自用自己的中央經線）', () => {
+  const island = toTWD97(23.5, 119.5); // 119° 帶，偏東 0.5°
+  const main = toTWD97(23.5, 121.5);   // 121° 帶，偏東 0.5°
+  expect(island.x).toBe(main.x);
+  expect(island.y).toBe(main.y);
+});
+
+test('toTWD97：金門金城（118.317°E）落在 119° 帶的合理範圍，不是 121° 帶算出的負值或極端值', () => {
+  const { x, y } = toTWD97(24.4322, 118.3170);
+  // 中央經線以西約 0.68°（約 68 公里）：x 約 18 萬，y 約 270 萬
+  expect(x, 'x 應約 18 萬（若誤用 121° 帶會只剩約 -3 萬）').toBeGreaterThan(150000);
+  expect(x).toBeLessThan(200000);
+  expect(y).toBeGreaterThan(2680000);
+  expect(y).toBeLessThan(2720000);
+});
+
+test('twd97Label：本島維持「TWD97」，離島標明分帶', () => {
+  expect(twd97Label(121)).toBe('TWD97');
+  expect(twd97Label(119)).toBe('TWD97（119°帶）');
 });

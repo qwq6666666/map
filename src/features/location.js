@@ -20,7 +20,7 @@
 --------------------------------------------------------- */
 import { runtime } from '../runtime.js';
 import { map } from '../core/map.js';
-import { toTWD97, formatWGS84, formatTWD97 } from '../core/tileGeo.js';
+import { toTWD97, twd97Label, formatWGS84, formatTWD97 } from '../core/tileGeo.js';
 import { buildCoordRow } from './coordCopy.js';
 
 let locateMarkerEl, locateOverlay, locateBtn, locateToast;
@@ -81,25 +81,31 @@ export function nextTrackState(state, event){
 let coordText = { wgs84: '', twd97: '' };
 let coordRows = null; // { wgs84Row, twd97Row, accuracyEl }
 
-function setRowValue(row, text){
+function setRowValue(row, text, label){
   const valueEl = row.querySelector?.('.coord-info-value');
   if(!valueEl) return false;
   valueEl.textContent = text;
+  // 持續追蹤跨過分帶（例如從本島走到離島）時標籤也要跟著換
+  if(label){
+    const labelEl = row.querySelector?.('.coord-info-label');
+    if(labelEl) labelEl.textContent = label;
+  }
   return true;
 }
 
 function renderLocateCoordInfo(lat, lon, accuracy, { reveal = true } = {}){
   coordText = { wgs84: formatWGS84(lat, lon), twd97: '' };
-  const { x, y } = toTWD97(lat, lon);
+  const { x, y, zone } = toTWD97(lat, lon);
   coordText.twd97 = formatTWD97(x, y);
+  const twd97LabelText = twd97Label(zone);
 
   const updatedInPlace = coordRows
     && setRowValue(coordRows.wgs84Row, coordText.wgs84)
-    && setRowValue(coordRows.twd97Row, coordText.twd97);
+    && setRowValue(coordRows.twd97Row, coordText.twd97, twd97LabelText);
   if(!updatedInPlace){
     locatePopupBody.innerHTML = '';
     const wgs84Row = buildCoordRow('WGS84', coordText.wgs84, () => coordText.wgs84);
-    const twd97Row = buildCoordRow('TWD97', coordText.twd97, () => coordText.twd97);
+    const twd97Row = buildCoordRow(twd97LabelText, coordText.twd97, () => coordText.twd97);
     const accuracyEl = document.createElement('div');
     accuracyEl.className = 'locate-accuracy';
     locatePopupBody.appendChild(wgs84Row);

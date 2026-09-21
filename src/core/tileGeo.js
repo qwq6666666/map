@@ -187,8 +187,11 @@ export function bboxIntersects(bboxA, bboxB){
 }
 
 /* ---------------------------------------------------------
-   toTWD97() — WGS84 經緯度 → TWD97 二分帶橫麥卡托投影座標
-   （EPSG:3826）正算轉換。
+   toTWD97() — WGS84 經緯度 → TWD97 二分帶橫麥卡托投影座標正算轉換。
+   台灣本島與其餘離島用 121°E 分帶（EPSG:3826）；澎湖、金門（含烏坵）、馬祖
+   用 119°E 分帶（EPSG:3825）。分帶由 twd97ZoneFor() 依位置自動判斷，
+   回傳的 zone 是實際用的中央經線，顯示座標時要一併標示，否則離島座標
+   拿到 GIS 軟體會以為是 121° 帶而差出數十公里。
 
    採用 GRS80 橢球體，搭配 Snyder 橫麥卡托正算公式（含子午線弧長
    高階級數展開 + 高階修正項），精度可達公分等級，供游標座標顯示
@@ -196,18 +199,48 @@ export function bboxIntersects(bboxA, bboxB){
 --------------------------------------------------------- */
 const TWD97_A = 6378137; // GRS80 長半軸
 const TWD97_F = 1 / 298.257222101; // GRS80 扁率
-const TWD97_LON0 = 121 * Math.PI / 180; // 中央經線 121°E
+const TWD97_ZONE_MAIN = 121; // 台灣本島與其餘離島（EPSG:3826）
+const TWD97_ZONE_ISLANDS = 119; // 澎湖、金門、馬祖（EPSG:3825）
+// 分帶判斷用的粗略範圍（不是行政界線）：澎湖（119.3~119.75°E）、金門（118.1~118.5°E）、
+// 烏坵（119.45°E）都在 119.85°E 以西，本島最西約 120.03°E；馬祖（南竿 119.95°E、
+// 東引 120.5°E）緯度 25.9° 以北，本島最北約 25.3°。
+const TWD97_ISLANDS_MAX_LON = 119.85;
+const TWD97_MATSU_MIN_LAT = 25.5;
+const TWD97_MATSU_MAX_LON = 120.8;
 const TWD97_K0 = 0.9999; // 尺度比率
 const TWD97_FALSE_EASTING = 250000;
 const TWD97_FALSE_NORTHING = 0;
 
 /**
- * 將 WGS84 經緯度（十進位度）轉換為 TWD97 二分帶（EPSG:3826）平面座標。
+ * 判斷該位置官方使用的 TWD97 二分帶中央經線：澎湖、金門、馬祖用 119，其餘 121。
  * @param {number} lat 緯度（十進位度）
  * @param {number} lng 經度（十進位度）
- * @returns {{x:number, y:number}} x 為 Easting（已含 False Easting），y 為 Northing
+ * @returns {119|121}
+ */
+export function twd97ZoneFor(lat, lng){
+  if(lng < TWD97_ISLANDS_MAX_LON) return TWD97_ZONE_ISLANDS;
+  if(lat >= TWD97_MATSU_MIN_LAT && lng <= TWD97_MATSU_MAX_LON) return TWD97_ZONE_ISLANDS;
+  return TWD97_ZONE_MAIN;
+}
+
+/**
+ * 座標列標籤：121° 帶（本島）維持「TWD97」，119° 帶（離島）標明分帶。
+ * @param {119|121} zone
+ * @returns {string}
+ */
+export function twd97Label(zone){
+  return zone === TWD97_ZONE_MAIN ? 'TWD97' : `TWD97（${zone}°帶）`;
+}
+
+/**
+ * 將 WGS84 經緯度（十進位度）轉換為 TWD97 二分帶平面座標；分帶依位置自動選擇。
+ * @param {number} lat 緯度（十進位度）
+ * @param {number} lng 經度（十進位度）
+ * @returns {{x:number, y:number, zone:119|121}} x 為 Easting（已含 False Easting），y 為 Northing，zone 為實際使用的中央經線
  */
 export function toTWD97(lat, lng){
+  const zone = twd97ZoneFor(lat, lng);
+  const lon0 = zone * Math.PI / 180;
   const a = TWD97_A;
   const f = TWD97_F;
   const e2 = f * (2 - f); // 第一離心率平方
@@ -231,7 +264,7 @@ export function toTWD97(lat, lng){
   const N = a / Math.sqrt(1 - e2 * sinPhi * sinPhi);
   const T = tanPhi * tanPhi;
   const C = ep2 * cosPhi * cosPhi;
-  const A = (lambda - TWD97_LON0) * cosPhi;
+  const A = (lambda - lon0) * cosPhi;
 
   const x = TWD97_K0 * N * (
     A
@@ -250,7 +283,8 @@ export function toTWD97(lat, lng){
 
   return {
     x: Math.round(x + TWD97_FALSE_EASTING),
-    y: Math.round(y + TWD97_FALSE_NORTHING)
+    y: Math.round(y + TWD97_FALSE_NORTHING),
+    zone
   };
 }
 
