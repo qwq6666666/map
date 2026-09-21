@@ -474,10 +474,8 @@
     .mobile-mode-more-arrow{flex-shrink:0; font-size:var(--fs-lg, 18px); line-height:1; color:var(--rule-text);}
     .mobile-mode-back{font-weight:700; color:var(--brass-dark-text); gap:4px; margin-bottom:0;}
     .mobile-mode-back .mobile-mode-more-arrow{color:inherit;}
-    /* 繪圖工具是開關（可多次切換），不是單選，用方塊勾選視覺跟上面的
-       模式單選圓點區隔開；.active 代表繪圖工具目前是開啟狀態。 */
-    .mobile-mode-toggle::before{content:"☐"; font-size:var(--fs-base);}
-    .mobile-mode-toggle.active::before{content:"☑"; color:var(--brass-dark-text);}
+    /* 繪圖工具（.mobile-mode-toggle）是開關：磚上不放勾選符號，開啟狀態靠上面
+       .mobile-mode-grid .mobile-mode-option.active 的邊框表示。 */
 
     /* 「地圖模式」手風琴已經被浮動選單（#mobileModePopover）取代，
        手機版側邊欄不再需要這排按鈕，避免同一個功能兩個地方都要維護
