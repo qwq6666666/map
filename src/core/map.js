@@ -16,9 +16,8 @@ import { DEFAULT_TILE_CACHE_SIZE, attachStaleTileAbort } from './tileLoadGuard.j
 const osmConfig = getBaseLayerConfig('osm');
 const satConfig = getBaseLayerConfig('sat');
 
-// cacheSize 一定要明確帶：不帶的話 OL 會把它當成 0（不是退回內建預設
-// 2048），tile cache 的 LRU 過期機制形同虛設，這兩個底圖又是整頁
-// session 唯一一次建立、永遠不重建的單例，越用越久圖磚只增不減
+// cacheSize 一律明確帶：不帶時 OL 的快取上限從 0 起算，每幀只會被撐到
+// 「目前視窗內的圖磚數」，離開視野的圖磚馬上被淘汰、回訪要重新載入
 // （細節見 core/tileLoadGuard.js 的 DEFAULT_TILE_CACHE_SIZE 說明）。
 const osmLayer = new ol.layer.Tile({
   source: new ol.source.OSM({

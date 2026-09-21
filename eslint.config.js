@@ -2,7 +2,7 @@ import js from '@eslint/js';
 import globals from 'globals';
 
 export default [
-  { ignores: ['docs/**', 'node_modules/**', 'data/**', 'tools/cors-proxy-worker/**'] },
+  { ignores: ['docs/**', 'node_modules/**', 'data/**', 'tools/cors-proxy-worker/**', '.claude/**'] },
   js.configs.recommended,
   {
     // 全形空白常被刻意用來對齊中文欄位寬度（例如 console.log 的樣板字串），

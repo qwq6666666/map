@@ -43,9 +43,7 @@ function firstLayerOf(src){
   return null;
 }
 
-// 從網址字串取 host，不用 `new URL()`——測試環境（tests/env-stub.mjs）
-// 把全域 URL 換成陽春的假物件，只有 createObjectURL／revokeObjectURL
-// 兩個靜態方法可用，`new URL(str)` 在那裡會直接壞掉。
+// 從網址字串取 host：只需要 host，用正規表示式就夠，不必為此建立 URL 物件。
 export function hostOf(url){
   const m = /^https?:\/\/([^/]+)/.exec(url);
   return m ? m[1] : url;

@@ -25,7 +25,7 @@
    那組 class 的作法一致（見該檔案開頭註解）。
 
    buildMobileOtherBrowseUI() 回傳的容器由呼叫端自行決定何時
-   append／顯示（見 sidebarUI.js 的 syncMobileBrowseView()，用 hidden
+   append／顯示（見 sidebarUI.js 的 initMobileCountryBrowse().sync()，用 hidden
    attribute 控制），不會自行 append。
 --------------------------------------------------------- */
 import { layerCountForSource } from './mobileRegionBrowse.js';

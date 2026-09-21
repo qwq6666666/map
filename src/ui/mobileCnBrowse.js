@@ -25,7 +25,7 @@
    獨立單元測試）；實際共用的 DOM 建構邏輯與
    guessRegionFromLastLocation() 已抽到 src/ui/mobileRegionBrowse.js，
    跟 mobileTwBrowse.js 共用。buildMobileCnBrowseUI() 回傳的容器由呼叫端
-   自行決定何時 append／顯示（見 sidebarUI.js 的 syncMobileBrowseView()，
+   自行決定何時 append／顯示（見 sidebarUI.js 的 initMobileCountryBrowse().sync()，
    用 hidden attribute 控制）。
 --------------------------------------------------------- */
 import { buildMobileRegionBrowseUI } from './mobileRegionBrowse.js';

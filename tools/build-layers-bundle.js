@@ -4,9 +4,9 @@
    開發時的「來源」是 data/layers/index.json + data/layers/<id>.json
   （每個 WMTS 來源一個檔案，方便編輯、方便看 git diff）。
 
-   但瀏覽器實際載入時，如果逐一 fetch 這 19 個小檔案，會比 fetch
+   但瀏覽器實際載入時，如果逐一 fetch 這 39 個小檔案，會比 fetch
    一個合併過的大檔案多花不少網路來回時間（實測在約 25ms 延遲的
-   網路環境下，19 個小檔案比 1 個合併檔案慢了 100ms 以上）。
+   網路環境下，39 個小檔案比 1 個合併檔案慢了 100ms 以上）。
 
    這支腳本把 data/layers/ 底下所有來源檔案合併成單一
    data/layers.bundle.json，部署前執行一次即可：

@@ -263,7 +263,7 @@ function openWelcomeModal() {
   document.body.appendChild(overlay);
 }
 
-/* ---------------- 5 步聚光燈導覽 ---------------- */
+/* ---------------- 聚光燈導覽（桌面 8 步、手機 4 步） ---------------- */
 
 // 手機版某些元素會依目前模式用 CSS display:none 隱藏（例如頂部搜尋列
 // 只在透明疊圖模式顯示，見 style.css 的 Mobile Responsive Layout／

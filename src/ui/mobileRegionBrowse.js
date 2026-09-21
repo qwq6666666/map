@@ -176,7 +176,7 @@ export function buildMobileRegionBrowseUI(opts, sources, buildSourceGroup){
 
 /**
  * 建立「手機版依國別切換：三段式瀏覽 vs 原本扁平手風琴」的顯示同步邏輯。
- * 從 src/sidebarUI.js 的 MOBILE_BROWSE_CONFIGS／syncMobileBrowseView()
+ * 從 src/sidebarUI.js 原本的 MOBILE_BROWSE_CONFIGS／syncMobileBrowseView()（已由本函式取代）
  * 抽出的通用版本，行為完全比照該處既有寫法（不是重新發明）：對每個
  * { country, build } 設定，用 sources 篩出該國別子集丟給 build() 建立
  * 三段式 UI 並 append 進 containerEl；回傳的 sync() 依 mq.matches ＋

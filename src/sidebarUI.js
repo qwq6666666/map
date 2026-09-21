@@ -343,7 +343,7 @@ function buildSourceGroup(src){
 // 原本 initSidebar() 內建立「來源(機構)→分類→次分類→圖層」手風琴的邏輯，
 // 抽成獨立函式：桌機所有分頁都還是要顯示這份手風琴（手機版「台灣」
 // 「中國」「其他」分頁改顯示 MOBILE_BROWSE_CONFIGS 對應的替代瀏覽方式，
-// 見 syncMobileBrowseView()），內容邏輯本身不變；這份手風琴的 DOM 節點
+// 見 initMobileCountryBrowse().sync()），內容邏輯本身不變；這份手風琴的 DOM 節點
 // 也是替代瀏覽方式第二層 buildSourceGroup() 呼叫的同一支函式（各自重新
 // 建立獨立實例，不共用節點）。
 // 桌機清單原本直接照 DATA.LAYER_SOURCES 的順序畫——那個順序是

@@ -291,8 +291,8 @@ function makeWmtsSourceFromEntry(entry, sourceKey){
       // createGuardedTileLoadFunction() 內建的防呆會自動略過邊界檢查，
       // 只保留逾時保護（見 core/tileLoadGuard.js）。
       tileLoadFunction: createGuardedTileLoadFunction({ label: entry.name || '自訂 WMTS 圖層', sourceKey }),
-      // 不帶這個選項 OL 會當成 0（不是退回預設 2048），LRU 過期機制
-      // 形同虛設——見 DEFAULT_TILE_CACHE_SIZE 的說明。
+      // 不帶這個選項 OL 的快取上限只會跟著視窗圖磚數走、回訪要重載——
+      // 見 DEFAULT_TILE_CACHE_SIZE 的說明。
       cacheSize: DEFAULT_TILE_CACHE_SIZE
     });
   }catch(err){

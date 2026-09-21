@@ -14,6 +14,7 @@ model: sonnet
 - 測試環境模擬 Stub：`tests/env-stub.mjs`
 - 整合與各模組規格測試：`tests/specs/*.test.mjs`
 - 開發規範文檔：`DEVELOPMENT.md`
+- 品質與發布防護設定：`eslint.config.js`、`.github/workflows/`（`ci.yml`／`upstream-health.yml`）、`.githooks/`（`pre-push`）、`tools/pre-push-check.js`、`tools/verify-docs-sync.js`（CLAUDE.md 記載的 CI／本機 push 防護，供檢查與回報；異動前仍要先由主代理確認）
 
 # 核心工作準則
 1. **全域整合驗證 (Full Integration Verification)：**

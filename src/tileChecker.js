@@ -5,10 +5,11 @@
    searchUI.js 的搜尋流程裡獨立出來，封裝成 TileChecker 類別，
    讓它自己管理：
 
-     1. 全站共用同一個 RequestPool（見下方），限制「同時真正在進行中
-        的 WMTS HTTP 請求數」不超過 TILE_REQUEST_MAX_CONCURRENCY，
-        不論請求來自哪個 TileChecker instance、哪個搜尋流程、或
-        checkBatchAny 的鄰近圖磚 fallback。
+     1. 所有 _probe() 一律包在 RequestPool.run() 裡才送出請求，限制「同時
+        真正在進行中的 WMTS HTTP 請求數」。search.js／timelineMode.js 明確
+        共用全站的 globalTileRequestPool（上限 TILE_REQUEST_MAX_CONCURRENCY），
+        涵蓋 checkBatchAny 的鄰近圖磚 fallback；沒傳 pool 的 instance 各自
+        建立專屬 pool。
      2. 記憶體快取：同一個 tile 網址（也就是同一個圖層在同一個
         z/x/y）只要探測過一次，結果就會被記住。使用者短時間內搜尋
         相近地點、或重新搜尋同一個地址時，只要落在同一個 zoom
@@ -99,9 +100,10 @@ export class RequestPool {
   }
 }
 
-// 全站共用的預設 pool：search.js、timelineMode.js 個別 `new TileChecker()`
-// 時如果沒有另外傳入 pool，就會共用這一個 instance，確保「搜尋流程」跟
-// 「時間軸模式」不會各自擁有一份獨立的請求名額、疊加出超過上限的總請求數。
+// 全站共用的 pool：search.js、timelineMode.js 個別 `new TileChecker()` 時
+// 明確傳入 `pool: globalTileRequestPool`，確保「搜尋流程」跟「時間軸模式」不會
+// 各自擁有一份獨立的請求名額、疊加出超過上限的總請求數。沒傳 pool 的 instance
+// 則各自建立專屬 pool（見下方 constructor），不會共用這一個。
 export const globalTileRequestPool = new RequestPool(TILE_REQUEST_MAX_CONCURRENCY);
 
 // 純粹的「發一張圖片請求、量測回應時間」原語，從 TileChecker._probe() 抽出來

@@ -12,9 +12,9 @@ model: sonnet
 你僅能檢視與修改資料設定檔、詮釋資料以及打包建置工具：
 - 城市與區域圖層：`data/layers/*.json`(包含 `taipei.json`、`tainan.json`、`index.json` 等)
 - 歷史名稱與來源映射：`data/historical-names.json`、`data/source-map.json`
-- 資料打包與載入：`data/layers.bundle.json`、`src/data.js`、`tools/build-layers-bundle.js`、`tools/tag-layer-types.js`（圖層類型自動打標，CLAUDE.md 資料管線守則明訂新增圖層後、打包前要執行）、`tools/lib/layerWalk.js`（`build-layers-bundle.js`／`tag-layer-types.js`／`fetch-legend-map.js`／`fetch-wmts-bbox.js` 四支腳本共用的巢狀圖層走訪邏輯）、`src/layersBundleSchema.js`（`src/data.js` 的 `validateLayersBundle()`／`assertShape()` 抽出的零依賴純函式模組，供 `tools/build-layers-bundle.js` 用動態 `import()` 在建置期做同一套驗證，兩邊行為保證一致）
+- 資料打包與載入：`data/layers.bundle.json`、`src/data.js`、`tools/build-layers-bundle.js`、`tools/tag-layer-types.js`（圖層類型自動打標，CLAUDE.md 資料管線守則明訂新增圖層後、打包前要執行）、`tools/lib/layerWalk.js`（`build-layers-bundle.js`／`tag-layer-types.js`／`fetch-legend-map.js`／`fetch-wmts-bbox.js`／`fetch-udd-bbox.js`／`check-upstream-health.js` 六支腳本共用的巢狀圖層走訪邏輯）、`src/layersBundleSchema.js`（`src/data.js` 的 `validateLayersBundle()`／`assertShape()` 抽出的零依賴純函式模組，供 `tools/build-layers-bundle.js` 用動態 `import()` 在建置期做同一套驗證，兩邊行為保證一致）
 - 國土測繪圖層清單建置：`tools/build-nlsc-layers.js`（解析國土測繪中心圖層清單、產生對應 `data/layers/*.json` 圖層設定）
-- WMTS Capabilities 空間索引建置：`tools/fetch-wmts-bbox.js`（解析中研院 WMTS Capabilities XML，將每個 Layer 的 `ows:WGS84BoundingBox` 寫入對應來源檔案的 `layer.region.bbox`，供前端做 bbox 空間篩選）
+- WMTS Capabilities 空間索引建置：`tools/fetch-udd-bbox.js`（對臺北市都發局歷史圖資 ArcGIS 服務逐圖層取 `WGS84BoundingBox`，寫入 `data/layers/udd.json`）、`tools/check-upstream-health.js`（每週檢查 sinica WMTS Capabilities 是否存活、本地圖層 id 是否都還在上游）、`tools/spot-check-tiles.js`（`npm run check:spot`，季度手動抽測 udd／nlsc 圖磚）、`tools/package.json`（`type: commonjs`，讓 tools/ 下的 CommonJS 腳本在根目錄 `type: module` 下正常執行）、`tools/fetch-wmts-bbox.js`（解析中研院 WMTS Capabilities XML，將每個 Layer 的 `ows:WGS84BoundingBox` 寫入對應來源檔案的 `layer.region.bbox`，供前端做 bbox 空間篩選）
 - 圖例索引建置：`tools/fetch-legend-map.js`（解析 twhgis 入口網站的圖層清單 API，把有圖例連結的圖層 id 對應到 `layer.legend` URL，寫回對應來源檔案）
 - 跨網域代理服務：`tools/cors-proxy-worker/`
 - 預設歷史主題圖資目錄：`data/presets/`（規劃中：目前目錄仍是空的，尚未有實際 GeoJSON 檔案，也還沒有任何程式碼真的 fetch 它。設計慣例先寫在這裡供未來實作時依循——供使用者按需 `fetch()` 載入的主題 GeoJSON，如車站、河道等；不得在 JS 模組頂層靜態 import）
@@ -30,5 +30,5 @@ model: sonnet
 
 # 驗證規範
 - 資料更新後必須驗證資料載入與來源匹配測試：
-  `npx vitest run tests/specs/data-loading.test.mjs tests/specs/source-matching.test.mjs tests/specs/custom-sources.test.mjs tests/specs/search-two-tier.test.mjs tests/specs/build-nlsc-layers.test.mjs tests/specs/place-names-data.test.mjs tests/specs/layer-walk.test.mjs`
+  `npx vitest run tests/specs/data-loading.test.mjs tests/specs/source-matching.test.mjs tests/specs/custom-sources.test.mjs tests/specs/search-two-tier.test.mjs tests/specs/build-nlsc-layers.test.mjs tests/specs/spatial-index.test.mjs tests/specs/place-names-data.test.mjs tests/specs/layer-walk.test.mjs`
   （`search-two-tier.test.mjs` 測的是 `src/data.js` 的 `prefilterLayersByPlaceName`；`build-nlsc-layers.test.mjs` 測 `tools/build-nlsc-layers.js`；`place-names-data.test.mjs` 測 `tools/build-place-names.js` 的 CSV 解析；`layer-walk.test.mjs` 測 `tools/lib/layerWalk.js`，四者皆屬於本代理權責檔案）

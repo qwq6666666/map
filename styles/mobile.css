@@ -37,7 +37,7 @@
   /* 手機版「台灣」「中國」分頁三段式瀏覽（src/ui/mobileTwBrowse.js／
      mobileCnBrowse.js）與「其他」分頁二段式瀏覽（src/ui/mobileOtherBrowse.js，
      沿用同一組 class）：桌機／平板一律隱藏，只在下方
-     @media (max-width:768px) 且 sidebarUI.js 的 syncMobileBrowseView()
+     @media (max-width:768px) 且 sidebarUI.js 的 initMobileCountryBrowse().sync()
      判定該顯示時才會現身。
      注意：這裡刻意用 class 選擇器而不是 #mobileTwBrowse 這種 ID 選擇器
      ——sidebarUI.js 用原生 hidden attribute（[hidden]{display:none} 是
@@ -729,7 +729,7 @@
        （src/ui/mobileTwBrowse.js／mobileCnBrowse.js）、「其他」分頁：
        來源→分類/圖層二段式（src/ui/mobileOtherBrowse.js，沿用同一組
        class）取代整批來源手風琴一次全列出 ----------
-       顯示與否由 sidebarUI.js 的 syncMobileBrowseView() 用 hidden attribute
+       顯示與否由 sidebarUI.js 的 initMobileCountryBrowse().sync() 用 hidden attribute
        控制（[hidden] 是瀏覽器內建規則，這裡用 class 選擇器 :not([hidden])
        維持 specificity 不蓋過它，見上方 .mobile-tw-browse{display:none} 的
        說明）。桌機／平板任何情況都不會套用這裡的規則。 */
@@ -738,7 +738,7 @@
     }
     /* 手機版「台灣」「中國」「其他」分頁顯示替代瀏覽方式時，隱藏對應的
        來源手風琴（其他分頁／桌機任何情況都不受影響——見 sidebarUI.js 的
-       syncMobileBrowseView() 只對目前分頁 country 相符的 .source-group
+       initMobileCountryBrowse().sync() 只對目前分頁 country 相符的 .source-group
        加這個 class）。class 選擇器對 class 選擇器，specificity 跟
        .source-group 本身相當，靠後宣告蓋過去即可。 */
     .source-group.mobile-tw-accordion-hidden{display:none;}

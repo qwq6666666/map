@@ -81,17 +81,15 @@ export { DEFAULT_TILE_LOAD_TIMEOUT_MS, getRecentTileFailures, clearRecentTileFai
 export { tileRenderRequestPool, TILE_RENDER_MAX_CONCURRENCY };
 
 // 每個 tile source（ol.source.XYZ／WMTS／OSM）的圖磚快取上限。OL 的
-// TileCache 建構子收到的 cacheSize 選項如果沒給（=== undefined），會
-// 退回內建預設值 2048；但這幾個 tile source 建構時全部沒帶 cacheSize，
-// 而 data.js／core/map.js 呼叫端傳的是 `options.cacheSize || 0`，`0`
-// 不是 `undefined`，所以實際會被設成 0——OL 的 TileCache.canExpireCache()
-// 要求 highWaterMark > 0 才會清舊圖磚，設成 0 等於「永遠不清」：不只
-// osmLayer／satLayer 這種整個 session 只建立一次的單例會無限累積
-// 已解碼的圖磚點陣圖，被 tileLoadGuard 逾時判定 ERROR 的圖磚（見
-// core/tileTimeoutRetry.js 的 loadWithTimeoutRetry()）也會永久卡住，
-// 離開視野再回來一樣是洞，不會自動重試。256 顆大約是一般視窗＋平移
-// 緩衝會同時用到的圖磚數量的數倍，留夠回訪不用重新打網路的空間，
-// 同時讓 LRU 過期機制真的會被觸發，不會又跟 0 一樣形同虛設。
+// Tile source 建構子是 `options.cacheSize || 0`，不帶就是 0；渲染每一幀
+// 時 renderer 會呼叫 updateCacheSize(tileCount)，把上限撐到至少等於
+// 「目前視窗內的圖磚數」（已對照 ol@9.2.4 原始碼確認），所以快取不是
+// 「永不過期」，而是「只夠放目前看得到的圖磚」：拖曳、縮放後離開視野的
+// 圖磚馬上被淘汰，回訪要重新打網路。256 顆大約是一般視窗＋平移緩衝會
+// 同時用到的圖磚數量的數倍，留夠回訪不用重載的空間。
+// 副作用：被 tileLoadGuard 逾時判定 ERROR 的圖磚在快取裡也會活得比較久
+// （見 core/tileTimeoutRetry.js 的 loadWithTimeoutRetry()、冷卻重試），
+// 這是靠 stale 重置與冷卻重試處理，不是靠快取過期。
 export const DEFAULT_TILE_CACHE_SIZE = 256;
 
 /**
