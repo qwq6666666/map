@@ -29,6 +29,12 @@ const PLACE_NAMES_URL = './data/place-names.json';
 let loadedPlaces = null;
 let loadingPromise = null;
 
+// 載入失敗（斷網、HTTP 錯誤）不永久快取：否則手機第一次搜尋剛好沒網路，
+// 整個 session 之後都查無地名、使用者也不知道原因。失敗後這段冷卻時間內
+// 直接回傳空陣列（不對 10MB 的檔案每打一個字就重打一次），冷卻過後再試。
+export const PLACE_NAMES_RETRY_COOLDOWN_MS = 30000;
+let loadFailedAt = 0;
+
 // 現名／別名 -> place[] 索引，跟 loadedPlaces 同步建立、同步快取。
 let nameIndex = null;
 let aliasIndex = null;
@@ -65,9 +71,13 @@ async function fetchPlaceNamesData(){
 function ensurePlaceNamesLoaded(){
   if(loadedPlaces) return Promise.resolve(loadedPlaces);
   if(loadingPromise) return loadingPromise;
+  if(loadFailedAt && Date.now() - loadFailedAt < PLACE_NAMES_RETRY_COOLDOWN_MS){
+    return Promise.resolve([]);
+  }
 
   loadingPromise = fetchPlaceNamesData()
     .then(places => {
+      loadFailedAt = 0;
       loadedPlaces = places;
       const indexes = buildIndexes(places);
       nameIndex = indexes.byName;
@@ -75,11 +85,9 @@ function ensurePlaceNamesLoaded(){
       return loadedPlaces;
     })
     .catch(err => {
-      console.warn('[placeNames] 地名今昔對照資料載入失敗，功能將優雅降級為查無結果', err);
-      loadedPlaces = [];
-      nameIndex = new Map();
-      aliasIndex = new Map();
-      return loadedPlaces;
+      console.warn('[placeNames] 地名今昔對照資料載入失敗，功能暫時降級為查無結果，稍後會自動重試', err);
+      loadFailedAt = Date.now();
+      return [];
     })
     .finally(() => {
       loadingPromise = null;

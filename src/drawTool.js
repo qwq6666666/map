@@ -243,12 +243,28 @@ const NAME_PROMPT_MESSAGES = {
 // currentTool／currentColor——對話框開著時使用者可能已經切換。
 // persistFeatures() 一律放在 await 之後：OL 的 drawend 是在圖形加進
 // vectorSource「之前」觸發，事件當下存檔會漏掉剛畫好的這一筆。
+// 線的長度／面的面積文字；點沒有量測值。
+function computeMeasure(feature, kind){
+  if(kind === 'line') return formatLength(ol.sphere.getLength(feature.getGeometry()));
+  if(kind === 'polygon') return formatArea(ol.sphere.getArea(feature.getGeometry()));
+  return '';
+}
+
+// 拖動節點（Modify）改了幾何之後，量測值與顯示標籤要跟著重算，否則地圖上
+// 仍顯示舊的長度／面積，匯出與重新整理後還原的也是舊值。
+function refreshMeasureAndLabel(feature){
+  const kind = feature.get('kind');
+  if(kind !== 'line' && kind !== 'polygon') return;
+  const measure = computeMeasure(feature, kind);
+  feature.set('measure', measure);
+  const name = feature.get('name') || '';
+  feature.set('label', name ? `${name}（${measure}）` : measure);
+}
+
 async function finishDrawnFeature(feature, kind, color){
   feature.set('kind', kind);
   applyColorToFeature(feature, color);
-  let measure = '';
-  if(kind === 'line') measure = formatLength(ol.sphere.getLength(feature.getGeometry()));
-  else if(kind === 'polygon') measure = formatArea(ol.sphere.getArea(feature.getGeometry()));
+  const measure = computeMeasure(feature, kind);
   if(measure) feature.set('measure', measure);
   feature.set('name', '');
   feature.set('label', measure);
@@ -671,6 +687,7 @@ function initFeatureEditPopup(){
     let label = name;
     if(kind !== 'point' && measure) label = name ? `${name}（${measure}）` : measure;
     editingFeature.set('label', label);
+    persistFeatures(); // 改名要存檔，否則重新整理後名稱會還原成舊的
   });
 
   const applyEditColor = (color) => {
@@ -747,6 +764,10 @@ export function initDrawTool(){
   if(savedFeatureCollection) importGeoJSON(savedFeatureCollection);
 
   modifyInteraction = new ol.interaction.Modify({ source: vectorSource });
+  modifyInteraction.on('modifyend', (e) => {
+    e.features.forEach(refreshMeasureAndLabel);
+    persistFeatures();
+  });
   selectInteraction = new ol.interaction.Select();
 
   toolbarEl = document.getElementById('drawToolbar');

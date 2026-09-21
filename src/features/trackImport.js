@@ -68,12 +68,20 @@ let importSeq = 0;
 function makeTrack(name, segments){
   const times = segments.flat().map((pt) => pt[2]).filter(Number.isFinite);
   const now = Date.now();
-  const startedAt = times.length ? Math.min(...times) : now;
+  // 不能寫 Math.min(...times)：點數約 12 萬以上會超過引數個數上限而 RangeError，
+  // 但匯入上限是 30 萬點，合法的長軌跡會被誤判成「無法解析」。
+  let minTime = Infinity;
+  let maxTime = -Infinity;
+  for(const t of times){
+    if(t < minTime) minTime = t;
+    if(t > maxTime) maxTime = t;
+  }
+  const startedAt = times.length ? minTime : now;
   return {
     id: `i${now}_${++importSeq}`,
     name,
     startedAt,
-    endedAt: times.length ? Math.max(...times) : startedAt,
+    endedAt: times.length ? maxTime : startedAt,
     done: true,
     imported: true,
     segments

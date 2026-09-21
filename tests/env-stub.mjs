@@ -486,7 +486,14 @@ class FakeCollection {
   forEach(fn){ this._items.forEach(fn); }
   clear(){ this._items = []; }
 }
-class FakeModifyInteraction { constructor(opts){ this.opts = opts; } }
+class FakeModifyInteraction {
+  constructor(opts){ this.opts = opts; this._listeners = {}; }
+  on(ev, fn){ (this._listeners[ev] = this._listeners[ev] || []).push(fn); }
+  // 模擬使用者拖完節點：OL 的 modifyend 事件帶 features 集合。
+  simulateModifyEnd(features){
+    (this._listeners['modifyend'] || []).forEach(fn => fn({ features: { forEach: (cb) => features.forEach(cb) } }));
+  }
+}
 class FakeSelectInteraction {
   constructor(opts){ this.opts = opts; this._features = new FakeCollection(); }
   getFeatures(){ return this._features; }

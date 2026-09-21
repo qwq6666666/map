@@ -148,3 +148,24 @@ test('名稱會被截到 60 字以內（不可信內容不能無限長）', () =
   const gpx = `<gpx><trk><name>${'長'.repeat(500)}</name><trkseg><trkpt lat="25" lon="121"/><trkpt lat="25.1" lon="121.1"/></trkseg></trk></gpx>`;
   expect(parseGpx(gpx)[0].name).toHaveLength(60);
 });
+
+test('GeoJSON：帶時間的大量點（15 萬點）也能匯入，不會因為展開大陣列而誤判成無法解析', () => {
+  const N = 150000;
+  const coordinates = [];
+  const times = [];
+  const t0 = Date.UTC(2026, 0, 1);
+  for(let i = 0; i < N; i++){
+    coordinates.push([121 + i * 1e-6, 25 + i * 1e-6]);
+    times.push(new Date(t0 + i * 1000).toISOString());
+  }
+  const geojson = {
+    type: 'Feature',
+    properties: { name: '大量點', coordinateProperties: { times } },
+    geometry: { type: 'LineString', coordinates }
+  };
+  const { tracks, error } = parseTrackFile('big.geojson', JSON.stringify(geojson));
+  expect(error, '不該回報解析錯誤').toBeFalsy();
+  expect(tracks.length).toBe(1);
+  expect(tracks[0].startedAt).toBe(t0);
+  expect(tracks[0].endedAt).toBe(t0 + (N - 1) * 1000);
+});

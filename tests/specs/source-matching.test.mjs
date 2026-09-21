@@ -131,3 +131,35 @@ test('SOURCE_MAP_REGISTRATION_EXEMPT 白名單本身仍必須是 data/layers/ind
     `以下白名單 id 已經不存在於 data/layers/index.json，應從 SOURCE_MAP_REGISTRATION_EXEMPT 移除：${JSON.stringify(staleExemptions)}`
   ).toBeTruthy();
 });
+
+/* ---------------------------------------------------------
+   ccts 排除清單要涵蓋所有台灣縣市
+   背景：ccts 用 alwaysIncludeUnless（排除清單）表達「地址不是台灣
+   就列入」。曾經漏了澎湖、臺東（後來才加專屬規則）與南投、雲林、
+   連江（沒有專屬規則），這些縣市的地址會被誤列 ccts 的 114 個圖層、
+   多打不必要的探測請求。
+--------------------------------------------------------- */
+test('ccts（alwaysIncludeUnless）對每個台灣縣市地址都不觸發', () => {
+  const counties = ['澎湖縣', '臺東縣', '台東縣', '南投縣', '雲林縣', '連江縣', '金門縣', '基隆市', '屏東縣'];
+  counties.forEach(county => {
+    const result = matchSourceIdsForAddress({ county });
+    expect(result.includes('ccts'), `${county} 地址不該列入 ccts`).toBe(false);
+  });
+});
+
+test('source-map.json：所有台灣來源的縣市規則關鍵字，都在 ccts 排除清單裡', async () => {
+  const { DATA } = await import('../../src/data.js');
+  const twSourceIds = new Set(DATA.LAYER_SOURCES.filter(s => s.country === 'tw').map(s => s.id));
+  const exclude = new Set(
+    (sourceMap.alwaysIncludeUnless || [])
+      .filter(e => (e.sources || []).includes('ccts'))
+      .flatMap(e => e.excludeIfIncludes || [])
+  );
+  const missing = [];
+  (sourceMap.rules || []).forEach(rule => {
+    if(rule.match !== 'county') return; // county+district 規則靠縣市關鍵字判斷，只驗純縣市規則
+    if(!(rule.sources || []).every(id => twSourceIds.has(id))) return;
+    (rule.includes || []).forEach(k => { if(!exclude.has(k)) missing.push(k); });
+  });
+  expect(missing, `新增台灣縣市規則時，要同步加進 ccts 的 excludeIfIncludes：${JSON.stringify(missing)}`).toEqual([]);
+});

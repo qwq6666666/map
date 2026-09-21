@@ -326,3 +326,65 @@ test('工具列關閉鈕：關掉工具列、浮動鈕回到非啟用，並結�
 // 才會結束，讓這支測試檔平白多花 2.5 秒 wall time 卻沒有驗證任何額外
 // 邏輯。
 if(runtime.drawStorageToastTimer) clearTimeout(runtime.drawStorageToastTimer);
+
+/* ---------------------------------------------------------
+   改名、拖動節點都要存檔（重新整理後才不會還原成舊值）
+--------------------------------------------------------- */
+const SAVED_KEY = 'taiwan_map_user_features';
+
+test('拖動節點（Modify）結束後，長度與顯示標籤跟著重算並存檔', async () => {
+  dialogMock.answer = '測試線';
+  ensureToolActive('line');
+  const drawInteraction = map._interactions[map._interactions.length - 1];
+  const feature = makeFakeFeature({ _length: 1234.5 });
+  drawInteraction.simulateDrawEnd(feature);
+  await sleep(20);
+  expect(feature.get('label')).toBe('測試線（1.23 公里）');
+
+  ensureToolActive('select');
+  const modify = map._interactions.find(i => i instanceof globalThis.ol.interaction.Modify);
+  expect(modify, '選取工具啟用時應該有 Modify interaction').toBeTruthy();
+
+  feature.getGeometry()._length = 5000;
+  modify.simulateModifyEnd([feature]);
+
+  expect(feature.get('measure')).toBe('5.00 公里');
+  expect(feature.get('label'), '名稱保留、長度換成新值').toBe('測試線（5.00 公里）');
+  expect(localStorage.getItem(SAVED_KEY), '拖動後要已寫入 localStorage').toContain('5.00 公里');
+});
+
+test('拖動點（沒有量測值）的 Modify 結束後不會壞掉，也不會亂寫 measure', async () => {
+  dialogMock.answer = '';
+  ensureToolActive('point');
+  const drawInteraction = map._interactions[map._interactions.length - 1];
+  const feature = makeFakeFeature({});
+  drawInteraction.simulateDrawEnd(feature);
+  await sleep(20);
+
+  ensureToolActive('select');
+  const modify = map._interactions.find(i => i instanceof globalThis.ol.interaction.Modify);
+  modify.simulateModifyEnd([feature]);
+  expect(feature.get('measure'), '點沒有量測值').toBeUndefined();
+});
+
+test('在要素編輯彈窗改名後立即存檔', async () => {
+  dialogMock.answer = '';
+  ensureToolActive('point');
+  const drawInteraction = map._interactions[map._interactions.length - 1];
+  const feature = makeFakeFeature({});
+  drawInteraction.simulateDrawEnd(feature);
+  await sleep(20);
+
+  ensureToolActive('select');
+  const vectorLayer = map._layers.find(l => l instanceof globalThis.ol.layer.Vector);
+  map.forEachFeatureAtPixel = (pixel, cb) => cb(feature, vectorLayer);
+  map._trigger('singleclick', { pixel: [0, 0] });
+
+  const nameInput = document.getElementById('drawFeaturePopupName');
+  nameInput.value = '改過的名字';
+  nameInput._listeners['input'][0]({ stopPropagation(){} });
+
+  expect(feature.get('name')).toBe('改過的名字');
+  expect(localStorage.getItem(SAVED_KEY), '改名後要已寫入 localStorage').toContain('改過的名字');
+  delete map.forEachFeatureAtPixel;
+});
