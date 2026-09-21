@@ -17,7 +17,7 @@
 import { runtime } from '../runtime.js';
 import { geocodeAddress, reverseGeocode } from '../geocode.js';
 import { map } from '../core/map.js';
-import { showLocateToast } from '../features/location.js';
+import { showLocateToast, describeAccuracy } from '../features/location.js';
 import { preloadOverlayKeys } from '../core/layerManager.js';
 import { findAvailableLayersAt, bumpSearchToken, isSearchStale, SEARCH_ZOOM, buildCoordInfoElement } from '../features/search.js';
 import { layerKey } from '../data.js';
@@ -159,7 +159,9 @@ async function runImmediateSearch(){
 // 共用流程：把地圖移到指定經緯度、標示圖釘、顯示搜尋結果面板，再逐筆確認可用圖層。
 // 地址搜尋（selectGeocodeResult）與定位搜尋（locateSearchBtn）最終都會走到這裡，
 // 差別只在座標與地址元件的來源不同（Nominatim 正向地理編碼 vs. 瀏覽器定位+反向地理編碼）。
-export async function showLocationAndFindLayers(lon, lat, label, addr){
+// accuracy（公尺）只有瀏覽器定位會傳，地址搜尋／地名比對沒有：桌面沒有 GPS，
+// Wi-Fi／IP 定位常差數百公尺以上，圖釘看起來精準卻可能離很遠，要讓使用者看得到。
+export async function showLocationAndFindLayers(lon, lat, label, addr, accuracy){
   // 每次重新定位（地址搜尋／目前位置定位／identify pin 的「搜尋涵蓋此點之
   // 歷史圖層」按鈕）都先清掉上一輪可能殘留的地名今昔對照卡與作用中比對
   // 結果；只有 selectPlaceNameCandidate() 會在這之後重新設定並顯示。
@@ -188,6 +190,14 @@ export async function showLocationAndFindLayers(lon, lat, label, addr){
   // 順序不符（座標資訊會被擠到附近地名清單之後）。
   locationResultEl.querySelector('.coord-info')?.remove();
   locationResultEl.insertBefore(buildCoordInfoElement(lat, lon), layerAvailPanelEl);
+  locationResultEl.querySelector('.locate-accuracy')?.remove();
+  const accuracyText = describeAccuracy(accuracy);
+  if(accuracyText){
+    const accuracyEl = document.createElement('div');
+    accuracyEl.className = 'locate-accuracy';
+    accuracyEl.textContent = accuracyText;
+    locationResultEl.insertBefore(accuracyEl, layerAvailPanelEl);
+  }
   await findAndRenderAvailableLayers(lon, lat, addr || {});
 }
 
@@ -364,7 +374,7 @@ async function handleLocateSuccess(pos, myToken){
 
   addressInput.value = label;
   syncAddressInputClearBtn();
-  await showLocationAndFindLayers(lon, lat, label, addr);
+  await showLocationAndFindLayers(lon, lat, label, addr, pos.coords.accuracy);
 }
 
 // 依 geolocation 錯誤的 code／message 組出對使用者友善的提示文字，
