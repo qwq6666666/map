@@ -74,6 +74,30 @@ function isPointNearExtent(lon, lat, ext){
          lat >= minLat - EXTENT_BUFFER_DEG && lat <= maxLat + EXTENT_BUFFER_DEG;
 }
 
+// 來源層級的預篩：座標靠近「來源範圍」，或靠近該來源「任何一張圖層的 bbox」就保留。
+// 只看來源範圍不夠：來源範圍只是概略行政區（同時用在側邊欄展開來源時的飛行視角，
+// 不能隨便放大），有些圖層的涵蓋範圍其實跨出去甚至完全在外面（實測 thm 的深坑廳
+// 7 張、hakkaliudui 的佳冬鄉 2 張，來源範圍外的座標永遠搜不到它們）。放寬這一關
+// 不會增加圖磚探測量：後面 filterCandidatesByBbox() 會依圖層自己的 bbox 精準篩掉
+// 不相交的候選。沒有 bbox 的圖層不參與判斷（維持原本只看來源範圍）。
+const layerBboxCache = new WeakMap(); // src -> 該來源所有圖層 bbox 陣列
+function layerBboxesOf(src){
+  let list = layerBboxCache.get(src);
+  if(!list){
+    list = [];
+    src.categories.forEach(cat=>{
+      const layersArr = cat.groups ? cat.groups.flatMap(g=>g.layers) : cat.layers;
+      layersArr.forEach(layer => { if(layer.region?.bbox) list.push(layer.region.bbox); });
+    });
+    layerBboxCache.set(src, list);
+  }
+  return list;
+}
+function isPointNearSource(lon, lat, src){
+  if(isPointNearExtent(lon, lat, DATA.REGION_EXTENTS[src.id])) return true;
+  return layerBboxesOf(src).some(bbox => isPointNearExtent(lon, lat, bbox));
+}
+
 // 圖層層級的 bbox 篩選：candidates 是 { src, layer } 的陣列，只保留
 // bboxIntersects(tileBbox, layer.region?.bbox) 為 true 的項目——也就是
 // 「沒有 bbox 索引資料」或「實際要探測的那顆圖磚範圍確實跟 bbox 有重疊」
@@ -107,7 +131,7 @@ export async function findAvailableLayersAt(lon, lat, addr, { onProgress, isStal
   const bboxExcluded = []; // 記錄被座標 bbox 排除掉的來源名稱，僅供進度顯示參考
   const candidateSources = DATA.LAYER_SOURCES.filter(s=>{
     if(!sourceIds.includes(s.id)) return false;
-    const nearby = isPointNearExtent(lon, lat, DATA.REGION_EXTENTS[s.id]);
+    const nearby = isPointNearSource(lon, lat, s);
     if(!nearby) bboxExcluded.push({ name: s.name, extent: DATA.REGION_EXTENTS[s.id] });
     return nearby;
   });
