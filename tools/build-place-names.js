@@ -107,6 +107,12 @@ function parseCsv(text) {
  * @param {string} name 該列的主名稱（PlaceName，已去頭尾空白）
  * @returns {string[]}
  */
+// 別名至少要有 2 個字：資料裡的單字別名（「厝」「后」「仔」…）共 106 筆，幾乎都是
+// AnotherName 欄位的殘缺片段，精確比對時輸入一個字就會撈到一堆不相關的地名。
+// 只在 rowToPlace() 最後統一過濾（涵蓋 AnotherName 與沿革抽取兩個來源）；
+// splitAliases() 本身維持「只負責切分」。以 code point 計字數，避免罕用字（擴充區）被算成 2 字。
+const MIN_ALIAS_LENGTH = 2;
+
 function splitAliases(raw, name) {
   if (!raw) return [];
   const parts = String(raw)
@@ -224,7 +230,7 @@ function rowToPlace(header, rowFields, sourceType) {
       ...splitAliases(record.AnotherName || '', name),
       ...extractAliasesFromDescription(description, name),
     ])
-  );
+  ).filter((alias) => Array.from(alias).length >= MIN_ALIAS_LENGTH);
 
   const place = {
     name,
@@ -247,7 +253,37 @@ function rowToPlace(header, rowFields, sourceType) {
   return place;
 }
 
-module.exports = { parseCsv, splitAliases, extractAliasesFromDescription, rowToPlace };
+/**
+ * 合併「完全重複」的地名紀錄：現名、縣、鄉鎮、座標、資料類別與沿革說明**全部相同**才視為
+ * 同一筆（別名取聯集、保留第一筆的位置與順序）。
+ *
+ * 刻意不合併「只有說明不同」的紀錄：同一鄉鎮內同名、座標也相同、但說明各自不同的紀錄
+ * （實測 3,497 組，例如竹山鎮三個由來各異的「過溪」）多半是不同聚落，合併會丟掉資訊。
+ * 沒有座標的紀錄同樣照規則處理（key 裡座標為空），完全相同的也會合併。
+ * @param {object[]} places
+ * @returns {object[]}
+ */
+function dedupePlaces(places) {
+  const byKey = new Map();
+  for (const place of places) {
+    const key = JSON.stringify([
+      place.name, place.county, place.town,
+      place.longitude, place.latitude,
+      place.sourceType, place.description,
+    ]);
+    const existing = byKey.get(key);
+    if (!existing) {
+      byKey.set(key, { ...place, aliases: [...place.aliases] });
+      continue;
+    }
+    for (const alias of place.aliases) {
+      if (!existing.aliases.includes(alias)) existing.aliases.push(alias);
+    }
+  }
+  return Array.from(byKey.values());
+}
+
+module.exports = { parseCsv, splitAliases, extractAliasesFromDescription, rowToPlace, dedupePlaces, MIN_ALIAS_LENGTH };
 
 /**
  * 檢查 CSV 檔案是否存在，不存在時印出清楚的中文錯誤訊息（提示可用命令列
@@ -311,7 +347,9 @@ if (require.main === module) {
   const settlementPlaces = loadCsvFile(settlementPath, 'settlement');
   const adminPlaces = loadCsvFile(adminPath, 'admin');
 
-  const allPlaces = settlementPlaces.concat(adminPlaces);
+  const rawPlaces = settlementPlaces.concat(adminPlaces);
+  const allPlaces = dedupePlaces(rawPlaces);
+  console.log(`  合併完全重複的紀錄：${rawPlaces.length} → ${allPlaces.length}（移除 ${rawPlaces.length - allPlaces.length} 筆）`);
   const withCoords = allPlaces.filter((p) => 'longitude' in p && 'latitude' in p).length;
   const withoutCoords = allPlaces.length - withCoords;
 
@@ -328,7 +366,7 @@ if (require.main === module) {
   const sizeMB = (sizeBytes / 1024 / 1024).toFixed(2);
 
   console.log('\n輸出完成：');
-  console.log(`  總筆數：${allPlaces.length}（聚落 ${settlementPlaces.length} ＋ 行政區域 ${adminPlaces.length}）`);
+  console.log(`  總筆數：${allPlaces.length}（合併前：聚落 ${settlementPlaces.length} ＋ 行政區域 ${adminPlaces.length}）`);
   console.log(`  有座標：${withCoords}，無座標：${withoutCoords}`);
   console.log(`  輸出檔案：${OUTPUT_PATH}`);
   console.log(`  檔案大小：${sizeBytes} bytes（約 ${sizeMB} MB）`);

@@ -10,13 +10,15 @@ import buildPlaceNames from '../../tools/build-place-names.js';
    tools/ 底下是獨立的 CommonJS 模組（見 tools/package.json），這裡用
    預設匯入拿到整個 module.exports 物件再解構。
 --------------------------------------------------------- */
-const { parseCsv, splitAliases, extractAliasesFromDescription, rowToPlace } = buildPlaceNames;
+const { parseCsv, splitAliases, extractAliasesFromDescription, rowToPlace, dedupePlaces, MIN_ALIAS_LENGTH } = buildPlaceNames;
 
 test('module.exports 應該正確匯出四個函式', () => {
   expect(typeof parseCsv, 'parseCsv 應該是函式').toBe('function');
   expect(typeof splitAliases, 'splitAliases 應該是函式').toBe('function');
   expect(typeof extractAliasesFromDescription, 'extractAliasesFromDescription 應該是函式').toBe('function');
   expect(typeof rowToPlace, 'rowToPlace 應該是函式').toBe('function');
+  expect(typeof dedupePlaces, 'dedupePlaces 應該是函式').toBe('function');
+  expect(MIN_ALIAS_LENGTH, '別名最短字數').toBe(2);
 });
 
 /* ---------------- parseCsv ---------------- */
@@ -370,4 +372,81 @@ test('rowToPlace：真實案例（松浦里，花蓮縣玉里鎮）——Another
     [...place.aliases].sort().join(','),
     'aliases 應該是 AnotherName 的「猛仔蘭」與 PlaceMean 沿革抽取結果「猛仔蘭、松浦」的聯集（「猛仔蘭」兩邊都出現，最終只留一份）'
   ).toBe(['猛仔蘭', '松浦'].sort().join(','));
+});
+
+/* ---------------- 單字別名過濾 ---------------- */
+
+const SHORT_HEADER = ['PlaceName', 'County', 'Town', 'AnotherName', 'PlaceMean', 'Longitude', 'Latitude'];
+
+test('rowToPlace：單字別名（AnotherName 殘缺片段）被過濾，兩字以上的照留', () => {
+  const place = rowToPlace(SHORT_HEADER, ['游屋', '桃園市', '新屋區', '厝、游厝、屋', '', '121.1', '24.9'], 'settlement');
+  expect(place.aliases, '單字「厝」「屋」不該留下').toEqual(['游厝']);
+});
+
+test('rowToPlace：沿革抽取出來的單字候選同樣被過濾', () => {
+  const place = rowToPlace(SHORT_HEADER, ['龍泉', '臺東縣', '海端鄉', '', '日人稱之為「瀧」，光復後改稱龍泉。俗稱瀧', '121.0', '23.0'], 'settlement');
+  expect(place.aliases.every(a => Array.from(a).length >= 2), '所有別名都至少 2 字').toBeTruthy();
+});
+
+test('rowToPlace：罕用字（擴充區，UTF-16 佔 2 個單位）以字數計算，仍算 1 字被過濾', () => {
+  const rare = '𠮷'; // 𠮷（1 個字、length 為 2）
+  const place = rowToPlace(SHORT_HEADER, ['某地', '南投縣', '埔里鎮', rare, '', '121.0', '23.9'], 'settlement');
+  expect(place.aliases, '單一個罕用字不該被當成兩字別名留下').toEqual([]);
+});
+
+/* ---------------- dedupePlaces ---------------- */
+
+function makePlace(overrides = {}){
+  return {
+    name: '過溪', aliases: [], county: '南投縣', town: '竹山鎮',
+    description: '因渡溪而得名', sourceType: 'settlement', longitude: 120.7, latitude: 23.7,
+    ...overrides
+  };
+}
+
+test('dedupePlaces：完全相同的紀錄只留一筆', () => {
+  const result = dedupePlaces([makePlace(), makePlace(), makePlace()]);
+  expect(result.length).toBe(1);
+});
+
+test('dedupePlaces：只有別名不同的重複紀錄合併，別名取聯集（不遺失、不重複）', () => {
+  const result = dedupePlaces([
+    makePlace({ aliases: ['過坑仔'] }),
+    makePlace({ aliases: ['過坑仔', '渡頭'] }),
+    makePlace({ aliases: [] }),
+  ]);
+  expect(result.length).toBe(1);
+  expect(result[0].aliases).toEqual(['過坑仔', '渡頭']);
+});
+
+test('dedupePlaces：說明不同的紀錄不合併（同鄉鎮同名但由來各異，多半是不同聚落）', () => {
+  const result = dedupePlaces([
+    makePlace({ description: '因渡溪而得名' }),
+    makePlace({ description: '因過湖仔厝溪而得名' }),
+  ]);
+  expect(result.length, '說明不同就是不同筆').toBe(2);
+});
+
+test('dedupePlaces：座標、資料類別、縣市、鄉鎮任一不同都不合併', () => {
+  expect(dedupePlaces([makePlace(), makePlace({ longitude: 120.8 })]).length, '座標不同').toBe(2);
+  expect(dedupePlaces([makePlace(), makePlace({ sourceType: 'admin' })]).length, '資料類別不同').toBe(2);
+  expect(dedupePlaces([makePlace(), makePlace({ county: '嘉義縣' })]).length, '縣市不同').toBe(2);
+  expect(dedupePlaces([makePlace(), makePlace({ town: '名間鄉' })]).length, '鄉鎮不同').toBe(2);
+});
+
+test('dedupePlaces：沒有座標的完全重複紀錄也會合併；有無座標視為不同筆', () => {
+  const noCoord = () => { const p = makePlace(); delete p.longitude; delete p.latitude; return p; };
+  expect(dedupePlaces([noCoord(), noCoord()]).length, '都沒座標且相同').toBe(1);
+  expect(dedupePlaces([noCoord(), makePlace()]).length, '一筆有座標一筆沒有').toBe(2);
+});
+
+test('dedupePlaces：保留第一筆的位置與順序，不修改傳入的原陣列與物件', () => {
+  const a = makePlace({ name: 'A' });
+  const b = makePlace({ name: 'B', aliases: ['甲'] });
+  const b2 = makePlace({ name: 'B', aliases: ['乙'] });
+  const input = [a, b, b2];
+  const result = dedupePlaces(input);
+  expect(result.map(p => p.name)).toEqual(['A', 'B']);
+  expect(b.aliases, '原物件的別名不可被改動').toEqual(['甲']);
+  expect(input.length).toBe(3);
 });
