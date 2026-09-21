@@ -66,3 +66,26 @@ test('checkBatch 會回傳有資料的候選項目，且進度回呼會被呼叫
   expect(available[0].id, '有資料的應該是 id=1').toBe(1);
   expect(progressCalls, '進度回呼應該被呼叫 2 次（候選數）').toBe(2);
 });
+
+test('連續逾時（重試後仍逾時）回報沒圖，但不記進快取；伺服器恢復後下次查詢能查到', async () => {
+  const checker = new TileChecker({ concurrency: 4, timeoutMs: 40 });
+  const url = 'http://x/timeout-then-ok';
+  urlResults[url] = 'timeout-always';
+
+  const before = imageCount;
+  expect(await checker.checkOne(url), '兩次都逾時這次回報沒圖').toBe(false);
+  expect(imageCount - before, '逾時會重試一次，共 2 次請求').toBe(2);
+
+  urlResults[url] = true; // 伺服器恢復
+  expect(await checker.checkOne(url), '逾時不可被永久快取成「沒圖」，恢復後要能查到').toBe(true);
+});
+
+test('伺服器明確回應沒有資料（onerror）會記進快取，第二次不再送請求（跟逾時不同）', async () => {
+  const checker = new TileChecker({ concurrency: 4, timeoutMs: 40 });
+  const url = 'http://x/explicit-no';
+  urlResults[url] = false;
+  expect(await checker.checkOne(url)).toBe(false);
+  const count = imageCount;
+  expect(await checker.checkOne(url)).toBe(false);
+  expect(imageCount, '明確的「沒有資料」要快取').toBe(count);
+});

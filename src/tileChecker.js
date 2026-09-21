@@ -177,11 +177,16 @@ export class TileChecker {
   // 沒資料（onload 小圖／onerror）不重試，避免每一筆真的沒資料的圖層
   // 都白白多等一輪 timeoutMs。重試的這次 _probe() 一樣會經過 pool，
   // 不會繞過併發上限。
+  // 回傳 { ok, timedOut }：timedOut 只有「重試後仍然逾時」才為 true，代表這次沒有得到
+  // 伺服器的任何答案，呼叫端不可以把它當成「確定沒有資料」記進快取。
   _probeWithRetry(url){
     return this._probe(url).then(result => {
-      if(result.ok) return true;
-      if(!result.timedOut) return false;
-      return this._probe(url).then(retryResult => retryResult.ok);
+      if(result.ok) return { ok: true, timedOut: false };
+      if(!result.timedOut) return { ok: false, timedOut: false };
+      return this._probe(url).then(retryResult => ({
+        ok: retryResult.ok,
+        timedOut: !retryResult.ok && retryResult.timedOut
+      }));
     });
   }
 
@@ -201,8 +206,11 @@ export class TileChecker {
       return Promise.resolve(ok);
     }
     if(this.pending.has(url)) return this.pending.get(url);
-    const promise = this._probeWithRetry(url).then(ok=>{
-      this._remember(url, ok);
+    const promise = this._probeWithRetry(url).then(({ ok, timedOut })=>{
+      // 連續逾時是暫時性的（例如 sinica 壅塞）：這次回報「沒圖」，但不記進快取，
+      // 否則同一個 url 在整個 session 內之後每次搜尋都會被當成確定沒有資料。
+      // 伺服器有明確回應（有圖／沒圖）才記憶。
+      if(!timedOut) this._remember(url, ok);
       this.pending.delete(url);
       return ok;
     }, err=>{
