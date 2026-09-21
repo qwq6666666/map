@@ -125,9 +125,11 @@ export function buildTimeline(candidates, container, onSelect){
       currentIndex = idx;
       paintProgress(idx);
       const item = dotList[idx];
+      // 要先取消還在 debounce 的舊計時器再判斷「是不是同一筆」：從 A 拖到 B（計時中）
+      // 又拖回 A，若先 return，B 的計時器仍會到期把 B 套上去，畫面是 B、刻度高亮卻是 A。
+      if(pendingTimer){ clearTimeout(pendingTimer); pendingTimer = null; }
       if(item.layer.id === lastFiredLayerId) return; // 還是同一筆，不用重新觸發
 
-      if(pendingTimer) clearTimeout(pendingTimer);
       const fire = () => {
         pendingTimer = null;
         lastFiredLayerId = item.layer.id;

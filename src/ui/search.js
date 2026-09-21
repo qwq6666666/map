@@ -159,6 +159,7 @@ async function runImmediateSearch(){
 // 共用流程：把地圖移到指定經緯度、標示圖釘、顯示搜尋結果面板，再逐筆確認可用圖層。
 // 地址搜尋（selectGeocodeResult）與定位搜尋（locateSearchBtn）最終都會走到這裡，
 // 差別只在座標與地址元件的來源不同（Nominatim 正向地理編碼 vs. 瀏覽器定位+反向地理編碼）。
+// 回傳這一輪搜尋的 token（供呼叫端用 isSearchStale() 判斷之後是否已有新搜尋）。
 // accuracy（公尺）只有瀏覽器定位會傳，地址搜尋／地名比對沒有：桌面沒有 GPS，
 // Wi-Fi／IP 定位常差數百公尺以上，圖釘看起來精準卻可能離很遠，要讓使用者看得到。
 export async function showLocationAndFindLayers(lon, lat, label, addr, accuracy){
@@ -198,7 +199,7 @@ export async function showLocationAndFindLayers(lon, lat, label, addr, accuracy)
     accuracyEl.textContent = accuracyText;
     locationResultEl.insertBefore(accuracyEl, layerAvailPanelEl);
   }
-  await findAndRenderAvailableLayers(lon, lat, addr || {});
+  return findAndRenderAvailableLayers(lon, lat, addr || {});
 }
 
 async function selectGeocodeResult(result){
@@ -207,11 +208,14 @@ async function selectGeocodeResult(result){
   syncAddressInputClearBtn();
   const lon = Number.parseFloat(result.lon);
   const lat = Number.parseFloat(result.lat);
-  await showLocationAndFindLayers(lon, lat, result.display_name, result.address || {});
+  // 沿用 showLocationAndFindLayers 這一輪的 token，不能在 await 之後再自己 bump：
+  // 探測期間使用者若開始了新搜尋 B，這裡再 bump 會把 B 的 token 蓋掉，B 的結果被當成
+  // 過期丟棄，A 的附近地名清單還會插進 B 的結果面板。
+  const myToken = await showLocationAndFindLayers(lon, lat, result.display_name, result.address || {});
+  if(isSearchStale(myToken)) return;
   // 只有「一般地址」這條路徑才順帶列出附近歷史地名候選；地名今昔對照
   // 精確比對（selectPlaceNameCandidate）命中時已經直接顯示完整對照卡，
   // 不需要再疊加這份清單造成畫面雜訊。
-  const myToken = bumpSearchToken();
   const nearby = await findNearbyPlaceNamesAsync(lon, lat);
   if(isSearchStale(myToken)) return;
   renderNearbyPlaceNames(nearby);
@@ -399,6 +403,12 @@ function describeLocateError(err){
 // 篩、圖磚怎麼驗證完全交給 findAvailableLayersAt。
 async function findAndRenderAvailableLayers(lon, lat, addr){
   const mySearch = bumpSearchToken();
+  await runAvailableLayersSearch(lon, lat, addr, mySearch);
+  // 回傳 mySearch：呼叫端據此判斷「我這輪之後是不是又有新搜尋」，不能自己再 bump 一次。
+  return mySearch;
+}
+
+async function runAvailableLayersSearch(lon, lat, addr, mySearch){
   layerAvailPanelEl.innerHTML = '';
 
   const progressEl = document.createElement('div');

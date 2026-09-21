@@ -127,3 +127,26 @@ test('沒有年份資料的圖層，收在「年代不明」清單，不會出�
   expect(!!undatedWrap, '應該有年代不明區塊').toBeTruthy();
   expect(undatedWrap.children[1].children.length, '年代不明清單應該有 1 筆').toBe(1);
 });
+
+test('拖曳掃過再拖回原位：debounce 中的舊計時器要取消，不會把中途路過的那一筆套上去', async () => {
+  const fired = [];
+  const container = document.createElement('div');
+  const candidates = [1897, 1904, 1944].map((y, i) => makeCandidate('id' + i, 't' + i, y));
+  buildTimeline(candidates, container, (s, l) => fired.push(l.id));
+  const ticks = container.querySelector('.timeline-ticks');
+  const dots = container.querySelectorAll('.timeline-dot');
+  // 每個刻度點的水平位置：0、100、200，讓 clientX 對得上最近的一筆
+  dots.forEach((d, i) => { d.getBoundingClientRect = () => ({ left: i * 100, width: 0 }); });
+  const trigger = (type, clientX) => ticks._listeners[type][0]({
+    pointerId: 1, clientX, target: { closest: () => dots[0] }
+  });
+
+  trigger('pointerdown', 0);   // 按在第 1 筆（立即套用）
+  expect(fired).toEqual(['id0']);
+  trigger('pointermove', 100); // 掃到第 2 筆：debounce 計時中
+  trigger('pointermove', 0);   // 又拖回第 1 筆並停住
+  await sleep(300);            // 超過 SCRUB_DEBOUNCE_MS（150ms）
+
+  expect(fired, '第 2 筆的計時器應已取消，不會在拖回第 1 筆之後才套上去').toEqual(['id0']);
+  expect(dots[0].classList.contains('active'), '刻度高亮與實際套用的圖層一致').toBeTruthy();
+});
