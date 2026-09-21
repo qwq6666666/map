@@ -58,7 +58,7 @@ import { lonLatToTileXY, tileXYToBbox } from '../../src/core/tileGeo.js';
 // attachStaleTileAbort() 上方註解已反解確認的常數（ol.js 內部固定呼叫
 // tileQueue_.loadMoreTiles(16, 16)）。這裡沒有從 src 匯入（該常數只存在
 // 於 OL 原始碼內部，tileLoadGuard.js 也是用註解記載、沒有另外定義成
-// 具名常數），測試自己宣告一份，數值调整時要跟 tileLoadGuard.js 的
+// 具名常數），測試自己宣告一份，數值調整時要跟 tileLoadGuard.js 的
 // 註解、attachStaleTileAbort() 的說明同步更新。
 const OL_GLOBAL_LOADING_CAP = 16;
 

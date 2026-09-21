@@ -13,6 +13,7 @@ model: sonnet
 - 頁面骨架與樣式：`index.html`、`style.css`（樣式入口，依序 `@import` 下面兩檔，順序即層疊順序）、`styles/base.css`（桌面基準規則）、`styles/mobile.css`（手機版「Mobile Responsive Layout」覆寫，必須在 base.css 之後載入；手機覆寫一律放這裡）
 - 線性圖示 sprite：`public/assets/map-emoji-style-a-icons.svg`（全站共用 `<svg class="ui-icon"><use href="./assets/map-emoji-style-a-icons.svg#..."></use></svg>` 圖示集，新增/修改 symbol 需維持既有配色 token：paper `#E9D7B5`／navy `#17324D`／rust `#D9785B`／teal `#1C8C8C`，stroke-width 約 1.6~1.8）
 - 側邊欄控制：`src/sidebarUI.js`、`src/ui/sidebarToggle.js`
+- 右側抽屜（使用指南／圖資來源狀態／我的軌跡）共用的淡出關閉動畫：`src/ui/drawerClose.js`（`removeDrawerAnimated`；動畫 CSS 在 `styles/base.css` 檔尾，測試 `drawer-close.test.mjs`）
 - 時間軸介面：`src/timelineUI.js`
 - 搜尋互動介面：`src/searchUI.js`、`src/ui/search.js`、`src/ui/placeNameCard.js`、`src/ui/availableLayers.js`（後兩者從 search.js 拆出：placeNameCard.js＝地名今昔對照卡單張渲染／收合，availableLayers.js＝搜尋結果「可用圖層」面板＋自訂時間軸多選模式，search.js 以 re-export 保留卡片函式讓既有 import 不變；地址／位置搜尋；地理編碼／圖磚驗證等核心搜尋邏輯維持不動，但地名今昔對照卡的候選清單渲染、卡片顯示/收合、與 `src/features/placeNames.js` 的串接屬於這支檔案的權責，可以修改）、`src/ui/layerSearch.js`（圖資搜尋，獨立輸入框與結果渲染，只呼叫 `src/features/layerSearch.js` 的 metadata 搜尋函式，不呼叫任何地理編碼 API）
 - 圖層樹狀目錄與篩選：`src/uiTree.js`、`src/ui/countryFilter.js`

@@ -14,7 +14,7 @@ test('文字篩選：關鍵字完全沒命中任何標題時回傳 null（呼叫
 
 test('文字篩選：關鍵字命中「部分」標題時，只回傳命中的那幾筆（不是全部）', () => {
   const candidates = [
-    { src: {}, layer: { id: 'a', title: '新竹廳竹北二堡塔仔脚庄' } },
+    { src: {}, layer: { id: 'a', title: '新竹廳竹北二堡塔仔腳庄' } },
     { src: {}, layer: { id: 'b', title: '苗栗廳苗栗一堡新開庄' } },
   ];
   const result = prefilterLayersByPlaceName(candidates, ['竹北二堡']);

@@ -266,7 +266,7 @@ function openWelcomeModal() {
 // 手機版某些元素會依目前模式用 CSS display:none 隱藏（例如頂部搜尋列
 // 只在透明疊圖模式顯示，見 style.css 的 Mobile Responsive Layout／
 // src/ui/mobileLayout.js 的 initModeClassSync()）。selector 找得到節點
-// 不代表它现在真的顯示在畫面上，這裡額外用 getClientRects() 判斷是否
+// 不代表它現在真的顯示在畫面上，這裡額外用 getClientRects() 判斷是否
 // 真的有算圖，隱藏的話當成「找不到」處理，交給呼叫端跳過這一步，
 // 不會去 highlight 一個看不到的空白區域。
 function isRendered(el) {

@@ -114,7 +114,7 @@ test('extractAliasesFromDescription：「古稱」前導語句抓出候選', () 
 });
 
 test('extractAliasesFromDescription：「曾稱」前導語句抓出候選', () => {
-  const result = extractAliasesFromDescription('日治時期曾稱錦町，光復後改名', '錦华里');
+  const result = extractAliasesFromDescription('日治時期曾稱錦町，光復後改名', '錦華里');
   expect(result.join(','), '應該抓出「曾稱」後面的候選').toBe('錦町');
 });
 

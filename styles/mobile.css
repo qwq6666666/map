@@ -256,8 +256,10 @@
     .draw-check-row{min-height:44px;}
     /* 手機的截圖入口在「地圖工具」選單的「更多」頁（下載截圖／傳送截圖），繪圖工具列裡
        這顆重複，藏起來。只是隱藏、DOM 與 drawTool.js 的事件綁定都還在（電腦版照舊）；
-       「截圖附出處資訊列」勾選列保留，它同時控制下載與傳送截圖是否附出處資訊列。 */
-    #drawExportImageBtn{display:none;}
+       「截圖附出處資訊列」勾選列也藏起來（同樣只是 display:none）：手機沿用電腦版存下的偏好
+       （localStorage，預設開），下載與傳送截圖照樣依那個偏好決定是否附出處資訊列。 */
+    #drawExportImageBtn,
+    #drawExportInfoToggle{display:none;}
     /* 色票永遠排成一整排（nowrap）；空間不夠時色票等比例縮小（最小 20px）而不是換行。
        繪圖工具列與「要素編輯彈窗」（min-width 220px，放不下 7×28）共用這組樣式。 */
     .draw-color-palette{flex-wrap:nowrap;}

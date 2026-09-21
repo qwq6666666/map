@@ -4,7 +4,7 @@
 
 ## 專案定位
 
-純前端、零建置工具（no bundler/no framework）的靜態網站：`index.html` + `style.css` + ES modules（`src/*.js`，瀏覽器原生 `<script type="module">`載入，不經過 webpack/vite 等打包）。地圖引擎是 OpenLayers v9.2.4（透過 CDN `<script>` 標籤載入為全域 `ol`，不是 npm import）。
+純前端、無框架（no framework）的靜態網站：`index.html` + `style.css`（入口，`@import` 到 `styles/base.css`、`styles/mobile.css`）+ 原生 ES modules（`src/**/*.js`，不裝任何前端 npm 第三方依賴）。開發用 Vite（`npm run dev`），正式版用 `npm run build` 打包到 `docs/`（含 hash 檔名與 Service Worker 快取，GitHub Pages 直接發布 `main` 分支的 `docs/`）；`start-website.bat`／`npx serve` 是不經過 Vite 的備用純靜態啟動。地圖引擎是 OpenLayers v9.2.4（透過 CDN `<script>` 標籤載入為全域 `ol`，不是 npm import）。
 
 ## 資料層（`data/`）
 
@@ -28,9 +28,9 @@ category: { name, layers: [...] }  或  { name, groups: [{name, layers:[...]}] }
 layer: { id, title, format, year(number|null), dateLabel(string), type, scale, region, keywords, url? }
 ```
 
-`type`/`keywords` 目前完全沒有程式在讀，是當初資料分離時就先留好給「依類型篩選」這類未來功能的欄位。`scale` 目前只有 `sinica.json` 有實際填值（用來源 titl 文字 regex 解析出來的），其他來源都是 `null`。
+`type` 由 `tools/tag-layer-types.js` 自動打標，搜尋結果的「類型」頁籤已在使用（見 `features/search.js` 的 `filterAvailableByType()`）；`keywords` 供打標工具判定類型，也是「圖資搜尋」（`features/layerSearch.js`）的比對欄位之一；地址搜尋不讀它。`scale` 目前只有 `sinica.json` 有實際填值（用來源 titl 文字 regex 解析出來的），其他來源都是 `null`。
 
-只有 `thm`（桃竹苗舊地籍圖）用 `groups` 巢狀結構（廳→堡→庄），其餘 18 個來源都是扁平的 `category.layers`。**這個結構差異直接影響搜尋演算法的行為，見下方「地址比對」一節**，新增來源時如果也想用 `groups`，要回頭檢視 `searchUI.js` 的篩選規則。
+只有 `thm`（桃竹苗舊地籍圖）用 `groups` 巢狀結構（廳→堡→庄），其餘 38 個來源（全站共 39 個來源、2428 筆圖層）都是扁平的 `category.layers`。**這個結構差異直接影響搜尋演算法的行為，見下方「地址比對」一節**，新增來源時如果也想用 `groups`，要回頭檢視 `features/search.js` 與 `data.js` 的篩選規則。
 
 `udd`（臺北市歷史圖資展示系統）的 `provider` 是 `{literalUrl:true}`，因為它的 tile 網址不是套統一樣板算出來的（ArcGIS WMTS REST 版 / 舊版 UDDWMTS 版兩種格式混用），每筆圖層自己帶完整 `url` 欄位。`resolveTileUrl()`（`data.js`）依這個旗標決定要套樣板還是直接用 `layer.url`。
 
@@ -56,30 +56,57 @@ layer: { id, title, format, year(number|null), dateLabel(string), type, scale, r
 
 ```
 data.js                    資料載入、圖層查詢、地址比對演算法（不依賴任何其他 src 模組）
+layersBundleSchema.js      layers.bundle.json 結構驗證（執行期與打包工具共用純函式）
 store.js                   全域可變狀態（mode/baseLayer/activeOverlayKey/
                             compareA/compareB/swipePercent/multiOverlayLayers）+ pub/sub
 runtime.js                 非使用者意圖的執行期狀態（OL 圖層實例、計時器），不放進 store
 geocode.js                 Nominatim API 呼叫（純函式，不碰 DOM／地圖）
 uiTree.js                  共用的分類手風琴 DOM 建構（沒有依賴，避免互相 import）
-tileChecker.js              圖磚探測 + 快取 + 節流（TileChecker class）
-timelineUI.js               時間軸箭頭視覺元件（buildTimeline，SVG 畫的）
-mapCore.js                  組合層（facade），把下面子模組的初始化組合起來，對外維持原本的匯出名稱
-core/map.js                 地圖本體、底圖切換
-core/layerManager.js        疊圖模式：單一歷史圖層的交叉淡出淡入、透明度控制
+tileChecker.js             圖磚探測 + 快取 + 節流（TileChecker class、RequestPool）
+timelineUI.js              時間軸箭頭視覺元件（buildTimeline，SVG 畫的）
+mapCore.js                 組合層（facade），把下面子模組的初始化組合起來，對外維持原本的匯出名稱
+searchUI.js                組合層（facade），只轉發 ui/search.js 的 initSearchUI()
+config/baseLayers.js       底圖（osm／sat）設定
+core/map.js                地圖本體、底圖切換
+core/layerManager.js       疊圖模式：單一歷史圖層的交叉淡出淡入、透明度控制
 core/multiOverlayManager.js 複合疊圖模式：多張歷史圖層同時疊加（zIndex／opacity），不做淡出淡入
-core/layerCache.js          WMTS Layer Cache（跨疊圖／比對／時間軸／複合疊圖模式共用）
-core/protectedKeys.js       統一計算「目前使用中，不能被 layerCache LRU 淘汰」的 key 集合，
-                             集中一份、避免每個模式各自維護子集導致漏保護
-core/modeManager.js         模式切換協調中心（四種模式：overlay/compare/timeline/multi）
-features/location.js        定位（目前位置藍點、定位失敗提示）
-features/compareMode.js     左右比對模式
-features/multiOverlay.js    複合疊圖模式的 UI（側邊欄 checkbox 圖層樹＋浮動已選清單面板）
-ui/sidebarToggle.js         側邊欄收合、收合後的浮動透明度控制
-sidebarUI.js                左側主清單手風琴（依賴 store 的 selectOverlayLayer 等）
-searchUI.js                 地址搜尋、定位搜尋、兩階段候選篩選（依賴 mapCore/geocode/tileChecker）
-timelineMode.js             時間軸模式（依賴 map 但不 import mapCore.js，靠 initTimelineMode(map, callback) 參數注入，避免循環依賴）
-drawTool.js                  點／線／面繪製、量測、匯出（依賴 mapCore 的 map）
-main.js                      進入點，依序 initXxx()
+core/layerCache.js         WMTS Layer Cache（跨疊圖／比對／時間軸／複合疊圖模式共用）
+core/protectedKeys.js      統一計算「目前使用中，不能被 layerCache LRU 淘汰」的 key 集合，
+                            集中一份、避免每個模式各自維護子集導致漏保護
+core/modeManager.js        模式切換協調中心（四種模式：overlay/compare/timeline/multi）
+core/tileGeo.js            經緯度／圖磚座標換算、bbox 比對（pointInBbox、bboxIntersects）
+core/tileLoadGuard.js      使用者瀏覽路徑的圖磚載入保護（組合層）；實作拆在
+core/tileBoundaryGuard.js  ／ core/tileTimeoutRetry.js ／ core/tileRenderPool.js
+features/location.js       定位＋持續追蹤（藍點、三態、Wake Lock）
+features/compareMode.js    左右比對模式
+features/multiOverlay.js   複合疊圖模式的 UI（側邊欄 checkbox 圖層樹＋浮動已選清單面板）
+features/search.js         地址搜尋流程（候選篩選、bbox 空間篩選、圖磚探測）
+features/layerSearch.js    圖資 metadata 搜尋（與地址搜尋獨立）
+features/placeNames.js     地名今昔對照比對與附近地名搜尋（延遲載入 data/place-names.json）
+features/identifyPin.js    地圖任意處落點探針（座標、地址反查、歷史地名）
+features/shareLink.js      分享連結與網址列即時同步
+features/nativeShare.js    系統分享面板（分享連結／截圖）
+features/exportInfo.js     截圖出處資訊列
+features/customTimeline.js／customTimelineUI.js  自訂時間軸（搜尋結果多選）及其浮動 dock
+features/sourceStatus.js   圖資來源健康狀態檢查
+features/wmtsImport.js     使用者匯入 WMTS 服務
+features/storage.js        繪圖圖形的 localStorage 自動儲存
+features/coordCopy.js      座標複製共用工具
+features/track*.js         軌跡記錄：trackMath（濾點／統計／GPX／GeoJSON）、trackStore（IndexedDB）、
+                            trackRecorder（記錄控制器）、trackLayer（地圖折線圖層）、trackImport（匯入）
+ui/search.js               地址搜尋介面（輸入框、建議清單、定位）；子模組 ui/placeNameCard.js、
+                            ui/availableLayers.js、ui/availCollapse.js
+ui/layerSearch.js          圖資搜尋介面
+ui/sidebarToggle.js        側邊欄收合、收合後的浮動透明度控制
+ui/countryFilter.js        台灣／中國／其他 來源篩選列
+ui/mobile*.js              手機版 Bottom Sheet、地圖工具選單、台灣／中國／其他 三段式／二段式瀏覽
+ui/nativeShareUI.js、ui/trackExport.js、ui/trackRecorderUI.js、ui/trackListUI.js  分享、軌跡相關介面
+ui/dialog.js               站內對話框（取代 alert／confirm／prompt）
+ui/onboarding.js、ui/sourceStatusUI.js、ui/drawerClose.js  導覽／使用指南、來源狀態抽屜、抽屜關閉動畫
+sidebarUI.js               左側主清單手風琴（依賴 store 的 selectOverlayLayer 等）
+timelineMode.js            時間軸模式（依賴 map 但不 import mapCore.js，靠 initTimelineMode(map, callback) 參數注入，避免循環依賴）
+drawTool.js                點／線／面繪製、量測、匯出（依賴 mapCore 的 map）
+main.js                    進入點，依序 initXxx()
 ```
 
 **循環依賴的坑**：`mapCore.js` 需要呼叫 `timelineMode.js` 的 `initTimelineMode()`，`timelineMode.js` 又需要 `mapCore.js` 匯出的 `preloadOverlayKeys`。解法是 `initTimelineMode(map, preloadOverlayKeysFn)` 用參數注入，`timelineMode.js` 完全不 `import` `mapCore.js`。以後如果又遇到「A 要 import B，B 又要 import A」的情況，先想能不能用參數注入解決，不要硬 import。
@@ -108,7 +135,7 @@ main.js                      進入點，依序 initXxx()
 
 ### 使用者自訂 WMTS／XYZ 圖層（`custom:` key 命名空間）
 
-跟內建的 19 個 curated 來源（`data/layers/*.json` → `layers.bundle.json`）完全脫鉤，是使用者在瀏覽器裡自己新增的圖層清單，設計上刻意分開處理：
+跟內建的 39 個 curated 來源（`data/layers/*.json` → `layers.bundle.json`）完全脫鉤，是使用者在瀏覽器裡自己新增的圖層清單，設計上刻意分開處理：
 
 - **key 命名空間**：`base:osm` / `base:sat` / `hist:<sourceId>:<layerId>:<fmt>` 之外，多一種 `custom:<id>`，`id` 是 `store.js` 的 `generateCustomSourceId()` 產生的（`Date.now()` + 亂數，瀏覽器端夠用，不需要真的全域唯一）。
 - **不進 `LAYER_SOURCES`**：`data.js` 刻意「不依賴任何其他 src 模組」（見檔頭），所以沒有直接 `import store.js`，改用參數注入——`features/multiOverlay.js` 初始化時呼叫 `setCustomSourcesProvider(() => store.customSources)`，把「怎麼查目前的自訂來源清單」註冊進 `data.js`，`makeSourceForKey()`／`titleForKey()` 遇到 `custom:` 開頭的 key 就透過這個函式查，兩邊互不 import，跟 `timelineMode.js`/`mapCore.js` 那組循環依賴的解法是同一個套路。
@@ -126,7 +153,7 @@ main.js                      進入點，依序 initXxx()
 - **CORS 是先天限制**：使用者貼的外部服務不一定開放跨網域圖磚請求，目前沒有做失敗偵測／提示，圖磚載入不出來使用者只會看到空白圖層。
 - 測試在 `tests/specs/custom-sources.test.mjs`；`tests/env-stub.mjs` 加了一份 in-memory 的 `localStorage` 假物件供測試使用。
 
-## 地址搜尋演算法（`searchUI.js` + `data.js`）
+## 地址搜尋演算法（`features/search.js` + `data.js`）
 
 三層篩選，最後一層才是真正的答案：
 
@@ -150,7 +177,7 @@ main.js                      進入點，依序 initXxx()
 
 `tools/build-place-names.js`（CommonJS，`tools/package.json` 是 `{"type":"commonjs"}`）讀兩份工作區外的地名 CSV（聚落類＋行政區域類），輸出精簡的 `data/place-names.json`；核心的 `parseCsv`／`splitAliases`／`rowToPlace` 是不做檔案 I/O 的純函式，`require.main === module` 判斷式外的部分可以直接 `require()` 測試，不依賴真的外部 CSV 存在。`src/features/placeNames.js` 延遲載入這份 JSON（第一次呼叫 `findPlaceNameCandidates()` 才 fetch、只 fetch 一次），比對規則是「現名精確相符 OR 別名精確相符，只保留有經緯度的候選」；`matchPlaceNames(places, query)` 是不碰 fetch 的純函式版本，單元測試優先呼叫這支。地址搜尋（`src/ui/search.js` 的 `runImmediateSearch()`）比對到 0 筆才會退回原本的 `geocodeAddress` 地址搜尋流程，1 筆直接定位＋顯示卡片，多筆列出候選清單重用既有的 `#addressSuggest` 容器。
 
-測試分散在三份檔案：`tests/specs/place-names-data.test.mjs`（`tools/build-place-names.js` 三個純函式）、`tests/specs/place-names-matching.test.mjs`（`matchPlaceNames`／`getActivePlaceNameMatchAt`／`sourceTypeLabel`，同樣不碰 fetch）、`tests/specs/place-name-card-ui.test.mjs`（`#placeNameCard` 的渲染／收合／候選清單，走 `loadAppData()+initMapCore()+initSidebar()+initSearchUI()` 完整初始化流程，比照 `full-integration.test.mjs` 的寫法）；另外 `tests/specs/identify-pin.test.mjs` 也補了落點彈窗「歷史地名」小區塊的案例。`renderPlaceNameCard`／`renderPlaceNameCandidateList`／`hidePlaceNameCard` 這三個 `src/ui/search.js` 內部函式是為了讓 UI 測試能直接呼叫才加上 `export`，不是功能邏輯異動。
+測試分散在幾份檔案（附近歷史地名另有 `place-names-nearby.test.mjs`、`nearby-place-names-ui.test.mjs`）：`tests/specs/place-names-data.test.mjs`（`tools/build-place-names.js` 三個純函式）、`tests/specs/place-names-matching.test.mjs`（`matchPlaceNames`／`getActivePlaceNameMatchAt`／`sourceTypeLabel`，同樣不碰 fetch）、`tests/specs/place-name-card-ui.test.mjs`（`#placeNameCard` 的渲染／收合／候選清單，走 `loadAppData()+initMapCore()+initSidebar()+initSearchUI()` 完整初始化流程，比照 `full-integration.test.mjs` 的寫法）；另外 `tests/specs/identify-pin.test.mjs` 也補了落點彈窗「歷史地名」小區塊的案例。`renderPlaceNameCard`／`renderPlaceNameCandidateList`／`hidePlaceNameCard` 這幾個函式是為了讓 UI 測試能直接呼叫才加上 `export`，不是功能邏輯異動（卡片渲染已拆到 `src/ui/placeNameCard.js`，`src/ui/search.js` 以 re-export 保留原匯出名稱）。
 
 ## 時間軸功能（`timelineUI.js` + `timelineMode.js`）
 
@@ -166,7 +193,7 @@ main.js                      進入點，依序 initXxx()
 
 ## 已知的坑
 
-- **CORS / canvas tainted**：`drawTool.js` 的截圖功能需要把外部圖磚伺服器的圖片畫進 canvas 再讀出來，這要求圖磚來源設定 `crossOrigin: 'anonymous'`（`mapCore.js`/`data.js` 建立 `ol.source.XYZ`/`ol.source.OSM` 時都要帶這個選項），**而且伺服器本身要回傳允許跨網域的標頭**。這件事沒辦法在開發環境裡確認，只能部署後實際測試——如果加了 `crossOrigin` 之後某個圖層突然讀不出來，很可能是那個伺服器不支援，需要個別處理。
+- **CORS / canvas tainted**：`drawTool.js` 的截圖功能需要把外部圖磚伺服器的圖片畫進 canvas 再讀出來，這要求圖磚來源設定 `crossOrigin: 'anonymous'`（`core/map.js`／`data.js` 建立內建歷史圖層與底圖的 `ol.source.XYZ`／`ol.source.WMTS`／`ol.source.OSM` 時都帶這個選項；使用者自訂的 `custom:` 圖層例外，刻意不帶，見上方「使用者自訂 WMTS／XYZ 圖層」），**而且伺服器本身要回傳允許跨網域的標頭**。這件事沒辦法在開發環境裡確認，只能部署後實際測試——如果加了 `crossOrigin` 之後某個圖層突然讀不出來，很可能是那個伺服器不支援，需要個別處理。
 - **`map.once('rendercomplete', ...)` 可能永遠不觸發**：如果地圖畫面跟上次比對完全沒有變化，OpenLayers 有時候不會觸發這個事件。`drawTool.js` 的 `exportImage()` 因此加了 400ms 逾時保險，不能只依賴這個事件。
 - **截圖畫質要乘上 `devicePixelRatio`**：不這樣做的話，Retina 螢幕匯出的圖片解析度會被砍到只剩 CSS 像素尺寸，明顯比螢幕上看到的模糊。
 - **`syncActiveLayerItemClasses()` 在時間軸模式下不展開側邊欄分類**：因為時間軸模式會自動收合側邊欄，如果每次選圖層都展開背景的分類手風琴，使用者之後手動展開側邊欄會發現分類莫名其妙已經被展開過。
@@ -186,6 +213,6 @@ npm test
 
 ## 沒做、但資料骨架已經備好的功能
 
-- 依關鍵字篩選（`keywords` 欄位存在但沒有程式在讀；`type` 欄位已經在用——見 `features/search.js` 的 `filterAvailableByType()`，以及搜尋結果「全部／類型／年代」三頁籤裡的「類型」頁籤 UI）
+- 依關鍵字篩選地址搜尋結果（`keywords` 目前只用在打標與「圖資搜尋」；`type` 欄位已經在用——見 `features/search.js` 的 `filterAvailableByType()`，以及搜尋結果「全部／類型／年代」三頁籤裡的「類型」頁籤 UI）
 - 時間軸擴大到其他來源（`udd` 也是跨多年代資料，可能適合比照 `sinica` 做法）
-- 手機版視覺沒有人用真的手機測試過，排版判斷都是憑 CSS 邏輯推算——複合疊圖模式又多加了一個浮動面板（`#multiOverlayBar`），小螢幕上跟既有的定位按鈕／繪圖工具列／透明度滑桿會不會互相遮擋，特別需要之後實機確認
+- 手機版（<=768px Bottom Sheet）的排版主要靠 CSS 邏輯與預覽窗格（375px）驗證，實機驗證有限（`--vvh` 這類瀏覽器工具列相關的坑就是實機才踩到的）；動手前先看 CLAUDE.md「手機版 Responsive UI」一段。複合疊圖的浮動面板（`#multiOverlayBar`）在小螢幕上跟定位按鈕／繪圖工具列／透明度滑桿會不會互相遮擋，仍建議實機確認
