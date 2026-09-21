@@ -761,6 +761,11 @@
   }
   .place-name-suggest-name{font-weight:600; color:var(--ink);}
   .place-name-suggest-loc{font-size:var(--fs-xs); color:var(--rule-text);}
+  /* 說明摘要獨占一行、最多 2 行（超過用省略號），讓同名候選看得出差別 */
+  .place-name-suggest-desc{
+    flex:1 1 100%; font-size:var(--fs-xs); color:var(--rule-text); line-height:1.4;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
   .place-name-suggest-type{
     flex-shrink:0; margin-left:auto; padding:1px 7px; border-radius:var(--radius-10);
     background:var(--brass-dark); color:var(--paper); font-size:var(--fs-2xs); line-height:1.6;

@@ -253,6 +253,35 @@ test('renderPlaceNameCandidateList()：多筆候選會各自渲染成 .place-nam
   expect(addressSuggestEl.classList.contains('show'), '候選清單容器應該加上 show class').toBeTruthy();
 });
 
+test('候選項目：有說明時多一行 .place-name-suggest-desc 顯示摘要，供區分同名候選', () => {
+  renderPlaceNameCandidateList([place]);
+  const item = addressSuggestEl.children[0];
+  const desc = item.querySelector('.place-name-suggest-desc');
+  expect(!!desc, '有說明的候選應該有摘要行').toBeTruthy();
+  expect(desc.textContent, '說明不長時顯示全文').toBe(place.description);
+});
+
+test('候選項目：同鄉鎮同名但說明不同的兩筆，摘要行內容各自不同（能區分）', () => {
+  const a = { ...place, name: '過溪', description: '因桶頭居民欲至此地需渡過清水溪而得名' };
+  const b = { ...place, name: '過溪', description: '必須過「湖仔厝溪」方能抵此地，故名。' };
+  renderPlaceNameCandidateList([a, b]);
+  const texts = addressSuggestEl.children.map(c => c.querySelector('.place-name-suggest-desc').textContent);
+  expect(texts[0]).not.toBe(texts[1]);
+});
+
+test('候選項目：說明很長時只顯示摘要（不塞全文）', () => {
+  const longDesc = '這是一段很長的地名沿革說明，' + '沿革內容'.repeat(60);
+  renderPlaceNameCandidateList([{ ...place, description: longDesc }]);
+  const text = addressSuggestEl.children[0].querySelector('.place-name-suggest-desc').textContent;
+  expect(Array.from(text).length, '摘要不可超過上限（含省略號）').toBeLessThanOrEqual(61);
+  expect(text.length).toBeLessThan(longDesc.length);
+});
+
+test('候選項目：沒有說明就不加摘要行', () => {
+  renderPlaceNameCandidateList([placeNoAlias]);
+  expect(addressSuggestEl.children[0].querySelector('.place-name-suggest-desc'), '空說明不該有摘要行').toBeFalsy();
+});
+
 test('renderMergedSuggestList()：地名候選在上、地址建議在下，且各自套用對應 class', () => {
   const geocodeResults = [{ display_name: '南投縣魚池鄉德化社', lon: '120.9123', lat: '23.8567' }];
   renderMergedSuggestList([place], geocodeResults);

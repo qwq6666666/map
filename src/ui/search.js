@@ -21,7 +21,7 @@ import { showLocateToast, describeAccuracy } from '../features/location.js';
 import { preloadOverlayKeys } from '../core/layerManager.js';
 import { findAvailableLayersAt, bumpSearchToken, isSearchStale, SEARCH_ZOOM, buildCoordInfoElement } from '../features/search.js';
 import { layerKey } from '../data.js';
-import { findPlaceNameCandidates, findNearbyPlaceNamesAsync, setActivePlaceNameMatch, clearActivePlaceNameMatch, sourceTypeLabel } from '../features/placeNames.js';
+import { findPlaceNameCandidates, findNearbyPlaceNamesAsync, setActivePlaceNameMatch, clearActivePlaceNameMatch, sourceTypeLabel, summarizeDescription } from '../features/placeNames.js';
 import { initPlaceNameCard, hidePlaceNameCard, renderPlaceNameCard, focusPlaceNameCard } from './placeNameCard.js';
 import { initAvailableLayers, renderAvailableLayers, exitSelectionMode, endSelectionSession, clearAvailableLayersPanel } from './availableLayers.js';
 
@@ -262,6 +262,16 @@ function buildPlaceNameSuggestItem(place){
   item.appendChild(nameEl);
   item.appendChild(locEl);
   item.appendChild(typeEl);
+
+  // 說明摘要：同鄉鎮同名的候選（例如竹山鎮三個由來各異的「過溪」）名稱、位置、
+  // 類別都一樣，沒有這一行使用者只能逐個點開才知道差別。沒有說明就不加這一行。
+  const { summary } = summarizeDescription(place.description);
+  if(summary){
+    const descEl = document.createElement('span');
+    descEl.className = 'place-name-suggest-desc';
+    descEl.textContent = summary;
+    item.appendChild(descEl);
+  }
   item.addEventListener('click', ()=> selectPlaceNameCandidate(place));
   return item;
 }
