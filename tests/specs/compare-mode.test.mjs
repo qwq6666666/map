@@ -107,3 +107,27 @@ test('resolveSourceForCompareKey：custom: 開頭的 key 跟 hist: 一樣走共�
   const sourceB = resolveSourceForCompareKey(key);
   expect(sourceA === sourceB, 'custom: key 應該走 getOrCreateSource() 共用快取，兩次呼叫拿到同一個 source 物件').toBeTruthy();
 });
+
+test('進入比對模式只隱藏疊圖模式的歷史圖層、不從地圖移除；切回疊圖後圖層仍在地圖上', async () => {
+  const { map } = await import('../../src/core/map.js');
+  const { DATA } = await import('../../src/data.js');
+  const sinica = DATA.LAYER_SOURCES.find(s => s.id === 'sinica');
+  const layer = sinica.categories[0].layers[0];
+  const key = `hist:sinica:${layer.id}:${layer.fmt}`;
+
+  setMode('overlay');
+  selectOverlayLayer(key);
+  const hist = runtime.historyLayer;
+  expect(hist, '前置條件：疊圖模式應已建立歷史圖層').toBeTruthy();
+  expect(map._layers.includes(hist), '前置條件：歷史圖層應在地圖上').toBe(true);
+
+  setMode('compare');
+  // layerCache 只在建立圖層時 addLayer；從地圖移除後切回疊圖模式就再也不會出現。
+  expect(map._layers.includes(hist), '比對模式不可把共用快取圖層 removeLayer').toBe(true);
+  expect(hist.getOpacity(), '比對模式下應隱藏（opacity 0）').toBe(0);
+
+  setMode('overlay');
+  expect(runtime.historyLayer, '切回疊圖後仍是同一張歷史圖層').toBe(hist);
+  expect(map._layers.includes(hist), '切回疊圖後歷史圖層應仍在地圖上').toBe(true);
+  setMode('overlay');
+});

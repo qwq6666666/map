@@ -25,6 +25,7 @@ import { map } from '../core/map.js';
 import { collapseSidebar } from '../ui/sidebarToggle.js';
 import { getOrCreateSource } from '../core/layerCache.js';
 import { getProtectedKeys } from '../core/protectedKeys.js';
+import { suspendActiveOverlayVisual } from '../core/layerManager.js';
 import { createCountryFilterBar } from '../ui/countryFilter.js';
 import { buildMobileTwBrowseUI } from '../ui/mobileTwBrowse.js';
 import { buildMobileCnBrowseUI } from '../ui/mobileCnBrowse.js';
@@ -72,7 +73,9 @@ export function enterCompareMode(){
   const compareAChanged = nextCompareA !== store.compareA;
   setCompareSide('A', nextCompareA);
 
-  if(runtime.historyLayer){ map.removeLayer(runtime.historyLayer); runtime.historyLayer = null; }
+  // 只隱藏、不 removeLayer：historyLayer 是 layerCache 共用的快取物件，從地圖移除後
+  // layerCache 不會重新 addLayer，切回疊圖模式時該圖層就不會再出現。
+  suspendActiveOverlayVisual();
   document.querySelectorAll('.layer-item.active').forEach(el=>el.classList.remove('active'));
   document.getElementById('stamp').classList.remove('show');
 

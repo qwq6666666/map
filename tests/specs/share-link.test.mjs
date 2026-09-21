@@ -4,7 +4,7 @@ import { loadAppData, DATA } from '../../src/data.js';
 import { initMapCore } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
 import { initSearchUI } from '../../src/searchUI.js';
-import { state as store, setState } from '../../src/store.js';
+import { state as store, setState, subscribe } from '../../src/store.js';
 import { map } from '../../src/core/map.js';
 import { buildShareURL, copyShareLink, applyShareStateFromURL, shareStateHasCustomLayers, buildLiveShareURL, initLiveShareURL } from '../../src/features/shareLink.js';
 
@@ -301,4 +301,20 @@ test('initLiveShareURL：狀態變動或地圖 moveend 後 debounce 一次 repla
     vi.useRealTimers();
     delete globalThis.history;
   }
+});
+
+test('還原分享連結時，地圖視角要在 setState() 之前就設好（否則 mode=timeline 會探測到舊位置）', () => {
+  const target = [121.5, 25.04];
+  let centerWhenModeApplied = null;
+  const unsubscribe = subscribe(() => {
+    if(store.mode === 'compare' && centerWhenModeApplied === null){
+      centerWhenModeApplied = map.getView().getCenter();
+    }
+  });
+  location.search = `?mode=compare&lon=${target[0]}&lat=${target[1]}&zoom=14`;
+  applyShareStateFromURL();
+  unsubscribe();
+  expect(centerWhenModeApplied, '切換模式當下地圖中心應已是分享連結指定的位置').toEqual(map.getView().getCenter());
+  expect(centerWhenModeApplied).not.toEqual([120.9, 23.7]);
+  setState({ mode: 'overlay' });
 });

@@ -96,9 +96,11 @@ function buildTourSteps() {
       desc: '一般瀏覽模式下，直接點地圖任意處會釘上一枚標記，顯示座標、反查地址，還能一鍵搜尋涵蓋這個點的歷史圖層。',
     },
     {
-      selector: '#shareLinkBtn',
+      // #shareLinkBtn 在預設隱藏的「⋯ 更多」選單裡，找不到可見目標會被整步跳過，
+      // 導覽就永遠走不到最後一步，所以聚光燈打在選單入口 #tourMoreBtn 上。
+      selector: '#tourMoreBtn',
       title: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg> 分享連結',
-      desc: '把目前的模式、圖層、地圖位置打包成一個網址，複製後傳給朋友，對方打開就能還原跟您一樣的畫面。',
+      desc: '按「⋯ 更多」選「分享連結」，把目前的模式、圖層、地圖位置打包成一個網址，複製後傳給朋友，對方打開就能還原跟您一樣的畫面。',
       extra: '現在輸入一個您熟悉的地點開始探索吧！',
       finalStep: true,
     },

@@ -263,6 +263,24 @@ export function applyShareStateFromURL(){
     if(parsed.length > 0){ patch.multiOverlayLayers = parsed; applied = true; }
   }
 
+  // 視角要在 setState() 之前設好：mode=timeline 會在 setState() 內立刻依「當下」地圖
+  // 中心探測可用年份，先切模式、後移動地圖的話，探測的是還原前的舊位置。
+  if(params.has('lon') && params.has('lat')){
+    const lon = Number(params.get('lon'));
+    const lat = Number(params.get('lat'));
+    if(Number.isFinite(lon) && Number.isFinite(lat)){
+      map.getView().setCenter(ol.proj.fromLonLat([lon, lat]));
+      applied = true;
+    }
+  }
+  if(params.has('zoom')){
+    const zoom = Number(params.get('zoom'));
+    if(Number.isFinite(zoom)){
+      map.getView().setZoom(zoom);
+      applied = true;
+    }
+  }
+
   if(Object.keys(patch).length > 0) setState(patch);
 
   // compareA/compareB 刻意跟上面那批 patch 分開、晚一步用第二次 setState()
@@ -280,22 +298,6 @@ export function applyShareStateFromURL(){
   if(Object.keys(comparePatch).length > 0){
     setState(comparePatch);
     applied = true;
-  }
-
-  if(params.has('lon') && params.has('lat')){
-    const lon = Number(params.get('lon'));
-    const lat = Number(params.get('lat'));
-    if(Number.isFinite(lon) && Number.isFinite(lat)){
-      map.getView().setCenter(ol.proj.fromLonLat([lon, lat]));
-      applied = true;
-    }
-  }
-  if(params.has('zoom')){
-    const zoom = Number(params.get('zoom'));
-    if(Number.isFinite(zoom)){
-      map.getView().setZoom(zoom);
-      applied = true;
-    }
   }
 
   return applied;
