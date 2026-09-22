@@ -154,28 +154,42 @@ async function clearTileCaches(){
 // tile cache（sw.js 以 destination === 'image' 判定），不是使用者要清的圖磚。
 const TILE_CACHE_NAME_PREFIX = 'tile-cache-';
 
+// 逐張讀 Content-Length 累加體積，不做 estimate()（理由同上）；圖磚快取現在只存
+// res.ok 的回應（見 public/sw.js），opaque 已排除，所以 Content-Length 一般都讀得到，
+// 缺標頭（極少數）才退回讀整個 body 的 blob().size。
 async function countCachedTiles(){
   if(typeof caches === 'undefined') return null;
   try{
     const names = (await caches.keys()).filter(n => n.startsWith(TILE_CACHE_NAME_PREFIX));
-    let total = 0;
+    let count = 0;
+    let bytes = 0;
     for(const name of names){
-      const requests = await (await caches.open(name)).keys();
-      total += requests.filter((req) => {
+      const cache = await caches.open(name);
+      const requests = await cache.keys();
+      for(const req of requests){
         const { origin, hostname } = new URL(req.url);
-        return origin !== location.origin && hostname !== 'tile-lru.local';
-      }).length;
+        if(origin === location.origin || hostname === 'tile-lru.local') continue;
+        count++;
+        const res = await cache.match(req);
+        const len = Number(res?.headers.get('content-length'));
+        bytes += len > 0 ? len : (await res.blob()).size;
+      }
     }
-    return total;
+    return { count, bytes };
   }catch{
     return null;
   }
 }
 
+function formatCacheSize(bytes){
+  const mb = bytes / 1024 / 1024;
+  return `${mb.toFixed(mb < 10 ? 1 : 0)} MB`;
+}
+
 async function updateCacheUsageText(el){
   if(!el) return;
-  const count = await countCachedTiles();
-  el.textContent = count === null ? '' : `已快取圖磚：${count.toLocaleString('zh-TW')} 張`;
+  const result = await countCachedTiles();
+  el.textContent = result === null ? '' : `已快取圖磚：${result.count.toLocaleString('zh-TW')} 張（${formatCacheSize(result.bytes)}）`;
 }
 
 function buildDrawer(){
