@@ -155,11 +155,11 @@ main.js                    進入點，依序 initXxx()
 
 ## 地址搜尋演算法（`features/search.js` + `data.js`）
 
-三層篩選，最後一層才是真正的答案：
+多層篩選，最後一層才是真正的答案：
 
 1. **來源層級**（`matchSourceIdsForAddress`）：用 `source-map.json` 的規則比對縣市，決定要看哪些「來源」。**這裡不特別區分 Nominatim 回傳的哪個欄位是「縣市」哪個是「鄉鎮」**，而是把 15 個可能相關的欄位全部合併成一個字串再比對——之前分開判斷時，「八德區」這種直轄市底下的「區」有時候會被 Nominatim 塞進 `city` 欄位（原本以為是縣市層級的欄位），導致比對失敗、抓不到桃園相關來源。合併比對雖然理論上可能有極小機率誤觸發到不相關的規則，但比起「漏掉整個來源」的後果好很多。
 
-2. **座標層級**（`isPointNearExtent`）：用 `REGION_EXTENTS` 的 bbox 做粗篩，純數學運算不花網路成本。
+2. **座標層級**（`isPointNearSource`，`features/search.js`）：座標靠近來源的 `REGION_EXTENTS` bbox，**或**靠近該來源任一圖層自己的 bbox，就保留這個來源；只看 `REGION_EXTENTS` 曾經漏掉 thm 的深坑廳、hakkaliudui 的佳冬鄉（圖層涵蓋範圍跨出來源概略行政區之外，任何座標都永遠搜不到），詳見 CLAUDE.md「圖層空間索引」段落。純數學運算，不花網路成本。
 
 3. **文字比對層級**（`prefilterLayersByPlaceName`）：**只對有 `groups` 巢狀結構的來源做**（目前只有 `thm`）。原因：`thm` 底下每個「庄」是互不重疊的小範圍地籍圖，一個座標本來就只會屬於一個庄，文字篩選命中、找到就停是安全的。但 `sinica` 這種全臺涵蓋、同一座標可能同時有十幾筆不同年代地圖都有效的來源，如果套用同樣邏輯，一旦文字篩選誤篩窄、又剛好命中其中一兩筆有資料的，會誤判「這個來源找到了」而不再檢查其餘圖層，導致其他真正有資料的圖層被漏掉。**這是一個真實發生過的 bug**（使用者回報桃園搜尋結果從 92 筆銳減，一路查到是這裡）。修法是判斷 `src.categories.some(cat => cat.groups)`，只有這樣的來源才嘗試文字篩選；沒有 groups 的來源一律全部檢查（反正這些來源筆數通常不多，十幾到一百多筆，全部檢查的成本還好）。
 
@@ -171,7 +171,7 @@ main.js                    進入點，依序 initXxx()
 
 目前只做了 `thm` 的 11 個堡（桃竹苗地區，48 個現代行政區對照）。格式是「現代地名 → [舊堡名（含廳名前綴以避免不同廳同名堡互相干擾，例如 `新竹廳竹北二堡` vs `桃仔園廳竹北二堡`）]」。`extractPlaceKeywords()` 會查這個表，把對照到的舊堡名也加進關鍵字。其他來源目前沒有類似的對照表（多數來源已經不需要，因為第 3 點的規則已經排除了它們套用文字篩選）。
 
-**注意跟下面這個功能名稱相近但完全獨立**：上面這份 `historical-names.json` 只是「地址搜尋時，用舊堡名輔助篩選 `thm` 候選圖層」的內部小型對照表；`data/place-names.json`（`tools/build-place-names.js` 從內政部「臺灣地區地名資料」CSV 產生，約 10MB、3-4 萬筆）是完全獨立的「地名今昔對照卡」功能資料來源，供使用者搜尋地名時展示現名／別名／地名沿革小卡（`src/features/placeNames.js` 純比對邏輯 + `src/ui/search.js` 的 `#placeNameCard` 渲染 + `src/features/identifyPin.js` 落點彈窗的「歷史地名」區塊），兩者互不匯入、互不共用資料。
+**注意跟下面這個功能名稱相近但完全獨立**：上面這份 `historical-names.json` 只是「地址搜尋時，用舊堡名輔助篩選 `thm` 候選圖層」的內部小型對照表；`data/place-names.json`（`tools/build-place-names.js` 從內政部「臺灣地區地名資料」CSV 產生，約 9.9MB、44,389 筆，有座標 33,790 筆；建置時會過濾單字別名並合併完全重複的紀錄，見 CLAUDE.md「地名今昔對照卡」段落的「建置時的清理」）是完全獨立的「地名今昔對照卡」功能資料來源，供使用者搜尋地名時展示現名／別名／地名沿革小卡（`src/features/placeNames.js` 純比對邏輯 + `src/ui/search.js` 的 `#placeNameCard` 渲染 + `src/features/identifyPin.js` 落點彈窗的「歷史地名」區塊），兩者互不匯入、互不共用資料。
 
 ## 地名今昔對照卡（`data/place-names.json` + `src/features/placeNames.js`）
 
