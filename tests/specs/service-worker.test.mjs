@@ -17,7 +17,7 @@
    sw.js 的頂層程式碼、重新註冊 install/activate/fetch handler、
    重新建立一份空的假 CacheStorage），案例之間彼此不共用狀態。
 --------------------------------------------------------- */
-import { test, expect } from 'vitest';
+import { test, expect, vi } from 'vitest';
 import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
@@ -138,6 +138,12 @@ function createSWEnv(){
     fetchCallCount++;
     return fetchImpl(...args);
   };
+  // fetchWithTimeout() 需要這三個：用包一層的寫法（不是直接指派參照）避免跟
+  // vi.useFakeTimers() 的呼叫時機綁死——sw.js 內部呼叫時才去查目前真正的
+  // setTimeout/clearTimeout，測試不論是否已經啟用假計時器都能正確接上。
+  context.setTimeout = (...args) => setTimeout(...args);
+  context.clearTimeout = (...args) => clearTimeout(...args);
+  context.AbortController = AbortController;
 
   vm.createContext(context);
   vm.runInContext(swCode, context, { filename: 'public/sw.js' });
@@ -604,4 +610,220 @@ test('快取命中時 LRU 更新失敗：仍回傳快取的圖磚', async () => 
 
   const res = await env.triggerFetch(new FakeRequest(SINICA_TILE, { destination: 'image', mode: 'cors' })).promise;
   expect(await res.text()).toBe('快取圖磚');
+});
+
+/* ---------------------------------------------------------
+   LRU 索引的並行安全與效能（見 public/sw.js 的 touchTileLRU() 檔頭說明）：
+   在這份測試環境裡，FakeCache 的操作雖然都是「立即」resolve 的 Promise，
+   但仍然是非同步的——await 一定會讓出控制權到下一個 microtask，這正是
+   舊版程式碼「兩筆並行 touch 各自讀到同一份舊索引、後寫覆蓋先寫」這個
+   race 會發生的根本原因，不需要額外插入人工延遲就能重現。
+--------------------------------------------------------- */
+test('touchTileLRU()：並行呼叫（模擬同時有多筆圖磚請求）不會遺失更新，兩筆都留在索引裡', async () => {
+  const env = createSWEnv();
+  const ctx = env.getContext();
+  const cache = await ctx.caches.open(TILE_CACHE);
+  const lruKey = 'https://tile-lru.local/__test_concurrent__';
+
+  await Promise.all([
+    ctx.touchTileLRU(cache, lruKey, 'url-x', 10),
+    ctx.touchTileLRU(cache, lruKey, 'url-y', 10),
+  ]);
+
+  const list = await env.getCacheEntry(TILE_CACHE, lruKey).json();
+  expect(list.includes('url-x'), '並行寫入不能遺失 url-x').toBeTruthy();
+  expect(list.includes('url-y'), '並行寫入不能遺失 url-y').toBeTruthy();
+  expect(list.length, '兩筆都要留下，不能只剩一筆（舊版「後寫覆蓋先寫」的 lost update）').toBe(2);
+});
+
+test('touchTileLRU()：20 筆並行 touch、上限 5：最終索引剛好 5 筆，且都是最後成功寫入的 url（沒有因為競態算錯逐出對象）', async () => {
+  const env = createSWEnv();
+  const ctx = env.getContext();
+  const cache = await ctx.caches.open(TILE_CACHE);
+  const lruKey = 'https://tile-lru.local/__test_concurrent_evict__';
+  const urls = Array.from({ length: 20 }, (_, i) => `url-${i}`);
+  urls.forEach(u => env.presetCache(TILE_CACHE, u, new FakeResponse(u)));
+
+  await Promise.all(urls.map(u => ctx.touchTileLRU(cache, lruKey, u, 5)));
+
+  const list = await env.getCacheEntry(TILE_CACHE, lruKey).json();
+  expect(list.length, '並行逐出後索引長度仍要精準等於上限').toBe(5);
+  expect(new Set(list).size, '索引內不可有重複 url').toBe(5);
+  // 被逐出的 url 對應的快取本體也要真的被刪除，不能因為競態漏刪
+  const survivors = new Set(list);
+  const evicted = urls.filter(u => !survivors.has(u));
+  expect(evicted.length).toBe(15);
+  evicted.forEach(u => expect(env.getCacheEntry(TILE_CACHE, u), `${u} 應該已被逐出快取`).toBeFalsy());
+});
+
+test('touchTileLRU()：同一個索引在多次 touch 之間只真的讀取 Cache Storage 一次（記憶體內權威副本）', async () => {
+  const env = createSWEnv();
+  const ctx = env.getContext();
+  const lruKey = 'https://tile-lru.local/__test_readonce__';
+
+  // 監看底層 store 的 match 呼叫次數，只計這個索引 key 被讀取的次數
+  const originalOpen = ctx.caches.open;
+  let matchCount = 0;
+  ctx.caches.open = async (name) => {
+    const c = await originalOpen(name);
+    return {
+      ...c,
+      async match(request){
+        const url = typeof request === 'string' ? request : request.url;
+        if(url === lruKey) matchCount++;
+        return c.match(request);
+      },
+    };
+  };
+  const cache = await ctx.caches.open(TILE_CACHE);
+
+  await ctx.touchTileLRU(cache, lruKey, 'url-1', 10);
+  await ctx.touchTileLRU(cache, lruKey, 'url-2', 10);
+  await ctx.touchTileLRU(cache, lruKey, 'url-3', 10);
+
+  expect(matchCount, '三次 touch 應該只真的讀取索引一次，其餘兩次用記憶體內的副本').toBe(1);
+});
+
+test('touchTileLRU()：兩個不同的索引 key（例如歷史 WMTS／OSM）互相獨立上鎖，不會互相排隊等待', async () => {
+  const env = createSWEnv();
+  const ctx = env.getContext();
+  const cache = await ctx.caches.open(TILE_CACHE);
+
+  await Promise.all([
+    ctx.touchTileLRU(cache, 'https://tile-lru.local/__key_a__', 'url-a1', 10),
+    ctx.touchTileLRU(cache, 'https://tile-lru.local/__key_b__', 'url-b1', 10),
+  ]);
+
+  const listA = await env.getCacheEntry(TILE_CACHE, 'https://tile-lru.local/__key_a__').json();
+  const listB = await env.getCacheEntry(TILE_CACHE, 'https://tile-lru.local/__key_b__').json();
+  expect(listA).toEqual(['url-a1']);
+  expect(listB).toEqual(['url-b1']);
+});
+
+test('touchTileLRU()：其中一次寫入失敗（例如配額滿），不會卡住鎖，後續 touch 仍能正常進行', async () => {
+  const env = createSWEnv();
+  const ctx = env.getContext();
+  const lruKey = 'https://tile-lru.local/__test_lock_recovery__';
+
+  const originalOpen = ctx.caches.open;
+  let putCount = 0;
+  ctx.caches.open = async (name) => {
+    const c = await originalOpen(name);
+    return {
+      ...c,
+      async put(request, response){
+        putCount++;
+        if(putCount === 1) throw new Error('QuotaExceededError（模擬第一次寫入失敗）');
+        return c.put(request, response);
+      },
+    };
+  };
+  const cache = await ctx.caches.open(TILE_CACHE);
+
+  await expect(ctx.touchTileLRU(cache, lruKey, 'url-1', 10)).rejects.toThrow();
+  await ctx.touchTileLRU(cache, lruKey, 'url-2', 10); // 鎖沒有被第一次失敗卡死，這筆應該能正常完成
+
+  const list = await env.getCacheEntry(TILE_CACHE, lruKey).json();
+  expect(list.includes('url-2'), '鎖恢復後的 touch 應該正常寫入').toBeTruthy();
+});
+
+/* ---------------------------------------------------------
+   Network-First 逾時保護（見 public/sw.js 的 fetchWithTimeout() 檔頭說明）：
+   fetch() 本身沒有內建逾時，網路存在但半死不活時 Promise 可能永遠不 resolve，
+   即使明明有快取版本可以立刻 fallback。HTML／Data 各自的逾時秒數不同
+   （8 秒／15 秒，Data 較長是因為 place-names.json 有 9.9MB），這裡驗證：
+   逾時後真的中止了底層請求（fetch 收到的 signal 被 abort）、逾時後走既有的
+   「退回快取」邏輯（不需要另外處理），以及還沒逾時前不會被提早判定失敗。
+--------------------------------------------------------- */
+function makeAbortError(){
+  const err = new Error('The operation was aborted.');
+  err.name = 'AbortError';
+  return err;
+}
+
+// 模擬「網路存在但完全沒回應」：fetchImpl 回傳的 promise 不會自己 resolve，
+// 只有 signal 被 abort 時才會 reject（如同真的 fetch() 在逾時中止後的行為）。
+function hangingFetchImpl({ onAbort } = {}){
+  return (request, init) => new Promise((resolve, reject) => {
+    const signal = init?.signal;
+    if(!signal) return; // 沒有 signal 就真的永遠掛著，不該發生（代表 fetchWithTimeout 沒接上）
+    if(signal.aborted){ onAbort?.(); reject(makeAbortError()); return; }
+    signal.addEventListener('abort', () => { onAbort?.(); reject(makeAbortError()); });
+  });
+}
+
+test('data/*.json：網路完全沒回應時，逾時（15 秒）後真的中止底層請求，並退回快取版本', async () => {
+  vi.useFakeTimers();
+  try{
+    const env = createSWEnv();
+    const url = 'https://example.local/data/layers.bundle.json';
+    env.presetCache(DATA_CACHE, url, new FakeResponse('{"cached":true}'));
+    let aborted = false;
+    env.setFetchImpl(hangingFetchImpl({ onAbort: () => { aborted = true; } }));
+
+    const { promise } = env.triggerFetch(new FakeRequest(url, { destination: '' }));
+    await vi.advanceTimersByTimeAsync(15000);
+    const res = await promise;
+
+    expect(aborted, '逾時應該真的中止底層 fetch（signal.aborted）').toBe(true);
+    expect(await res.text(), '逾時後應該退回快取版本').toBe('{"cached":true}');
+  }finally{
+    vi.useRealTimers();
+  }
+});
+
+test('HTML navigate：網路完全沒回應時，逾時（8 秒，比 data 短）後退回快取版本', async () => {
+  vi.useFakeTimers();
+  try{
+    const env = createSWEnv();
+    const url = 'https://example.local/';
+    env.presetCache(APP_CACHE, url, new FakeResponse('<html>舊版</html>'));
+    env.setFetchImpl(hangingFetchImpl());
+
+    const { promise } = env.triggerFetch(new FakeRequest(url, { mode: 'navigate' }));
+    await vi.advanceTimersByTimeAsync(8000);
+    const res = await promise;
+
+    expect(await res.text(), '逾時後應該退回快取的舊版 HTML').toBe('<html>舊版</html>');
+  }finally{
+    vi.useRealTimers();
+  }
+});
+
+test('data/*.json：8 秒時（HTML 的逾時秒數）還不該逾時，因為 data 用的是 15 秒；15 秒後才真的逾時', async () => {
+  vi.useFakeTimers();
+  try{
+    const env = createSWEnv();
+    const url = 'https://example.local/data/place-names.json';
+    env.presetCache(DATA_CACHE, url, new FakeResponse('{"cached":true}'));
+    let aborted = false;
+    env.setFetchImpl(hangingFetchImpl({ onAbort: () => { aborted = true; } }));
+
+    env.triggerFetch(new FakeRequest(url, { destination: '' }));
+    await vi.advanceTimersByTimeAsync(8000);
+    expect(aborted, 'data 請求的逾時是 15 秒，8 秒時不該被中止').toBe(false);
+
+    await vi.advanceTimersByTimeAsync(7001); // 累積到 15001ms
+    expect(aborted, '滿 15 秒後應該中止').toBe(true);
+  }finally{
+    vi.useRealTimers();
+  }
+});
+
+test('data/*.json：在逾時之前就拿到回應，不會被誤判逾時、內容正常更新快取', async () => {
+  vi.useFakeTimers();
+  try{
+    const env = createSWEnv();
+    const url = 'https://example.local/data/source-map.json';
+    env.setFetchImpl(async () => new FakeResponse('{"fresh":true}', { status: 200 }));
+
+    const { promise } = env.triggerFetch(new FakeRequest(url, { destination: '' }));
+    const res = await promise; // fetchImpl 立即 resolve，不需要推進計時器
+    await vi.advanceTimersByTimeAsync(20000); // 就算之後時間continue推進，也不該有任何副作用
+
+    expect(await res.text()).toBe('{"fresh":true}');
+    expect(env.getCacheEntry(DATA_CACHE, url), '應該正常寫進快取').toBeTruthy();
+  }finally{
+    vi.useRealTimers();
+  }
 });

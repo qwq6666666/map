@@ -34,10 +34,14 @@
         不會有「快取到舊 JS」的問題，Cache-First 純粹是省一次不必要
         的網路請求。
 
-   TILE_LRU 索引用一筆固定 key 的 JSON Response 存在 TILE_CACHE 裡本身
-   （而不是 SW 的記憶體變數），因為 Service Worker 隨時可能被瀏覽器
-   終止、下次事件才醒來，記憶體變數活不過重啟，Cache Storage 才是
-   真的持久。
+   TILE_LRU 索引持久化的地方是一筆固定 key 的 JSON Response，存在 TILE_CACHE
+   裡本身，因為 Service Worker 隨時可能被瀏覽器終止、下次事件才醒來，只放在
+   記憶體變數活不過重啟。**但每次讀寫都真的操作 Cache Storage 曾經是效能與
+   正確性問題的根源**（見 touchTileLRU() 檔頭說明）：SW 存活期間會在記憶體
+   （lruListCache）保留一份權威副本，只在第一次真的讀取，並用 withLruLock()
+   序列化同一個索引 key 的所有讀寫，排除並行請求互相覆蓋（lost update）的
+   競態；每次成功修改仍會寫回 Cache Storage，SW 重啟後下次讀到的還是最後
+   一次成功持久化的版本。
 
    Cache Version 集中在最上面兩個常數管理，不要在檔案其他地方另外
    寫死版本字串：
@@ -110,10 +114,44 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
-async function readTileLRU(cache, lruKey){
+// touchTileLRU() 原本每次都重新 cache.match()＋JSON.parse() 整份索引（TILE_CACHE
+// 上限 12000 筆，約 1MB），每一顆圖磚請求（不論快取命中或未命中）都要付這個成本；
+// 更嚴重的是，多筆並行請求（地址搜尋一次對上百個候選送出探測、地圖平移時多顆圖磚
+// 同時載入，OL 全域最多 16 顆同時 LOADING）會各自獨立讀到「同一份舊索引」，後寫的
+// 覆蓋掉先寫的（lost update）——索引因此跟 Cache Storage 實際內容脫鉤，逐出機制
+// 失準，快取可能悄悄超出原本設計的上限。
+//
+// 修法兩層：
+//   1. lruListCache：索引在同一個 SW 存活期間只真的讀取一次，之後都在記憶體裡直接
+//      修改同一個陣列參照。SW 被瀏覽器終止後這份記憶體會清空，下次事件喚醒時重新
+//      從 Cache Storage 讀最後一次成功寫入的版本，不會有跨重啟的一致性問題。
+//   2. withLruLock：同一個索引 key 的讀取-修改-寫入，用 promise chain 實作的簡易
+//      mutex 強制序列化，同一時間只有一筆在跑，徹底排除並行寫入互相覆蓋的可能——
+//      不是靠「盡量少衝突」，是結構上不可能衝突。
+// 三個索引 key（歷史 WMTS／OSM／衛星）各自獨立上鎖，彼此不互相排隊。
+const lruLocks = new Map(); // 索引 key 字串 -> 目前排隊中的 promise chain 尾端
+const lruListCache = new Map(); // 索引 key 字串 -> 記憶體內的權威副本（陣列參照）
+
+function lruIndexKey(lruKey){
+  return typeof lruKey === 'string' ? lruKey : lruKey.url;
+}
+
+function withLruLock(key, fn){
+  const prevTail = lruLocks.get(key) || Promise.resolve();
+  const result = prevTail.then(fn, fn); // 不論前一輪成功或失敗，這一輪都要接著跑
+  lruLocks.set(key, result.catch(() => {})); // 鎖本身絕不能卡死；真正的失敗留給呼叫端处理
+  return result;
+}
+
+async function loadTileLRU(cache, lruKey, key){
+  // 呼叫這支函式時一定已經在 withLruLock 的鎖內，同一個 key 不會有第二筆並行呼叫，
+  // 不需要額外的「載入中」去重機制。
+  if(lruListCache.has(key)) return lruListCache.get(key);
   const res = await cache.match(lruKey);
-  if(!res) return [];
-  try{ return await res.json(); }catch{ return []; }
+  let list = [];
+  if(res){ try{ list = await res.json(); }catch{ list = []; } }
+  lruListCache.set(key, list);
+  return list;
 }
 
 async function writeTileLRU(cache, lruKey, list){
@@ -123,15 +161,18 @@ async function writeTileLRU(cache, lruKey, list){
 }
 
 async function touchTileLRU(cache, lruKey, url, limit){
-  const list = await readTileLRU(cache, lruKey);
-  const idx = list.indexOf(url);
-  if(idx !== -1) list.splice(idx, 1);
-  list.push(url);
-  while(list.length > limit){
-    const oldest = list.shift();
-    await cache.delete(oldest);
-  }
-  await writeTileLRU(cache, lruKey, list);
+  const key = lruIndexKey(lruKey);
+  return withLruLock(key, async () => {
+    const list = await loadTileLRU(cache, lruKey, key);
+    const idx = list.indexOf(url);
+    if(idx !== -1) list.splice(idx, 1);
+    list.push(url);
+    while(list.length > limit){
+      const oldest = list.shift();
+      await cache.delete(oldest);
+    }
+    await writeTileLRU(cache, lruKey, list);
+  });
 }
 
 function isTileRequest(request){
@@ -212,10 +253,41 @@ async function cacheFirstTile(request, url){
   return res;
 }
 
+// fetch() 本身沒有內建逾時：網路存在但半死不活時（訊號被基地台黑洞、公用 Wi-Fi
+// 的登入頁攔截後不回應、連上了但伺服器完全不送資料），Promise 可能掛著不 resolve，
+// 使用者會看到頁面／搜尋結果卡住不動，即使明明有快取版本可以立刻 fallback 用。
+// 用 AbortController 包一層總時長上限：逾時就中止底層網路請求（真的把連線斷掉，
+// 不是放著不管），並丟出 AbortError，直接匯入既有的 catch 分支走「退回快取」邏輯，
+// 不需要另外處理——逾時在這裡的語意就是「當作網路失敗」。
+//
+// HTML／Data 兩者的逾時秒數不同、刻意分開：
+//   - NETWORK_FIRST_HTML_TIMEOUT_MS（8 秒）：index.html 本身很小（gzip 約 12KB），
+//     8 秒對任何還「堪用」的網路都綽綽有餘，純粹是拿掉「完全沒有上限」這個極端情況。
+//   - NETWORK_FIRST_DATA_TIMEOUT_MS（15 秒）：data/*.json 涵蓋的檔案大小差異很大，
+//     大多數（layers.bundle.json 約 572KB、source-map.json、historical-names.json）
+//     都很小，但 place-names.json 有 9.9MB（GitHub Pages gzip 後約 2.4MB，見
+//     「地名今昔對照卡」段落），真的在慢速行動網路上下載需要更久，逾時抓太短會誤傷
+//     還在正常下載、只是比較慢的使用者。就算 15 秒對極端慢速網路仍不夠，
+//     placeNames.js 的 ensurePlaceNamesLoaded() 本來就有失敗冷卻＋自動重試（見
+//     「地名今昔對照卡」段落），這裡逾時退回快取（或沒有快取時把錯誤往上拋）
+//     後，使用者體驗最差就是「這次搜尋查無結果，30 秒後自動能再查」，不是卡死。
+const NETWORK_FIRST_HTML_TIMEOUT_MS = 8000;
+const NETWORK_FIRST_DATA_TIMEOUT_MS = 15000;
+
+async function fetchWithTimeout(request, timeoutMs){
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try{
+    return await fetch(request, { signal: controller.signal });
+  }finally{
+    clearTimeout(timer);
+  }
+}
+
 async function networkFirstData(request){
   const cache = await caches.open(DATA_CACHE);
   try{
-    const res = await fetch(request);
+    const res = await fetchWithTimeout(request, NETWORK_FIRST_DATA_TIMEOUT_MS);
     if(res?.ok){
       await cache.put(request, res.clone());
       return res;
@@ -232,7 +304,7 @@ async function networkFirstData(request){
 async function networkFirstShellHTML(request){
   const cache = await caches.open(APP_CACHE);
   try{
-    const res = await fetch(request);
+    const res = await fetchWithTimeout(request, NETWORK_FIRST_HTML_TIMEOUT_MS);
     if(res?.ok){
       await cache.put(request, res.clone());
       return res;
