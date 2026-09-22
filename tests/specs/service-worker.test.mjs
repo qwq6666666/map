@@ -524,3 +524,84 @@ test('touchTileLRU()：重複 touch 同一個 url 只會移到最新位置，不
   expect(list.length, '同一個 url 重複 touch 不應該讓索引長度增加').toBe(2);
   expect(list[list.length - 1], '重複 touch 的 url 應該被移到最新（陣列尾端）位置').toBe('url-a');
 });
+
+/* ---------------------------------------------------------
+   opaque 回應：地址搜尋探測（new Image()，no-cors）拿到的 opaque 回應不可以被快取，
+   否則之後 OpenLayers 用 CORS 模式（crossOrigin='anonymous'）載入「同一個網址」的
+   圖磚會被 SW 回傳 opaque 回應而變成網路錯誤（sinica 的探測網址就是實際圖磚網址）。
+   實測（瀏覽器）：探測後同網址 CORS 載入失敗；沒探測過的直接載入成功。
+--------------------------------------------------------- */
+const SINICA_TILE = 'https://gis.sinica.edu.tw/tileserver/file-exists.php?img=JM20K_1904-jpg-15-27445-14028';
+
+test('no-cors 探測拿到的 opaque 回應照常回傳給頁面，但不寫進快取', async () => {
+  const env = createSWEnv();
+  env.setFetchImpl(async () => new FakeResponse('opaque圖磚', { status: 0, ok: false, type: 'opaque' }));
+
+  const res = await env.triggerFetch(new FakeRequest(SINICA_TILE, { destination: 'image', mode: 'no-cors' })).promise;
+
+  expect(await res.text(), '頁面仍要拿到回應').toBe('opaque圖磚');
+  expect(env.getCacheEntry(TILE_CACHE, SINICA_TILE), 'opaque 回應不可進快取').toBeUndefined();
+});
+
+test('舊版殘留的 opaque 快取遇到 CORS 請求：略過它、重新抓取，並用 cors 回應覆蓋（自我修復）', async () => {
+  const env = createSWEnv();
+  env.presetCache(TILE_CACHE, SINICA_TILE, new FakeResponse('舊的opaque', { status: 0, ok: false, type: 'opaque' }));
+  env.setFetchImpl(async () => new FakeResponse('正常圖磚', { status: 200, type: 'cors' }));
+
+  const res = await env.triggerFetch(new FakeRequest(SINICA_TILE, { destination: 'image', mode: 'cors' })).promise;
+
+  expect(await res.text(), 'CORS 請求不可拿到 opaque 快取').toBe('正常圖磚');
+  expect(env.getFetchCallCount(), '應該重新打網路').toBe(1);
+  expect(env.getCacheEntry(TILE_CACHE, SINICA_TILE).type, '快取被換成 cors 回應').toBe('cors');
+});
+
+test('舊版殘留的 opaque 快取遇到 no-cors 請求：照舊直接回傳，不打網路', async () => {
+  const env = createSWEnv();
+  env.presetCache(TILE_CACHE, SINICA_TILE, new FakeResponse('舊的opaque', { status: 0, ok: false, type: 'opaque' }));
+  env.setFetchImpl(async () => { throw new Error('no-cors 請求命中 opaque 快取時不該打網路'); });
+
+  const res = await env.triggerFetch(new FakeRequest(SINICA_TILE, { destination: 'image', mode: 'no-cors' })).promise;
+  expect(await res.text()).toBe('舊的opaque');
+});
+
+test('CORS 請求的 cors 200 回應照常快取，下次快取命中不打網路', async () => {
+  const env = createSWEnv();
+  env.setFetchImpl(async () => new FakeResponse('正常圖磚', { status: 200, type: 'cors' }));
+  await env.triggerFetch(new FakeRequest(SINICA_TILE, { destination: 'image', mode: 'cors' })).promise;
+  expect(env.getCacheEntry(TILE_CACHE, SINICA_TILE), '應該寫進快取').toBeTruthy();
+
+  env.setFetchImpl(async () => { throw new Error('快取命中時不該打網路'); });
+  const res = await env.triggerFetch(new FakeRequest(SINICA_TILE, { destination: 'image', mode: 'cors' })).promise;
+  expect(await res.text()).toBe('正常圖磚');
+});
+
+/* ---------------------------------------------------------
+   快取寫入失敗（配額滿等）不可以讓圖磚載入失敗
+--------------------------------------------------------- */
+function makeCachePutFail(env){
+  const ctx = env.getContext();
+  const originalOpen = ctx.caches.open;
+  ctx.caches.open = async (name) => {
+    const cache = await originalOpen(name);
+    return { ...cache, put: async () => { throw new Error('QuotaExceededError（模擬）'); } };
+  };
+}
+
+test('cache.put 失敗（例如配額滿）：圖磚照常回傳，不丟例外', async () => {
+  const env = createSWEnv();
+  makeCachePutFail(env);
+  env.setFetchImpl(async () => new FakeResponse('正常圖磚', { status: 200, type: 'cors' }));
+
+  const res = await env.triggerFetch(new FakeRequest(SINICA_TILE, { destination: 'image', mode: 'cors' })).promise;
+  expect(await res.text(), '快取寫入失敗不能讓圖磚載入失敗').toBe('正常圖磚');
+});
+
+test('快取命中時 LRU 更新失敗：仍回傳快取的圖磚', async () => {
+  const env = createSWEnv();
+  env.presetCache(TILE_CACHE, SINICA_TILE, new FakeResponse('快取圖磚', { status: 200, type: 'cors' }));
+  makeCachePutFail(env); // touchTileLRU 會用 put 寫索引，讓它失敗
+  env.setFetchImpl(async () => { throw new Error('不該打網路'); });
+
+  const res = await env.triggerFetch(new FakeRequest(SINICA_TILE, { destination: 'image', mode: 'cors' })).promise;
+  expect(await res.text()).toBe('快取圖磚');
+});

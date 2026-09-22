@@ -176,18 +176,38 @@ function tileCacheConfig(url){
   return { cacheName: TILE_CACHE, lruKey: TILE_LRU_KEY, limit: TILE_LRU_LIMIT };
 }
 
+// 快取的圖磚能不能拿來回應這個請求。opaque（跨來源、沒帶 CORS 標頭的 no-cors 請求拿到的）
+// 回應只能回給 no-cors 請求：Fetch 規格規定 CORS 模式的請求（OpenLayers 顯示圖磚用
+// crossOrigin='anonymous'）拿到 opaque 回應會變成網路錯誤，圖磚就成了破洞。舊版 SW 會把
+// 地址搜尋探測（new Image()，no-cors）的 opaque 回應存進快取——sinica 的探測網址就是實際
+// 圖磚網址——所以使用者的快取裡可能有這種殘留；遇到 CORS 請求要略過、重新抓取並覆蓋。
+function isCachedTileUsable(cached, request){
+  return cached.type !== 'opaque' || request.mode === 'no-cors';
+}
+
+// 快取寫入／LRU 維護都是「盡力而為」：配額滿（QuotaExceededError）、儲存空間被清掉等失敗
+// 不可以讓圖磚本身載入失敗，否則使用者的地圖會因為快取問題出現破洞。
+async function bestEffort(label, fn){
+  try{ await fn(); }catch(err){ console.warn(`[sw] ${label}失敗（不影響圖磚回應）`, err); }
+}
+
 async function cacheFirstTile(request, url){
   const { cacheName, lruKey, limit } = tileCacheConfig(url);
   const cache = await caches.open(cacheName);
   const cached = await cache.match(request);
-  if(cached){
-    await touchTileLRU(cache, lruKey, request.url, limit);
+  if(cached && isCachedTileUsable(cached, request)){
+    await bestEffort('更新 LRU', () => touchTileLRU(cache, lruKey, request.url, limit));
     return cached;
   }
   const res = await fetch(request);
-  if(res && (res.ok || res.type === 'opaque')){
-    await cache.put(request, res.clone());
-    await touchTileLRU(cache, lruKey, request.url, limit);
+  // 只快取 res.ok 的回應，不快取 opaque：opaque 的狀態碼看不到（可能是 500 錯誤頁），快取了
+  // 會一直被當成圖磚回給使用者；而且 Chrome 對每個 opaque 回應的配額估算至少約 7MB，
+  // 一次地址搜尋上百筆探測就會把配額吃光。代價是自訂圖層（沒設 crossOrigin）的圖磚不進快取。
+  if(res && res.ok){
+    await bestEffort('寫入圖磚快取', async () => {
+      await cache.put(request, res.clone());
+      await touchTileLRU(cache, lruKey, request.url, limit);
+    });
   }
   return res;
 }
