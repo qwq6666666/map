@@ -589,7 +589,13 @@
   .locate-accuracy:empty{display:none;}
 
   .locate-toast{
-    position:absolute; bottom:16px; left:50%; transform:translateX(-50%); z-index:9;
+    /* z-index 32：已實測重現——原本 9 低於手機版 Bottom Sheet（20）與
+       .floating-stack（22），Sheet 展開時（例如地址搜尋後自動展開）toast
+       完全被蓋住看不到（「定位失敗」「連結已複製」之類的提示形同沒有
+       出現過）。比照同樣是 position:fixed／絕對定位、需要蓋過 Sheet 的
+       .search-batch-bar（30）／#custom-timeline-dock（31）拉到同一階，
+       這個 class 也被 #drawStorageToast 共用，一併修正。 */
+    position:absolute; bottom:16px; left:50%; transform:translateX(-50%); z-index:32;
     max-width:260px; background:rgba(23,33,29,.92); color:var(--paper);
     font-family:var(--sans); font-size:var(--fs-sm); line-height:1.5; padding:9px 12px; border-radius:var(--radius-3);
     box-shadow:0 4px 12px rgba(0,0,0,.3);

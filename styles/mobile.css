@@ -149,6 +149,15 @@
       flex:0 0 0; width:0; min-width:0; opacity:0; margin:0; padding:0;
       border:none; pointer-events:none; overflow:hidden;
     }
+    /* #addressSearchBtn（放大鏡）刻意不在上面那條規則裡，收合後維持原本大小、
+       當作地址模式的視覺錨點；但 pointer-events 要蓋成 none——已實測重現：
+       輸入框還留有文字時，點收合圓圈會先命中這顆按鈕自己的 click handler
+       （runImmediateSearch，重打一次地理編碼、地圖跟著飛過去），才輪到
+       #mobileSearchBar 的「點擊 collapsed 即展開」handler。維持 none
+       讓點擊直接穿透給 #mobileSearchBar 處理，只負責顯示、不接管點擊。 */
+    #mobileSearchBar.mobile-search-collapsed #addressSearchBtn{
+      pointer-events:none;
+    }
     /* 圖資模式收合時的例外：地址模式收合後會留下 #addressSearchBtn
        （放大鏡）當作視覺錨點，但 #addressSearchBtn 不在圖資搜尋列裡；
        圖資搜尋列（.layer-search-row）僅有的三個子節點（輸入框／模式
@@ -158,11 +167,18 @@
        #mobileSearchModeBtn 本身當作圖資模式的收合錨點，逐一還原被
        上面那條規則歸零的屬性，讓圓圈裡留一顆清楚可辨識的 📍/🗺 圖示
        （點擊整個圓圈展開搜尋列的既有邏輯不受影響）。用 body class 疊
-       specificity 蓋過通用隱藏規則，不需要動到規則的原本順序。 */
+       specificity 蓋過通用隱藏規則，不需要動到規則的原本順序。
+       **pointer-events 刻意維持 none（不像其餘還原屬性一樣改回 auto）**：
+       已實測重現——改回 auto 的話，點收合圓圈會先命中這顆按鈕自己的
+       click handler（切換回地址模式），#mobileSearchBar 自身「點擊collapsed
+       狀態即展開」的 handler 因為冒泡到達時 collapsed class 已經被移除
+       而提早 return，使用者點下去變成「被切回地址模式」而不是「展開回
+       圖資搜尋」。維持 none 讓點擊直接穿透給 #mobileSearchBar 處理，
+       只負責顯示、不接管點擊。 */
     body.mobile-search-mode-layer #mobileSearchBar.mobile-search-collapsed #mobileSearchModeBtn{
       flex:0 0 36px; width:36px; height:36px; min-width:36px;
       opacity:1; margin:0; padding:0; border:1px solid var(--ink);
-      pointer-events:auto; overflow:visible;
+      pointer-events:none; overflow:visible;
     }
     #mobileSearchBar .address-suggest{
       position:absolute; top:calc(100% + 6px); left:0; right:0;
@@ -576,13 +592,24 @@
        多一截用不到的空白，這裡扣掉 --mobile-sheet-peek 那一段跟著往下
        拉，只有使用者手動拖曳過按鈕（改用 JS 內聯 top/left 定位）才不受
        這裡影響。只在這兩個模式生效，其餘模式 peek 列還在，維持原公式。 */
-    body.mobile-mode-timeline #mobileModeBtn,
     body.mobile-mode-compare #mobileModeBtn{
       bottom:calc(env(safe-area-inset-bottom) + 56px);
     }
-    body.mobile-mode-timeline #mobileModePopover,
+    /* 時間軸模式單獨拉高（compare 模式的 .compare-float-item 是左右兩顆小按鈕，
+       實測不會被蓋到，維持原本 56px 即可）：#mapTimelineBar 實測高度約 102px、
+       上緣離螢幕底部約 110px（含播放/加速列、刻度點列、來源切換列），用回
+       跟 compare 模式共用的 56px 會讓按鈕整顆疊在時間軸列裡面（已實機截圖
+       重現，蓋住來源切換鈕與比例尺文字）。120px 留約 10px 餘裕清出按鈕。 */
+    body.mobile-mode-timeline #mobileModeBtn{
+      bottom:calc(env(safe-area-inset-bottom) + 120px);
+    }
     body.mobile-mode-compare #mobileModePopover{
       bottom:calc(env(safe-area-inset-bottom) + 112px);
+    }
+    /* 跟上面 #mobileModeBtn 同理，選單面板也要一起拉高，維持跟按鈕之間
+       原本的 56px 間距（120 + 56 = 176），選單才不會開在時間軸列後面。 */
+    body.mobile-mode-timeline #mobileModePopover{
+      bottom:calc(env(safe-area-inset-bottom) + 176px);
     }
 
     /* Bottom Sheet 展開至 --mobile-sheet-full（75vh）時，上面 #mobileModeBtn

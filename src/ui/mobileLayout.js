@@ -200,10 +200,16 @@ function initMobileSearchModeToggle(){
     applyMobileSearchMode();
     // 切換模式當下代表使用者正要打字，展開頂部搜尋列並重新起算閒置倒數，
     // 並把 focus 交給切過去之後對應的那個輸入框。
+    // focus() 一定要在 scheduleSearchBarCollapse() 之前呼叫：.focus() 會同步
+    // 觸發輸入框自己的 'focus' 監聽器（clearSearchBarCollapseTimer()），順序
+    // 反過來的話，剛排好的收合計時器會被這裡的 focus 立刻清掉，搜尋列會卡在
+    // 展開狀態、之後再也不會自動收合（要等使用者自己再次 focus/blur/輸入才會
+    // 重新排程）。跟下面 initSearchBarAutoCollapse() 裡「點收合圓鈕展開」的
+    // 既有寫法（focus 在前、schedule 在後）保持一致。
     expandSearchBar();
-    scheduleSearchBarCollapse();
     const nextInputId = mobileSearchMode === 'address' ? 'addressInput' : 'layerSearchInput';
     document.getElementById(nextInputId)?.focus();
+    scheduleSearchBarCollapse();
   });
 }
 
