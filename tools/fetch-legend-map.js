@@ -24,7 +24,9 @@
    layer.id 已有 legend 就直接覆蓋，不特別去重比對。
 
    已實測確認「沒有資料」（<records>0</records>）、故不列入
-   TC_SOURCES 的來源：thm, ls, ccts, korea, kunming, nlsc, udd。
+   TC_SOURCES 的來源：thm, ls, ccts, korea, kunming, nlsc, udd,
+   japan, southeast_asia（用 tc=japan／tc=southeast_asia／tc=sea 都測過，
+   一律 0 筆）。
 
    執行方式：
        node tools/fetch-legend-map.js
