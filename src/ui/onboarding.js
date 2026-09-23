@@ -148,8 +148,13 @@ const GUIDE_SECTIONS = [
   },
   {
     icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#share"></use></svg>',
-    title: '分享連結',
-    body: '在頂部「⋯ 更多」選單按「分享連結」（手機版在「地圖工具」選單裡），會把目前模式、底圖、圖層與地圖位置打包進網址並自動複製，貼給朋友、對方打開就能還原同一畫面。\n\n<strong>自訂 WMTS／XYZ 圖層只存在您自己的瀏覽器裡，不會包含在分享連結內。</strong>',
+    title: '分享與截圖',
+    body: '頂部「⋯ 更多」選單（手機版在「地圖工具」選單裡）可以：「分享連結」把目前模式、底圖、圖層與地圖位置打包進網址並自動複製，貼給朋友、對方打開就能還原同一畫面；「下載截圖」直接把目前地圖畫面存成 PNG，不用先打開繪圖工具；手機且瀏覽器支援時會多一個「傳送截圖…」，直接叫出系統分享面板傳送圖片。\n\n截圖要不要附上「出處資訊列」（圖層名稱年代、圖資來源、地名卡摘要、匯出時間）由繪圖工具列裡的「截圖附出處資訊列」勾選列控制，預設開啟，偏好會記住。\n\n<strong>自訂 WMTS／XYZ 圖層只存在您自己的瀏覽器裡，不會包含在分享連結內。</strong>',
+  },
+  {
+    icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#pin"></use></svg>',
+    title: '軌跡記錄',
+    body: '「⋯ 更多」選單裡的「記錄軌跡」會記下您移動的路線（自動開啟持續定位追蹤，記錄中畫面上方會有常駐狀態列顯示距離與時間——位置是隱私資料，不會偷偷在背景記錄），再按一次「結束記錄軌跡」即可存檔。\n\n記錄期間切到背景或螢幕鎖定，瀏覽器會暫停定位，回到前景會自動接續；訊號中斷超過 2 分鐘會另起一段，不會硬連成一直線。頁面沒按「結束」就被關掉，下次打開會詢問是否要接續。\n\n「我的軌跡…」管理所有記錄與匯入的軌跡：顯示／隱藏在地圖上、定位、匯出 GPX／GeoJSON、存成繪圖圖形（之後可像一般繪圖線條編輯改色）、改名、刪除，也能在此匯入其他地方的 GPX／GeoJSON 檔案。\n\n<strong>軌跡資料只存在這台裝置的瀏覽器裡，換裝置或清瀏覽器資料就會消失，需要的話請先自行匯出。</strong>',
   },
   {
     icon: '<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#source-status"></use></svg>',

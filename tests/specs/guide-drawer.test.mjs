@@ -53,7 +53,7 @@ test('<ol> 標籤之間不可有換行字元：內文是 white-space:pre-line，
 test('警示句有加粗：清空無法復原、資料不會雲端同步、自訂圖層不含在分享連結', () => {
   expect(byTitle('繪圖工具').body).toContain('<strong>這個動作無法復原</strong>');
   expect(byTitle('收藏與最近使用圖層').body).toMatch(/<strong>[^<]*不是雲端同步保存[^<]*<\/strong>/);
-  expect(byTitle('分享連結').body).toMatch(/<strong>[^<]*不會包含在分享連結內[^<]*<\/strong>/);
+  expect(byTitle('分享與截圖').body).toMatch(/<strong>[^<]*不會包含在分享連結內[^<]*<\/strong>/);
   expect(byTitle('自訂圖層匯入').body).toMatch(/<strong>[^<]*不會包含在分享連結內[^<]*<\/strong>/);
 });
 
