@@ -38,8 +38,9 @@
   connect-src 'self' https://nominatim.openstreetmap.org https:;
   object-src 'none';
   base-uri 'self';
-  frame-ancestors 'none';
 ">
+<!-- frame-ancestors 在 <meta> 裡會被瀏覽器忽略（只有 HTTP header 有效），GitHub Pages 無法設 header，
+     所以不放在這裡；放了只會讓 console 每次載入都跳警告，卻沒有任何防護。 -->
 
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v9.2.4/ol.css" integrity="sha384-PpyAaiUdY+s8ycCAmYsYkyq9cQgPWrtjtiv4/NzjY5FHo+7R5wdgdpqPAOl+No0J" crossorigin="anonymous">
@@ -50,8 +51,8 @@
 <link rel="icon" type="image/svg+xml" href="./icon.svg">
 <meta name="theme-color" content="#8A6A2E">
 
-  <script type="module" crossorigin src="./assets/index-klwfejeQ.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-D-zIdM-X.css">
+  <script type="module" crossorigin src="./assets/index-CpRgnHLn.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-ZXBzqxIX.css">
 </head>
 <body>
 
@@ -197,7 +198,7 @@
            src/ui/sourceStatusUI.js -->
       <button type="button" class="mobile-mode-option" data-help-action="tour"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#tour"></use></svg> 新手導覽</button>
       <button type="button" class="mobile-mode-option" data-help-action="guide"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#guide"></use></svg> 使用指南</button>
-      <button type="button" class="mobile-mode-option" data-help-action="sourceStatus"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#source-status"></use></svg> 來源狀態／快取</button>
+      <button type="button" class="mobile-mode-option" data-help-action="sourceStatus" title="來源狀態／快取"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#source-status"></use></svg> 來源狀態</button>
     </div>
   </div>
 </div>

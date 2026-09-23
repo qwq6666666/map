@@ -1875,6 +1875,8 @@
   .source-status-clear-cache:hover{background:var(--brass-dark); border-color:var(--brass-dark); color:var(--paper);}
   .source-status-clear-cache:disabled{opacity:.6; cursor:default;}
   .source-status-cache-usage{font-size:var(--fs-sm); color:var(--rule-text);}
+  .source-status-cache-breakdown{font-size:var(--fs-sm); line-height:1.6; color:var(--rule-text); margin:6px 0 0;}
+  .source-status-cache-breakdown:empty{display:none;}
   .source-status-cache-intro{font-size:var(--fs-xs); line-height:1.6; color:var(--rule-text); margin:8px 0 0;}
   .source-status-intro{font-size:var(--fs-sm); line-height:1.6; color:var(--ink); margin:0 0 12px;}
   .source-status-recheck{
