@@ -111,6 +111,10 @@
 - **限制**：列表一次讀出全部軌跡（含所有點）；軌跡很多很長時會吃記憶體，之後若需要要改成只讀摘要（點數／里程）＋按需載入點。資料只在這台裝置（IndexedDB），換裝置靠匯出再匯入。
 - 測試：`track-math.test.mjs`（濾點／分段／統計／GPX／GeoJSON／存成繪圖純函式）、`track-import.test.mjs`（GPX／GeoJSON 解析、來回不失真、壞檔案、上限）、`track-layer.test.mjs`（共用圖層、配色、飛到軌跡與側邊欄邊界）、`track-recorder.test.mjs`（控制器＋軌跡庫，真的 `location.js`＋假 geolocation；`ol.Feature`／`ol.geom.MultiLineString` 的最小假物件在 `env-stub.mjs`）、`track-recorder-ui.test.mjs`（記錄鈕與狀態條接線）、`track-list-ui.test.mjs`（列表抽屜；記錄器／圖層／繪圖／對話框全 mock，解析用真的）、`track-export.test.mjs`（匯出：手機先分享、退回下載）。預覽窗格沒有 GPS，實測要覆寫 `navigator.geolocation.watchPosition` 餵座標。
 
+## 來源狀態／快取抽屜 (`src/ui/sourceStatusUI.js`) 與使用指南 (`src/ui/onboarding.js`)
+- **「已快取圖磚：N 張（X MB）」**：`countCachedTiles()` 直接數 `tile-cache-*` 三份快取（排除同源與 `tile-lru.local`），體積累加 `Content-Length`，缺標頭才讀 `blob().size`；刻意不用 `navigator.storage.estimate()`（涵蓋整站、清除後數秒才更新）。抽屜開啟與清除後各算一次；逐張序列讀取，快取滿（約 3.6 萬張）時可能偏慢，有人反映再改 `Promise.all`。
+- **使用指南 `GUIDE_SECTIONS` 要跟「⋯ 更多」選單／手機「地圖工具」選單同步**：新增選單功能時要補對應段落（分享與截圖、軌跡記錄、來源狀態／快取現況都有），`guide-drawer.test.mjs` 會擋漏寫。段落盡量 3~4 句；30 秒導覽刻意只挑核心操作，不含軌跡與截圖。
+
 ## 地圖載入提示 (`body.map-ready`)
 `#map` 預設底色是 `var(--paper-dim)`，非純黑，避免瓦片載入完成前被誤認當機；`index.html` 的 `#mapLoading`（spinner＋文字）純靠 CSS 淡出、**沒有**自己的 JS 監聽。淡出時機是 `src/core/map.js` 在 `map.once('rendercomplete', ...)` 對 `document.body` 加 `map-ready` class，`style.css` 靠 `body.map-ready .map-loading{opacity:0; pointer-events:none;}` 反應——map-core-agent 只出訊號、ui-frontend-agent 全權處理視覺，**`map-ready` 是跨檔案契約，不要改名或另建第二套訊號**。
 
@@ -138,7 +142,7 @@
 - 測試：`tests/specs/export-info.test.mjs`；`draw-tool.test.mjs` 驗證開關與輸出尺寸；`place-name-card-ui.test.mjs` 驗證顯示中卡片狀態同步。
 
 ## 測試框架 (vitest)
-測試統一使用 vitest（`tests/specs/*.test.mjs`，73 支、891 個案例；設定 `vitest.config.js`）。原本並存的手刻框架（`tests/run-all.mjs`＋`tests/assert.mjs`）已在雙軌期間漏改案例（`multi-overlay` 拖曳排序測試只補在舊版）而移除，不要再新增第二套測試機制。改動測試時要注意：
+測試統一使用 vitest（`tests/specs/*.test.mjs`，73 支、892 個案例；設定 `vitest.config.js`）。原本並存的手刻框架（`tests/run-all.mjs`＋`tests/assert.mjs`）已在雙軌期間漏改案例（`multi-overlay` 拖曳排序測試只補在舊版）而移除，不要再新增第二套測試機制。改動測試時要注意：
 - 共用模組：`tests/env-stub.mjs`（手動塞 `globalThis` 模擬 `document`／`window`／`ol` 的假瀏覽器環境，vitest `environment` 維持預設 `'node'`，不要疊加 jsdom）、`tests/helpers.mjs`（`sleep()`／`waitFor()`）、`tests/tileImageStub.mjs`（假 `Image`）。
 - `tests/env-stub.mjs` 有一個關鍵相容性修正：`globalThis.URL` 必須保留 Node 原生建構子、只在上面附加 `createObjectURL`／`revokeObjectURL` 兩個靜態方法。若整個覆蓋成 `{ createObjectURL, revokeObjectURL }`，vitest 的模組載入器（vite-node）解析後續 `import` 時會拋 `TypeError: URL is not a constructor`。`src/features/sourceStatus.js`／`tests/specs/spatial-index.test.mjs` 裡當初因這個限制而寫的「不能用 `new URL()`」迴避寫法，其實現在可以移除（尚未動手）。
 - vitest 的 `test()` 是「先收集全部呼叫、模組載入完才統一執行」，**任何寫在模組頂層（不在 `test()`／`beforeEach()`／`afterEach()`／`afterAll()` 裡）、假設『在測試案例執行完之後才跑』的清理程式碼，語意會跑掉**（已踩過：`location-button.test.mjs` 清理 `runtime.locateToastTimer` 的程式碼放在模組頂層會在測試執行前就跑、清理失效，讓一顆 4.5 秒的真實計時器每次都拖到自然到期；修法是用 `afterAll()` 包起來）。

@@ -20,6 +20,13 @@ test('「進階功能說明」已拆成「複合疊圖」「繪圖工具」「�
   ['複合疊圖', '繪圖工具', '自訂圖層匯入'].forEach(t => expect(byTitle(t)).toBeDefined());
 });
 
+test('「⋯ 更多」選單的功能都有對應指南段落：分享與截圖、軌跡記錄、來源狀態／快取', () => {
+  ['分享與截圖', '軌跡記錄', '來源狀態／快取'].forEach(t => expect(byTitle(t), t).toBeDefined());
+  expect(byTitle('分享與截圖').body).toContain('下載截圖');
+  expect(byTitle('軌跡記錄').body).toContain('我的軌跡');
+  expect(byTitle('來源狀態／快取').body).toContain('已快取圖磚');
+});
+
 test('每段都有標題與內容，圖示不是 emoji：要嘛是 sprite 內存在的 symbol，要嘛留空', () => {
   const ids = new Set([...sprite.matchAll(/<symbol id="([^"]+)"/g)].map(m => m[1]));
   sections.forEach((s) => {
