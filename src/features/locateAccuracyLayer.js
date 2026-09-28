@@ -22,12 +22,11 @@ const STROKE_COLOR = 'rgba(47,111,237,0.55)';
 let layer = null;
 let source = null;
 let feature = null;
-let style = null;
 
 function ensureLayer(){
   if(layer) return;
   source = new ol.source.Vector();
-  style = new ol.style.Style({
+  const style = new ol.style.Style({
     fill: new ol.style.Fill({ color: FILL_COLOR }),
     stroke: new ol.style.Stroke({ color: STROKE_COLOR, width: 1.5 })
   });
