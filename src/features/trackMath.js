@@ -132,8 +132,15 @@ export function trackToGpx(track){
 // GeoJSON（EPSG:4326）：一個 Feature。單點的段畫不成線，略過；只剩一段就用
 // LineString、多段用 MultiLineString。時間放在 coordinateProperties.times
 // （togeojson 慣例），形狀與 coordinates 一一對應。
+// 若整條軌跡沒有任何可畫成線的段（例如兩段各只有 1 個點——trackPointCount()
+// 算的是總點數、不分段，trackExport.js 匯出前的「總點數 < 2」門檻擋不到
+// 這種情況），回傳空 FeatureCollection，不要硬生出一個 coordinates:[] 的
+// MultiLineString——那不是合法的線幾何，QGIS／GDAL／turf.js 等下游工具
+// 讀到很可能直接報錯或整檔匯入失敗，使用者在匯出當下卻看不到任何提示
+// （這裡不丟例外）。
 export function trackToGeoJSON(track){
   const segs = track.segments.filter((seg) => seg.length > 1);
+  if(segs.length === 0) return { type: 'FeatureCollection', features: [] };
   const coords = segs.map((seg) => seg.map(([lon, lat]) => [lon, lat]));
   // 只要有任何一個點沒有時間，整條就不輸出 times（陣列長度必須跟座標一一對應）。
   const hasTimes = segs.length > 0 && segs.every((seg) => seg.every((pt) => Number.isFinite(pt[2])));

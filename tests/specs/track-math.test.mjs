@@ -113,6 +113,13 @@ test('GeoJSON：單點的段畫不成線，直接略過（不會把它變成只�
   expect(gj.features[0].geometry.coordinates).toHaveLength(2);
 });
 
+test('GeoJSON：全部段都只有 1 個點（trackPointCount 加總仍 >=2，會通過匯出前的門檻）時，回傳空 FeatureCollection，不會生出 coordinates:[] 的無效 MultiLineString', () => {
+  const t = trackOf([[point(0, 0)], [point(0.01, 1000)]]);
+  expect(trackPointCount(t)).toBe(2); // 匯出前的「總點數 < 2」門檻會放行這條軌跡
+  const gj = trackToGeoJSON(t);
+  expect(gj.features).toHaveLength(0);
+});
+
 /* ---------- 匯入的軌跡沒有時間戳 ---------- */
 
 const noTimes = () => ({
