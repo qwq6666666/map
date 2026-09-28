@@ -28,8 +28,10 @@ await loadAppData();
 const sinica = DATA.LAYER_SOURCES.find(s => s.id === 'sinica');
 const layerX = sinica.categories[0].layers[0];
 const layerY = sinica.categories[0].layers[1];
+const layerZ = sinica.categories[0].layers[2];
 const keyX = `hist:sinica:${layerX.id}:${layerX.fmt}`;
 const keyY = `hist:sinica:${layerY.id}:${layerY.fmt}`;
+const keyZ = `hist:sinica:${layerZ.id}:${layerZ.fmt}`;
 
 test('快速切換 X→Y→X（都在暖機時間內）：最終應顯示 X，過期的延遲淡入/淡出不應該事後蓋掉最新狀態', () => {
   vi.useFakeTimers();
@@ -54,6 +56,44 @@ test('快速切換 X→Y→X（都在暖機時間內）：最終應顯示 X，�
     const finalLayerY = getCachedLayer(keyY);
     expect(finalLayerX.getOpacity(), '最新選擇的 X 最終應該是完全顯示').toBe(1);
     expect(finalLayerY.getOpacity(), '已經切走的 Y 最終應該維持隱藏').toBe(0);
+  } finally {
+    vi.useRealTimers();
+    clearCache();
+  }
+});
+
+test('快速切換 X→Y→Z（X 已完全顯示、Y／Z 都在暖機時間內）：中間被放棄的 X→Y 呼叫不能讓 X 永遠卡在顯示狀態', () => {
+  vi.useFakeTimers();
+  try{
+    clearCache();
+    selectOverlayLayer(null);
+
+    // X 先完整顯示一輪，模擬「使用者原本就在看 X」。
+    selectOverlayLayer(keyX);
+    applyActiveOverlayKey();
+    vi.runAllTimers();
+    expect(getCachedLayer(keyX).getOpacity()).toBe(1);
+
+    // 快速切到 Y（cold miss，排定 250ms 後才開始交叉淡出淡入），
+    // 這次呼叫捕捉到的 previousLayer 是 X。
+    selectOverlayLayer(keyY);
+    applyActiveOverlayKey();
+
+    // 還沒等到 Y 的暖機計時器觸發，又切到 Z（同樣 cold miss）；
+    // X→Y 這次呼叫因此被放棄，若沒有 fadeOutOrphanedLayers() 掃描
+    // 整個快取，X 淡出的責任會直接隨著放棄一起消失，永遠卡在 opacity 1。
+    vi.advanceTimersByTime(50);
+    selectOverlayLayer(keyZ);
+    applyActiveOverlayKey();
+
+    vi.runAllTimers(); // 讓所有排程（含被放棄的 X→Y 暖機計時器、Y→Z 的交叉淡出淡入）跑完
+
+    const finalLayerX = getCachedLayer(keyX);
+    const finalLayerY = getCachedLayer(keyY);
+    const finalLayerZ = getCachedLayer(keyZ);
+    expect(finalLayerX.getOpacity(), '早就切走的 X 不能永遠卡在完全顯示').toBe(0);
+    expect(finalLayerY.getOpacity(), '從未真正淡入過的 Y 應維持隱藏').toBe(0);
+    expect(finalLayerZ.getOpacity(), '最新選擇的 Z 最終應該是完全顯示').toBe(1);
   } finally {
     vi.useRealTimers();
     clearCache();

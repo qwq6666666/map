@@ -16,7 +16,7 @@ import { state as store, subscribe, clearOverlayLayer, setOverlayOpacity } from 
 import { runtime } from '../runtime.js';
 import { resolveOverlayKey } from '../data.js';
 import { map } from './map.js';
-import { getOrCreateLayer, hasCachedLayer, clearCache } from './layerCache.js';
+import { getOrCreateLayer, hasCachedLayer, clearCache, getCachedLayer, getCacheStats } from './layerCache.js';
 import { getProtectedKeys } from './protectedKeys.js';
 
 /* ---------------------------------------------------------
@@ -65,6 +65,28 @@ const layerFadeGeneration = new WeakMap();
    確認自己還是不是最新一次呼叫，不是就直接放棄——反正一定會有更新
    的那次呼叫負責建立正確的交叉淡出淡入，不需要這次過期的呼叫補做
    任何事。
+
+   注意：上面這段「放棄」不能只是單純 return。修正當下（X→Y→Z，三次
+   呼叫都落在暖機時間內）發現：每次 crossfadeToLayer() 呼叫時捕捉到的
+   previousLayer，只是「呼叫當下」的 runtime.historyLayer 快照——如果
+   這次呼叫本身被放棄（例如 X→Y 這次呼叫，previousLayer=X），它要淡出
+   X 的責任會直接隨著 return 一起消失，不會有任何後續呼叫接手：最新
+   一次呼叫（Y→Z）捕捉到的 previousLayer 是 Y（呼叫當下的
+   runtime.historyLayer），不是 X。結果 X 會永遠卡在淡出前的 opacity
+   （通常是 1，完全顯示），即使 store.activeOverlayKey／
+   runtime.historyLayerKey 都已經正確變成 Z——疊在 Z 底下，只要 Z
+   的圖磚涵蓋範圍有缺口（bbox 邊界、伺服器沒有該座標的圖資），透過
+   缺口看到的會是本該早就切走的 X，而不是空白或底圖。
+
+   修法：真正執行的那次 startFade（myApplyGeneration 仍是最新）除了
+   淡入 newLayer，還要主動掃一次 layerCache 目前所有 opacity>0 的
+   圖層，把「不是 newLayer、也不是其他模式正在保護中」的每一張都
+   淡出——不管它是被幾次放棄的呼叫遺留下來的，一次掃描全部處理掉，
+   不需要在每次放棄的呼叫裡個別補淡出（那樣反而會跟這裡的「最新一次
+   呼叫」互搶同一個 layer 的 opacity，見 fadeLayerTo() 的
+   layerFadeGeneration 世代防護）。已用 vitest 假計時器重現（X→Y→Z
+   三次快速切換，Z 完成淡入後 X 仍是 opacity 1）：
+   tests/specs/layer-manager-fade-race.test.mjs。
 --------------------------------------------------------- */
 let overlayApplyGeneration = 0;
 
@@ -90,16 +112,33 @@ function fadeLayerTo(layer, targetOpacity, durationMs, onDone){
   step();
 }
 
-function crossfadeToLayer(newLayer, previousLayer, targetOpacity, alreadyWarm, myApplyGeneration){
+// 淡出「目前不該再顯示」的孤兒圖層：layerCache 裡 opacity>0、但既不是
+// 這次要顯示的 newLayerKey、也不受其他模式保護（getProtectedKeys()，
+// 涵蓋比對模式 A/B、複合疊圖清單）的每一張，一律淡出到 0。用來接住
+// 被放棄的中間世代呼叫（見 overlayApplyGeneration 宣告處的完整說明）
+// 遺留下來、永遠沒人接手淡出的舊圖層，不管中間被放棄了幾次呼叫，這裡
+// 一次掃描全部處理掉。
+function fadeOutOrphanedLayers(newLayerKey){
+  const protectedKeys = getProtectedKeys();
+  getCacheStats().visible.forEach(key => {
+    if(key === newLayerKey || protectedKeys.has(key)) return;
+    const layer = getCachedLayer(key);
+    if(layer) fadeLayerTo(layer, 0, FADE_MS);
+  });
+}
+
+function crossfadeToLayer(newLayer, newLayerKey, targetOpacity, alreadyWarm, myApplyGeneration){
   const startFade = () => {
     // 這次呼叫已經被更新一次的 applyActiveOverlayKey() 取代（見上方
     // overlayApplyGeneration 說明），不再是最新狀態，直接放棄，讓
     // 最新那次呼叫的排程接管。
     if(myApplyGeneration !== overlayApplyGeneration) return;
     fadeLayerTo(newLayer, targetOpacity, FADE_MS);
-    if(previousLayer && previousLayer !== newLayer){
-      fadeLayerTo(previousLayer, 0, FADE_MS); // 淡出到 0 就好，圖層本身留在 layerCache，不用另外處理
-    }
+    // 淡出到 0 就好，圖層本身留在 layerCache，不用另外處理；不只淡出
+    // 「這次呼叫捕捉到的 previousLayer」，而是掃過整個快取（見
+    // fadeOutOrphanedLayers() 說明），才不會漏掉被放棄的中間世代呼叫
+    // 留下的孤兒圖層。
+    fadeOutOrphanedLayers(newLayerKey);
   };
   // 如果是快取裡本來就有的圖層，圖磚早就開始下載了，不用再等暖機時間，
   // 直接開始交叉淡出／淡入。
@@ -161,14 +200,13 @@ export function applyActiveOverlayKey(){
     const targetOpacity = store.overlayOpacity/100;
     const key = store.activeOverlayKey;
 
-    const previousLayer = runtime.historyLayer;
     const alreadyWarm = hasCachedLayer(key); // 記錄「是不是快取裡本來就有」，決定要不要跳過暖機時間
     const newLayer = getOrCreateLayer(key, getProtectedKeys());
 
     runtime.historyLayer = newLayer;
     runtime.historyLayerKey = key;
 
-    crossfadeToLayer(newLayer, previousLayer, targetOpacity, alreadyWarm, myApplyGeneration);
+    crossfadeToLayer(newLayer, key, targetOpacity, alreadyWarm, myApplyGeneration);
 
     document.getElementById('stampYear').textContent = layer.year;
     document.getElementById('stampLabel').textContent = layer.title;
