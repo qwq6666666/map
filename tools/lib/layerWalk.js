@@ -5,10 +5,14 @@
    parse 後的物件）的 categories -> (groups ->) layers 巢狀結構。
 
    原本 tools/build-layers-bundle.js、tools/tag-layer-types.js、
-   tools/fetch-legend-map.js、tools/fetch-wmts-bbox.js、tools/fetch-udd-bbox.js、tools/check-upstream-health.js 六支腳本各自
+   tools/fetch-legend-map.js、tools/fetch-wmts-bbox.js、tools/fetch-udd-bbox.js、
+   tools/check-upstream-health.js、tools/spot-check-tiles.js 七支腳本各自
    重複實作幾乎逐字相同的走訪邏輯，靠註解互相引用「跟其他腳本一致」
-   手動同步，抽成這支共用模組後六支腳本改為 import 使用，行為完全
-   保留（含呼叫端只取用第一個參數 layer 時的相容性）。
+   手動同步，抽成這支共用模組後七支腳本改為 import 使用，行為完全
+   保留（含呼叫端只取用第一個參數 layer 時的相容性）。spot-check-tiles.js
+   原本手寫 `for(const l of cat.layers || [])`，漏掉 nlsc.json 底下
+   groups -> layers 兩層巢狀結構（歷年地形圖／正射影像等分組圖層，
+   佔 nlsc 全部 221 筆裡的 171 筆），改用這支共用模組後修正。
 
    @param {object} src 單一來源的設定物件（含 categories 陣列）
    @param {(layer: object, parentText: string) => void} fn

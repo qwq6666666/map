@@ -1,9 +1,12 @@
 import { describe, test, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 import spotCheckTiles from '../../tools/spot-check-tiles.js';
 
 const { collectJobs } = spotCheckTiles;
+const require = createRequire(import.meta.url);
+const { forEachLayer } = require('../../tools/lib/layerWalk.js');
 
 function readLayersJson(name){
   return JSON.parse(readFileSync(path.join(process.cwd(), 'data/layers', name), 'utf-8'));
@@ -50,16 +53,32 @@ describe('collectJobs', () => {
   test('udd 來源只收有 url 屬性的圖層（見腳本裡 `if(l.url) jobs.push(...)` 的防呆）', () => {
     const uddData = readLayersJson('udd.json');
     let uddLayerCountWithUrl = 0;
-    for(const cat of uddData.categories) for(const l of cat.layers || []) if(l.url) uddLayerCountWithUrl++;
+    forEachLayer(uddData, (l) => { if(l.url) uddLayerCountWithUrl++; });
     const jobs = collectJobs(15, 0, 0).filter(j => j.src === 'udd');
     expect(jobs.length).toBe(uddLayerCountWithUrl);
   });
 
-  test('nlsc 來源的圖層數量跟 data/layers/nlsc.json 的實際圖層數一致', () => {
+  test('nlsc 來源的圖層數量跟 data/layers/nlsc.json 的實際圖層數一致（含 groups 底下的分組圖層）', () => {
     const nlscData = readLayersJson('nlsc.json');
     let nlscLayerCount = 0;
-    for(const cat of nlscData.categories) nlscLayerCount += (cat.layers || []).length;
+    forEachLayer(nlscData, () => { nlscLayerCount++; });
     const jobs = collectJobs(15, 0, 0).filter(j => j.src === 'nlsc');
     expect(jobs.length).toBe(nlscLayerCount);
+  });
+
+  test('nlsc 的 groups 底下的分組圖層（歷年地形圖／正射影像等）也會被收進 job 清單，不是只有沒有 groups 的分類', () => {
+    const nlscData = readLayersJson('nlsc.json');
+    // nlsc.json 目前絕大多數圖層都藏在 category.groups[].layers 裡（例如歷年
+    // 地形圖、正射影像），只走訪 category.layers 會漏掉這些——曾經真的漏過。
+    const groupedIds = new Set();
+    for(const cat of nlscData.categories){
+      if(!cat.groups) continue;
+      for(const g of cat.groups) for(const l of g.layers) groupedIds.add(l.id);
+    }
+    expect(groupedIds.size).toBeGreaterThan(0);
+    const jobIds = new Set(collectJobs(15, 0, 0).filter(j => j.src === 'nlsc').map(j => j.id));
+    for(const id of groupedIds){
+      expect(jobIds.has(id), `分組圖層 ${id} 應該出現在抽測清單裡`).toBe(true);
+    }
   });
 });

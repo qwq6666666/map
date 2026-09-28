@@ -20,6 +20,7 @@
 --------------------------------------------------------- */
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
+const { forEachLayer } = require('./lib/layerWalk');
 
 const ROOT = path.resolve(__dirname, '..');
 const BLANK_MAX_BYTES = 500;
@@ -30,19 +31,18 @@ function collectJobs(z, x, y){
   const fill = tpl => tpl.replace('{z}', z).replace('{y}', y).replace('{x}', x);
   const jobs = [];
 
+  // nlsc.json 的分類底下有些是 groups -> layers 兩層巢狀結構（例如歷年地形圖、
+  // 正射影像），原本手寫的 `for(const l of cat.layers || [])` 只走得到沒有
+  // groups 的分類，會漏測絕大多數 nlsc 圖層；改用 forEachLayer 統一走訪。
   const udd = require(path.join(ROOT, 'data/layers/udd.json'));
-  for(const cat of udd.categories){
-    for(const l of cat.layers || []){
-      if(l.url) jobs.push({ src: 'udd', id: l.id, url: fill(l.url) });
-    }
-  }
+  forEachLayer(udd, (l) => {
+    if(l.url) jobs.push({ src: 'udd', id: l.id, url: fill(l.url) });
+  });
 
   const nlsc = require(path.join(ROOT, 'data/layers/nlsc.json'));
-  for(const cat of nlsc.categories){
-    for(const l of cat.layers || []){
-      jobs.push({ src: 'nlsc', id: l.id, url: fill(nlsc.provider.tileTemplate.replace('{id}', l.id)) });
-    }
-  }
+  forEachLayer(nlsc, (l) => {
+    jobs.push({ src: 'nlsc', id: l.id, url: fill(nlsc.provider.tileTemplate.replace('{id}', l.id)) });
+  });
   return jobs;
 }
 
