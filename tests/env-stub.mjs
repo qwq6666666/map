@@ -157,18 +157,22 @@ export class FakeNode {
   get innerHTML(){ return this._innerHTML || ''; }
 }
 
-// 比對「單一 compound selector」（例如 `.foo`、`div`、`.foo[data-x="y"]`），
-// 不含空白／子孫選擇器。原本 matchesSelector() 的完整實作，改名讓下面的
-// matchesSelector() 可以疊加子孫選擇器（空白分隔）的比對邏輯。
+// 比對「單一 compound selector」（例如 `.foo`、`div`、`.foo.bar`、
+// `.foo[data-x="y"]`），不含空白／子孫選擇器。原本 matchesSelector() 的
+// 完整實作，改名讓下面的 matchesSelector() 可以疊加子孫選擇器（空白分隔）
+// 的比對邏輯。可選的 tag 只能出現在最前面一次，後面可以連續疊加任意數量
+// 的 `.class`（例如 `.avail-select-item.checked`）——每個都要真的命中
+// 才算比對成功，缺一個就整條 false。
 function matchesCompound(node, compoundSel){
   let rest = compoundSel.trim();
-  if(rest.startsWith('.')){
-    const m = rest.match(/^\.([a-zA-Z0-9_-]+)/);
-    if(!m || !node._classes || !node._classes.has(m[1])) return false;
-    rest = rest.slice(m[0].length);
-  } else if(/^[a-zA-Z]/.test(rest)){
+  if(/^[a-zA-Z]/.test(rest)){
     const m = rest.match(/^([a-zA-Z0-9-]+)/);
     if(!m || node.tag !== m[1]) return false;
+    rest = rest.slice(m[0].length);
+  }
+  while(rest.startsWith('.')){
+    const m = rest.match(/^\.([a-zA-Z0-9_-]+)/);
+    if(!m || !node._classes || !node._classes.has(m[1])) return false;
     rest = rest.slice(m[0].length);
   }
   rest = rest.trim();
