@@ -1,6 +1,6 @@
 import '../env-stub.mjs';
 import { test, expect } from 'vitest';
-import { toTWD97, twd97ZoneFor, twd97Label, formatWGS84, formatTWD97, tileXYToBbox, lonLatToTileXY, pointInBbox, bboxIntersects } from '../../src/core/tileGeo.js';
+import { toTWD97, twd97ZoneFor, twd97Label, formatWGS84, formatTWD97, tileXYToBbox, lonLatToTileXY, pointInBbox, bboxIntersects, metersToMercatorRadius } from '../../src/core/tileGeo.js';
 import { buildCoordInfoElement } from '../../src/features/search.js';
 
 // 誤差容許：1 公尺以內（依任務需求的精度基準）
@@ -224,4 +224,23 @@ test('toTWD97：金門金城（118.317°E）落在 119° 帶的合理範圍，�
 test('twd97Label：本島維持「TWD97」，離島標明分帶', () => {
   expect(twd97Label(121)).toBe('TWD97');
   expect(twd97Label(119)).toBe('TWD97（119°帶）');
+});
+
+test('metersToMercatorRadius：赤道上投影公尺數等於地面公尺數（cos(0)=1）', () => {
+  expect(metersToMercatorRadius(50, 0)).toBeCloseTo(50, 6);
+});
+
+test('metersToMercatorRadius：緯度越高，同樣地面精度換算出的投影半徑越大', () => {
+  const atEquator = metersToMercatorRadius(50, 0);
+  const atTaipei = metersToMercatorRadius(50, 25.04);
+  expect(atTaipei).toBeGreaterThan(atEquator);
+  // 25.04°N 的比例尺 1/cos(25.04°) 約 1.103，50 公尺應放大到約 55.2 公尺
+  expect(atTaipei).toBeCloseTo(50 / Math.cos(25.04 * Math.PI / 180), 6);
+});
+
+test('metersToMercatorRadius：非正數或非有限值一律回傳 0（沒有精度資訊時不該畫出圓）', () => {
+  expect(metersToMercatorRadius(0, 25)).toBe(0);
+  expect(metersToMercatorRadius(-10, 25)).toBe(0);
+  expect(metersToMercatorRadius(NaN, 25)).toBe(0);
+  expect(metersToMercatorRadius(undefined, 25)).toBe(0);
 });

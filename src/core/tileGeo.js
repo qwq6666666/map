@@ -314,3 +314,18 @@ export function formatTWD97(x, y){
   const yStr = Math.round(y).toLocaleString('en-US');
   return `X: ${xStr}, Y: ${yStr}`;
 }
+
+/**
+ * 把「地面上的實際公尺數」（例如 GPS 定位精度）換算成 Web Mercator
+ * （EPSG:3857，地圖實際使用的投影）下對應的投影公尺數，供畫定位精度圓圈
+ * 使用。Web Mercator 是等角割圓柱投影，緯度越高，同一段地面距離在投影
+ * 座標上會被拉得越長，比例尺為 1/cos(緯度)；台灣本島緯度約 22~25°N，
+ * 若直接拿地面公尺數當圓半徑，圓會比實際精度小約 8~10%。
+ * @param {number} meters 地面實際公尺數（例如 position.coords.accuracy）
+ * @param {number} lat 目前位置緯度（十進位度）
+ * @returns {number} 投影座標系下的半徑（公尺），輸入非正數或非有限值回傳 0
+ */
+export function metersToMercatorRadius(meters, lat){
+  if(!Number.isFinite(meters) || meters <= 0) return 0;
+  return meters / Math.cos(lat * Math.PI / 180);
+}

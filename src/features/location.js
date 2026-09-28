@@ -20,8 +20,9 @@
 --------------------------------------------------------- */
 import { runtime } from '../runtime.js';
 import { map } from '../core/map.js';
-import { toTWD97, twd97Label, formatWGS84, formatTWD97 } from '../core/tileGeo.js';
+import { toTWD97, twd97Label, formatWGS84, formatTWD97, metersToMercatorRadius } from '../core/tileGeo.js';
 import { buildCoordRow } from './coordCopy.js';
+import { showAccuracyCircle } from './locateAccuracyLayer.js';
 
 let locateMarkerEl, locateOverlay, locateBtn, locateToast;
 let locatePopupEl, locatePopupBody, locatePopupCloseBtn;
@@ -228,6 +229,7 @@ function onTrackFix(pos){
   trackBtn?.classList.remove('acquiring');
   locateOverlay.setPosition(coord);
   locateMarkerEl.classList.add('show');
+  showAccuracyCircle(coord, metersToMercatorRadius(accuracy, latitude));
   notifyTrackListeners(trackFixListeners, pos);
 
   const first = trackFirstFix;
@@ -371,6 +373,7 @@ export function initLocateButton(){
         const coord = ol.proj.fromLonLat([pos.coords.longitude, pos.coords.latitude]);
         locateOverlay.setPosition(coord);
         locateMarkerEl.classList.add('show');
+        showAccuracyCircle(coord, metersToMercatorRadius(pos.coords.accuracy, pos.coords.latitude));
         renderLocateCoordInfo(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
         const view = map.getView();
         // 追蹤中按一次性定位＝使用者要看自己在哪：這支置中動畫算我們自己的，

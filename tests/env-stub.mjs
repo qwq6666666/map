@@ -649,6 +649,16 @@ globalThis.ol.geom = {
     constructor(coords){ this.coords = coords; }
     setCoordinates(coords){ this.coords = coords; }
     getCoordinates(){ return this.coords; }
+  },
+  // 定位精度圓圈（features/locateAccuracyLayer.js）用到的最小假
+  // ol.geom.Circle：只需要建構子＋setCenter/getCenter/setRadius/getRadius，
+  // 跟真的 OL 版本一樣可以原地更新中心點與半徑（不用每次都整個重建 feature）。
+  Circle: class {
+    constructor(center, radius){ this.center = center; this.radius = radius; }
+    setCenter(center){ this.center = center; }
+    getCenter(){ return this.center; }
+    setRadius(radius){ this.radius = radius; }
+    getRadius(){ return this.radius; }
   }
 };
 globalThis.ol.Feature = class {

@@ -12,7 +12,7 @@ model: sonnet
 你僅能檢視與修改功能插件與全域狀態管理檔案：
 - 全域狀態與模式排程：`src/store.js`、`src/runtime.js`（執行期內部狀態，跟 store.js 是同一組「狀態管理」的兩支模組，見 DEVELOPMENT.md）、`src/core/modeManager.js`、`src/timelineMode.js`
 - 進階比對與多層疊加：`src/features/compareMode.js`、`src/features/multiOverlay.js`、`src/core/multiOverlayManager.js`
-- 繪圖工具與位置功能：`src/drawTool.js`、`src/features/location.js`
+- 繪圖工具與位置功能：`src/drawTool.js`、`src/features/location.js`、`src/features/locateAccuracyLayer.js`（定位精度圓圈，獨立向量圖層，架構比照 `trackLayer.js`）
 - 原生分享面板（Web Share API）：`src/features/nativeShare.js`（`canShareLink`／`canShareFiles`／`prefersNativeShare`／`shareLinkNative`／`shareFileNative`，結果統一成字串、不丟例外，只被 `drawTool.js` 的 `shareImage()` 與 `src/ui/nativeShareUI.js` 呼叫）
 - 軌跡記錄：`src/features/trackMath.js`（濾點／分段／統計／GPX／GeoJSON／存成繪圖用 GeoJSON 純函式）、`src/features/trackImport.js`（匯入 GPX／GeoJSON 解析，純函式）、`src/features/trackStore.js`（IndexedDB 存取，不可用時退回記憶體）、`src/features/trackLayer.js`（地圖上所有顯示中軌跡的共用折線圖層 zIndex 49、依 id 固定配色、飛到軌跡）、`src/features/trackRecorder.js`（記錄控制器＋軌跡庫操作：列表／匯入／改名／刪除；透過 `location.js` 的 `addTrackListener()`／`ensureTracking()` 掛勾，記錄與追蹤三態正交）；`src/features/placeNames.js` 匯出的 `haversineDistanceMeters` 給軌跡里程共用
 - 截圖「出處資訊列」：`src/features/exportInfo.js`（`collectExportInfo()` 純函式整理圖層／來源／地名卡摘要文字，`layoutInfoBand()` 用 canvas 2D 量測排版；只被 `drawTool.js` 的 `doCapture()` 呼叫，不碰 DOM）
