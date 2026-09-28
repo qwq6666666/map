@@ -7,7 +7,7 @@ import {
   previewLayerOnMap,
   clearPreviewLayer,
 } from '../../src/features/customTimeline.js';
-import { closeCustomTimelineDock } from '../../src/features/customTimelineUI.js';
+import { closeCustomTimelineDock, openCustomTimelineDock } from '../../src/features/customTimelineUI.js';
 import { getCachedLayer } from '../../src/core/layerCache.js';
 import { loadAppData } from '../../src/data.js';
 import { initMapCore } from '../../src/mapCore.js';
@@ -232,6 +232,31 @@ test('再次呼叫 createCustomTimelineFromSelection() 會取代舊的 dock，�
    previewLayerOnMap／clearPreviewLayer：直接操作 core/layerCache.js
    的單一預覽圖層機制，跟 dock UI 完全脫鉤，可以獨立驗證。
 --------------------------------------------------------- */
+
+/* ---------------------------------------------------------
+   空清單邊界：selected 是空陣列時（例如之後有呼叫端沒有守住「至少 1 筆」
+   的前提），createCustomTimelineFromSelection()／openCustomTimelineDock()
+   不應該丟出例外，應該安全地什麼都不做。
+--------------------------------------------------------- */
+
+test('createCustomTimelineFromSelection([]) 不會丟出例外，安全地不開啟 dock、回傳空陣列', () => {
+  closeCustomTimelineDock(); // 保險：確保從乾淨狀態開始
+
+  let result;
+  expect(() => { result = createCustomTimelineFromSelection([]); }, '空清單不應該丟出例外').not.toThrow();
+  expect(result, '應該回傳空陣列').toEqual([]);
+  expect(document.getElementById('custom-timeline-dock'), '不應該開啟 dock').toBeFalsy();
+});
+
+test('openCustomTimelineDock([], callbacks) 直接回傳 null，不掛上任何 DOM 節點、不呼叫任何 callback', () => {
+  closeCustomTimelineDock();
+
+  const onSelectIndex = () => { throw new Error('不應該被呼叫'); };
+  let result;
+  expect(() => { result = openCustomTimelineDock([], { onSelectIndex }); }, '空陣列不應該丟出例外').not.toThrow();
+  expect(result, '應該回傳 null').toBe(null);
+  expect(document.getElementById('custom-timeline-dock'), '不應該掛上 dock 節點').toBeFalsy();
+});
 
 test('previewLayerOnMap() 切換到新 key 時，前一張會被隱藏（opacity 0），新的一張套用指定透明度', () => {
   const src = { name: 'srcPreview' };

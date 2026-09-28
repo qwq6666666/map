@@ -120,15 +120,25 @@ function startPlaying(candidates){
 
 /**
  * 開啟（或取代既有的）自訂時間軸 dock。
- * @param {Array<{src, layer}>} candidates 已經依年代排序好的自訂圖層序列（至少 1 筆）
+ * @param {Array<{src, layer}>} candidates 已經依年代排序好的自訂圖層序列（至少 1 筆；
+ *   空陣列或未傳值時安全地不開啟、回傳 null，不呼叫任何 callback）
  * @param {{
  *   onSelectIndex: (idx: number, item: {src, layer}) => void,
  *   onOpacityChange: (percent: number) => void,
  *   onClose: () => void
  * }} callbacks
+ * @returns {HTMLElement|null}
  */
 export function openCustomTimelineDock(candidates, callbacks){
   teardown(); // 只是「取代」既有 dock，不算使用者主動關閉，不觸發舊的 onClose
+
+  // 空候選清單：paint() 一定會對 candidates[0] 取 .layer 而丟出 TypeError
+  // （見下方 paint()），目前唯一的呼叫端（features/customTimeline.js 的
+  // createCustomTimelineFromSelection()）雖然經由 UI 的「確認」鈕已保證不會
+  // 傳空陣列進來，但這裡的 JSDoc 本來就明講「至少 1 筆」是呼叫端要維持的
+  // 前提；一旦之後任何新呼叫端（或測試）沒有守住這個前提，就會讓使用者
+  // 看到一個標題/年份空白、程式對半掛掉的 dock。安全地什麼都不做，不開啟。
+  if(!candidates || candidates.length === 0) return null;
 
   currentCallbacks = callbacks || {};
   currentIndex = 0;
