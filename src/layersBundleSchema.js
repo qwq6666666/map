@@ -33,6 +33,12 @@ export function validateLayersBundle(layersData){
       assertShape(cat && typeof cat.name === 'string', `${ctag} 缺少 name`);
       assertShape(Array.isArray(cat.layers) || Array.isArray(cat.groups),
         `${ctag} 需要有 layers 或 groups 其中一個陣列`);
+      // 不可兩者皆有：tools/lib/layerWalk.js 的 forEachLayer() 與 src/data.js 的
+      // categories.map() 都是 `if(cat.groups){ 只用 groups } else { 只用 layers }`，
+      // 若一個 category 同時擁有兩者，layers 陣列會被靜默忽略、完全不出現在
+      // bundle／畫面上，且不會有任何錯誤或警告可供排查。
+      assertShape(!(Array.isArray(cat.layers) && Array.isArray(cat.groups)),
+        `${ctag} 不可同時有 layers 與 groups（layers 會被靜默忽略，只會保留 groups 底下的圖層）`);
       const layerLists = cat.groups
         ? cat.groups.map(g => g.layers)
         : [cat.layers];

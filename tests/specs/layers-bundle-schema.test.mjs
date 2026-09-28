@@ -62,3 +62,14 @@ test('validateLayersBundle：source 缺少 region.bbox 應該 throw，且錯誤�
   const msg = assertThrows(() => validateLayersBundle(bundle), 'region.bbox');
   expect(msg.includes('demo'), `錯誤訊息「${msg}」應包含 source id "demo"`).toBeTruthy();
 });
+
+test('validateLayersBundle：category 同時有 layers 與 groups 應該 throw——forEachLayer()／data.js 都只認 groups，layers 會被靜默忽略造成資料遺失', () => {
+  const bundle = minimalValidBundle();
+  // minimalValidBundle 的 categories[0] 已經有 layers，這裡再加上 groups，
+  // 模擬「category 已改用 groups 分組，卻忘記把新圖層搬進去、殘留在舊的 layers」的情境。
+  bundle.sources[0].categories[0].groups = [
+    { name: '示範子分類', layers: [{ id: 'demo-layer-2', title: '示範圖層2', format: 'png' }] }
+  ];
+  const msg = assertThrows(() => validateLayersBundle(bundle), '不可同時有 layers 與 groups');
+  expect(msg.includes('demo'), `錯誤訊息「${msg}」應包含 source id "demo"`).toBeTruthy();
+});
