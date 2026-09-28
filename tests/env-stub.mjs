@@ -93,6 +93,10 @@ export class FakeNode {
   getAttribute(k){ return this.attrs[k]; }
   removeAttribute(k){ delete this.attrs[k]; }
   appendChild(c){ this.children.push(c); c.parentElement = this; return c; }
+  // 真的瀏覽器版本的 Node.append()：跟 appendChild() 不同，可以一次接受多個節點
+  // （目前這個假環境不需要支援字串參數，呼叫端都是傳節點）。ui/sourceStatusUI.js
+  // 的 buildBreakdownRow() 用 row.append(...) 一次塞好幾個 <span>。
+  append(...nodes){ nodes.forEach(n => this.appendChild(n)); }
   insertBefore(c, ref){
     const i = this.children.indexOf(ref);
     this.children.splice(Math.max(0, i), 0, c);

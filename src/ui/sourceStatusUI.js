@@ -158,13 +158,13 @@ const TILE_CACHE_NAME_PREFIX = 'tile-cache-';
 // res.ok 的回應（見 public/sw.js），opaque 已排除，所以 Content-Length 一般都讀得到，
 // 缺標頭（極少數）才退回讀整個 body 的 blob().size。
 // 三份快取名稱見 public/sw.js：tile-cache-<ver>（歷史）、tile-cache-osm-<ver>、tile-cache-sat-<ver>。
-function cacheGroupLabel(name){
+export function cacheGroupLabel(name){
   if(name.startsWith('tile-cache-osm-')) return '現代地圖';
   if(name.startsWith('tile-cache-sat-')) return '衛星影像';
   return '歷史地圖';
 }
 
-async function countCachedTiles(){
+export async function countCachedTiles(){
   if(typeof caches === 'undefined') return null;
   try{
     const names = (await caches.keys()).filter(n => n.startsWith(TILE_CACHE_NAME_PREFIX));
@@ -193,7 +193,7 @@ async function countCachedTiles(){
   }
 }
 
-function formatCacheSize(bytes){
+export function formatCacheSize(bytes){
   const mb = bytes / 1024 / 1024;
   return `${mb.toFixed(mb < 10 ? 1 : 0)} MB`;
 }
@@ -210,7 +210,7 @@ async function updateCacheUsageText(el, breakdownEl){
 }
 
 // 每類一列：名稱｜佔用比例條｜張數｜MB。比例條依體積（不是張數）計算，才看得出誰最吃空間。
-function buildBreakdownRow(group, totalBytes){
+export function buildBreakdownRow(group, totalBytes){
   const row = document.createElement('div');
   row.className = 'cache-bd-row';
   const cell = (cls, text) => {

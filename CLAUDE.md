@@ -112,7 +112,8 @@
 - 測試：`track-math.test.mjs`（濾點／分段／統計／GPX／GeoJSON／存成繪圖純函式）、`track-import.test.mjs`（GPX／GeoJSON 解析、來回不失真、壞檔案、上限）、`track-layer.test.mjs`（共用圖層、配色、飛到軌跡與側邊欄邊界）、`track-recorder.test.mjs`（控制器＋軌跡庫，真的 `location.js`＋假 geolocation；`ol.Feature`／`ol.geom.MultiLineString` 的最小假物件在 `env-stub.mjs`）、`track-recorder-ui.test.mjs`（記錄鈕與狀態條接線）、`track-list-ui.test.mjs`（列表抽屜；記錄器／圖層／繪圖／對話框全 mock，解析用真的）、`track-export.test.mjs`（匯出：手機先分享、退回下載）。預覽窗格沒有 GPS，實測要覆寫 `navigator.geolocation.watchPosition` 餵座標。
 
 ## 來源狀態／快取抽屜 (`src/ui/sourceStatusUI.js`) 與使用指南 (`src/ui/onboarding.js`)
-- **「已快取圖磚：N 張（X MB）」**：`countCachedTiles()` 直接數 `tile-cache-*` 三份快取（排除同源與 `tile-lru.local`），體積累加 `Content-Length`，缺標頭才讀 `blob().size`；刻意不用 `navigator.storage.estimate()`（涵蓋整站、清除後數秒才更新）。抽屜開啟與清除後各算一次；逐張序列讀取，快取滿（約 3.6 萬張）時可能偏慢，有人反映再改 `Promise.all`。
+- **「已快取圖磚：N 張（X MB）」＋分類表格**：`countCachedTiles()` 直接數 `tile-cache-*` 三份快取（排除同源與 `tile-lru.local`），依快取名稱前綴（`cacheGroupLabel()`）分成歷史地圖／現代地圖／衛星影像三類分別累加張數與體積，體積優先讀 `Content-Length`，缺標頭才讀 `blob().size`；刻意不用 `navigator.storage.estimate()`（涵蓋整站、清除後數秒才更新）。抽屜開啟與清除後各算一次；逐張序列讀取，快取滿（約 3.6 萬張）時可能偏慢，有人反映再改 `Promise.all`。總計文字下方另有分類表格（`buildBreakdownRow()`，每類一列：名稱／依體積占比的比例條／張數／MB），比例條依體積而非張數計算（才看得出誰最吃空間），空群組不列出，最小維持 3% 寬度讓小群組也看得見。`countCachedTiles()`／`cacheGroupLabel()`／`formatCacheSize()`／`buildBreakdownRow()` 皆已 `export`，供測試直接呼叫。
+- 測試：`tests/specs/source-status-ui.test.mjs`（分類統計、同源／LRU 過濾、Content-Length 缺失退回 blob、比例條計算、`caches` 未定義時回傳 `null`；`globalThis.caches` 在這個測試檔自建最小假版本，跟其他檔案不互相汙染）；`env-stub.mjs` 的 `FakeNode` 因此補了 `append()`（跟 `appendChild()` 不同，可一次接受多個節點，`buildBreakdownRow()` 用得到）。
 - **使用指南 `GUIDE_SECTIONS` 要跟「⋯ 更多」選單／手機「地圖工具」選單同步**：新增選單功能時要補對應段落（分享與截圖、軌跡記錄、來源狀態／快取現況都有），`guide-drawer.test.mjs` 會擋漏寫。段落盡量 3~4 句；30 秒導覽刻意只挑核心操作，不含軌跡與截圖。
 
 ## 地圖載入提示 (`body.map-ready`)
