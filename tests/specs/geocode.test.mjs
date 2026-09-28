@@ -108,3 +108,39 @@ test('geocodeAddress：失敗的查詢不應該被快取，下次重試仍會呼
   await geocodeAddress('快取失敗重試測試');
   expect(fetchCallCount, '失敗結果不應該被快取，重試應該再呼叫一次 fetch').toBe(2);
 });
+
+test('geocodeAddress：同一查詢字串在第一個請求還沒 resolve 前被重複呼叫，只會真的發送 1 次 fetch（in-flight dedup，回歸：debounce 建議清單跟 Enter 立即搜尋幾乎同時觸發同一字串時，曾經會各自打一次 Nominatim）', async () => {
+  let fetchCallCount = 0;
+  let resolveFetch;
+  const fakeResults = [{ display_name: '併發查詢測試' }];
+  globalThis.fetch = async () => {
+    fetchCallCount++;
+    return new Promise(resolve => { resolveFetch = () => resolve({ ok: true, json: async () => fakeResults }); });
+  };
+  const first = geocodeAddress('併發查詢測試');
+  const second = geocodeAddress('併發查詢測試');
+  // 兩次呼叫都還在等待同一個尚未 resolve 的 fetch，只應該真的送出 1 次請求。
+  expect(fetchCallCount, '兩個幾乎同時的呼叫應該共用同一個進行中的請求，只送出 1 次 fetch').toBe(1);
+  resolveFetch();
+  const [firstResult, secondResult] = await Promise.all([first, second]);
+  expect(JSON.stringify(firstResult), '兩次呼叫應該拿到同樣的結果').toBe(JSON.stringify(secondResult));
+});
+
+test('geocodeAddress：in-flight 請求失敗後，之後的呼叫仍會重新發送 fetch（不會被卡在已經 reject 的 pending）', async () => {
+  let fetchCallCount = 0;
+  let rejectFetch;
+  globalThis.fetch = async () => {
+    fetchCallCount++;
+    return new Promise((_, reject) => { rejectFetch = () => reject(new Error('network down')); });
+  };
+  const first = geocodeAddress('併發失敗查詢測試');
+  const second = geocodeAddress('併發失敗查詢測試');
+  rejectFetch();
+  const results = await Promise.allSettled([first, second]);
+  expect(fetchCallCount, '兩個並發呼叫共用同一次失敗的請求，只應該送出 1 次 fetch').toBe(1);
+  expect(results.every(r => r.status === 'rejected'), '兩次呼叫都應該收到同一個錯誤').toBeTruthy();
+
+  globalThis.fetch = async () => { fetchCallCount++; return { ok: true, json: async () => ([{ display_name: '重試成功' }]) }; };
+  await geocodeAddress('併發失敗查詢測試');
+  expect(fetchCallCount, 'in-flight 請求結束後應該從 pending 移除，下次呼叫要能重新發送 fetch').toBe(2);
+});

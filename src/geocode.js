@@ -14,6 +14,14 @@ const GEOCODE_TIMEOUT_MS = 8000;
 const GEOCODE_CACHE_MAX_ENTRIES = 200;
 const geocodeCache = new Map();
 
+// 同一查詢字串還在進行中的請求（query.trim() -> Promise），避免使用者
+// debounce 建議清單跟 Enter 立即搜尋兩條路徑幾乎同時觸發同一個查詢字串
+// 時，在第一個請求還沒 resolve、快取還沒寫入前，重複對 Nominatim 發送
+// 第二次一模一樣的請求——違反上面提到的「妥善節流」使用政策。比照
+// tileChecker.js 的 pending Map 寫法：只在還沒進快取時去重，成功或失敗
+// 都要在 finally 清除，讓下一次呼叫（例如重試）能重新發送請求。
+const geocodePending = new Map();
+
 function getCachedGeocodeResult(key){
   if(!geocodeCache.has(key)) return undefined;
   const value = geocodeCache.get(key);
@@ -56,12 +64,21 @@ export async function geocodeAddress(query){
   const cacheKey = query.trim();
   const cached = getCachedGeocodeResult(cacheKey);
   if(cached !== undefined) return cached;
-  const url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=6&accept-language=zh-TW&q=' + encodeURIComponent(query);
-  const res = await fetchWithTimeout(url, { headers: { 'Accept': 'application/json' } });
-  if(!res.ok) throw new Error('geocode request failed');
-  const result = await res.json();
-  setCachedGeocodeResult(cacheKey, result);
-  return result;
+  if(geocodePending.has(cacheKey)) return geocodePending.get(cacheKey);
+  const promise = (async () => {
+    const url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=6&accept-language=zh-TW&q=' + encodeURIComponent(query);
+    const res = await fetchWithTimeout(url, { headers: { 'Accept': 'application/json' } });
+    if(!res.ok) throw new Error('geocode request failed');
+    const result = await res.json();
+    setCachedGeocodeResult(cacheKey, result);
+    return result;
+  })();
+  geocodePending.set(cacheKey, promise);
+  try {
+    return await promise;
+  } finally {
+    geocodePending.delete(cacheKey);
+  }
 }
 
 export async function reverseGeocode(lon, lat){
