@@ -27,7 +27,7 @@
 
 ## CI 與上游監控 (`.github/workflows/`)
 - **`ci.yml`**（push 到 `main`／PR／手動觸發）：`npm ci` → `npm run lint` → `npm test` → 備份已 commit 的 `docs/` → `npm run build` → `tools/verify-docs-sync.js` 比對。只做檢查、不 commit 任何東西；部署仍是 Pages 直接發布 `main` 的 `docs/`。
-- **`docs/` 同步驗證（`tools/verify-docs-sync.js <已 commit 的 docs> <重新 build 的 docs>`）**：抓「改了原始碼卻忘了重新 build 並 commit `docs/`」。**刻意忽略文字檔換行差異（CRLF/LF）、`*.map`、`.gitkeep`**——已實測 Windows 開發／Linux CI 之間 JS／CSS／`index.html` 的 hash 檔名與內容一致，但 `sw.js`、`data/`、svg 這類原樣複製的檔案會因換行不同而位元組不同，逐位元組比對會天天誤報。**不要改成嚴格位元組比對。** 也**不檢查 `sw.js` 版本號有沒有遞增**：JS／CSS 是 hash 檔名 Cache-First、HTML 與 `data/*.json` 是 Network-First，`CACHE_VERSION` 只有快取結構本身變動時才需要手動遞增，強制每次都遞增沒有意義。
+- **`docs/` 同步驗證（`tools/verify-docs-sync.js <已 commit 的 docs> <重新 build 的 docs>`）**：抓「改了原始碼卻忘了重新 build 並 commit `docs/`」。**刻意忽略文字檔換行差異（CRLF/LF）、`*.map`、`.gitkeep`**——已實測 Windows 開發／Linux CI 之間 JS／CSS／`index.html` 的 hash 檔名與內容一致，但 `sw.js`、`data/`、svg 這類原樣複製的檔案會因換行不同而位元組不同，逐位元組比對會天天誤報。**不要改成嚴格位元組比對。** 也**不檢查 `sw.js` 版本號有沒有遞增**：JS／CSS 是 hash 檔名 Cache-First、HTML 與 `data/*.json` 是 Network-First，`CACHE_VERSION` 只有快取結構本身變動時才需要手動遞增，強制每次都遞增沒有意義。比照 `pre-push-check.js`／`pushesToMain()` 的模式，`main()` 用 `require.main === module` 擋住、只 `module.exports` 出 `listFiles`／`readNormalized`／`diffDocs` 三個純邏輯供測試直接呼叫真的暫存目錄（這支腳本的核心價值就是比對真的檔案系統，捏造記憶體假物件測不出實際的換行／副檔名判斷邏輯有沒有問題）。測試：`tests/specs/verify-docs-sync.test.mjs`（原本是 `tools/` 目錄裡少數零測試覆蓋的腳本之一）。
 - **`upstream-health.yml`**（每週一 09:00 台灣時間＋手動觸發）：跑 `node tools/check-upstream-health.js`（也可在本機 `npm run check:upstream`）。來源清單從 `data/layers/*.json` 的 `provider.tileTemplate`（指向 `gis.sinica.edu.tw`）動態推導，新增來源不用改腳本；檢查 Capabilities 可連線，且「本地圖層 id 都還在上游」。異常時自動開 GitHub Issue（同名未關閉就補留言）並讓 workflow 顯示失敗；「上游新增、本地未收錄」只提示、不算故障。**不在檢查範圍**：`udd`（無統一 Capabilities 端點）、`nlsc`（非 sinica）、實際圖磚請求（`file-exists.php` 語意不同、易誤報）。`udd`／`nlsc` 改由每季手動跑 `npm run check:spot` 抽測（2026-09 首次抽測：udd 54／54、nlsc 49／50 有圖，其餘 1 個為空白圖磚、非故障）；刻意不自動化，避免多兩個外部依賴的誤報來源。GitHub 會停用「60 天沒有 repo 活動」的排程 workflow，久未更新時要回 Actions 頁面重新啟用。
 
 ## 體積評估與拆檔現況（2026-09 實測，避免重複評估）
@@ -144,7 +144,7 @@
 - 測試：`tests/specs/export-info.test.mjs`；`draw-tool.test.mjs` 驗證開關與輸出尺寸；`place-name-card-ui.test.mjs` 驗證顯示中卡片狀態同步。
 
 ## 測試框架 (vitest)
-測試統一使用 vitest（`tests/specs/*.test.mjs`，77 支、929 個案例；設定 `vitest.config.js`）。原本並存的手刻框架（`tests/run-all.mjs`＋`tests/assert.mjs`）已在雙軌期間漏改案例（`multi-overlay` 拖曳排序測試只補在舊版）而移除，不要再新增第二套測試機制。改動測試時要注意：
+測試統一使用 vitest（`tests/specs/*.test.mjs`，78 支、940 個案例；設定 `vitest.config.js`）。原本並存的手刻框架（`tests/run-all.mjs`＋`tests/assert.mjs`）已在雙軌期間漏改案例（`multi-overlay` 拖曳排序測試只補在舊版）而移除，不要再新增第二套測試機制。改動測試時要注意：
 - 共用模組：`tests/env-stub.mjs`（手動塞 `globalThis` 模擬 `document`／`window`／`ol` 的假瀏覽器環境，vitest `environment` 維持預設 `'node'`，不要疊加 jsdom）、`tests/helpers.mjs`（`sleep()`／`waitFor()`）、`tests/tileImageStub.mjs`（假 `Image`）。
 - `tests/env-stub.mjs` 有一個關鍵相容性修正：`globalThis.URL` 必須保留 Node 原生建構子、只在上面附加 `createObjectURL`／`revokeObjectURL` 兩個靜態方法。若整個覆蓋成 `{ createObjectURL, revokeObjectURL }`，vitest 的模組載入器（vite-node）解析後續 `import` 時會拋 `TypeError: URL is not a constructor`。`src/features/sourceStatus.js`（`hostOf()`）／`tests/specs/spatial-index.test.mjs` 裡當初因這個限制而寫的「不能用 `new URL()`」相關註解已移除；`hostOf()` 維持用正規表示式取 host（單純不必為此建立 URL 物件，非受限所致）。
 - vitest 的 `test()` 是「先收集全部呼叫、模組載入完才統一執行」，**任何寫在模組頂層（不在 `test()`／`beforeEach()`／`afterEach()`／`afterAll()` 裡）、假設『在測試案例執行完之後才跑』的清理程式碼，語意會跑掉**（已踩過：`location-button.test.mjs` 清理 `runtime.locateToastTimer` 的程式碼放在模組頂層會在測試執行前就跑、清理失效，讓一顆 4.5 秒的真實計時器每次都拖到自然到期；修法是用 `afterAll()` 包起來）。

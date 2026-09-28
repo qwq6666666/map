@@ -51,13 +51,10 @@ function readNormalized(filePath){
   return Buffer.from(buf.toString('utf-8').replaceAll('\r', ''), 'utf-8');
 }
 
-function main(){
-  const [committedDir, freshDir] = process.argv.slice(2);
-  if(!committedDir || !freshDir){
-    console.error('用法：node tools/verify-docs-sync.js <已 commit 的 docs> <重新 build 的 docs>');
-    process.exit(2);
-  }
-
+// 純比對邏輯（不含 console／process.exit），供測試直接呼叫真的暫存目錄。
+// 回傳 { missing, stale, changed, total }：missing／stale／changed 是相對路徑陣列
+// （已排序，因為 listFiles() 本身就有排序），total 是新 build 的檔案總數。
+function diffDocs(committedDir, freshDir){
   const committed = new Set(listFiles(committedDir));
   const fresh = new Set(listFiles(freshDir));
 
@@ -68,9 +65,21 @@ function main(){
   const changed = [...fresh].filter(f => committed.has(f)
     && !readNormalized(path.join(committedDir, f)).equals(readNormalized(path.join(freshDir, f))));
 
+  return { missing, stale, changed, total: fresh.size };
+}
+
+function main(){
+  const [committedDir, freshDir] = process.argv.slice(2);
+  if(!committedDir || !freshDir){
+    console.error('用法：node tools/verify-docs-sync.js <已 commit 的 docs> <重新 build 的 docs>');
+    process.exit(2);
+  }
+
+  const { missing, stale, changed, total } = diffDocs(committedDir, freshDir);
+
   const problems = missing.length + stale.length + changed.length;
   if(problems === 0){
-    console.log(`docs/ 與目前原始碼同步（比對 ${fresh.size} 個檔案）。`);
+    console.log(`docs/ 與目前原始碼同步（比對 ${total} 個檔案）。`);
     return;
   }
 
@@ -88,4 +97,6 @@ function main(){
   process.exit(1);
 }
 
-main();
+if(require.main === module) main();
+
+module.exports = { listFiles, readNormalized, diffDocs };
