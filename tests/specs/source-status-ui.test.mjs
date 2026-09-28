@@ -1,6 +1,19 @@
 import '../env-stub.mjs';
-import { test, expect, beforeEach, afterAll } from 'vitest';
-import { cacheGroupLabel, formatCacheSize, buildBreakdownRow, countCachedTiles } from '../../src/ui/sourceStatusUI.js';
+import { test, expect, beforeEach, afterAll, vi } from 'vitest';
+
+// openSourceStatusDrawer() 的連點防護測試不需要真的探測主機／清失敗紀錄，
+// 換成假實作，避免這裡意外發出真的網路請求。
+vi.mock('../../src/features/sourceStatus.js', () => ({
+  checkAllSourceStatuses: vi.fn(async () => []),
+  buildSourceStatusTargets: vi.fn(() => [])
+}));
+vi.mock('../../src/core/tileLoadGuard.js', () => ({
+  getRecentTileFailures: vi.fn(() => []),
+  clearRecentTileFailures: vi.fn()
+}));
+vi.mock('../../src/features/location.js', () => ({ showLocateToast: vi.fn() }));
+
+import { cacheGroupLabel, formatCacheSize, buildBreakdownRow, countCachedTiles, openSourceStatusDrawer } from '../../src/ui/sourceStatusUI.js';
 
 // countCachedTiles() 讀 globalThis.caches（Cache Storage API），測試環境沒有真的
 // Service Worker，這裡搭一個最小假版本：cacheStore 是 { 快取名稱: [{url, contentLength|blobSize}] }。
@@ -121,4 +134,26 @@ test('buildBreakdownRow：比例條依體積佔比計算，且最小維持 3% �
 test('buildBreakdownRow：totalBytes 為 0 時比例條不會是 NaN%，退回最小值', () => {
   const row = buildBreakdownRow({ label: '歷史地圖', count: 0, bytes: 0 }, 0);
   expect(barFillOf(row).style.width).toBe('3.0%');
+});
+
+// buildDrawer() 用 innerHTML 組整個抽屜內容，假 DOM（env-stub.mjs）的 innerHTML
+// setter 不會真的解析出子節點（見檔頭註解），querySelector('.guide-drawer-close')
+// 在這個假環境裡一定拿 null，所以這裡不整個渲染，只驗證「已經開著就擋住第二次」
+// 這個 guard 本身：手動塞一個代表「已開啟」的節點進 document.body，呼叫
+// openSourceStatusDrawer() 應該提早 return，不會再去呼叫 buildSourceStatusTargets()/
+// checkAllSourceStatuses()（也就不會走到 buildDrawer() 那段在這個假環境會噴例外的
+// innerHTML 渲染路徑）。修正前沒有這個 guard，同樣的呼叫會直接嘗試 buildDrawer()
+// 而拋出例外，這個測試會如預期失敗。
+test('連點「來源狀態／快取」入口：已經開著就擋住第二次，不會重新渲染', async () => {
+  const { buildSourceStatusTargets } = await import('../../src/features/sourceStatus.js');
+  const fakeOpen = document.createElement('div');
+  fakeOpen.className = 'source-status-drawer';
+  document.body.appendChild(fakeOpen);
+  try{
+    expect(() => openSourceStatusDrawer()).not.toThrow();
+    expect(buildSourceStatusTargets).not.toHaveBeenCalled();
+    expect(document.querySelectorAll('.source-status-drawer')).toHaveLength(1);
+  } finally {
+    fakeOpen.remove();
+  }
 });

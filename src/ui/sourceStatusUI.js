@@ -326,6 +326,7 @@ function buildDrawer(){
 }
 
 export function openSourceStatusDrawer(){
+  if(document.querySelector('.source-status-drawer')) return; // 已經開著（連點）
   const { overlay, drawer } = buildDrawer();
   document.body.appendChild(overlay);
   document.body.appendChild(drawer);

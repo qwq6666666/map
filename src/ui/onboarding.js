@@ -438,7 +438,7 @@ function buildGuideDrawer() {
   overlay.className = 'guide-drawer-overlay';
 
   const drawer = document.createElement('div');
-  drawer.className = 'guide-drawer';
+  drawer.className = 'guide-drawer guide-help-drawer';
   drawer.setAttribute('role', 'dialog');
   drawer.setAttribute('aria-modal', 'true');
 
@@ -489,6 +489,7 @@ function buildGuideDrawer() {
 }
 
 export function openGuideDrawer() {
+  if (document.querySelector('.guide-help-drawer')) return; // 已經開著（連點）
   const { overlay, drawer } = buildGuideDrawer();
   document.body.appendChild(overlay);
   document.body.appendChild(drawer);
