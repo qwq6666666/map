@@ -46,6 +46,28 @@ const FADE_MS = 350;       // 交叉淡出／淡入本身的時長
 // 對 store.js／timelineMode.js／compareMode.js 等既有呼叫端完全透明。
 const layerFadeGeneration = new WeakMap();
 
+/* ---------------------------------------------------------
+   layerFadeGeneration 只解決「同一個 layer 物件」的動畫互搶問題，
+   沒辦法解決 crossfadeToLayer() 冷啟動時 setTimeout(startFade,
+   FADE_GRACE_MS) 這段暖機延遲本身過期的問題：快速連續切換 X→Y→X
+   （三次都落在彼此的暖機時間內）時，X、Y 第一次被選到當下各自排定
+   了一個 250ms 後才執行的 startFade（此時都還沒真的呼叫過
+   fadeLayerTo，layerFadeGeneration 完全不知道這兩個排程的存在）；
+   等使用者已經切回 X（第三次呼叫因為 X 已經在快取裡，alreadyWarm，
+   會立即交叉淡出淡入），前兩次過期的計時器才依序觸發，各自拿著
+   呼叫當下捕捉到的舊 newLayer／previousLayer 閉包，把早就不該顯示
+   的 Y 淡入、把應該顯示的 X 淡出——最終畫面顯示錯誤的圖層，即使
+   runtime.historyLayerKey 全程都正確是 X（已用 vitest 假計時器重現：
+   tests/specs/layer-manager-fade-race.test.mjs）。
+
+   用單一遞增計數器記錄「目前最新一次 applyActiveOverlayKey() 呼叫」，
+   crossfadeToLayer() 的 startFade（不管是立即執行還是延遲執行）先
+   確認自己還是不是最新一次呼叫，不是就直接放棄——反正一定會有更新
+   的那次呼叫負責建立正確的交叉淡出淡入，不需要這次過期的呼叫補做
+   任何事。
+--------------------------------------------------------- */
+let overlayApplyGeneration = 0;
+
 function fadeLayerTo(layer, targetOpacity, durationMs, onDone){
   const myGeneration = (layerFadeGeneration.get(layer) || 0) + 1;
   layerFadeGeneration.set(layer, myGeneration);
@@ -68,8 +90,12 @@ function fadeLayerTo(layer, targetOpacity, durationMs, onDone){
   step();
 }
 
-function crossfadeToLayer(newLayer, previousLayer, targetOpacity, alreadyWarm){
+function crossfadeToLayer(newLayer, previousLayer, targetOpacity, alreadyWarm, myApplyGeneration){
   const startFade = () => {
+    // 這次呼叫已經被更新一次的 applyActiveOverlayKey() 取代（見上方
+    // overlayApplyGeneration 說明），不再是最新狀態，直接放棄，讓
+    // 最新那次呼叫的排程接管。
+    if(myApplyGeneration !== overlayApplyGeneration) return;
     fadeLayerTo(newLayer, targetOpacity, FADE_MS);
     if(previousLayer && previousLayer !== newLayer){
       fadeLayerTo(previousLayer, 0, FADE_MS); // 淡出到 0 就好，圖層本身留在 layerCache，不用另外處理
@@ -117,6 +143,11 @@ export function suspendActiveOverlayVisual(){
 }
 
 export function applyActiveOverlayKey(){
+  // 每次呼叫都先佔用一個新的世代編號：不管這次是清空歷史圖層還是切換
+  // 到新的一張，只要有更新的呼叫發生，先前呼叫排定的 crossfadeToLayer()
+  // 暖機計時器（見該函式與 overlayApplyGeneration 宣告處的說明）就該
+  // 視為過期而放棄執行，不能等它稍後才觸發、把已經不對的畫面又改回去。
+  const myApplyGeneration = ++overlayApplyGeneration;
   const resolved = resolveOverlayKey(store.activeOverlayKey);
   if(!resolved){
     if(runtime.historyLayer){
@@ -137,7 +168,7 @@ export function applyActiveOverlayKey(){
     runtime.historyLayer = newLayer;
     runtime.historyLayerKey = key;
 
-    crossfadeToLayer(newLayer, previousLayer, targetOpacity, alreadyWarm);
+    crossfadeToLayer(newLayer, previousLayer, targetOpacity, alreadyWarm, myApplyGeneration);
 
     document.getElementById('stampYear').textContent = layer.year;
     document.getElementById('stampLabel').textContent = layer.title;
