@@ -5,11 +5,16 @@
    每條軌跡一個 MultiLineString feature，顏色依軌跡 id 固定挑選（同一條軌跡每次
    顏色一樣，列表上的色塊才對得上地圖）。記錄器每收到一個點就用
    setTrackCoords() 更新（座標已投影、不重複投影整條）；列表面板顯示／隱藏其他
-   軌跡用 showTrack()／hideTrack()。單點的段畫不成線，一律略過。
+   軌跡用 showTrack()／hideTrack()。單點的段畫不成線，一律略過。線的中點另有一個
+   距離標籤（實際距離由呼叫端傳入；線在畫面上太短時不標，圖層開 declutter 避免擠在一起）。
 --------------------------------------------------------- */
 import { map } from '../core/map.js';
+import { formatDistance, trackDistance } from './trackMath.js';
 
 const TRACK_Z_INDEX = 49;
+// 線在畫面上不到這麼多像素就不標距離（縮太小時字比線還大、多條軌跡也會擠成一團）。
+const LABEL_MIN_LINE_PX = 110;
+const LABEL_CACHE_LIMIT = 300;
 export const TRACK_COLORS = ['#d9480f', '#1971c2', '#2f9e44', '#9c36b5', '#e67700', '#0c8599', '#c2255c'];
 
 const LINE_CASING = '#ffffff';
@@ -36,37 +41,98 @@ function styleFor(color){
   return styleCache.get(color);
 }
 
+// 距離標籤：白底＋軌跡色邊框的小標籤，放在線的中點。字串（含顏色）相同就重用同一個樣式。
+const labelStyleCache = new Map();
+function labelStyleFor(color, text){
+  const key = `${color}|${text}`;
+  if(!labelStyleCache.has(key)){
+    if(labelStyleCache.size >= LABEL_CACHE_LIMIT) labelStyleCache.clear();
+    labelStyleCache.set(key, [...styleFor(color), new ol.style.Style({
+      geometry: (feature) => new ol.geom.Point(feature.get('labelCoord')),
+      text: new ol.style.Text({
+        text,
+        font: '600 13px "Public Sans", sans-serif',
+        fill: new ol.style.Fill({ color: '#17211D' }),
+        backgroundFill: new ol.style.Fill({ color: 'rgba(255,255,255,0.92)' }),
+        backgroundStroke: new ol.style.Stroke({ color, width: 2 }),
+        padding: [2, 5, 2, 5],
+        overflow: true
+      })
+    })]);
+  }
+  return labelStyleCache.get(key);
+}
+
+function trackStyle(feature, resolution){
+  const color = feature.get('color');
+  const labelCoord = feature.get('labelCoord');
+  const text = feature.get('labelText');
+  const longEnough = Number.isFinite(resolution) && feature.get('planarLength') / resolution >= LABEL_MIN_LINE_PX;
+  return labelCoord && text && longEnough ? labelStyleFor(color, text) : styleFor(color);
+}
+
 function ensureLayer(){
   if(layer) return;
   source = new ol.source.Vector();
   layer = new ol.layer.Vector({
     source,
     zIndex: TRACK_Z_INDEX,
-    style: (feature) => styleFor(feature.get('color'))
+    declutter: true,
+    style: trackStyle
   });
   map.addLayer(layer);
 }
 
 const drawable = (projectedSegs) => projectedSegs.filter((seg) => seg.length > 1);
 
+// 沿線走到總長一半的位置（地圖投影下的平面長度，只用來定位、不是實際距離）。
+// 多段時依序串起來算，中點可能落在任何一段上；沒有可畫的線回傳 null。
+export function lineMidpoint(projectedSegs){
+  const segs = drawable(projectedSegs);
+  const lengths = segs.map((seg) => seg.slice(1).reduce((sum, p, i) => sum + Math.hypot(p[0] - seg[i][0], p[1] - seg[i][1]), 0));
+  const total = lengths.reduce((a, b) => a + b, 0);
+  if(!(total > 0)) return null;
+  let remain = total / 2;
+  for(let s = 0; s < segs.length; s++){
+    if(remain > lengths[s]){ remain -= lengths[s]; continue; }
+    const seg = segs[s];
+    for(let i = 1; i < seg.length; i++){
+      const step = Math.hypot(seg[i][0] - seg[i - 1][0], seg[i][1] - seg[i - 1][1]);
+      if(remain <= step){
+        const t = step > 0 ? remain / step : 0;
+        return { coord: [seg[i - 1][0] + (seg[i][0] - seg[i - 1][0]) * t, seg[i - 1][1] + (seg[i][1] - seg[i - 1][1]) * t], length: total };
+      }
+      remain -= step;
+    }
+  }
+  const last = segs.at(-1).at(-1);
+  return { coord: last, length: total };
+}
+
 // 座標必須已是地圖投影（EPSG:3857）。沒有這條軌跡的 feature 就新建。
-export function setTrackCoords(id, projectedSegs){
+// meters 是實際距離（公尺），用來寫線上的距離標籤；沒給就不標。
+export function setTrackCoords(id, projectedSegs, meters){
   ensureLayer();
+  const lines = drawable(projectedSegs);
   let feature = features.get(id);
   if(!feature){
-    feature = new ol.Feature(new ol.geom.MultiLineString(drawable(projectedSegs)));
+    feature = new ol.Feature(new ol.geom.MultiLineString(lines));
     feature.set('color', colorForTrack(id));
     features.set(id, feature);
     source.addFeature(feature);
-    return;
+  }else{
+    feature.getGeometry().setCoordinates(lines);
   }
-  feature.getGeometry().setCoordinates(drawable(projectedSegs));
+  const mid = meters > 0 ? lineMidpoint(lines) : null;
+  feature.set('labelCoord', mid ? mid.coord : null);
+  feature.set('planarLength', mid ? mid.length : 0);
+  feature.set('labelText', mid ? formatDistance(meters) : '');
 }
 
 export const projectSegments = (track) => track.segments.map((seg) => seg.map(([lon, lat]) => ol.proj.fromLonLat([lon, lat])));
 
 export function showTrack(track){
-  setTrackCoords(track.id, projectSegments(track));
+  setTrackCoords(track.id, projectSegments(track), trackDistance(track));
 }
 
 export function hideTrack(id){

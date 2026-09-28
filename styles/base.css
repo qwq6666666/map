@@ -1875,8 +1875,14 @@
   .source-status-clear-cache:hover{background:var(--brass-dark); border-color:var(--brass-dark); color:var(--paper);}
   .source-status-clear-cache:disabled{opacity:.6; cursor:default;}
   .source-status-cache-usage{font-size:var(--fs-sm); color:var(--rule-text);}
-  .source-status-cache-breakdown{font-size:var(--fs-sm); line-height:1.6; color:var(--rule-text); margin:6px 0 0;}
+  .source-status-cache-breakdown{display:grid; gap:6px; margin:10px 0 0; padding:8px 10px; background:var(--paper-dim); border-radius:6px;}
   .source-status-cache-breakdown:empty{display:none;}
+  .cache-bd-row{display:grid; grid-template-columns:4.6em minmax(24px,1fr) 4.4em 4.6em; align-items:center; gap:8px; font-size:var(--fs-sm); color:var(--ink);}
+  .cache-bd-label{font-weight:600; white-space:nowrap;}
+  .cache-bd-bar{height:6px; background:rgba(23,33,29,.12); border-radius:3px; overflow:hidden;}
+  .cache-bd-bar > span{display:block; height:100%; background:var(--brass); border-radius:3px;}
+  .cache-bd-count, .cache-bd-size{text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .cache-bd-size{color:var(--rule-text);}
   .source-status-cache-intro{font-size:var(--fs-xs); line-height:1.6; color:var(--rule-text); margin:8px 0 0;}
   .source-status-intro{font-size:var(--fs-sm); line-height:1.6; color:var(--ink); margin:0 0 12px;}
   .source-status-recheck{

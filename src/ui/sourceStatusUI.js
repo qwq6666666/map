@@ -201,14 +201,37 @@ function formatCacheSize(bytes){
 async function updateCacheUsageText(el, breakdownEl){
   if(!el) return;
   el.textContent = '已快取圖磚：計算中…';
-  if(breakdownEl) breakdownEl.textContent = '';
+  if(breakdownEl) breakdownEl.replaceChildren();
   const result = await countCachedTiles();
   el.textContent = result === null ? '' : `已快取圖磚：${result.count.toLocaleString('zh-TW')} 張（${formatCacheSize(result.bytes)}）`;
   if(breakdownEl && result){
-    breakdownEl.textContent = result.groups
-      .map(g => `${g.label} ${g.count.toLocaleString('zh-TW')} 張（${formatCacheSize(g.bytes)}）`)
-      .join('　');
+    result.groups.forEach((g) => breakdownEl.appendChild(buildBreakdownRow(g, result.bytes)));
   }
+}
+
+// 每類一列：名稱｜佔用比例條｜張數｜MB。比例條依體積（不是張數）計算，才看得出誰最吃空間。
+function buildBreakdownRow(group, totalBytes){
+  const row = document.createElement('div');
+  row.className = 'cache-bd-row';
+  const cell = (cls, text) => {
+    const span = document.createElement('span');
+    span.className = cls;
+    span.textContent = text;
+    return span;
+  };
+  const bar = document.createElement('span');
+  bar.className = 'cache-bd-bar';
+  const fill = document.createElement('span');
+  const share = totalBytes > 0 ? (group.bytes / totalBytes) * 100 : 0;
+  fill.style.width = `${Math.max(share, 3).toFixed(1)}%`;
+  bar.appendChild(fill);
+  row.append(
+    cell('cache-bd-label', group.label),
+    bar,
+    cell('cache-bd-count', `${group.count.toLocaleString('zh-TW')} 張`),
+    cell('cache-bd-size', formatCacheSize(group.bytes))
+  );
+  return row;
 }
 
 function buildDrawer(){
@@ -231,7 +254,7 @@ function buildDrawer(){
           <button type="button" class="source-status-clear-cache"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="./assets/map-emoji-style-a-icons.svg#clear-cache"></use></svg> 清除圖磚快取</button>
           <span class="source-status-cache-usage" aria-live="polite"></span>
         </div>
-        <p class="source-status-cache-breakdown"></p>
+        <div class="source-status-cache-breakdown"></div>
         <p class="source-status-cache-intro">清除已下載的地圖圖磚（歷史地圖／現代地圖／衛星影像），釋放裝置儲存空間；圖層資料本身不受影響，下次瀏覽同區域會重新下載圖磚。</p>
       </div>
       <p class="source-status-intro">對每個資料來源主機各發一次探測請求，確認目前讀取狀態——平常瀏覽時某個縣市的圖層「點了沒反應」，通常就是這裡顯示異常的主機。逾時／緩慢代表資料提供方那邊的問題，不是這個網站本身故障。</p>

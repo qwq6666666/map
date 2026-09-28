@@ -2,7 +2,7 @@ import '../env-stub.mjs';
 import { test, expect, beforeEach } from 'vitest';
 import { map } from '../../src/core/map.js';
 import {
-  setTrackCoords, showTrack, hideTrack, isTrackShown, zoomToTrack, colorForTrack,
+  setTrackCoords, showTrack, hideTrack, isTrackShown, zoomToTrack, colorForTrack, lineMidpoint,
   TRACK_COLORS, _resetTrackLayerForTests
 } from '../../src/features/trackLayer.js';
 
@@ -74,6 +74,49 @@ test('圖層樣式函式：依 feature 顏色回傳「白色外框＋顏色線�
   expect(styles[0].opts.stroke.opts.color).toBe('#ffffff');
   expect(styles[1].opts.stroke.opts.color).toBe(feature.get('color'));
   expect(layer.opts.style(feature)).toBe(styles);
+});
+
+test('lineMidpoint：沿線走到總長一半；多段串起來算；沒有可畫的線回傳 null', () => {
+  expect(lineMidpoint([[[0, 0], [10, 0]]])).toEqual({ coord: [5, 0], length: 10 });
+  expect(lineMidpoint([[[0, 0], [4, 0], [4, 4]]]).coord).toEqual([4, 0]); // 總長 8、一半 4 剛好在轉角
+  expect(lineMidpoint([[[0, 0], [2, 0]], [[100, 0], [108, 0]]]).coord).toEqual([103, 0]); // 總長 10、一半 5：第一段用掉 2，第二段再走 3
+  expect(lineMidpoint([[[1, 1]]])).toBeNull();
+  expect(lineMidpoint([[[1, 1], [1, 1]]])).toBeNull(); // 長度為 0
+});
+
+test('距離標籤：放在線中點、內容是格式化的距離；線在畫面上太短、沒給距離、距離為 0 都不標', () => {
+  setTrackCoords('a', [[[0, 0], [1000, 0]]], 3420);
+  const layer = map._layers.find((l) => l.opts?.zIndex === 49);
+  const feature = layer.opts.source.getFeatures()[0];
+  expect(feature.get('labelCoord')).toEqual([500, 0]);
+  expect(feature.get('labelText')).toBe('3.42 公里');
+
+  const withLabel = layer.opts.style(feature, 1); // 1000 公尺投影長度 / 1 = 1000px，夠長
+  expect(withLabel).toHaveLength(3);
+  const text = withLabel[2].opts.text.opts;
+  expect(text.text).toBe('3.42 公里');
+  expect(withLabel[2].opts.geometry(feature).getCoordinates()).toEqual([500, 0]);
+  expect(layer.opts.style(feature, 1)).toBe(withLabel); // 同色同字重用快取
+
+  expect(layer.opts.style(feature, 100)).toHaveLength(2); // 10px，太短不標
+  expect(layer.opts.style(feature)).toHaveLength(2); // 沒有 resolution 也不標
+
+  setTrackCoords('a', [[[0, 0], [1000, 0]]]);
+  expect(feature.get('labelText')).toBe('');
+  expect(layer.opts.style(feature, 1)).toHaveLength(2);
+  setTrackCoords('a', [[[0, 0], [1000, 0]]], 0);
+  expect(layer.opts.style(feature, 1)).toHaveLength(2);
+});
+
+test('記錄中每來一個點標籤就跟著更新（座標與距離都重算）', () => {
+  setTrackCoords('a', [[[0, 0], [100, 0]]], 50);
+  const layer = map._layers.find((l) => l.opts?.zIndex === 49);
+  const feature = layer.opts.source.getFeatures()[0];
+  expect(feature.get('labelText')).toBe('50 公尺');
+  setTrackCoords('a', [[[0, 0], [100, 0], [300, 0]]], 1200);
+  expect(layer.opts.source.getFeatures()).toHaveLength(1);
+  expect(feature.get('labelCoord')).toEqual([150, 0]);
+  expect(feature.get('labelText')).toBe('1.20 公里');
 });
 
 test('zoomToTrack：飛到涵蓋所有段的範圍，留邊界；沒有任何點回傳 false', () => {

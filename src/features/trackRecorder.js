@@ -68,7 +68,7 @@ export function getCurrentTrack(){ return track; }
 /* ---------- 地圖上的折線（共用 trackLayer，記錄中的軌跡一律顯示） ---------- */
 
 function redrawLine(){
-  setTrackCoords(track.id, segsXY);
+  setTrackCoords(track.id, segsXY, trackDistance(track));
 }
 
 function rebuildProjection(){

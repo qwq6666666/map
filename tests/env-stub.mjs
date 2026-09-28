@@ -641,6 +641,10 @@ globalThis.document.createElement = function(tag){
 // 軌跡圖層（features/trackLayer.js）用到的最小假 ol.Feature／ol.geom：
 // Feature 只存 geometry 與屬性，MultiLineString 只存座標，夠測「有沒有畫、畫了什麼座標」。
 globalThis.ol.geom = {
+  Point: class {
+    constructor(coord){ this.coord = coord; }
+    getCoordinates(){ return this.coord; }
+  },
   MultiLineString: class {
     constructor(coords){ this.coords = coords; }
     setCoordinates(coords){ this.coords = coords; }
