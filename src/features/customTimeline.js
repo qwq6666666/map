@@ -98,6 +98,15 @@ export function clearPreviewLayer(){
   previewedKey = null;
 }
 
+// 目前自訂時間軸正在地圖上預覽哪一個 key（沒有預覽中則為 null）。
+// 供 core/multiOverlayManager.js 的 resetLayerVisual() 讀取，避免複合
+// 疊圖模式離開／取消勾選時，直接把「跟預覽剛好同一個 key」的共用
+// layerCache 物件 opacity 歸零、zIndex 重設，讓自訂時間軸的畫面在使用者
+// 毫無感知的情況下悄悄消失（dock 仍顯示「正在預覽」，地圖卻是空的）。
+export function getPreviewedKey(){
+  return previewedKey;
+}
+
 /**
  * 供搜尋面板呼叫的唯一進入點：把使用者從搜尋結果勾選的一批圖層依
  * 年代排序，開啟獨立的自訂時間軸 dock（customTimelineUI.js），並

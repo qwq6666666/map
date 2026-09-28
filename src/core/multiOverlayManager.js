@@ -28,13 +28,24 @@ import { state as store } from '../store.js';
 import { getOrCreateLayer, hasCachedLayer, getCachedLayer, setLayerOpacity } from './layerCache.js';
 import { getProtectedKeys } from './protectedKeys.js';
 import { map } from './map.js';
+import { getPreviewedKey } from '../features/customTimeline.js';
 
 const BASE_Z_INDEX = 1; // 疊在底圖（沒有明確 zIndex，等同 0）之上；陣列 index 依序往上疊加
 
 let lastShownKeys = new Set(); // 上一輪實際顯示中的 key，用來判斷這一輪誰該被隱藏
 
+// 離開複合疊圖模式／取消勾選時，若這個 key 剛好正是「自訂時間軸」目前
+// 正在地圖上預覽的那一張（features/customTimeline.js 的 previewedKey），
+// 不能直接隱藏——兩者共用同一份 core/layerCache.js 物件（同一個 key
+// 只會有一個 TileLayer 實例），照常把 opacity 歸零會讓自訂時間軸的
+// 預覽在使用者毫無感知的情況下悄悄消失（dock 仍顯示「正在預覽這一
+// 張」，地圖卻已經空白）。跳過後這個 key 就不再留在 lastShownKeys 裡，
+// 之後複合疊圖模式的操作也不會再誤觸；等自訂時間軸自己呼叫
+// clearPreviewLayer() 結束預覽時，會由它自己負責把圖層隱藏，行為與
+// customTimeline.js 檔頭宣稱的「跟其他模式互不影響」一致。
 function resetLayerVisual(key){
   if(!hasCachedLayer(key)) return;
+  if(key === getPreviewedKey()) return;
   setLayerOpacity(key, 0);
   const layer = getCachedLayer(key);
   if(layer) layer.setZIndex(undefined); // 交還給預設疊放順序，避免殘留 zIndex 干擾其他模式
