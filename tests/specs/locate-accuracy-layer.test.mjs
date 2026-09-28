@@ -1,10 +1,10 @@
 import '../env-stub.mjs';
 import { test, expect, beforeEach } from 'vitest';
 import { map } from '../../src/core/map.js';
-import { showAccuracyCircle, hideAccuracyCircle, _resetAccuracyCircleForTests } from '../../src/features/locateAccuracyLayer.js';
+import { showAccuracyCircle, hideAccuracyCircle } from '../../src/features/locateAccuracyLayer.js';
 
 beforeEach(() => {
-  _resetAccuracyCircleForTests();
+  hideAccuracyCircle();
 });
 
 function findLayer(){

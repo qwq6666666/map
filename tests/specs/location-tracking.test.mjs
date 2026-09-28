@@ -12,7 +12,8 @@ import {
   initLocateButton,
   nextTrackState,
   describeAccuracy,
-  getTrackState
+  getTrackState,
+  addTrackListener
 } from '../../src/features/location.js';
 
 /* ---------- 假 geolocation／wakeLock／地圖視角 ---------- */
@@ -149,6 +150,33 @@ test('再按一次：停止追蹤（clearWatch、釋放螢幕常亮、按鈕回�
   expect(trackBtn.classList.contains('acquiring')).toBe(false);
   expect(trackBtn.getAttribute('aria-pressed')).toBe('false');
   expect(toast.textContent).toBe('已停止追蹤位置');
+});
+
+test('watchPosition 在 clearWatch 之後仍送來一筆遲到的定位：已經 off 就整個忽略，不會又把藍點叫出來', async () => {
+  // 少數瀏覽器／WebView 在 clearWatch() 之後仍可能送來一筆「已經在路上」的
+  // 定位——測試環境的 fixCb 變數指向這次追蹤綁定的 callback closure，
+  // clearWatch() 本身不會讓這個 closure 失效，剛好可以模擬這種遲到情境。
+  const fixes = [];
+  const unsubscribe = addTrackListener({ onFix: (pos) => fixes.push(pos) });
+
+  trackBtn.click();
+  await flush();
+  const staleFixCb = fixCb;
+  staleFixCb(fix(25.03, 121.56, 8)); // 追蹤中的正常定位：應該照常處理
+  expect(fixes.length).toBe(1);
+
+  trackBtn.click(); // 停止追蹤
+  fixes.length = 0;
+  const markerShowBefore = document.getElementById('locateMarker').classList.contains('show');
+  const animateCountBefore = animateCalls.length;
+  staleFixCb(fix(25.05, 121.58, 10)); // 模擬遲到的定位
+
+  expect(fixes.length, '已經 off，遲到的定位不該再通知監聽器').toBe(0);
+  expect(document.getElementById('locateMarker').classList.contains('show')).toBe(markerShowBefore);
+  expect(animateCalls.length, '不該因為這筆遲到定位觸發地圖移動').toBe(animateCountBefore);
+  expect(getTrackState()).toBe('off');
+
+  unsubscribe();
 });
 
 test('瀏覽器不支援 watchPosition：提示不支援、維持 off，不會開始追蹤', () => {

@@ -53,13 +53,10 @@ export function showAccuracyCircle(coord, radius){
   }
 }
 
+// 測試用重置也直接呼叫這支：只有單一 feature，「隱藏」跟「清空狀態」是同一件事
+// （不像 trackLayer.js 要管一整個 Map，需要另外的 _resetTrackLayerForTests()）。
 export function hideAccuracyCircle(){
   if(!feature || !source) return;
   source.removeFeature(feature);
   feature = null;
-}
-
-// 測試用：清空狀態，不移除圖層本身（比照 trackLayer.js 的 _resetTrackLayerForTests()）。
-export function _resetAccuracyCircleForTests(){
-  hideAccuracyCircle();
 }

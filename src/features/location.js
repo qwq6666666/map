@@ -222,6 +222,11 @@ function releaseWakeLock(){
 }
 
 function onTrackFix(pos){
+  // 少數瀏覽器／WebView 在 clearWatch() 之後仍可能送來一筆「已經在路上」的
+  // 定位（stale callback）；trackState 在 stopTracking() 裡是同步先變成
+  // 'off' 才呼叫 clearWatch()，這裡擋掉能確保「已停止」之後不會又把藍點跟
+  // 精度圓圈重新叫出來、跟按鈕顯示的「未在追蹤」互相矛盾。
+  if(trackState === 'off') return;
   const { latitude, longitude, accuracy } = pos.coords;
   const coord = ol.proj.fromLonLat([longitude, latitude]);
   lastTrackCoord = coord;

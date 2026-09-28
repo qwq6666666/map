@@ -323,9 +323,18 @@ export function formatTWD97(x, y){
  * 若直接拿地面公尺數當圓半徑，圓會比實際精度小約 8~10%。
  * @param {number} meters 地面實際公尺數（例如 position.coords.accuracy）
  * @param {number} lat 目前位置緯度（十進位度）
- * @returns {number} 投影座標系下的半徑（公尺），輸入非正數或非有限值回傳 0
+ * @returns {number} 投影座標系下的半徑（公尺），輸入非正數／非有限值（含
+ *   lat 本身是 NaN）回傳 0；緯度換算前會先夾在 ±85.05°（EPSG:3857／
+ *   Web Mercator 本身的有效範圍——超過這個緯度投影的 Y 座標就已經趨近
+ *   無限大，跟這支函式無關）以內，避免除以趨近 0 的 cos 值算出離譜或發散
+ *   的半徑：瀏覽器 Geolocation API 沒有限制回傳座標一定落在台灣附近，假
+ *   座標／有問題的定位模組理論上可能回報極端緯度，發散的半徑傳進
+ *   ol.geom.Circle 比直接夾在有效範圍內更糟。
  */
+const MERCATOR_MAX_LAT = 85.05;
+
 export function metersToMercatorRadius(meters, lat){
-  if(!Number.isFinite(meters) || meters <= 0) return 0;
-  return meters / Math.cos(lat * Math.PI / 180);
+  if(!Number.isFinite(meters) || meters <= 0 || !Number.isFinite(lat)) return 0;
+  const clampedLat = Math.min(Math.abs(lat), MERCATOR_MAX_LAT);
+  return meters / Math.cos(clampedLat * Math.PI / 180);
 }

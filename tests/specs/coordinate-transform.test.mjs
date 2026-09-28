@@ -244,3 +244,21 @@ test('metersToMercatorRadius：非正數或非有限值一律回傳 0（沒有�
   expect(metersToMercatorRadius(NaN, 25)).toBe(0);
   expect(metersToMercatorRadius(undefined, 25)).toBe(0);
 });
+
+test('metersToMercatorRadius：緯度超過 Web Mercator 有效範圍（±85.05°）會被夾住，不會發散成 Infinity', () => {
+  // 瀏覽器 Geolocation API 沒有限制座標一定落在台灣附近，假座標／有問題的
+  // 定位模組理論上可能回報這種極端值；90° 若不做任何處理，50/cos(90°) 在
+  // JS 浮點運算下不是真的 Infinity（cos(90°) 因浮點誤差不是精確的 0），而是
+  // 一個離譜的巨大有限數（實測約 8.17e17），一樣會讓 ol.geom.Circle 算出
+  // 荒謬的範圍，所以要在換算前先把緯度夾在投影本身仍然有效的範圍內。
+  const atClampBoundary = metersToMercatorRadius(50, 85.05); // 對應 tileGeo.js 的 MERCATOR_MAX_LAT
+  expect(metersToMercatorRadius(50, 90)).toBeCloseTo(atClampBoundary, 6);
+  expect(metersToMercatorRadius(50, -90)).toBeCloseTo(atClampBoundary, 6); // 南北對稱
+  expect(metersToMercatorRadius(50, 89.999999)).toBeCloseTo(atClampBoundary, 6);
+  expect(Number.isFinite(atClampBoundary)).toBe(true);
+  expect(atClampBoundary).toBeLessThan(1000); // 50 公尺精度換算後仍應是合理量級，不是天文數字
+});
+
+test('metersToMercatorRadius：緯度本身是 NaN（定位資料異常）安全回傳 0', () => {
+  expect(metersToMercatorRadius(50, NaN)).toBe(0);
+});
