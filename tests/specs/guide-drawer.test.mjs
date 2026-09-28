@@ -27,6 +27,18 @@ test('「⋯ 更多」選單的功能都有對應指南段落：分享與截圖�
   expect(byTitle('來源狀態／快取').body).toContain('已快取圖磚');
 });
 
+// #trackBtn／手機版「定位追蹤」磚是獨立於「⋯ 更多」選單的常駐功能，CLAUDE.md
+// 的「持續定位追蹤」段落描述了三態切換、拖曳自動暫停、Wake Lock 耗電等使用者
+// 容易誤解的行為，原本使用指南完全沒有對應段落說明，只在「手機版操作方式」
+// 帶到按鈕名稱，桌面版使用者無從得知拖曳地圖會暫停跟隨、追蹤中會保持螢幕
+// 亮起。
+test('「持續追蹤」有對應指南段落，說明拖曳暫停與螢幕保持亮起', () => {
+  const section = byTitle('持續定位追蹤');
+  expect(section).toBeDefined();
+  expect(section.body).toContain('暫停');
+  expect(section.body).toMatch(/螢幕保持亮起|保持亮起/);
+});
+
 test('每段都有標題與內容，圖示不是 emoji：要嘛是 sprite 內存在的 symbol，要嘛留空', () => {
   const ids = new Set([...sprite.matchAll(/<symbol id="([^"]+)"/g)].map(m => m[1]));
   sections.forEach((s) => {
