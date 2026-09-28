@@ -388,3 +388,68 @@ test('在要素編輯彈窗改名後立即存檔', async () => {
   expect(localStorage.getItem(SAVED_KEY), '改名後要已寫入 localStorage').toContain('改過的名字');
   delete map.forEachFeatureAtPixel;
 });
+
+// ol.interaction.Select 的選取集合不會因為 vectorSource 被外部（不是透過
+// Select 自己的點擊 toggle）移除 feature 而自動同步——已用真的 ol@9.2.4
+// 實測確認。這兩個測試模擬「OL 內建 Select 也把這個 feature 加進了自己的
+// 選取集合」（真實瀏覽器裡點擊選取工具會發生），驗證 drawTool.js 有負責
+// 手動同步，不留殘影。
+test('要素編輯彈窗按刪除：也會把 feature 從 selectInteraction 的選取集合移除', async () => {
+  dialogMock.answer = '';
+  ensureToolActive('point');
+  const drawInteraction = map._interactions[map._interactions.length - 1];
+  const feature = makeFakeFeature({});
+  drawInteraction.simulateDrawEnd(feature);
+  await sleep(0);
+
+  ensureToolActive('select');
+  const select = map._interactions.find(i => i instanceof globalThis.ol.interaction.Select);
+  const vectorLayer = map._layers.find(l => l instanceof globalThis.ol.layer.Vector);
+  map.forEachFeatureAtPixel = (pixel, cb) => cb(feature, vectorLayer);
+  map._trigger('singleclick', { pixel: [0, 0] }); // 打開編輯彈窗
+  select.getFeatures().push(feature); // 模擬 OL 內建 Select 的點擊 toggle 也選中了它
+
+  document.getElementById('drawFeaturePopupDelete')._listeners['click'][0]({ stopPropagation(){} });
+
+  expect(select.getFeatures().getLength(), '刪除後選取集合不該留著這筆已經不存在的 feature').toBe(0);
+  delete map.forEachFeatureAtPixel;
+});
+
+test('「清除全部」：也會清空 selectInteraction 的選取集合', async () => {
+  dialogMock.answer = '';
+  ensureToolActive('point');
+  const drawInteraction = map._interactions[map._interactions.length - 1];
+  const feature = makeFakeFeature({});
+  drawInteraction.simulateDrawEnd(feature);
+  await sleep(0);
+
+  ensureToolActive('select');
+  const select = map._interactions.find(i => i instanceof globalThis.ol.interaction.Select);
+  select.getFeatures().push(feature);
+  expect(select.getFeatures().getLength()).toBe(1);
+
+  await document.getElementById('drawClearBtn')._listeners['click'][0]();
+  expect(select.getFeatures().getLength(), '清除全部後選取集合也該一起清空').toBe(0);
+});
+
+test('自動儲存失敗（例如無痕模式或配額已滿）時會提示使用者，不是靜默失敗', async () => {
+  dialogMock.answer = '';
+  const toast = document.getElementById('drawStorageToast');
+  toast.classList.remove('show');
+  toast.textContent = '';
+
+  const originalSetItem = localStorage.setItem;
+  localStorage.setItem = () => { throw new Error('QuotaExceededError'); };
+  try{
+    ensureToolActive('point');
+    const drawInteraction = map._interactions[map._interactions.length - 1];
+    const feature = makeFakeFeature({});
+    drawInteraction.simulateDrawEnd(feature);
+    await sleep(0);
+  } finally {
+    localStorage.setItem = originalSetItem;
+  }
+
+  expect(toast.classList.contains('show'), '存檔失敗也該顯示提示，讓使用者知道這次沒存到').toBeTruthy();
+  expect(toast.textContent, '不應該顯示成功訊息').not.toBe('已自動儲存');
+});

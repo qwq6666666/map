@@ -300,6 +300,7 @@ async function clearAll(){
   const ok = await showConfirm('確定要清除全部繪製內容嗎？這個動作無法復原。', { confirmText: '清除', danger: true });
   if(!ok) return;
   vectorSource.clear();
+  selectInteraction?.getFeatures().clear(); // 同理：清空 source 不會自動清掉 Select 的選取集合
   closeFeatureEditPopup();
   clearUserFeatures();
   showStorageToast('已清空本機快取');
@@ -350,7 +351,11 @@ function persistFeatures(){
     dataProjection: 'EPSG:4326'
   });
   const ok = saveUserFeatures(JSON.parse(geojsonStr));
-  if(ok) showStorageToast('已自動儲存');
+  // saveUserFeatures() 刻意不丟例外（見 storage.js 開頭說明），失敗原因常見是
+  // 無痕模式或配額已滿；呼叫端（這裡）要負責看回傳值決定要不要提示——原本
+  // 失敗時完全沒有任何提示，使用者會以為畫的東西已經存好，重新整理後才發現
+  // 憑空消失，卻不知道為什麼。
+  showStorageToast(ok ? '已自動儲存' : '自動儲存失敗，重新整理頁面可能會遺失這次繪製內容');
 }
 
 /**
@@ -393,10 +398,15 @@ export function importGeoJSON(input){
   features.forEach(feature => {
     if(!feature.get('kind')){
       const geomType = feature.getGeometry?.()?.getType?.() ?? null;
-      let featureKind = 'polygon';
-      if(geomType === 'Point') featureKind = 'point';
-      else if(geomType === 'LineString') featureKind = 'line';
-      feature.set('kind', featureKind);
+      // Multi* 變體跟單一幾何算同一種 kind（量測時 ol.sphere.getLength/getArea
+      // 本來就吃得下 MultiLineString/MultiPolygon）；GeometryCollection／Circle
+      // 沒有對應的量測方式，維持退回 'polygon' 的舊行為。
+      const KIND_BY_GEOM_TYPE = {
+        Point: 'point', MultiPoint: 'point',
+        LineString: 'line', MultiLineString: 'line',
+        Polygon: 'polygon', MultiPolygon: 'polygon'
+      };
+      feature.set('kind', KIND_BY_GEOM_TYPE[geomType] ?? 'polygon');
     }
     const kind = feature.get('kind');
     const hasStyle = kind === 'point' ? !!feature.get('marker-color') : !!feature.get('stroke');
@@ -713,6 +723,11 @@ function initFeatureEditPopup(){
     e.stopPropagation();
     if(!editingFeature) return;
     vectorSource.removeFeature(editingFeature);
+    // ol.interaction.Select 的選取集合不會因為 source 外部移除 feature 而
+    // 自動同步（已實測確認）：不清掉的話，工具列「刪除」鈕之後會拿到一個
+    // 已經不存在的 feature 參照，雖然 removeFeature() 對它是安全的無操作，
+    // 但「請先選取要刪除的圖形」這個提示會該出現卻沒出現。
+    selectInteraction?.getFeatures().remove(editingFeature);
     closeFeatureEditPopup();
     persistFeatures();
   });

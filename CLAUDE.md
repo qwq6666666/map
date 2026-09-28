@@ -135,6 +135,12 @@
 - **已知限制**：別名取自 `AnotherName` 欄位＋`PlaceMean` 沿革文字的保守前導語句抽取（見上），不是完整的舊名反推，仍可能有漏抓／誤抓（見上一點）；代表點是資料庫座標點，非歷史行政界線；總共約 1.06 萬筆無座標、不會出現在搜尋結果，其中行政區域類佔大宗（去重後 8,525 筆裡僅 2,593 筆有座標，覆蓋率約 3 成，遠低於聚落類的 87.0%（31,197／35,864））。
 - 測試：`place-names-data.test.mjs`（CSV 解析）、`place-names-matching.test.mjs`（比對邏輯）、`place-name-card-ui.test.mjs`（卡片渲染／收合／候選清單）、`identify-pin.test.mjs`（「歷史地名」小區塊案例）、`place-names-nearby.test.mjs`（`findNearbyPlaceNames` 距離/半徑/排序/邊界）、`nearby-place-names-ui.test.mjs`（附近地名清單渲染／點擊展開／清空／精確比對路徑不觸發）。
 
+## 繪圖工具核心邏輯 (`src/drawTool.js`)
+- **`selectInteraction`（`ol.interaction.Select`）的選取集合不會因為 `vectorSource` 被外部（不是透過 Select 自己的點擊 toggle）移除 feature 而自動同步**——已用真的 `ol@9.2.4` 實測確認。要素編輯彈窗的刪除鈕（`vectorSource.removeFeature(editingFeature)`）與「清除全部」（`vectorSource.clear()`）都是繞過 Select 的「外部移除」，所以各自都要補一行 `selectInteraction?.getFeatures().remove(...)`／`.clear()`，否則工具列「刪除」鈕之後會拿到一個已經不存在的 feature 參照（`vectorSource.removeFeature()` 對它是安全的無操作，已實測不會拋例外，但「請先選取要刪除的圖形」這個提示會該出現卻沒出現）。
+- **`importGeoJSON()` 沒有 `kind` 屬性時依幾何類型猜**：`Point`／`MultiPoint` → `point`，`LineString`／`MultiLineString` → `line`，`Polygon`／`MultiPolygon` → `polygon`；`GeometryCollection`／`Circle` 沒有對應的量測方式，維持退回 `polygon`。已用真的 `ol@9.2.4` 實測確認 `ol.sphere.getLength()`／`getArea()` 都吃得下 `Multi*` 幾何（結果＝各段/各面加總），也確認對不支援的型別（例如對 `LineString` 呼叫 `getArea()`）**回傳 `0`、不會拋例外**——早期版本曾經全部退回 `polygon`，會讓外部 GeoJSON（QGIS／geojson.io 匯出常見 `MultiLineString`）在使用者之後拖動節點時，`refreshMeasureAndLabel()` 算出「0 m²」而不是實際長度。
+- **`persistFeatures()` 存檔失敗（`saveUserFeatures()` 回傳 `false`，常見於無痕模式或 `localStorage` 配額已滿）也要顯示提示**，不能只在成功時顯示「已自動儲存」——`features/storage.js` 開頭已明講「所有函式都不丟例外……呼叫端只需要看回傳值決定要不要提示」，早期版本沒接住失敗分支，使用者會以為畫的東西已經存好，重新整理後才發現憑空消失、卻不知道為什麼。
+- 這三點都已用真的 `ol@9.2.4`（透過 dynamic import 讀同一份已載入的模組實例）在瀏覽器裡端對端驗證過，不只是假 DOM 單元測試。測試：`tests/specs/draw-tool.test.mjs`（選取集合同步、存檔失敗提示）、`tests/specs/draw-color.test.mjs`（`Multi*` 幾何 kind 判斷）。
+
 ## 截圖出處資訊列 (`src/features/exportInfo.js`)
 繪圖工具列「地圖截圖」輸出的 PNG，在地圖畫面**下方**接一條資訊列（不蓋在地圖上）：目前圖層（年代＋名稱＋透明度，依 overlay／timeline／compare／multi 模式各自寫法）、圖資來源（含底圖，去重）、顯示中的地名今昔對照卡摘要、匯出時間＋網站網址。工具列「附出處資訊列」鈕（`#drawExportInfoToggle`，預設開）可關閉，偏好存 `localStorage` 的 `hundredYearMap:exportInfoBand`（`'0'`＝關）。
 - **兩層拆開**：`collectExportInfo()` 純函式只讀 store／資料表；`layoutInfoBand(ctx, info, width, scale)` 只用 canvas 量測、回傳 `{height, draw(ctx, top)}`。`doCapture()` 要先量出高度才能決定輸出 canvas 多高，量測用另一張暫時 canvas（canvas 一改寬高 context 就重置）。
@@ -144,7 +150,7 @@
 - 測試：`tests/specs/export-info.test.mjs`；`draw-tool.test.mjs` 驗證開關與輸出尺寸；`place-name-card-ui.test.mjs` 驗證顯示中卡片狀態同步。
 
 ## 測試框架 (vitest)
-測試統一使用 vitest（`tests/specs/*.test.mjs`，79 支、951 個案例；設定 `vitest.config.js`）。原本並存的手刻框架（`tests/run-all.mjs`＋`tests/assert.mjs`）已在雙軌期間漏改案例（`multi-overlay` 拖曳排序測試只補在舊版）而移除，不要再新增第二套測試機制。改動測試時要注意：
+測試統一使用 vitest（`tests/specs/*.test.mjs`，79 支、955 個案例；設定 `vitest.config.js`）。原本並存的手刻框架（`tests/run-all.mjs`＋`tests/assert.mjs`）已在雙軌期間漏改案例（`multi-overlay` 拖曳排序測試只補在舊版）而移除，不要再新增第二套測試機制。改動測試時要注意：
 - 共用模組：`tests/env-stub.mjs`（手動塞 `globalThis` 模擬 `document`／`window`／`ol` 的假瀏覽器環境，vitest `environment` 維持預設 `'node'`，不要疊加 jsdom）、`tests/helpers.mjs`（`sleep()`／`waitFor()`）、`tests/tileImageStub.mjs`（假 `Image`）。
 - `tests/env-stub.mjs` 有一個關鍵相容性修正：`globalThis.URL` 必須保留 Node 原生建構子、只在上面附加 `createObjectURL`／`revokeObjectURL` 兩個靜態方法。若整個覆蓋成 `{ createObjectURL, revokeObjectURL }`，vitest 的模組載入器（vite-node）解析後續 `import` 時會拋 `TypeError: URL is not a constructor`。`src/features/sourceStatus.js`（`hostOf()`）／`tests/specs/spatial-index.test.mjs` 裡當初因這個限制而寫的「不能用 `new URL()`」相關註解已移除；`hostOf()` 維持用正規表示式取 host（單純不必為此建立 URL 物件，非受限所致）。
 - vitest 的 `test()` 是「先收集全部呼叫、模組載入完才統一執行」，**任何寫在模組頂層（不在 `test()`／`beforeEach()`／`afterEach()`／`afterAll()` 裡）、假設『在測試案例執行完之後才跑』的清理程式碼，語意會跑掉**（已踩過：`location-button.test.mjs` 清理 `runtime.locateToastTimer` 的程式碼放在模組頂層會在測試執行前就跑、清理失效，讓一顆 4.5 秒的真實計時器每次都拖到自然到期；修法是用 `afterAll()` 包起來）。

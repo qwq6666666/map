@@ -493,6 +493,14 @@ class FakeCollection {
   push(x){ this._items.push(x); }
   forEach(fn){ this._items.forEach(fn); }
   clear(){ this._items = []; }
+  getLength(){ return this._items.length; }
+  // 比照真的 ol.Collection#remove()：移除第一個相符的項目（找不到就什麼都不做），
+  // drawTool.js 用來在 vectorSource 之外的路徑刪除 feature 時，順便讓
+  // selectInteraction 的選取集合保持同步。
+  remove(x){
+    const i = this._items.indexOf(x);
+    if(i >= 0) this._items.splice(i, 1);
+  }
 }
 class FakeModifyInteraction {
   constructor(opts){ this.opts = opts; this._listeners = {}; }

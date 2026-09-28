@@ -248,6 +248,42 @@ test('匯入沒有 SimpleStyle 顏色屬性的 GeoJSON，marker-color 會降級�
   expect(imported.properties['marker-color'], '沒有顏色屬性的匯入點，marker-color 應回退成 DEFAULT_COLOR').toBe(DEFAULT_COLOR);
 });
 
+test('匯入沒有 kind 屬性的 Multi* 幾何（外部 GeoJSON 常見）：對應到 line／point，不是一律退回 polygon', () => {
+  // ol.sphere.getLength()/getArea() 都吃得下 Multi* 幾何（已用真的 ol@9.2.4
+  // 實測：MultiLineString 的長度＝各段長度加總，MultiPolygon 的面積＝各面
+  // 加總），kind 判斷錯誤只會讓 refreshMeasureAndLabel() 之後算錯量測值
+  // （例如 MultiLineString 被誤判成 polygon，量出面積 0 而不是實際長度）。
+  const geojson = {
+    type: 'FeatureCollection',
+    features: [
+      { type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: [[[0, 0], [1, 1]]] } },
+      { type: 'Feature', properties: {}, geometry: { type: 'MultiPoint', coordinates: [[0, 0]] } },
+      { type: 'Feature', properties: {}, geometry: { type: 'MultiPolygon', coordinates: [[[[0, 0], [1, 0], [1, 1], [0, 0]]]] } },
+    ],
+  };
+  const count = importGeoJSON(geojson);
+  expect(count, '應成功匯入 3 個圖形').toBe(3);
+  let downloadedContent = null;
+  const OriginalBlob = globalThis.Blob;
+  globalThis.Blob = class extends OriginalBlob {
+    constructor(parts, opts){ super(parts, opts); downloadedContent = parts[0]; }
+  };
+  const originalCreateElement = document.createElement;
+  document.createElement = function(tag){
+    const el = originalCreateElement.call(document, tag);
+    if(tag === 'a') el.click = () => {};
+    return el;
+  };
+  exportGeoJSON();
+  document.createElement = originalCreateElement;
+  globalThis.Blob = OriginalBlob;
+  const parsed = JSON.parse(downloadedContent);
+  const last3 = parsed.features.slice(-3);
+  expect(last3[0].properties.kind, 'MultiLineString -> line').toBe('line');
+  expect(last3[1].properties.kind, 'MultiPoint -> point').toBe('point');
+  expect(last3[2].properties.kind, 'MultiPolygon -> polygon').toBe('polygon');
+});
+
 // 匯入/匯出操作會觸發 drawTool.js 的 showStorageToast()，留下一顆真實的
 // setTimeout(2500ms)。不清掉的話 Node process 要等它自然到期才會結束，
 // 讓這支測試檔平白多花 2.5 秒 wall time 卻沒有驗證任何額外邏輯。
