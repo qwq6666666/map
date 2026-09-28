@@ -93,4 +93,6 @@ async function main(){
   process.exit(bad === 0 ? 0 : 1);
 }
 
-main();
+if(require.main === module) main();
+
+module.exports = { collectJobs };

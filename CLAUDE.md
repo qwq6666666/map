@@ -17,7 +17,7 @@
 - 圖層類型自動打標：`node tools/tag-layer-types.js`（以 title/keywords/階層繼承判定 type，新增圖層後、打包 bundle 前執行）
 - WMTS bbox 空間索引重新產生：`node tools/fetch-wmts-bbox.js`（解析中研院各來源 WMTS Capabilities，寫入 `data/layers/<id>.json` 的 `layer.region.bbox`；只在建置階段執行，前端不重新下載解析）
 - udd 的 WMTS bbox 索引重新產生：`node tools/fetch-udd-bbox.js`（對 `www.historygis.udd.gov.taipei` 的 ArcGIS 服務逐圖層取 `WGS84BoundingBox`，寫入 `data/layers/udd.json`；只在建置階段執行）
-- 季度手動抽測 udd／nlsc 服務是否存活：`npm run check:spot`（`tools/spot-check-tiles.js`，約 5 秒；預設抽測台北市中心，可傳 `<經度> <緯度> [縮放層級]`。分「有圖／空白／異常」三類，只有異常會讓結束碼為 1；「空白」多半是該地點沒資料，如 `nlsc` 的 `DDEM052` 只涵蓋部分地區，不是故障。座標換算重用 `src/core/tileGeo.js`，不要在腳本裡手算）
+- 季度手動抽測 udd／nlsc 服務是否存活：`npm run check:spot`（`tools/spot-check-tiles.js`，約 5 秒；預設抽測台北市中心，可傳 `<經度> <緯度> [縮放層級]`。分「有圖／空白／異常」三類，只有異常會讓結束碼為 1；「空白」多半是該地點沒資料，如 `nlsc` 的 `DDEM052` 只涵蓋部分地區，不是故障。座標換算重用 `src/core/tileGeo.js`，不要在腳本裡手算。比照其他 tools/ 腳本模式，只測 `collectJobs()`（URL 樣板填值，不含網路請求）：`tests/specs/spot-check-tiles.test.mjs`，直接對真的 `data/layers/udd.json`／`nlsc.json` 操作）
 - 完整資料建置流程（sinica WMTS bbox 索引＋udd bbox 索引＋打標＋打包一次跑完）：`npm run build:data`
 - 地名今昔對照資料重新產生：`npm run build:place-names`（讀工作區外的兩份內政部地名 CSV，輸出 `data/place-names.json`；預設路徑寫死在 `tools/build-place-names.js`，也可傳自訂 CSV 路徑；**不含**在 `build:data` 裡，因為那兩份 CSV 不在 repo、無法假設每台機器都有）
 
@@ -150,7 +150,7 @@
 - 測試：`tests/specs/export-info.test.mjs`；`draw-tool.test.mjs` 驗證開關與輸出尺寸；`place-name-card-ui.test.mjs` 驗證顯示中卡片狀態同步。
 
 ## 測試框架 (vitest)
-測試統一使用 vitest（`tests/specs/*.test.mjs`，79 支、955 個案例；設定 `vitest.config.js`）。原本並存的手刻框架（`tests/run-all.mjs`＋`tests/assert.mjs`）已在雙軌期間漏改案例（`multi-overlay` 拖曳排序測試只補在舊版）而移除，不要再新增第二套測試機制。改動測試時要注意：
+測試統一使用 vitest（`tests/specs/*.test.mjs`，80 支、960 個案例；設定 `vitest.config.js`）。原本並存的手刻框架（`tests/run-all.mjs`＋`tests/assert.mjs`）已在雙軌期間漏改案例（`multi-overlay` 拖曳排序測試只補在舊版）而移除，不要再新增第二套測試機制。改動測試時要注意：
 - 共用模組：`tests/env-stub.mjs`（手動塞 `globalThis` 模擬 `document`／`window`／`ol` 的假瀏覽器環境，vitest `environment` 維持預設 `'node'`，不要疊加 jsdom）、`tests/helpers.mjs`（`sleep()`／`waitFor()`）、`tests/tileImageStub.mjs`（假 `Image`）。
 - `tests/env-stub.mjs` 有一個關鍵相容性修正：`globalThis.URL` 必須保留 Node 原生建構子、只在上面附加 `createObjectURL`／`revokeObjectURL` 兩個靜態方法。若整個覆蓋成 `{ createObjectURL, revokeObjectURL }`，vitest 的模組載入器（vite-node）解析後續 `import` 時會拋 `TypeError: URL is not a constructor`。`src/features/sourceStatus.js`（`hostOf()`）／`tests/specs/spatial-index.test.mjs` 裡當初因這個限制而寫的「不能用 `new URL()`」相關註解已移除；`hostOf()` 維持用正規表示式取 host（單純不必為此建立 URL 物件，非受限所致）。
 - vitest 的 `test()` 是「先收集全部呼叫、模組載入完才統一執行」，**任何寫在模組頂層（不在 `test()`／`beforeEach()`／`afterEach()`／`afterAll()` 裡）、假設『在測試案例執行完之後才跑』的清理程式碼，語意會跑掉**（已踩過：`location-button.test.mjs` 清理 `runtime.locateToastTimer` 的程式碼放在模組頂層會在測試執行前就跑、清理失效，讓一顆 4.5 秒的真實計時器每次都拖到自然到期；修法是用 `afterAll()` 包起來）。
