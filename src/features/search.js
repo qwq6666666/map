@@ -156,9 +156,11 @@ export async function findAvailableLayersAt(lon, lat, addr, { onProgress, isStal
       layersArr.forEach(layer => srcCandidates.push({ src, layer }));
     });
 
-    // 只對「有堡／庄這種次分類結構」的來源做文字篩選（目前只有 thm／
-    // 桃竹苗舊地籍圖）。sinica、taoyuan 這種沒有次分類、每張圖都涵蓋
-    // 整個縣市或全台的來源，同一個座標很可能同時有十幾筆不同年代的
+    // 只對「有堡／庄這種次分類結構」的來源做文字篩選（目前是 thm／
+    // 桃竹苗舊地籍圖與 nlsc／國土測繪，見 search-two-tier.test.mjs 的
+    // 回歸測試——新增來源若也用了 groups 結構，那則測試會提醒要重新
+    // 檢視這裡）。sinica、taoyuan 這種沒有次分類、每張圖都涵蓋整個
+    // 縣市或全台的來源，同一個座標很可能同時有十幾筆不同年代的
     // 地圖都有資料，文字篩選容易誤篩窄，所以一律全部檢查。
     const hasSubcategoryStructure = src.categories.some(cat => cat.groups);
 
@@ -198,7 +200,13 @@ export async function findAvailableLayersAt(lon, lat, addr, { onProgress, isStal
     fallbackBySource.set(srcId, filtered);
   });
 
-  if(priority.length === 0){
+  // 只看 priority 是否為空不夠：一個來源的文字比對命中的圖層，可能剛好
+  // 被 bbox 篩選整批排除（例如比對到的地名對應舊圖幅範圍，跟查詢座標
+  // 實際所在位置不重疊），這時 priority 會變空，但 fallbackBySource 底下
+  // 「沒被文字比對命中」的圖層可能仍有跟座標重疊的候選——這正是兩階段
+  // fallback 機制本來要救的情況，不能在這裡就提早判定沒有來源。
+  const hasFallbackCandidates = [...fallbackBySource.values()].some(layers => layers.length > 0);
+  if(priority.length === 0 && !hasFallbackCandidates){
     return { status: 'no-source' };
   }
 
