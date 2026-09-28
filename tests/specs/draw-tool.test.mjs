@@ -415,6 +415,31 @@ test('要素編輯彈窗按刪除：也會把 feature 從 selectInteraction 的�
   delete map.forEachFeatureAtPixel;
 });
 
+test('工具列「刪除」鈕：刪掉正在編輯中的圖形時，也會關閉要素編輯彈窗（不留殘影指著已刪除的圖形）', async () => {
+  dialogMock.answer = '';
+  ensureToolActive('point');
+  const drawInteraction = map._interactions[map._interactions.length - 1];
+  const feature = makeFakeFeature({});
+  drawInteraction.simulateDrawEnd(feature);
+  await sleep(0);
+
+  ensureToolActive('select');
+  const select = map._interactions.find(i => i instanceof globalThis.ol.interaction.Select);
+  const vectorLayer = map._layers.find(l => l instanceof globalThis.ol.layer.Vector);
+  map.forEachFeatureAtPixel = (pixel, cb) => cb(feature, vectorLayer);
+  map._trigger('singleclick', { pixel: [0, 0] }); // 打開編輯彈窗（editingFeature = feature）
+  select.getFeatures().push(feature); // 模擬 OL 內建 Select 的點擊 toggle 也選中了它
+
+  const editPopupEl = document.getElementById('drawFeatureEditPopup');
+  expect(editPopupEl.hidden, '編輯彈窗應該已經打開').toBe(false);
+
+  document.getElementById('drawDeleteBtn')._listeners['click'][0](); // 改用工具列的刪除鈕，不是彈窗自己的
+
+  expect(editPopupEl.hidden, '刪掉的正是編輯中的圖形，彈窗應該一併關閉').toBe(true);
+  expect(select.getFeatures().getLength(), '選取集合也該清空').toBe(0);
+  delete map.forEachFeatureAtPixel;
+});
+
 test('「清除全部」：也會清空 selectInteraction 的選取集合', async () => {
   dialogMock.answer = '';
   ensureToolActive('point');

@@ -293,6 +293,12 @@ function deleteSelected(){
   }
   features.forEach(f => vectorSource.removeFeature(f));
   selected.clear();
+  // 使用者點一個圖形打開要素編輯彈窗後，若改用工具列這顆「刪除」鈕
+  // （而非彈窗自己的刪除鈕）刪除，editingFeature 不會自動變成 null：
+  // 彈窗會繼續顯示、指著一個已經不存在的圖形，改名／改色都變成對著
+  // 空氣操作。跟 editPopupDeleteBtn／clearAll 一樣，刪除的圖形若正是
+  // 目前編輯中的那個，就順手關掉彈窗。
+  if(editingFeature && features.includes(editingFeature)) closeFeatureEditPopup();
   persistFeatures();
 }
 
