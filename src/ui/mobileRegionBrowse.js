@@ -156,6 +156,14 @@ export function buildMobileRegionBrowseUI(opts, sources, buildSourceGroup){
   }
 
   function selectMacro(macro){
+    // 比照「全部／類型／年代」頁籤與國家篩選列的既有慣例（見
+    // availableLayers.js／countryFilter.js）：重複點擊已經選中的按鈕是
+    // no-op。沒有這道防呆的話，使用者手動選好地區（例如「新北」）後，
+    // 不小心又點了一次同一顆仍是 active 的大區域按鈕，會重新跑一次
+    // guessRegionFromLastLocation() 把手動選的地區篩選整個蓋掉（改回猜測
+    // 結果或「全部地區」），來源清單也跟著重建、任何已展開的手風琴一併
+    // 收合，卻沒有任何實質篩選條件改變。
+    if(selectedMacro === macro) return;
     selectedMacro = macro;
     macroButtons.forEach((btn, key) => btn.classList.toggle('active', key === macro));
 

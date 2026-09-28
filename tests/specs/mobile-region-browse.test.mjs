@@ -16,7 +16,7 @@
 --------------------------------------------------------- */
 import { test, expect } from 'vitest';
 import '../env-stub.mjs';
-import { initMobileCountryBrowse } from '../../src/ui/mobileRegionBrowse.js';
+import { initMobileCountryBrowse, buildMobileRegionBrowseUI } from '../../src/ui/mobileRegionBrowse.js';
 
 // 最小假來源：只需要 country 欄位（initMobileCountryBrowse 用來篩選丟給
 // 各 build() 的子集），其餘欄位不影響這裡要測的邏輯。
@@ -113,4 +113,53 @@ test('sync()：切換目前分頁後重新呼叫，顯示狀態與 accordion-hid
     expect(wrap.classList.contains('mobile-tw-accordion-hidden'),
       `切到 cn 分頁後，${src.id} 的 accordion-hidden 狀態應該對應其國別`).toBe(expected);
   });
+});
+
+/* ---------------------------------------------------------
+   buildMobileRegionBrowseUI()：大區域→地區→來源三段式選取邏輯本身
+   （selectMacro／renderAreaRow／renderSources），先前只有間接透過
+   mobile-tw-browse.test.mjs／mobile-cn-browse.test.mjs 測純函式設定表，
+   這支互動邏輯本身沒有任何測試覆蓋。
+--------------------------------------------------------- */
+
+// 最小假來源：兩筆都在同一個大區域「北部」，分屬不同地區，才能測地區篩選。
+const regionSources = [
+  { id: 'a', country: 'tw', categories: [{ layers: [{ id: 'la' }] }] },
+  { id: 'b', country: 'tw', categories: [{ layers: [{ id: 'lb' }] }] }
+];
+const regionHelpers = {
+  macroRegionForSource: () => '北部',
+  regionLabelForSource: (src) => (src.id === 'a' ? '甲地' : '乙地'),
+  fixedAreaOrder: {}
+};
+function buildRegionBrowseRoot(){
+  // 沒有顯示中的搜尋結果，guessRegionFromLastLocation() 一律回傳 null，
+  // 不干擾這裡要測的「使用者手動選地區」流程。
+  document.getElementById('locationResult').style.display = 'none';
+  return buildMobileRegionBrowseUI({
+    rootClassName: 'mobile-tw-browse',
+    countryCode: 'tw',
+    macroOrder: ['北部'],
+    ...regionHelpers
+  }, regionSources, fakeBuildSourceGroup);
+}
+
+test('buildMobileRegionBrowseUI：重複點擊已選中的大區域按鈕是 no-op，不會清掉使用者手動選的地區篩選', () => {
+  const root = buildRegionBrowseRoot();
+  const macroBtn = root.querySelectorAll('.mobile-tw-macro-btn')[0];
+  macroBtn.click(); // 第一次點擊：選中「北部」
+
+  const findAreaBtn = () => root.querySelectorAll('.mobile-tw-area-btn').find(b => b.textContent.startsWith('甲地'));
+  findAreaBtn().click(); // 手動選擇「甲地」
+
+  expect(findAreaBtn().classList.contains('active'), '手動選擇後「甲地」應該是 active').toBe(true);
+  expect(root.querySelectorAll('.mobile-tw-sources .source-group').length,
+    '選了「甲地」後應該只剩 1 筆來源').toBe(1);
+
+  macroBtn.click(); // 重複點擊同一顆已經是 active 的大區域按鈕
+
+  expect(findAreaBtn().classList.contains('active'),
+    '重複點擊已選中的大區域按鈕不應該清掉使用者手動選的地區').toBe(true);
+  expect(root.querySelectorAll('.mobile-tw-sources .source-group').length,
+    '重複點擊已選中的大區域按鈕不應該把已篩選的來源清單重設回全部').toBe(1);
 });
