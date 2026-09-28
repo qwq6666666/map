@@ -247,6 +247,11 @@ export function initIdentifyPin({ onSearchLayers, getPlaceNameMatch, onViewPlace
   // contextmenu 事件，需直接對 viewport 掛原生事件監聽。
   map.getViewport().addEventListener('contextmenu', (e) => {
     e.preventDefault();
+    // 跟 singleclick 用同一組模式互斥判斷（見下方）：右鍵原本沒有這層
+    // 檢查，繪圖工具啟用中不會改變 store.mode，導致「已有 Pin、切去用
+    // 繪圖工具時右鍵」還是會關彈窗／清 Pin，這不是繪圖工具自己要的
+    // 行為，也違反檔頭「跟繪圖工具啟用中互斥」的設計。
+    if(store.mode !== 'overlay' || isDrawToolActive()) return;
     if(!pinCoordinate) return;
     if(identifyPopupEl && !identifyPopupEl.hidden){
       closePopup();

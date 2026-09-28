@@ -211,6 +211,30 @@ test('multi 參數單筆壞掉只跳過那一筆，opacity 超出範圍會被 cl
   expect(b.opacity, 'opacity 小於 0 應該被 clamp 成 0').toBe(0);
 });
 
+test('multi 參數帶 base:osm／base:sat 一律視為不合法（底圖只在 cmpA/cmpB 合法，不能混進複合疊圖清單）', () => {
+  location.search = `?multi=${encodeURIComponent(`base:osm,60;${keyA},100`)}`;
+  const result = applyShareStateFromURL();
+  expect(result, '至少一筆合法應該回傳 true').toBeTruthy();
+  expect(store.multiOverlayLayers.length, 'base:osm 那一筆應該被排除').toBe(1);
+  expect(store.multiOverlayLayers[0].key).toBe(keyA);
+});
+
+test('overlay 參數帶 base:osm 一律視為不合法（跟 multi 同理）', () => {
+  location.search = '?overlay=base:osm';
+  const result = applyShareStateFromURL();
+  expect(result, '唯一參數不合法，applied 應該是 false').toBe(false);
+  expect(store.activeOverlayKey, 'activeOverlayKey 不該被改成 base:osm').toBeNull();
+});
+
+test('multi 參數同一個 key 重複出現時只保留第一筆（手動改過或複製貼上出錯的連結）', () => {
+  location.search = `?multi=${encodeURIComponent(`${keyA},30;${keyA},90;${keyB},50`)}`;
+  const result = applyShareStateFromURL();
+  expect(result).toBeTruthy();
+  expect(store.multiOverlayLayers.length, '重複的 key 應該只留一筆').toBe(2);
+  const a = store.multiOverlayLayers.find(e => e.key === keyA);
+  expect(a.opacity, '應該保留第一次出現的 opacity').toBe(30);
+});
+
 test('zoom/lon/lat 不是合法數字時會被忽略，不呼叫 setCenter/setZoom', () => {
   const beforeCenter = map.getView().getCenter();
   const beforeZoom = map.getView().getZoom();

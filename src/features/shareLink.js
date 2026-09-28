@@ -38,22 +38,34 @@ function round(n, decimals){
   return Math.round(n * f) / f;
 }
 
-// 判斷一個圖層 key 是否「現在真的能用」：底圖一律合法；'hist:' 開頭要
-// 查 DATA.LAYER_SOURCES 確認來源與圖層都還存在；'custom:' 開頭一律視為
+// 判斷一個 key 是否是「現在真的能用的歷史圖層」：'hist:' 開頭要查
+// DATA.LAYER_SOURCES 確認來源與圖層都還存在；'custom:' 開頭一律視為
 // 不合法（使用者自訂圖層只存在對方自己的 localStorage，別人的分享連結
-// 打不開），其餘格式一律不合法。
-function isValidLayerKey(key){
+// 打不開），其餘格式（含 'base:osm'／'base:sat'）一律不合法——overlay／
+// multi 對應的 state.activeOverlayKey／state.multiOverlayLayers，依
+// store.js 的 selectOverlayLayer()／toggleMultiOverlayLayer() 實際呼叫端，
+// 只會是 null 或 'hist:'/'custom:' 開頭，從來不會是 base:。刻意跟下面
+// isValidCompareKey() 分開：手動改過的分享連結（例如 ?multi=base:osm,60）
+// 若沿用「底圖一律合法」的舊驗證，會讓 core/multiOverlayManager.js 把一張
+// 現代地圖底圖當成歷史圖層疊進複合疊圖清單（那裡呼叫 getOrCreateLayer()
+// 前不像 applyActiveOverlayKey() 會先過 resolveOverlayKey() 濾掉 base:）。
+function isValidHistLayerKey(key){
   if(!key) return false;
-  if(key === 'base:osm' || key === 'base:sat') return true;
   if(key.startsWith('custom:')) return false;
-  if(key.startsWith('hist:')){
-    const parts = key.split(':'); // ["hist", sourceId, id, fmt]
-    if(parts.length < 3) return false;
-    const src = DATA.LAYER_SOURCES.find(s => s.id === parts[1]);
-    if(!src) return false;
-    return !!findLayerById(src, parts[2]);
-  }
-  return false;
+  if(!key.startsWith('hist:')) return false;
+  const parts = key.split(':'); // ["hist", sourceId, id, fmt]
+  if(parts.length < 3) return false;
+  const src = DATA.LAYER_SOURCES.find(s => s.id === parts[1]);
+  if(!src) return false;
+  return !!findLayerById(src, parts[2]);
+}
+
+// cmpA／cmpB（雙圖比對模式左右兩側）跟 overlay／multi 不同：任一側本來
+// 就可以合法是底圖（見 store.js 的 setCompareSide()），所以額外接受
+// 'base:osm'／'base:sat'，其餘規則跟 isValidHistLayerKey() 一致。
+function isValidCompareKey(key){
+  if(key === 'base:osm' || key === 'base:sat') return true;
+  return isValidHistLayerKey(key);
 }
 
 function clampInt(n, min, max){
@@ -63,11 +75,19 @@ function clampInt(n, min, max){
 
 // 解析 "key1,opacity1;key2,opacity2" 格式；每一筆各自驗證 key、
 // opacity 一律 clamp 到 0~100 的整數，單筆壞掉只跳過那一筆，不影響其他筆。
+// 同一個 key 重複出現只保留第一筆：store.js 的 toggleMultiOverlayLayer()／
+// moveMultiOverlayLayer()／reorderMultiOverlayLayer() 都用 findIndex()
+// 假設 multiOverlayLayers 裡每個 key 最多一筆，正常操作永遠不會產生重複，
+// 但手動改過、帶重複 key 的分享連結會打破這個假設：後續在清單裡取消
+// 勾選該圖層時，兩筆重複的都會被 filter() 一次移除（無法個別移除任一筆），
+// 這裡在解析階段就先去重，讓下游維持原本「每個 key 最多一筆」的前提。
 function parseMultiParam(raw){
   if(!raw) return [];
+  const seen = new Set();
   return raw.split(';').map(entry => {
     const [key, opacityStr] = entry.split(',');
-    if(!isValidLayerKey(key)) return null;
+    if(!isValidHistLayerKey(key) || seen.has(key)) return null;
+    seen.add(key);
     const opacityNum = Number(opacityStr);
     const opacity = Number.isFinite(opacityNum) ? clampInt(opacityNum, 0, 100) : 100;
     return { key, opacity };
@@ -75,7 +95,7 @@ function parseMultiParam(raw){
 }
 
 // 'custom:' 開頭的 key 只存在於使用者自己瀏覽器的 localStorage
-// （customSources），別人打開分享連結時完全用不到，isValidLayerKey()
+// （customSources），別人打開分享連結時完全用不到，isValidHistLayerKey()
 // 在還原（applyShareStateFromURL）那一側本來就會過濾掉——這裡在編碼
 // 那一側也主動排除，避免網址夾帶對方永遠用不到的參數。
 function isCustomKey(key){
@@ -243,7 +263,7 @@ export function applyShareStateFromURL(){
   if(base === 'osm' || base === 'sat'){ patch.baseLayer = base; applied = true; }
 
   const overlay = params.get('overlay');
-  if(isValidLayerKey(overlay)){ patch.activeOverlayKey = overlay; applied = true; }
+  if(isValidHistLayerKey(overlay)){ patch.activeOverlayKey = overlay; applied = true; }
 
   const swipeRaw = params.get('swipe');
   if(swipeRaw !== null){
@@ -292,9 +312,9 @@ export function applyShareStateFromURL(){
   // 分享連結指定的左右圖層。
   const comparePatch = {};
   const cmpA = params.get('cmpA');
-  if(isValidLayerKey(cmpA)) comparePatch.compareA = cmpA;
+  if(isValidCompareKey(cmpA)) comparePatch.compareA = cmpA;
   const cmpB = params.get('cmpB');
-  if(isValidLayerKey(cmpB)) comparePatch.compareB = cmpB;
+  if(isValidCompareKey(cmpB)) comparePatch.compareB = cmpB;
   if(Object.keys(comparePatch).length > 0){
     setState(comparePatch);
     applied = true;

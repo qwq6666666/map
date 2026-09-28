@@ -325,3 +325,25 @@ test('右鍵清除 Pin 後，左鍵仍能重新建立 Pin（兩者互不干擾�
 
   expect(identifyPinEl.classList.contains('show'), '右鍵清除後，左鍵點擊地圖應該能重新建立 Pin').toBeTruthy();
 });
+
+test('繪圖工具啟用中時，右鍵不會關閉彈窗或清除 Pin（跟 singleclick 用同一組模式互斥判斷）', () => {
+  // 前置：確保有一個開著彈窗的 Pin。若目前已有 Pin 但彈窗關著（例如
+  // 上一則測試留下的狀態），先用「清除標記」歸零，再左鍵重新建立一個
+  // 開著彈窗的乾淨狀態，不依賴前一則測試留下的確切狀態。
+  if(identifyPinEl.classList.contains('show')) identifyPopupClearBtn.click();
+  triggerSingleClick(COORD);
+  expect(identifyPinEl.classList.contains('show'), '前置條件：應該要有 Pin').toBeTruthy();
+  expect(identifyPopupEl.hidden, '前置條件：彈窗應該是開啟中').toBe(false);
+
+  clickPointTool();
+  expect(isDrawToolActive(), '前置條件：繪圖工具應為啟用中').toBe(true);
+
+  const evt = triggerContextMenu();
+
+  expect(evt.defaultPrevented, '右鍵仍應該阻止瀏覽器預設選單').toBeTruthy();
+  expect(identifyPopupEl.hidden, '繪圖工具啟用中，右鍵不該關閉彈窗').toBe(false);
+  expect(identifyPinEl.classList.contains('show'), '繪圖工具啟用中，右鍵不該清除 Pin').toBeTruthy();
+
+  clickPointTool(); // 還原：取消繪圖工具
+  expect(isDrawToolActive(), '還原：繪圖工具應已取消').toBe(false);
+});
