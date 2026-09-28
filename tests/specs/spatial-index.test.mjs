@@ -140,9 +140,6 @@ test('lonLatToTileXY：台北市中心座標換算出合理且正確的圖磚座
    7：用 sinica.json 裡 JM20K_1904 實際的 bbox 驗證 pointInBbox
 --------------------------------------------------------- */
 test('pointInBbox：用 JM20K_1904 實際 bbox，台北座標為 true、北京座標為 false', () => {
-  // 注意：env-stub.mjs 會把全域 globalThis.URL 換成假物件（只有
-  // createObjectURL/revokeObjectURL），所以這裡不能用 `new URL(...)`
-  // 解析路徑，改用 path.join(process.cwd(), ...) 取得絕對路徑。
   const sinicaPath = path.join(process.cwd(), 'data/layers/sinica.json');
   const sinica = JSON.parse(readFileSync(sinicaPath, 'utf-8'));
 
