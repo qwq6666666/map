@@ -247,6 +247,12 @@ globalThis.document = {
   },
   createElement: (tag) => new FakeNode(tag),
   createElementNS: (ns, tag) => new FakeNode(tag),
+  // 純文字節點：features/multiOverlay.js／ui/layerSearch.js 用
+  // document.createTextNode() 而非 textContent 賦值來附加動態文字（避免
+  // 覆蓋掉同一個元素裡已經插入的其他子節點，例如圖示 <svg>）。不需要
+  // FakeNode 的完整能力（沒有子節點、不會被 querySelector 選取），只要
+  // 能被 appendChild() 接受（設定 parentElement）即可。
+  createTextNode: (text) => ({ tag: '#text', textContent: text, parentElement: null }),
   querySelector(sel){ return this.querySelectorAll(sel)[0] || null; },
   querySelectorAll(sel){
     const results = [];

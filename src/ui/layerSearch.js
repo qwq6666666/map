@@ -88,6 +88,15 @@ export function initLayerSearchUI(){
 
   function clearResults(){
     panel.hidden = true;
+    // 連帶重置收合狀態：collapsePanel() 只在「面板仍顯示著上一輪結果」時
+    // 才有意義，一旦清空輸入框／按清除鈕，代表這輪搜尋已經結束。若不重置，
+    // 使用者「收合面板→清空輸入框→重新輸入新關鍵字」時，renderResults()
+    // 只會把 panel.hidden 改回 false、不會動到 collapsed class，新一輪
+    // 結果會在使用者沒有再次點擊收合鈕的情況下，直接以「看起來像收合」的
+    // 狀態出現（.layer-search-panel.collapsed .layer-search-list{display:
+    // none}，見 styles/base.css），使用者會誤以為搜不到結果。
+    panel.classList.remove('collapsed');
+    collapseBtn.textContent = '▾';
     listEl.innerHTML = '';
     currentResults = [];
   }
