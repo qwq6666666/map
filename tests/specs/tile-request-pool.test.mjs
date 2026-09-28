@@ -6,9 +6,21 @@
    後的 retry），實際「同時進行中」的 HTTP（這裡是 Image）請求數都
    不會超過 pool 的 maxConcurrency 上限；cache hit／in-flight 去重
    不佔用名額；timeout 一定會釋放 slot，不會卡死排隊中的下一筆請求。
+
+   全部改用 vi.useFakeTimers()＋vi.runAllTimersAsync()（比照
+   layer-manager-fade-race.test.mjs／check-upstream-health.test.mjs
+   的既有寫法），不依賴真實時間流逝：原本用真的 setTimeout（DELAY_MS、
+   timeoutMs、以及包裹整條 Promise 鏈的 withTimeout(...,5000,...)）在
+   `npm test` 多 worker 平行執行、CI／本機負載偏高時曾經飄過一次逾時
+   門檻失敗（單獨執行、重跑全量都正常），根因是測試本身的真實時間
+   閾值比較在系統忙碌時容易被排程延遲拖過門檻，不是 RequestPool 邏輯
+   本身有問題（`_acquire()`/`_release()` 純粹是同步計數的 semaphore，
+   不涉及任何時間比較）。改用假計時器後，deadlock 偵測改靠
+   runAllTimersAsync() 內建的 loop limit（真的卡死會自己拋錯），不用
+   再另外包一層真實時間的 withTimeout。
 --------------------------------------------------------- */
 import '../env-stub.mjs';
-import { test, expect } from 'vitest';
+import { test, expect, vi } from 'vitest';
 import { TileChecker, RequestPool, globalTileRequestPool } from '../../src/tileChecker.js';
 import { tileChecker as searchTileChecker } from '../../src/features/search.js';
 import { tileChecker as timelineTileChecker } from '../../src/timelineMode.js';
@@ -52,122 +64,156 @@ function makeImageClass(){
 }
 globalThis.Image = makeImageClass();
 
-function withTimeout(promise, ms, msg){
-  let timer;
-  const timeout = new Promise((_, reject) => {
-    timer = setTimeout(() => reject(new Error(msg || `超過 ${ms}ms 沒有完成，可能發生 deadlock`)), ms);
-  });
-  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
-}
-
 test('Test 1：RequestPool 全域 concurrency 上限，20 個任務同時排隊也不會超過上限', async () => {
-  const pool = new RequestPool(3);
-  let active = 0;
-  let maxObserved = 0;
-  const tasks = Array.from({ length: 20 }, () => pool.run(() => new Promise(resolve => {
-    active++;
-    if(active > maxObserved) maxObserved = active;
-    setTimeout(() => { active--; resolve(true); }, 10);
-  })));
-  await Promise.all(tasks);
-  expect(maxObserved <= 3, `手動追蹤的 maxObserved (${maxObserved}) 不應該超過上限 3`).toBeTruthy();
-  expect(maxObserved, '20 個任務、上限 3，應該確實有搶到滿 3 個 slot 的時刻').toBe(3);
-  expect(pool.getStats().maxObserved <= 3, `pool.getStats().maxObserved (${pool.getStats().maxObserved}) 不應該超過上限 3`).toBeTruthy();
-  expect(pool.getStats().active, '全部任務完成後，pool 的 active 應該歸零').toBe(0);
+  vi.useFakeTimers();
+  try{
+    const pool = new RequestPool(3);
+    let active = 0;
+    let maxObserved = 0;
+    const tasks = Array.from({ length: 20 }, () => pool.run(() => new Promise(resolve => {
+      active++;
+      if(active > maxObserved) maxObserved = active;
+      setTimeout(() => { active--; resolve(true); }, 10);
+    })));
+    await vi.runAllTimersAsync();
+    await Promise.all(tasks);
+    expect(maxObserved <= 3, `手動追蹤的 maxObserved (${maxObserved}) 不應該超過上限 3`).toBeTruthy();
+    expect(maxObserved, '20 個任務、上限 3，應該確實有搶到滿 3 個 slot 的時刻').toBe(3);
+    expect(pool.getStats().maxObserved <= 3, `pool.getStats().maxObserved (${pool.getStats().maxObserved}) 不應該超過上限 3`).toBeTruthy();
+    expect(pool.getStats().active, '全部任務完成後，pool 的 active 應該歸零').toBe(0);
+  } finally {
+    vi.useRealTimers();
+  }
 });
 
 test('Test 2：10 個 layer 各自用 Promise.all 做鄰近圖磚 fallback，仍共用同一個 global pool 上限', async () => {
-  maxLiveImages = 0;
-  const pool = new RequestPool(4);
-  const layerCount = 10;
-  const checkers = Array.from({ length: layerCount }, () => new TileChecker({ concurrency: 8, timeoutMs: 2000, pool }));
-  const jobs = checkers.map((checker, layerIdx) => {
-    const candidate = {
-      id: layerIdx,
-      neighbors: Array.from({ length: 8 }, (_, n) => {
-        const url = `http://pool-test/layer${layerIdx}-neighbor${n}`;
-        urlResults[url] = n === 0; // 每個 layer 只有第一顆鄰近圖磚有資料，其餘沒有
-        return url;
-      }),
-    };
-    return checker.checkBatchAny([candidate], c => c.neighbors);
-  });
-  await withTimeout(Promise.all(jobs), 5000, 'checkBatchAny 鄰近圖磚 fallback 沒有在時限內完成');
-  expect(maxLiveImages <= 4, `手動追蹤的 maxLiveImages (${maxLiveImages}) 不應該超過上限 4，不能讓 10 layer x 8 neighbor 疊加成 80 個並行請求`).toBeTruthy();
-  expect(pool.getStats().maxObserved <= 4, `pool.getStats().maxObserved (${pool.getStats().maxObserved}) 不應該超過上限 4`).toBeTruthy();
+  vi.useFakeTimers();
+  try{
+    maxLiveImages = 0;
+    const pool = new RequestPool(4);
+    const layerCount = 10;
+    const checkers = Array.from({ length: layerCount }, () => new TileChecker({ concurrency: 8, timeoutMs: 2000, pool }));
+    const jobs = checkers.map((checker, layerIdx) => {
+      const candidate = {
+        id: layerIdx,
+        neighbors: Array.from({ length: 8 }, (_, n) => {
+          const url = `http://pool-test/layer${layerIdx}-neighbor${n}`;
+          urlResults[url] = n === 0; // 每個 layer 只有第一顆鄰近圖磚有資料，其餘沒有
+          return url;
+        }),
+      };
+      return checker.checkBatchAny([candidate], c => c.neighbors);
+    });
+    const jobsPromise = Promise.all(jobs);
+    await vi.runAllTimersAsync();
+    await jobsPromise;
+    expect(maxLiveImages <= 4, `手動追蹤的 maxLiveImages (${maxLiveImages}) 不應該超過上限 4，不能讓 10 layer x 8 neighbor 疊加成 80 個並行請求`).toBeTruthy();
+    expect(pool.getStats().maxObserved <= 4, `pool.getStats().maxObserved (${pool.getStats().maxObserved}) 不應該超過上限 4`).toBeTruthy();
+  } finally {
+    vi.useRealTimers();
+  }
 });
 
 test('Test 3：cache hit 不會增加 active request（也不會建立新的 Image）', async () => {
-  const pool = new RequestPool(4);
-  const checker = new TileChecker({ concurrency: 4, timeoutMs: 500, pool });
-  const url = 'http://pool-test/cache-hit';
-  urlResults[url] = true;
-  await checker.checkOne(url);
-  const attemptsAfterFirst = urlAttempts[url];
-  const ok = await checker.checkOne(url);
-  expect(ok, '快取的結果應該還是 true').toBeTruthy();
-  expect(urlAttempts[url], '第二次是 cache hit，不應該再送出新的 Image 請求').toBe(attemptsAfterFirst);
-  expect(pool.getStats().active, 'cache hit 不應該佔用 pool 的 active slot').toBe(0);
+  vi.useFakeTimers();
+  try{
+    const pool = new RequestPool(4);
+    const checker = new TileChecker({ concurrency: 4, timeoutMs: 500, pool });
+    const url = 'http://pool-test/cache-hit';
+    urlResults[url] = true;
+
+    const firstPromise = checker.checkOne(url);
+    await vi.runAllTimersAsync();
+    await firstPromise;
+    const attemptsAfterFirst = urlAttempts[url];
+
+    const secondPromise = checker.checkOne(url);
+    await vi.runAllTimersAsync();
+    const ok = await secondPromise;
+
+    expect(ok, '快取的結果應該還是 true').toBeTruthy();
+    expect(urlAttempts[url], '第二次是 cache hit，不應該再送出新的 Image 請求').toBe(attemptsAfterFirst);
+    expect(pool.getStats().active, 'cache hit 不應該佔用 pool 的 active slot').toBe(0);
+  } finally {
+    vi.useRealTimers();
+  }
 });
 
 test('Test 4：同一網址同時查詢 4 次，只會真的發送 1 次請求（in-flight dedup 仍然生效）', async () => {
-  const pool = new RequestPool(4);
-  const checker = new TileChecker({ concurrency: 4, timeoutMs: 500, pool });
-  const url = 'http://pool-test/in-flight-dedup';
-  urlResults[url] = true;
-  const before = urlAttempts[url] || 0;
-  const results = await Promise.all([
-    checker.checkOne(url), checker.checkOne(url), checker.checkOne(url), checker.checkOne(url),
-  ]);
-  expect((urlAttempts[url] || 0) - before, '4 次同時查詢應該只真的送出 1 次請求').toBe(1);
-  expect(results.every(r => r === true), '4 次查詢都應該拿到同樣的結果').toBeTruthy();
+  vi.useFakeTimers();
+  try{
+    const pool = new RequestPool(4);
+    const checker = new TileChecker({ concurrency: 4, timeoutMs: 500, pool });
+    const url = 'http://pool-test/in-flight-dedup';
+    urlResults[url] = true;
+    const before = urlAttempts[url] || 0;
+    const resultsPromise = Promise.all([
+      checker.checkOne(url), checker.checkOne(url), checker.checkOne(url), checker.checkOne(url),
+    ]);
+    await vi.runAllTimersAsync();
+    const results = await resultsPromise;
+    expect((urlAttempts[url] || 0) - before, '4 次同時查詢應該只真的送出 1 次請求').toBe(1);
+    expect(results.every(r => r === true), '4 次查詢都應該拿到同樣的結果').toBeTruthy();
+  } finally {
+    vi.useRealTimers();
+  }
 });
 
 test('Test 5：maxConcurrency=1 時，A 逾時後會釋放 slot，B 才能接著拿到 slot 完成，不會 deadlock', async () => {
-  const pool = new RequestPool(1);
-  const checkerA = new TileChecker({ concurrency: 1, timeoutMs: 60, pool });
-  const checkerB = new TileChecker({ concurrency: 1, timeoutMs: 500, pool });
-  const urlA = 'http://pool-test/timeout-blocks-slot';
-  const urlB = 'http://pool-test/waits-behind-timeout';
-  urlResults[urlA] = 'timeout-always';
-  urlResults[urlB] = true;
+  vi.useFakeTimers();
+  try{
+    const pool = new RequestPool(1);
+    const checkerA = new TileChecker({ concurrency: 1, timeoutMs: 60, pool });
+    const checkerB = new TileChecker({ concurrency: 1, timeoutMs: 500, pool });
+    const urlA = 'http://pool-test/timeout-blocks-slot';
+    const urlB = 'http://pool-test/waits-behind-timeout';
+    urlResults[urlA] = 'timeout-always';
+    urlResults[urlB] = true;
 
-  const resultA = checkerA.checkOne(urlA);
-  // 確保 B 是在 A 已經拿到（唯一的）slot 之後才排隊，重現「B 卡在 A 後面」的情境
-  await new Promise(resolve => setTimeout(resolve, 1));
-  const resultB = checkerB.checkOne(urlB);
+    const resultA = checkerA.checkOne(urlA);
+    // 確保 B 是在 A 已經拿到（唯一的）slot 之後才排隊，重現「B 卡在 A 後面」的情境
+    // （_acquire() 在 slot 可用時是同步遞增計數，這裡的極短推進只是延續原本測試
+    // 的排隊順序保證，跟真實時間長短無關）。
+    await vi.advanceTimersByTimeAsync(1);
+    const resultB = checkerB.checkOne(urlB);
 
-  const [okA, okB] = await withTimeout(
-    Promise.all([resultA, resultB]),
-    5000,
-    'A timeout 後 slot 沒有釋放，B 被卡死（deadlock）'
-  );
-  expect(!okA, 'A 應該因為持續逾時被判定沒資料').toBeTruthy();
-  expect(okB, 'B 應該能在 A 釋放 slot 後正常完成，得到 true').toBeTruthy();
-  expect(pool.getStats().active, '兩個請求都結束後，pool 的 active 應該歸零').toBe(0);
+    const resultsPromise = Promise.all([resultA, resultB]);
+    await vi.runAllTimersAsync();
+    const [okA, okB] = await resultsPromise;
+
+    expect(!okA, 'A 應該因為持續逾時被判定沒資料').toBeTruthy();
+    expect(okB, 'B 應該能在 A 釋放 slot 後正常完成，得到 true').toBeTruthy();
+    expect(pool.getStats().active, '兩個請求都結束後，pool 的 active 應該歸零').toBe(0);
+  } finally {
+    vi.useRealTimers();
+  }
 });
 
 test('Test 6：center timeout + retry + neighbor fallback 全部經過同一個 pool，仍不超過上限', async () => {
-  maxLiveImages = 0;
-  const pool = new RequestPool(3);
-  const checker = new TileChecker({ concurrency: 4, timeoutMs: 40, pool });
-  const centerUrl = 'http://pool-test/retry-center';
-  urlResults[centerUrl] = 'timeout-always'; // center 探測（含 retry）都逾時，逼出 retry 路徑
-  const neighborUrls = Array.from({ length: 8 }, (_, n) => {
-    const u = `http://pool-test/retry-neighbor${n}`;
-    urlResults[u] = n === 3; // 其中一顆鄰近圖磚有資料
-    return u;
-  });
+  vi.useFakeTimers();
+  try{
+    maxLiveImages = 0;
+    const pool = new RequestPool(3);
+    const checker = new TileChecker({ concurrency: 4, timeoutMs: 40, pool });
+    const centerUrl = 'http://pool-test/retry-center';
+    urlResults[centerUrl] = 'timeout-always'; // center 探測（含 retry）都逾時，逼出 retry 路徑
+    const neighborUrls = Array.from({ length: 8 }, (_, n) => {
+      const u = `http://pool-test/retry-neighbor${n}`;
+      urlResults[u] = n === 3; // 其中一顆鄰近圖磚有資料
+      return u;
+    });
 
-  const candidate = { id: 'retry-item', urls: [centerUrl, ...neighborUrls] };
-  const available = await withTimeout(
-    checker.checkBatchAny([candidate], c => c.urls),
-    5000,
-    'center timeout + retry + neighbor fallback 沒有在時限內完成'
-  );
-  expect(available.length, 'neighbor 裡有一顆成功，這個候選項目應該算有資料').toBe(1);
-  expect(maxLiveImages <= 3, `手動追蹤的 maxLiveImages (${maxLiveImages}) 不應該超過上限 3`).toBeTruthy();
-  expect(pool.getStats().maxObserved <= 3, `pool.getStats().maxObserved (${pool.getStats().maxObserved}) 不應該超過上限 3`).toBeTruthy();
+    const candidate = { id: 'retry-item', urls: [centerUrl, ...neighborUrls] };
+    const availablePromise = checker.checkBatchAny([candidate], c => c.urls);
+    await vi.runAllTimersAsync();
+    const available = await availablePromise;
+
+    expect(available.length, 'neighbor 裡有一顆成功，這個候選項目應該算有資料').toBe(1);
+    expect(maxLiveImages <= 3, `手動追蹤的 maxLiveImages (${maxLiveImages}) 不應該超過上限 3`).toBeTruthy();
+    expect(pool.getStats().maxObserved <= 3, `pool.getStats().maxObserved (${pool.getStats().maxObserved}) 不應該超過上限 3`).toBeTruthy();
+  } finally {
+    vi.useRealTimers();
+  }
 });
 
 test('features/search.js 與 timelineMode.js 的 TileChecker 真的共用同一個 globalTileRequestPool（不是各自獨立的 pool）', () => {
