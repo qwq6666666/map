@@ -58,6 +58,34 @@ test('Bottom Sheet 拖曳把手：純點擊（無明顯位移）可在收合/展
   expect(sidebar.classList.contains('collapsed'), '再點擊一次應該收合回去').toBeTruthy();
 });
 
+test('Bottom Sheet 拖曳把手：拖曳中途第二指觸碰把手，不應重置已判定的拖曳狀態（回歸測試）', () => {
+  // 延續上一個測試的結尾狀態（peek/collapsed），從展開態開始更容易驗證：
+  // 先用純點擊展開一次。
+  const sheetHandle = document.getElementById('sheetHandle');
+  const sidebar = document.getElementById('sidebar');
+  if(sidebar.classList.contains('collapsed')){
+    sheetHandle._listeners['pointerdown'][0]({ clientY: 100, pointerId: 1 });
+    sheetHandle._listeners['pointerup'][0]({ clientY: 100 });
+  }
+  expect(!sidebar.classList.contains('collapsed'), '測試前應先處於展開狀態').toBeTruthy();
+
+  // 第一指按下、小幅位移（>6px 已判定為拖曳，moved=true）。
+  sheetHandle._listeners['pointerdown'][0]({ clientY: 100, pointerId: 1 });
+  sheetHandle._listeners['pointermove'][0]({ clientY: 120, pointerId: 1 });
+  // 第二指中途觸碰同一顆把手（雙指誤觸／上一指未放開又來一指）：修正前
+  // 沒有 `if(dragging) return;` 防呆，這裡會把 moved 重置為 false、
+  // startY 換成第二指座標。
+  sheetHandle._listeners['pointerdown'][0]({ clientY: 121, pointerId: 2 });
+  // 放開（沿用同一段手勢的尾端座標，dy 僅 21px，遠小於收合門檻）。
+  sheetHandle._listeners['pointerup'][0]({ clientY: 121 });
+
+  // 修正後：moved 仍是 true，21px 的小幅拖曳離「展開(0px)」比「收合
+  // (~540px)」近，應該落回展開態，維持沒有明顯變化；修正前的 bug 會讓
+  // moved 被誤重置成 false，放開時走「純點擊」邏輯，直接把整個 Sheet
+  // 切到收合態，即使實際位移量很小。
+  expect(!sidebar.classList.contains('collapsed'), '小幅拖曳中途被第二指干擾，仍應維持展開態，不應被誤判為點擊而整個收合').toBeTruthy();
+});
+
 test('搜尋列模式切換按鈕：地址／圖資模式互相切換', () => {
   const modeBtn = document.getElementById('mobileSearchModeBtn');
   expect(document.body.classList.contains('mobile-search-mode-address'), '切換前應為地址模式').toBeTruthy();

@@ -327,6 +327,14 @@ function initSheetHandle(){
 
   function onPointerDown(e){
     if(!mq.matches) return;
+    // 已經有一根手指在拖曳把手時，忽略第二根手指的 pointerdown（多指同時
+    // 觸控把手、或上一指尚未放開又有新的觸控點）：這裡的 move/up 處理完全
+    // 不分辨 pointerId，若讓第二指重新覆寫 startY/startTranslate/moved，
+    // 會把 moved 錯誤重置成 false（讓已經是真正拖曳的手勢，放開時被誤判
+    // 成單純點擊，強制整個 Sheet 切換兩態），且 startY 換成第二指座標後，
+    // 第一指接下來送來的 pointermove 會用「混到另一根手指起點」的座標算
+    // dy，造成位置無預警跳動。只追蹤最先按下的那根手指，其餘一律忽略。
+    if(dragging) return;
     dragging = true; moved = false;
     startY = e.clientY;
     startTranslate = currentTranslate();
@@ -577,6 +585,10 @@ function initDraggableModeButton(){
 
   btn.addEventListener('pointerdown', (e)=>{
     if(!mq.matches) return;
+    // 同 initSheetHandle() 的理由：move/up 不分辨 pointerId，第二根手指
+    // 中途觸碰按鈕會把 moved 重置為 false，導致放開時被誤判成單純點擊
+    // （沒有存新位置、還會誤觸發選單開合），只追蹤最先按下的手指。
+    if(dragging) return;
     dragging = true; moved = false;
     const rect = btn.getBoundingClientRect();
     startX = e.clientX; startY = e.clientY;
