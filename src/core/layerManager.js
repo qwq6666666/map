@@ -18,6 +18,7 @@ import { resolveOverlayKey } from '../data.js';
 import { map } from './map.js';
 import { getOrCreateLayer, hasCachedLayer, clearCache, getCachedLayer, getCacheStats } from './layerCache.js';
 import { getProtectedKeys } from './protectedKeys.js';
+import { getPreviewedKey } from '../features/customTimeline.js';
 
 /* ---------------------------------------------------------
    淡入淡出交叉溶接：切換歷史圖層時，不要「先整個移除舊的，才開始
@@ -118,10 +119,19 @@ function fadeLayerTo(layer, targetOpacity, durationMs, onDone){
 // 被放棄的中間世代呼叫（見 overlayApplyGeneration 宣告處的完整說明）
 // 遺留下來、永遠沒人接手淡出的舊圖層，不管中間被放棄了幾次呼叫，這裡
 // 一次掃描全部處理掉。
+//
+// 「自訂時間軸」（features/customTimeline.js）的 previewedKey 完全獨立於
+// store.activeOverlayKey，getProtectedKeys() 不知道它的存在（該檔案
+// 檔頭已註明），所以這裡要額外排除，否則使用者在 dock 開著、預覽某張
+// 圖層時，只要在疊圖模式側邊欄另外點選一張新圖層，這裡的孤兒掃描會把
+// 正在預覽中的圖層一併淡出到 0——跟 core/multiOverlayManager.js 的
+// resetLayerVisual() 已經處理過的同一種問題（dock 仍顯示「正在預覽」，
+// 地圖卻已經空白），只是這裡是疊圖模式漏補同一道防線。
 function fadeOutOrphanedLayers(newLayerKey){
   const protectedKeys = getProtectedKeys();
+  const previewedKey = getPreviewedKey();
   getCacheStats().visible.forEach(key => {
-    if(key === newLayerKey || protectedKeys.has(key)) return;
+    if(key === newLayerKey || protectedKeys.has(key) || key === previewedKey) return;
     const layer = getCachedLayer(key);
     if(layer) fadeLayerTo(layer, 0, FADE_MS);
   });
