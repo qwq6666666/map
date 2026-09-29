@@ -234,7 +234,7 @@
           "format": "png",
           "year": 1948,
           "dateLabel": "1948",
-          "type": "行政區劃圖",
+          "type": null,
           "scale": null,
           "region": {
             "bbox": [

@@ -28,6 +28,22 @@
    詳見 PARENT_TYPE_RULES 旁註解）。兩階段都沒命中則維持 type: null
    （不新增「其他」分類，前端目前沒有對應的篩選入口）。
 
+   Step 0（優先於 Step 1／2，`isRawPhotoLayer()`）：標題含「航照影像」或
+   「航拍」的原始空拍照片圖層，一律強制 type: null，兩階段都不比對。
+   起因（2026-09 審查發現）：TYPE_RULES 的「市區」「地圖」是為了涵蓋
+   「OO市街圖」「OO市地圖」這類泛用地圖標題而設，但「基隆市區舊航照
+   影像」「屏東市區舊航照影像」「美軍_舊市區航拍(1945)」這類原始空拍
+   照片標題裡的「市區」只是地名的一部分（「基隆市區」＝基隆市區範圍，
+   不是「行政區劃圖」的語意），被 Step 1 誤判成行政區劃圖，違反本檔
+   註解本身「航照等空拍照片刻意不歸類到任何既有分類」的設計意圖。
+   刻意只用「航照影像」「航拍」兩個精確詞組、不用「航照」單字：
+   「地形圖(航照修正版)」「日治地形圖(航照修正版)」是用航照修正的
+   地形圖成品（本身就是地圖，不是照片），必須維持既有的地形圖分類，
+   若比對到「航照」兩字就會誤殺。也刻意不含「像片」「正射影像」「航測」
+   ──「1/5000像片基本圖」（nlsc）、「像片基本圖」（宜蘭／臺東）是有
+   正式圖幅編號的地形測量成品，非原始空拍照片；「都市計畫航測地形圖」
+   是用航測方式測製的地形圖，同樣是地圖而非照片。
+
    用法：
        node tools/tag-layer-types.js
 
@@ -68,6 +84,9 @@ const PARENT_TYPE_RULES = [
   { type: '行政區劃圖', keywords: ['市區改正', '行政區', '管轄', '境界'] },
 ];
 
+// Step 0：原始空拍照片標題精確詞組，命中則強制 type: null（見檔頭說明）。
+const RAW_PHOTO_KEYWORDS = ['航照影像', '航拍'];
+
 function matchRules(text, rules){
   for(const rule of rules){
     if(rule.keywords.some(kw => text.includes(kw))) return rule.type;
@@ -75,7 +94,13 @@ function matchRules(text, rules){
   return null;
 }
 
+function isRawPhotoLayer(layer){
+  const text = `${layer.title || ''} ${(layer.keywords || []).join(' ')}`;
+  return RAW_PHOTO_KEYWORDS.some(kw => text.includes(kw));
+}
+
 function detectType(layer){
+  if(isRawPhotoLayer(layer)) return null;
   const text = `${layer.title || ''} ${(layer.keywords || []).join(' ')}`;
   return matchRules(text, TYPE_RULES);
 }
@@ -84,38 +109,62 @@ function detectTypeFromParent(parentText){
   return matchRules(parentText, PARENT_TYPE_RULES);
 }
 
-const index = JSON.parse(fs.readFileSync(path.join(LAYERS_DIR, 'index.json'), 'utf-8'));
-
-const counts = { '地形圖': 0, '地籍圖': 0, '海圖': 0, '行政區劃圖': 0, '未分類': 0 };
-let total = 0;
-let inheritedCount = 0;
-
-index.sources.forEach(entry => {
-  const filePath = path.join(LAYERS_DIR, entry.file);
-  const src = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-
-  forEachLayer(src, (layer, parentText) => {
-    let type = detectType(layer);
-    if(type === null){
-      const inherited = detectTypeFromParent(parentText);
-      if(inherited !== null){
-        type = inherited;
-        inheritedCount += 1;
-      }
+// 兩階段（Step 0→1→2）完整決策，供 main() 與測試共用，確保兩邊邏輯不會
+// 分岔——main() 若各自重寫一次條件判斷，日後改規則容易漏改其中一邊。
+function resolveLayerType(layer, parentText){
+  let type = detectType(layer);
+  let inherited = false;
+  if(type === null && !isRawPhotoLayer(layer)){
+    const fromParent = detectTypeFromParent(parentText);
+    if(fromParent !== null){
+      type = fromParent;
+      inherited = true;
     }
-    layer.type = type;
-    total += 1;
-    counts[type === null ? '未分類' : type] += 1;
+  }
+  return { type, inherited };
+}
+
+function main(){
+  const index = JSON.parse(fs.readFileSync(path.join(LAYERS_DIR, 'index.json'), 'utf-8'));
+
+  const counts = { '地形圖': 0, '地籍圖': 0, '海圖': 0, '行政區劃圖': 0, '未分類': 0 };
+  let total = 0;
+  let inheritedCount = 0;
+
+  index.sources.forEach(entry => {
+    const filePath = path.join(LAYERS_DIR, entry.file);
+    const src = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+
+    forEachLayer(src, (layer, parentText) => {
+      const { type, inherited } = resolveLayerType(layer, parentText);
+      if(inherited) inheritedCount += 1;
+      layer.type = type;
+      total += 1;
+      counts[type === null ? '未分類' : type] += 1;
+    });
+
+    fs.writeFileSync(filePath, JSON.stringify(src, null, 2) + '\n');
   });
 
-  fs.writeFileSync(filePath, JSON.stringify(src, null, 2) + '\n');
-});
+  console.log('圖層 type 標記統計：');
+  console.log(`  地形圖　　：${counts['地形圖']}`);
+  console.log(`  地籍圖　　：${counts['地籍圖']}`);
+  console.log(`  海圖　　　：${counts['海圖']}`);
+  console.log(`  行政區劃圖：${counts['行政區劃圖']}`);
+  console.log(`  未分類　　：${counts['未分類']}`);
+  console.log(`  總筆數　　：${total}`);
+  console.log(`  （其中透過父層繼承判定：${inheritedCount} 筆）`);
+}
 
-console.log('圖層 type 標記統計：');
-console.log(`  地形圖　　：${counts['地形圖']}`);
-console.log(`  地籍圖　　：${counts['地籍圖']}`);
-console.log(`  海圖　　　：${counts['海圖']}`);
-console.log(`  行政區劃圖：${counts['行政區劃圖']}`);
-console.log(`  未分類　　：${counts['未分類']}`);
-console.log(`  總筆數　　：${total}`);
-console.log(`  （其中透過父層繼承判定：${inheritedCount} 筆）`);
+if(require.main === module) main();
+
+module.exports = {
+  TYPE_RULES,
+  PARENT_TYPE_RULES,
+  RAW_PHOTO_KEYWORDS,
+  matchRules,
+  isRawPhotoLayer,
+  detectType,
+  detectTypeFromParent,
+  resolveLayerType,
+};
