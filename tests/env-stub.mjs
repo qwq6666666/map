@@ -87,7 +87,16 @@ export class FakeNode {
     this._listeners = {};
     this.textContent = '';
     this.value = '100';
-    this.style = {};
+    // 真的 CSSStyleDeclaration 除了逐一屬性賦值（el.style.transform=...），
+    // 也支援 setProperty()／getPropertyValue()／removeProperty() 這組方法
+    // （features/location.js 的 onHeadingFix() 用 setProperty() 寫入
+    // CSS 自訂屬性 --heading）；用同一個物件當儲存空間，逐一屬性賦值跟
+    // setProperty() 寫入的值可以互相讀到，跟真的瀏覽器行為一致。
+    this.style = {
+      setProperty(name, value){ this[name] = value; },
+      getPropertyValue(name){ return this[name] ?? ''; },
+      removeProperty(name){ delete this[name]; },
+    };
   }
   set id(v){ this._id = v; if(v) dynamicIds.add(v); }
   get id(){ return this._id; }

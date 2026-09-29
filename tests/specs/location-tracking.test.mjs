@@ -1,5 +1,5 @@
 import '../env-stub.mjs';
-import { test, expect, afterAll, beforeEach } from 'vitest';
+import { test, expect, afterAll, afterEach, beforeEach } from 'vitest';
 import { map } from '../../src/core/map.js';
 import { runtime } from '../../src/runtime.js';
 
@@ -187,6 +187,89 @@ test('瀏覽器不支援 watchPosition：提示不支援、維持 off，不會�
     expect(getTrackState()).toBe('off');
     expect(toast.textContent).toContain('不支援');
   } finally { navigator.geolocation = original; }
+});
+
+/* ---------------------------------------------------------
+   裝置朝向（羅盤）
+   ---------------------------------------------------------
+   features/deviceHeading.js 本身的純函式／監聽邏輯見
+   device-heading.test.mjs；這裡只驗證 location.js 怎麼把它接進追蹤
+   生命週期：開始追蹤才掛監聽器、停止追蹤要真的移除（不能只是不理會）、
+   iOS 的權限流程、以及 --heading 自訂屬性真的被寫進 DOM。
+--------------------------------------------------------- */
+afterEach(() => { delete globalThis.DeviceOrientationEvent; });
+
+test('裝置朝向：不需要另外要權限的瀏覽器（測試環境預設），開始追蹤後 deviceorientationabsolute 事件應該即時反映到藍點', async () => {
+  trackBtn.click();
+  await flush();
+  const marker = document.getElementById('locateMarker');
+  expect(marker.classList.contains('has-heading'), '還沒收到任何朝向讀數前不應該有這個 class').toBe(false);
+
+  window._dispatch('deviceorientationabsolute', { alpha: 90, absolute: true });
+  expect(marker.classList.contains('has-heading')).toBe(true);
+  expect(marker.style.getPropertyValue('--heading')).toBe('270deg');
+});
+
+test('裝置朝向：停止追蹤後應該真的移除監聽器（之後的事件不應該再更新 --heading），且清掉 has-heading class', async () => {
+  trackBtn.click();
+  await flush();
+  const marker = document.getElementById('locateMarker');
+  window._dispatch('deviceorientationabsolute', { alpha: 0, absolute: true });
+  expect(marker.classList.contains('has-heading')).toBe(true);
+
+  trackBtn.click(); // 停止追蹤
+  expect(marker.classList.contains('has-heading'), '停止追蹤後應該立刻清掉錐形箭頭').toBe(false);
+
+  window._dispatch('deviceorientationabsolute', { alpha: 45, absolute: true });
+  expect(marker.classList.contains('has-heading'), '停止追蹤後監聽器應該已經被移除，不應該又被加回來').toBe(false);
+});
+
+test('裝置朝向：iOS（DeviceOrientationEvent.requestPermission 存在）使用者同意後才開始監聽，事件必須在使用者手勢當下同步呼叫', async () => {
+  let calledSynchronously = false;
+  globalThis.DeviceOrientationEvent = class {};
+  globalThis.DeviceOrientationEvent.requestPermission = async () => {
+    calledSynchronously = true; // click handler 內、還沒有任何 await 之前就呼叫到這裡
+    return 'granted';
+  };
+
+  trackBtn.click();
+  expect(calledSynchronously, 'requestPermission() 應該在 click 這一輪 tick 內就被呼叫（iOS 才會認得是使用者手勢）').toBe(true);
+  await flush();
+
+  const marker = document.getElementById('locateMarker');
+  window._dispatch('deviceorientationabsolute', { alpha: 0, absolute: true });
+  expect(marker.classList.contains('has-heading'), '使用者同意權限後應該能正常開始顯示朝向').toBe(true);
+});
+
+test('裝置朝向：iOS 使用者拒絕權限 -> 安靜地不顯示錐形箭頭，不影響追蹤本身、不跳任何錯誤提示', async () => {
+  globalThis.DeviceOrientationEvent = class {};
+  globalThis.DeviceOrientationEvent.requestPermission = async () => 'denied';
+
+  trackBtn.click();
+  await flush();
+  expect(getTrackState(), '拒絕朝向權限不應該影響定位追蹤本身').toBe('following');
+
+  const marker = document.getElementById('locateMarker');
+  window._dispatch('deviceorientationabsolute', { alpha: 0, absolute: true });
+  expect(marker.classList.contains('has-heading'), '被拒絕權限，不應該掛上監聽器').toBe(false);
+});
+
+test('裝置朝向：等待 iOS 權限對話框回應期間使用者已經按停止追蹤 -> 事後才 resolve 也不應該姍姍來遲地掛上監聽器', async () => {
+  let resolvePermission;
+  globalThis.DeviceOrientationEvent = class {};
+  globalThis.DeviceOrientationEvent.requestPermission = () => new Promise((resolve) => { resolvePermission = resolve; });
+
+  trackBtn.click(); // 開始追蹤，權限請求還卡在等待使用者回應
+  expect(getTrackState()).toBe('following');
+  trackBtn.click(); // 使用者馬上又按了停止
+  expect(getTrackState()).toBe('off');
+
+  resolvePermission('granted'); // 使用者這時候才在系統彈窗按下「允許」
+  await flush();
+
+  const marker = document.getElementById('locateMarker');
+  window._dispatch('deviceorientationabsolute', { alpha: 0, absolute: true });
+  expect(marker.classList.contains('has-heading'), '追蹤早就已經停止，遲到的權限允許不應該又把監聽器掛回去').toBe(false);
 });
 
 /* ---------- 收到定位 ---------- */

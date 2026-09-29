@@ -640,6 +640,22 @@
     position:absolute; left:-8px; top:-8px; width:16px; height:16px; border-radius:50%;
     background:#2f6fed; border:2px solid #fff; box-shadow:0 0 0 4px rgba(47,111,237,.35);
   }
+  /* 裝置朝向錐形箭頭（比照 Google 地圖）：只在追蹤中且拿得到裝置朝向時
+     顯示（features/location.js 的 onHeadingFix() 才會加上 .has-heading），
+     桌面電腦／拒絕權限／不支援的瀏覽器就是沒有這個錐形，藍點本身不受
+     影響。錐形是從圓心往外展開的扇形（clip-path 三角形，頂點在中心、
+     底邊在容器頂端，約 62° 展開角），預設指向「上」＝正北，
+     transform:rotate() 依 --heading（0=北，順時針遞增，跟地圖方位習慣
+     一致）轉到裝置實際面向的方位；transform-origin 維持預設的
+     50% 50%（容器中心，剛好等於藍點圓心），旋轉不會偏移位置。 */
+  .locate-marker-heading{
+    position:absolute; left:-28px; top:-28px; width:56px; height:56px;
+    display:none; pointer-events:none;
+    background:radial-gradient(circle at 50% 50%, rgba(47,111,237,.55) 0%, rgba(47,111,237,.5) 35%, rgba(47,111,237,0) 78%);
+    clip-path:polygon(50% 50%, 20% 0%, 80% 0%);
+    transform:rotate(var(--heading, 0deg));
+  }
+  .locate-marker.has-heading .locate-marker-heading{display:block;}
   /* .locate-marker 為 0 寬容器且 pointer-events:none（避免藍點擋住地圖拖曳），
      彈窗本身需能點擊（關閉鈕／複製按鈕），故補回 pointer-events:auto。 */
   .locate-popup{pointer-events:auto;}

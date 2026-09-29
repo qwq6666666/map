@@ -23,6 +23,7 @@ import { map } from '../core/map.js';
 import { toTWD97, twd97Label, formatWGS84, formatTWD97, metersToMercatorRadius } from '../core/tileGeo.js';
 import { buildCoordRow } from './coordCopy.js';
 import { showAccuracyCircle } from './locateAccuracyLayer.js';
+import { needsOrientationPermission, requestOrientationPermission, startWatchingHeading } from './deviceHeading.js';
 
 let locateMarkerEl, locateOverlay, locateBtn, locateToast;
 let locatePopupEl, locatePopupBody, locatePopupCloseBtn;
@@ -140,6 +141,7 @@ let trackErrorShown = false;
 let lastTrackCoord = null;
 let pendingSelfAnims = 0; // 我們自己發起、還沒結束的地圖動畫數
 let wakeLock = null;
+let stopHeadingWatch = null; // deviceHeading.js 的 startWatchingHeading() 回傳的取消函式
 
 export function getTrackState(){ return trackState; }
 
@@ -221,6 +223,38 @@ function releaseWakeLock(){
   try{ lock?.release?.()?.catch?.(() => {}); }catch{ /* 略過 */ }
 }
 
+// 藍點疊一個指向裝置朝向的錐形箭頭（比照 Google 地圖），純粹錦上添花：
+// 拿不到朝向（桌面電腦、瀏覽器不支援、使用者拒絕權限）就是沒有錐形箭頭，
+// 不影響定位追蹤本身，所以任何一步失敗都直接安靜返回、不用 toast 提示
+// 使用者（見 features/deviceHeading.js 檔頭的完整說明）。
+//
+// needsOrientationPermission() 為 true（iOS 13+）時，requestOrientationPermission()
+// 必須排在這條呼叫鏈的最前面同步呼叫（onTrackButtonClick 的 click handler
+// -> startTracking() -> 這裡，中間都沒有任何 await），iOS 才會認得是
+// 使用者手勢觸發；await 完成、使用者同意之後才呼叫 startWatchingHeading()。
+async function startHeadingWatch(){
+  if(needsOrientationPermission()){
+    const result = await requestOrientationPermission();
+    if(result !== 'granted') return;
+    // 等待權限對話框回應期間，使用者可能已經按了停止追蹤；這裡要重新
+    // 檢查目前狀態，避免姍姍來遲地在已經停止的追蹤上掛監聽器。
+    if(trackState === 'off') return;
+  }
+  stopHeadingWatch = startWatchingHeading(onHeadingFix);
+}
+
+function stopHeadingWatchIfAny(){
+  stopHeadingWatch?.();
+  stopHeadingWatch = null;
+  if(locateMarkerEl) locateMarkerEl.classList.remove('has-heading');
+}
+
+function onHeadingFix(heading){
+  if(!locateMarkerEl) return;
+  locateMarkerEl.classList.add('has-heading');
+  locateMarkerEl.style.setProperty('--heading', `${heading}deg`);
+}
+
 function onTrackFix(pos){
   // 少數瀏覽器／WebView 在 clearWatch() 之後仍可能送來一筆「已經在路上」的
   // 定位（stale callback）；trackState 在 stopTracking() 裡是同步先變成
@@ -282,6 +316,7 @@ function startTracking(){
   });
   setTrackState('following');
   acquireWakeLock();
+  startHeadingWatch();
   showLocateToast('持續追蹤中，螢幕會保持亮起。拖曳地圖可暫停跟隨。');
 }
 
@@ -292,6 +327,7 @@ function stopTracking(){
   }
   trackBtn?.classList.remove('acquiring');
   releaseWakeLock();
+  stopHeadingWatchIfAny();
   setTrackState(nextTrackState(trackState, 'stop'));
   notifyTrackListeners(trackStopListeners);
 }
