@@ -58,12 +58,37 @@ let lastCapabilitiesFetchedAt = 0;
 // 真的會發出新的請求，不需要額外在畫面上多加一顆按鈕。
 const CAPABILITIES_CACHE_TTL_MS = 5 * 60 * 1000; // 5 分鐘
 
+// GetCapabilities 常見於較慢的政府／機關 GIS 服務，跟 public/sw.js 的
+// fetchWithTimeout() 是同一個問題：fetch() 沒有內建逾時，目標服務／
+// 代理伺服器完全沒回應（連線建立但一直不吐資料，不是 CORS、也不是
+// 明確的 HTTP 錯誤）時，這個 Promise 永遠不會 resolve/reject——「讀取」
+// 按鈕會卡在 disabled＋「讀取中…」，使用者沒有任何辦法自己重試或得知
+// 發生了什麼事，只能重新整理整個頁面。用同一套 AbortController+
+// setTimeout 手法補上總時長上限，逾時就真的中止底層請求，直接匯入
+// 既有的 catch 分支（直接讀取逾時→自動改用代理；代理也逾時→顯示
+// 講人話的錯誤訊息），不需要另外處理。秒數跟 sw.js 的
+// NETWORK_FIRST_DATA_TIMEOUT_MS 同一數量級，再放寬一些給較慢的服務。
+const CAPABILITIES_FETCH_TIMEOUT_MS = 20000;
+
+async function fetchWithTimeout(url, timeoutMs){
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try{
+    return await fetch(url, { signal: controller.signal });
+  }catch(err){
+    if(err?.name === 'AbortError') throw new Error('讀取逾時', { cause: err });
+    throw err;
+  }finally{
+    clearTimeout(timer);
+  }
+}
+
 // 透過代理伺服器讀取目標網址的文字內容。代理本身的錯誤訊息（JSON
 // 格式的 { error } ）會被原樣帶出來，讓使用者看得懂到底是「代理連不
 // 到目標」還是別的問題。
 async function fetchTextViaProxy(targetUrl){
   const proxyRequestUrl = `${CAPABILITIES_PROXY_URL}?url=${encodeURIComponent(targetUrl)}`;
-  const res = await fetch(proxyRequestUrl);
+  const res = await fetchWithTimeout(proxyRequestUrl, CAPABILITIES_FETCH_TIMEOUT_MS);
   if(!res.ok){
     let message = `代理伺服器回應錯誤（HTTP ${res.status}）`;
     try{
@@ -85,7 +110,7 @@ export async function fetchCapabilities(url){
   try{
     // 先直接 fetch：如果目標服務本來就開放 CORS，這樣最快，也不用
     // 依賴任何代理伺服器。
-    const res = await fetch(trimmed);
+    const res = await fetchWithTimeout(trimmed, CAPABILITIES_FETCH_TIMEOUT_MS);
     if(!res.ok) throw new Error(`伺服器回應錯誤（HTTP ${res.status}），請確認網址是否正確`);
     text = await res.text();
   }catch(directErr){

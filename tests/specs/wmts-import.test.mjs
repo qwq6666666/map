@@ -1,5 +1,5 @@
 import '../env-stub.mjs';
-import { test, expect } from 'vitest';
+import { test, expect, vi } from 'vitest';
 import { listLayers, buildWmtsEntryConfig, annotateLayersWithCompatibility, fetchCapabilities } from '../../src/features/wmtsImport.js';
 import { state as store, addCustomSource, clearCustomSources, toggleMultiOverlayLayer, clearMultiOverlayLayers } from '../../src/store.js';
 import { makeSourceForKey, setCustomSourcesProvider } from '../../src/data.js';
@@ -167,6 +167,52 @@ test('fetchCapabilities()：直接 fetch 失敗時會自動改用代理伺服器
     expect(caps.Contents.Layer[0].Identifier, '解析結果應該來自代理伺服器回傳的內容').toBe('x');
   } finally {
     globalThis.fetch = originalFetch;
+  }
+});
+
+/* ---------------------------------------------------------
+   目標服務／代理伺服器「連線建立但完全沒回應」（不是 CORS、也不是
+   明確的 HTTP 錯誤，單純掛住）：fetch() 沒有內建逾時，沒有逾時保護
+   時這個情境會讓 fetchCapabilities() 永遠不 resolve/reject，UI 端的
+   「讀取」按鈕會永久卡在 disabled＋「讀取中…」。比照
+   tests/specs/service-worker.test.mjs 的 hangingFetchImpl() 手法：
+   fetch 回傳的 promise 只有在 signal 被 abort 時才會 settle。
+--------------------------------------------------------- */
+function makeAbortError(){
+  const err = new Error('The operation was aborted.');
+  err.name = 'AbortError';
+  return err;
+}
+
+function hangingFetchImpl(){
+  return (url, init) => new Promise((resolve, reject) => {
+    const signal = init?.signal;
+    if(!signal) return; // 沒有 signal 就真的永遠掛著，代表逾時保護沒接上
+    if(signal.aborted){ reject(makeAbortError()); return; }
+    signal.addEventListener('abort', () => reject(makeAbortError()));
+  });
+}
+
+test('fetchCapabilities()：目標服務與代理伺服器都完全沒回應時，逾時後會拋出錯誤，不會無限期卡住', async () => {
+  vi.useFakeTimers();
+  const url = 'https://example.com/hangs-forever/WMTSCapabilities.xml';
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = hangingFetchImpl();
+  try{
+    let settled = false;
+    let thrown = null;
+    const promise = fetchCapabilities(url).catch(e => { thrown = e; }).finally(() => { settled = true; });
+    // 直接 fetch 逾時（20 秒）後改用代理，代理也一樣掛住，再等一次逾時。
+    await vi.advanceTimersByTimeAsync(20000);
+    expect(settled, '第一次（直接 fetch）逾時後，應該自動改用代理伺服器重試，還不會結束').toBe(false);
+    await vi.advanceTimersByTimeAsync(20000);
+    await promise;
+    expect(settled, '代理伺服器也逾時後，應該拋出錯誤而不是永遠卡住').toBe(true);
+    expect(!!thrown, '應該要拋出例外').toBeTruthy();
+    expect(thrown.message, '錯誤訊息應該讓使用者看得懂發生了逾時').toContain('逾時');
+  } finally {
+    globalThis.fetch = originalFetch;
+    vi.useRealTimers();
   }
 });
 
