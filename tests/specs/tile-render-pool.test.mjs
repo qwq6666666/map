@@ -60,6 +60,12 @@ class FakeImage {
     }, DELAY_MS);
   }
 }
+// loadWithTimeoutRetry() 內部改成每次嘗試都 `new Image()`（不再直接操作
+// tile.getImage()，見 core/tileTimeoutRetry.js 函式頂端關於 OL 監聽器
+// 殘留問題的完整說明），這裡覆寫全域建構子讓測試能繼續攔截這些呼叫；
+// env-stub.mjs 預設的 globalThis.Image 是「所有圖片都固定成功」的簡化
+// 版，蓋不到這個檔案需要的 urlResults 查找表模擬。
+globalThis.Image = FakeImage;
 
 class FakeTile {
   constructor(tileCoord){
@@ -70,6 +76,11 @@ class FakeTile {
   getTileCoord(){ return this._tileCoord; }
   getImage(){ return this._image; }
   setState(s){ this.state = s; }
+  // 比照 OL 真正的 ImageTile.setImage()：換上新圖片、設 state=LOADED。
+  setImage(img){
+    this._image = img;
+    this.state = TILE_STATE.LOADED;
+  }
 }
 
 function withTimeout(promise, ms, msg){

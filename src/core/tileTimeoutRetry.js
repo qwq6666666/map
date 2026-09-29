@@ -197,6 +197,42 @@ export const inFlightGuardedTiles = new Set();
  * core/tileLoadGuard.js 的 createGuardedTileLoadFunction() 在邊界保護
  * 判定「相交、可以載入」之後呼叫。
  *
+ * 這裡刻意不直接操作 tile.getImage()（OL 的 ImageTile 物件本來就有的
+ * 那個 <img>）：已用真的瀏覽器驗證確認——OL 的 ImageTile.load() 在呼叫
+ * 我們這支 tileLoadFunction「之前」，已經對同一個 <img> 物件用
+ * addEventListener 掛上它自己的 handleImageLoad_／handleImageError_
+ * （跟我們用屬性賦值 img.onload=/img.onerror= 掛的處理常式是兩組互不
+ * 影響、各自獨立觸發的監聽器，只有在 OL 自己的 handler 觸發時才會呼叫
+ * unlistenImage_() 移除）。中止或逾時時原本這裡會 `img.src = ''`
+ * 讓瀏覽器真的中止背景下載——問題是 `<img>.src=''` 會被解析成「目前
+ * 文件本身的網址」，不是有效圖片來源，會同步（幾乎零延遲）觸發一次
+ * 原生 error 事件；若這次 abort 之後沒有立刻在同一輪 tick 內重新賦值
+ * src（`attachStaleTileAbort()` 的視角過期中止正是這種情況：中止後
+ * 什麼都不做，等之後圖磚重新進入可視範圍才會再次呼叫 tileLoadFunction），
+ * OL 那組還沒被移除的舊監聽器就會被這次 error 觸發，把 tile.state 強制
+ * 蓋回 ERROR、並把 tile.image_ 換成一個 1x1 空白 canvas——蓋掉我們剛
+ * 呼叫的 setState(IDLE)，而且 canvas 沒有 src setter，這顆 Tile 物件
+ * 之後任何一次重新呼叫 tileLoadFunction 都會對著 canvas 賦值 src、
+ * 靜默沒有任何效果，永久卡在空白，直到這顆 Tile 物件被 TileCache 的
+ * LRU 汰換、OL 建立全新的 Tile 物件才會恢復——這正是「圖磚有時要放大
+ * 縮小才會出現」的另一個成因，等於這整套逾時／中止保護機制自己重新
+ * 製造了它原本要修的那個症狀（已用 https://cdn.jsdelivr.net/npm/
+ * ol@v9.2.4/dist/ol.js 實際跑過最小重現：中止後不接著賦值 src，OL 的
+ * addEventListener error handler 確實會在同一輪 tick 內被觸發）。
+ *
+ * 解法：完全不去碰 tile.getImage() 原本那個 <img>（讓它的 src 永遠
+ * 保持未賦值，OL 掛在它身上的監聽器形同無害地閒置，永遠不會被觸發），
+ * 改用我們自己私有、每次嘗試各自 new 一個的 Image 物件發送實際請求；
+ * 成功時呼叫 OL 的公開 API tile.setImage(img)（會自動設 state=LOADED
+ * 並清掉 OL 自己那組舊監聽器，是 ImageTile 類別本來就提供、給消費端
+ * 替換圖片內容用的正常介面，不是旁門左道）；逾時／失敗／中止則單純
+ * 呼叫 tile.setState()，跟原本邏輯完全一致，只是不再對任何 <img> 賦值
+ * `''`（私有 Image 沒有 OL 的監聽器，賦值空字串一樣能真正中止背景
+ * 下載、不會有任何副作用，維持原本「abort 讓瀏覽器真的釋放連線名額」
+ * 的效果）。crossOrigin 需要在建立私有 Image 時手動同步：OL 建立
+ * tile.getImage() 時已經依 source 設定套用過（見 ol.source 的
+ * crossOrigin 選項），我們另外 new 的 Image 不會自動繼承。
+ *
  * @param {object} tile OL 的 Tile 物件。
  * @param {string} src 圖磚網址。
  * @param {number} timeoutMs 逾時毫秒數。
@@ -211,7 +247,10 @@ export const inFlightGuardedTiles = new Set();
  *   abortInFlightForKey() 依 key 中止使用。
  */
 export function loadWithTimeoutRetry(tile, src, timeoutMs, tileBbox, z, x, y, label, sourceKey){
-  const img = tile.getImage();
+  // 只讀 crossOrigin 設定，不碰這個 <img> 的 src／onload／onerror——它
+  // 從頭到尾維持 OL 建立時的原樣，讓 OL 自己掛的監聽器永遠等不到任何
+  // 事件（見上方函式註解）。
+  const crossOrigin = tile.getImage().crossOrigin;
 
   // attempt() 執行到底（不論成功、失敗、逾時判定 ERROR）都會呼叫這個
   // 把自己從 registry 移除；attempt(true) 重試時沿用同一筆 registry
@@ -238,11 +277,14 @@ export function loadWithTimeoutRetry(tile, src, timeoutMs, tileBbox, z, x, y, la
     let started = false;
     let timer;
     let releaseSlot = null;
+    let img = null; // 這次嘗試專屬的私有 Image，跟 tile.getImage() 無關
 
     const cleanup = () => {
       clearTimeout(timer);
-      img.onload = null;
-      img.onerror = null;
+      if(img){
+        img.onload = null;
+        img.onerror = null;
+      }
     };
 
     // 供 attachStaleTileAbort() 呼叫：視角已經換過、這顆圖磚不再相關時
@@ -273,6 +315,9 @@ export function loadWithTimeoutRetry(tile, src, timeoutMs, tileBbox, z, x, y, la
       settled = true;
       if(started){
         cleanup();
+        // 私有 Image，沒有 OL 的監聽器掛在它身上，賦值空字串可以安全地
+        // 真正中止背景下載，不會觸發任何意外的副作用（見函式頂端的
+        // 完整說明）。
         img.src = '';
       }
       tile.setState(TILE_STATE.ERROR);
@@ -292,11 +337,17 @@ export function loadWithTimeoutRetry(tile, src, timeoutMs, tileBbox, z, x, y, la
         return;
       }
       started = true;
+      img = new Image();
+      if(crossOrigin != null) img.crossOrigin = crossOrigin;
       img.onload = () => {
         if(settled) return;
         settled = true;
         cleanup();
-        tile.setState(TILE_STATE.LOADED);
+        // 交給 OL 的公開 API：同時設定 tile.image_ 為這張真的載入成功
+        // 的圖片、state=LOADED，並清掉 OL 自己在原本那個 <img> 上掛的
+        // 舊監聽器（那個 <img> 從頭到尾沒被賦值過 src，本來就不會有
+        // 任何事件觸發它們，這裡的清除只是 setImage() 的既有行為）。
+        tile.setImage(img);
         unregister();
         resolve();
       };
@@ -315,9 +366,9 @@ export function loadWithTimeoutRetry(tile, src, timeoutMs, tileBbox, z, x, y, la
         if(settled) return;
         settled = true;
         cleanup();
-        // 先清空 src 讓瀏覽器真的中止背景下載、釋放連線名額，之後
-        // 重新指定同一個網址時瀏覽器才會真的重新發送請求（直接把
-        // src 設回一模一樣的字串，部分瀏覽器不會觸發重新載入）。
+        // 私有 Image，安全地賦值空字串真正中止背景下載、釋放連線名額
+        // （見函式頂端的完整說明——跟舊版不同，這裡不會誤觸發 OL 的
+        // 監聽器）。
         img.src = '';
         // 不論是否還要重試，這次嘗試都已經結束，先釋放 pool slot；
         // 需要重試的話 attempt(true) 會重新跟 pool 排隊要一個新 slot。
