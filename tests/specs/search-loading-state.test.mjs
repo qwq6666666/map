@@ -62,3 +62,28 @@ test('連續觸發兩次搜尋（模擬快速按兩次），結束後 loading �
   ]);
   expect(!addressSearchBtn.classList.contains('loading'), '兩次呼叫結束後 loading class 都應該被移除').toBeTruthy();
 });
+
+/* ---------------------------------------------------------
+   回歸測試：手機版「按 Enter／前往就好像卡住」的使用者回報。
+   ---------------------------------------------------------
+   逐筆確認附近歷史圖層是否有資料通常要花上數秒（見 findAndRenderAvailableLayers()
+   的 onProgress 進度文字），這段等待期間唯一的畫面回饋（座標資訊、
+   「正在確認…」進度文字）都畫在輸入框下方。手機版點建議清單項目時，
+   焦點轉移到清單節點，瀏覽器通常會順帶收起虛擬鍵盤；但單純按 Enter
+   提交，輸入框本身沒有失焦，鍵盤常常不會自動收起，這段回饋畫面會被
+   鍵盤蓋住，使用者只看得到放大鏡圖示一直轉，以為卡住了（實際上背景
+   還在正常跑，只是看不到）。runImmediateSearch() 現在一開始就主動
+   blur() 輸入框，讓鍵盤立刻收起。
+--------------------------------------------------------- */
+test('runImmediateSearch()：一開始就主動 blur() 輸入框（讓手機版虛擬鍵盤立刻收起，不會擋住下方的進度回饋）', async () => {
+  addressInput.value = '會觸發 blur 檢查的測試地址';
+  let blurCalled = false;
+  const originalBlur = addressInput.blur;
+  addressInput.blur = () => { blurCalled = true; };
+  try{
+    await addressSearchBtn._listeners.click[0]();
+    expect(blurCalled, '搜尋開始時應該呼叫 blur() 讓虛擬鍵盤收起').toBe(true);
+  } finally {
+    addressInput.blur = originalBlur;
+  }
+});

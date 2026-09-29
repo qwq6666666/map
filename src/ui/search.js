@@ -114,6 +114,18 @@ async function runImmediateSearch(){
   // （快速按兩次 Enter／點兩次搜尋鈕），避免兩輪流程共用同一個 loading
   // 狀態卻互相干擾。
   if(addressSearchBtn.classList.contains('loading')) return;
+  // 手機版：按鍵盤上的「前往」／Enter 提交，跟點建議清單裡的項目不同——
+  // 點建議清單項目時，焦點會轉移到清單那個 DOM 節點，手機瀏覽器通常會
+  // 順帶收起虛擬鍵盤；但單純按 Enter 提交，輸入框本身沒有失焦，鍵盤
+  // 常常不會自動收起（已知的行動裝置網頁常見坑）。逐筆確認附近歷史
+  // 圖層是否有資料通常要花上數秒（見 features/search.js 的
+  // onProgress／findAvailableLayersAt），這段時間唯一看得到的畫面
+  // 回饋（座標資訊、「正在確認 X/Y 筆…」進度文字）全部畫在鍵盤還沒
+  // 收起時被蓋住的下半部螢幕，使用者只看得到一直在轉的放大鏡圖示，
+  // 會誤以為卡住了。主動 blur() 讓鍵盤立刻收起，兩條進入路徑（按鈕
+  // 點擊／按 Enter）都會經過這裡，行為一致；桌面版沒有虛擬鍵盤，
+  // blur() 沒有任何副作用。
+  addressInput.blur();
   if(runtime.addressDebounceTimer) clearTimeout(runtime.addressDebounceTimer);
   const myToken = bumpSearchToken();
   addressSearchBtn.classList.add('loading');
