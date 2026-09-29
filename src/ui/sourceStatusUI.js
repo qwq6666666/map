@@ -16,7 +16,7 @@
 import { checkAllSourceStatuses, buildSourceStatusTargets } from '../features/sourceStatus.js';
 import { getRecentTileFailures, clearRecentTileFailures } from '../core/tileLoadGuard.js';
 import { showLocateToast } from '../features/location.js';
-import { removeDrawerAnimated } from './drawerClose.js';
+import { removeDrawerAnimated, registerDrawerEscape } from './drawerClose.js';
 
 // icon 存 sprite symbol id（見 public/assets/map-emoji-style-a-icons.svg），
 // 消費端一律用 iconSvg() 組成 <svg><use> 字串，不能再用 textContent 賦值
@@ -271,14 +271,14 @@ function buildDrawer(){
     </div>
   `;
 
+  let unregisterEscape;
   const close = () => {
     removeDrawerAnimated(overlay, drawer);
-    document.removeEventListener('keydown', onKeydown);
+    unregisterEscape();
   };
-  const onKeydown = (e) => { if(e.key === 'Escape') close(); };
+  unregisterEscape = registerDrawerEscape(close);
   overlay.addEventListener('click', close);
   drawer.querySelector('.guide-drawer-close').addEventListener('click', close);
-  document.addEventListener('keydown', onKeydown);
 
   const listEl = drawer.querySelector('.source-status-list');
   const recheckBtn = drawer.querySelector('.source-status-recheck');

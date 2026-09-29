@@ -4,7 +4,7 @@
 // 不呼叫地圖／模式切換／搜尋等模組的內部邏輯，只靠 localStorage 記錄已讀旗標。
 
 import { expandSidebar } from './sidebarToggle.js';
-import { removeDrawerAnimated } from './drawerClose.js';
+import { removeDrawerAnimated, registerDrawerEscape } from './drawerClose.js';
 
 const STORAGE_KEY = 'has_seen_map_tour';
 
@@ -472,13 +472,12 @@ function buildGuideDrawer() {
     <div class="guide-drawer-body">${itemsHtml}</div>
   `;
 
+  let unregisterEscape;
   const close = () => {
     removeDrawerAnimated(overlay, drawer);
-    document.removeEventListener('keydown', onKeydown);
+    unregisterEscape();
   };
-  const onKeydown = (e) => {
-    if (e.key === 'Escape') close();
-  };
+  unregisterEscape = registerDrawerEscape(close);
 
   overlay.addEventListener('click', close);
   drawer.querySelector('.guide-drawer-close').addEventListener('click', close);
@@ -488,7 +487,6 @@ function buildGuideDrawer() {
       head.setAttribute('aria-expanded', String(isOpen));
     });
   });
-  document.addEventListener('keydown', onKeydown);
 
   return { overlay, drawer };
 }

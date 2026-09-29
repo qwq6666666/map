@@ -24,7 +24,7 @@ import { importGeoJSON } from '../drawTool.js';
 import { showLocateToast } from '../features/location.js';
 import { showAlert, showConfirm, showPrompt } from './dialog.js';
 import { exportTrackFile } from './trackExport.js';
-import { removeDrawerAnimated } from './drawerClose.js';
+import { removeDrawerAnimated, registerDrawerEscape } from './drawerClose.js';
 
 function el(tag, className, text){
   const node = document.createElement(tag);
@@ -120,12 +120,13 @@ function buildDrawer(){
   let renderToken = 0;
   let lastRecording = getTrackStatus().recording;
 
+  let unregisterEscape;
   function close(){
     unsubscribe();
-    document.removeEventListener('keydown', onKeydown);
+    unregisterEscape();
     removeDrawerAnimated(overlay, drawer);
   }
-  function onKeydown(e){ if(e.key === 'Escape') close(); }
+  unregisterEscape = registerDrawerEscape(close);
 
   function buildItem(track){
     const recording = isRecordingTrack(track.id);
@@ -222,7 +223,6 @@ function buildDrawer(){
 
   overlay.addEventListener('click', close);
   closeBtn.addEventListener('click', close);
-  document.addEventListener('keydown', onKeydown);
   render();
   return { overlay, drawer };
 }

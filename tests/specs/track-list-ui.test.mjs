@@ -313,7 +313,14 @@ test('連點入口：已經開著就不再開第二個；按 Esc 關閉並取消
   [...keydownHandlers].forEach((fn) => fn({ key: 'Escape' }));
   expect(drawerEl()).toBeNull();
   expect(mocks.unsubscribed).toBe(1);
-  expect(keydownHandlers.size).toBe(0);
+  // Esc 監聽器現在是 ui/drawerClose.js 共用的「只關最上層」堆疊（見
+  // registerDrawerEscape()），整個頁面生命週期只掛一次、不隨單一抽屜關閉而
+  // 解除，供之後開啟的其他抽屜（使用指南／來源狀態）繼續使用；抽屜自己
+  // 關閉時只是把自己從堆疊移除。已關閉的抽屜不會再回應之後的 Esc：
+  // 再按一次不會重複觸發 unsubscribe()。
+  expect(keydownHandlers.size).toBe(1);
+  [...keydownHandlers].forEach((fn) => fn({ key: 'Escape' }));
+  expect(mocks.unsubscribed).toBe(1);
 });
 
 test('點遮罩、點關閉鈕都會關閉', async () => {
