@@ -75,6 +75,35 @@ test('自動播放會依序觸發每一筆，播完自動停止', async () => {
   expect(playBtn.innerHTML.includes('#play'), '播完應該自動變回「播放」圖示').toBeTruthy();
 });
 
+test('{ autoplay: true }：不用手動按播放鈕，建好時間軸就立即開始播放（供 timelineMode.js 的 startLocationTour() 使用）', async () => {
+  const fired = [];
+  const container = document.createElement('div');
+  const candidates = [1897, 1904, 1944].map((y, i) => makeCandidate('id' + i, 't' + i, y));
+  buildTimeline(candidates, container, (s, l) => fired.push(l.id), { autoplay: true });
+  expect(fired.length, '不用點任何按鈕，autoplay 應該立即觸發第一筆').toBe(1);
+  const timelineRow = container.children.find(c => c.className === 'timeline-row');
+  const playBtn = timelineRow.children[0];
+  expect(playBtn.innerHTML.includes('#pause'), '播放鈕圖示應該立即變成暫停').toBeTruthy();
+  await sleep(2000);
+  expect(fired.length, '應該跟手動按播放一樣正常繼續推進').toBe(2);
+});
+
+test('{ autoplay: true } 但只有 1 筆候選：安靜地不播放，也不拋例外（跟只有 1 筆時沒有播放鈕的既有行為一致）', () => {
+  const fired = [];
+  const container = document.createElement('div');
+  const candidates = [makeCandidate('only', '唯一', 1930)];
+  expect(() => buildTimeline(candidates, container, (s, l) => fired.push(l.id), { autoplay: true })).not.toThrow();
+  expect(fired.length, '只有 1 筆時，autoplay 不應該主動觸發任何選取（跟原本『只有 1 筆沒有播放鈕』的行為一致）').toBe(0);
+});
+
+test('沒有傳 options（維持原本呼叫方式）：不會自動播放，行為跟改動前一致', () => {
+  const fired = [];
+  const container = document.createElement('div');
+  const candidates = [1897, 1904, 1944].map((y, i) => makeCandidate('id' + i, 't' + i, y));
+  buildTimeline(candidates, container, (s, l) => fired.push(l.id));
+  expect(fired.length, '不傳 options 時不應該自動播放').toBe(0);
+});
+
 test('加速播放按鈕會依 1x→2x→4x→0.5x→1x 循環切換（跟自訂時間軸共用同一組級距）', () => {
   const container = document.createElement('div');
   const candidates = [1897, 1904, 1944].map((y, i) => makeCandidate('id' + i, 't' + i, y));

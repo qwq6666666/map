@@ -24,7 +24,7 @@
    中心點那一顆圖磚裡，隔壁圖磚其實是有資料的——只探測單一一個點很
    容易在這種邊界情形誤判成「找不到」。
 --------------------------------------------------------- */
-import { state as store, selectOverlayLayer } from './store.js';
+import { state as store, selectOverlayLayer, setMode } from './store.js';
 import { DATA, layerKey } from './data.js';
 import { TileChecker, globalTileRequestPool } from './tileChecker.js';
 import { buildTimeline } from './timelineUI.js';
@@ -89,6 +89,11 @@ let sourceSwitchEl = null;
 let refreshToken = 0;
 let lastProbedTileKey = null; // 上一次真的送出探測時，地圖中心點所在的圖磚（z/x/y）
 let preloadOverlayKeysFn = null; // mapCore.js 的 preloadOverlayKeys()，由 initTimelineMode() 傳入
+// startLocationTour() 設定、refreshNow() 消費：下一輪 refreshNow() 建好
+// 時間軸後要不要立即自動播放。在 refreshNow() 開頭就讀取並清空（見該
+// 函式），不管這一輪最終有沒有真的建出時間軸都不會外洩到下一輪無關的
+// 重新整理（例如使用者之後自己按「重新整理」或切換系列）。
+let pendingAutoplay = false;
 
 function currentTileKey(){
   const center3857 = mapRef.getView().getCenter();
@@ -100,6 +105,13 @@ function currentTileKey(){
 function refreshNow(){
   if(!mapRef || !containerEl) return;
   const myToken = ++refreshToken; // 讓還在跑的舊一輪探測作廢，避免畫面被過期結果蓋掉
+  // 一定要在這裡就讀取並清空，不能留到真的呼叫 buildTimeline() 那一刻
+  // 才讀：這中間有好幾個提早 return 的分支（找不到來源、探測結果是
+  // 空的…），若留到最後才清空，這次沒播成的自動播放請求會一直卡在
+  // pendingAutoplay，被下一輪完全不相關的重新整理（使用者手動按
+  // 「重新整理」、切換系列）意外接收。
+  const autoplay = pendingAutoplay;
+  pendingAutoplay = false;
 
   const center3857 = mapRef.getView().getCenter();
   const [lon, lat] = ol.proj.toLonLat(center3857);
@@ -163,7 +175,7 @@ function refreshNow(){
 
     buildTimeline(available, containerEl, (src, layer) => {
       selectOverlayLayer(layerKey(src, layer));
-    });
+    }, { autoplay });
 
     // 探測完成、確定這個位置真的有哪些圖層之後，把它們全部背景預先載入
     //（見 mapCore.js 的 preloadOverlayKeys）。清單筆數不多、實際通過
@@ -234,4 +246,30 @@ export function initTimelineMode(map, preloadOverlayKeysFnParam){
 /** 進入時間軸模式時呼叫，立即依目前地圖畫面探測一次（不用等按按鈕）。 */
 export function activateTimelineMode(){
   refreshNow();
+}
+
+/**
+ * 「百年導覽」入口：供 ui/placeNameCard.js 的「開始百年導覽」鈕呼叫。
+ * 把地圖同步（非動畫）定位到 (lon, lat)，切到時間軸模式，探測完成後
+ * 自動開始播放——不用動畫飛過去，是刻意的：動畫要幾百毫秒才走完，若
+ * 這中間 setMode('timeline') 已經觸發 activateTimelineMode() 讀地圖
+ * 目前中心點來探測，會探測到動畫還沒走到的舊位置，錯誤地把附近圖層
+ * 誤判成「這個地點沒有資料」（分享連結還原 lon/lat/zoom 用的也是同一招
+ * 直接 setCenter/setZoom，見 features/shareLink.js）。
+ *
+ * setMode('timeline') 在「目前已經在時間軸模式」（例如導覽途中又點了
+ * 另一張地名卡）時是 no-op（store.setState() 值沒變就不廣播，見
+ * store.js），不會觸發 activateTimelineMode()；這裡改成自己直接呼叫
+ * refreshNow()，兩條路徑最終都會讀到 pendingAutoplay 並正確消費掉。
+ *
+ * @param {number} lon
+ * @param {number} lat
+ */
+export function startLocationTour(lon, lat){
+  if(!mapRef) return;
+  mapRef.getView().setCenter(ol.proj.fromLonLat([lon, lat]));
+  mapRef.getView().setZoom(ZOOM);
+  pendingAutoplay = true;
+  if(store.mode === 'timeline') refreshNow();
+  else setMode('timeline');
 }

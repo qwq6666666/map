@@ -754,6 +754,18 @@
   .place-name-card-body{margin-top:8px; display:flex; flex-direction:column; gap:6px;}
   .place-name-card.collapsed .place-name-card-body{display:none;}
 
+  /* 「開始百年導覽」：串連時間軸模式（timelineMode.js 的
+     startLocationTour()）的主要行動呼籲，刻意跟其餘純文字的
+     .place-name-row 分開一列、用實心底色，不會被旁邊一堆淡色文字行
+     淹沒。獨立成一列（不擠進現名那一列），手機窄螢幕也不會被擠到換行。 */
+  .place-name-tour-row{margin:2px 0 4px;}
+  .place-name-tour-btn{
+    display:block; width:100%; padding:6px 10px; border:1px solid var(--brass-dark); border-radius:var(--radius-sm);
+    background:var(--brass-dark); color:var(--paper); font-family:var(--sans); font-size:var(--fs-sm); font-weight:600;
+    cursor:pointer; text-align:center;
+  }
+  .place-name-tour-btn:hover{background:var(--brass-dark-text); border-color:var(--brass-dark-text);}
+
   .place-name-row{font-size:var(--fs-sm); color:var(--ink); line-height:1.6;}
   .place-name-row-label{
     color:var(--brass-dark-text); font-weight:600; font-size:var(--fs-xs); letter-spacing:.02em; margin-right:4px;

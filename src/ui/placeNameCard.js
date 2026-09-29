@@ -9,6 +9,7 @@
    focusPlaceNameCard，既有的 import 路徑（main.js、tests）不用改。
 --------------------------------------------------------- */
 import { sourceTypeLabel, setDisplayedPlaceNameCard, summarizeDescription } from '../features/placeNames.js';
+import { startLocationTour } from '../timelineMode.js';
 
 let placeNameCardEl, placeNameCardToggleBtn, placeNameCardBodyEl, placeNameCardTeaserEl;
 
@@ -115,6 +116,26 @@ function buildTeaserText(place){
   return `${place.county || ''}${place.town || ''}`;
 }
 
+// 「開始百年導覽」：把 features/timelineMode.js 的時間軸引擎跟這個地點
+// 串起來——定位到這裡、切成時間軸模式、探測完成後自動依序播放這個位置
+// 找得到的歷史地圖，讓使用者不用自己再手動操作一次。只有座標齊全（見
+// features/placeNames.js 的 matchPlaceNames()／findPlaceNameCandidates()，
+// 只回傳有 longitude／latitude 的候選）才會顯示，理論上卡片渲染到的
+// place 一定有，這裡多一層防呆不花額外成本。
+function buildStartTourRow(place){
+  if(typeof place.longitude !== 'number' || typeof place.latitude !== 'number') return null;
+  const row = document.createElement('div');
+  row.className = 'place-name-tour-row';
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'place-name-tour-btn';
+  btn.textContent = '🕰️ 開始百年導覽';
+  btn.title = `依年代播放「${place.name}」找得到的歷史地圖`;
+  btn.addEventListener('click', () => startLocationTour(place.longitude, place.latitude));
+  row.appendChild(btn);
+  return row;
+}
+
 // 「現名」與「現代位置」併成同一列：現名粗體，位置接在旁邊用小字，
 // 省下一整列，也不再有兩個標籤各佔一行。
 function buildPlaceNameHeadingRow(place){
@@ -153,6 +174,9 @@ export function renderPlaceNameCard(place){
   if(placeNameCardTeaserEl) placeNameCardTeaserEl.textContent = buildTeaserText(place);
 
   placeNameCardBodyEl.appendChild(buildPlaceNameHeadingRow(place));
+
+  const tourRow = buildStartTourRow(place);
+  if(tourRow) placeNameCardBodyEl.appendChild(tourRow);
 
   if(place.aliases && place.aliases.length > 0){
     const aliasWrap = document.createElement('div');

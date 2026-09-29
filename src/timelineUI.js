@@ -82,8 +82,13 @@ function setPlayBtnIcon(btn, symbol){
  * @param {Array<{src, layer}>} candidates 要畫上時間軸的候選圖層
  * @param {HTMLElement} container 掛載目標（會被清空後重新填入）
  * @param {(src, layer) => void} onSelect 點擊圖層時呼叫
+ * @param {object} [options]
+ * @param {boolean} [options.autoplay] 建好時間軸後立即開始播放，供
+ *   timelineMode.js 的 startLocationTour()（地名卡「開始百年導覽」）
+ *   使用；只有一筆圖層（沒有播放鈕）時安靜忽略，跟使用者手動按播放鈕
+ *   的行為完全一致，不另外處理。
  */
-export function buildTimeline(candidates, container, onSelect){
+export function buildTimeline(candidates, container, onSelect, { autoplay = false } = {}){
   // 清掉上一輪可能還沒觸發的計時器（見上方模組層級變數的說明），
   // 一定要在清空／重建 DOM 之前做，避免舊計時器到期時操作到新一輪
   // 已經不存在的節點或呼叫已經過期的 onSelect。
@@ -330,6 +335,13 @@ export function buildTimeline(candidates, container, onSelect){
       timelineRow.appendChild(ticks);
     }
     container.appendChild(timelineRow);
+
+    // 一定要排在 container.appendChild() 之後：startPlaying() 會呼叫
+    // selectIndex() -> onSelect()，呼叫端（timelineMode.js）可能依賴
+    // DOM 已經掛進頁面才能正確運作（例如量測版面）。dotList.length<=1
+    // 時 startPlaying() 自己會安靜提早返回（跟播放鈕不存在時的邏輯
+    // 一致，這裡不用重複判斷）。
+    if(autoplay) startPlaying();
   }
 
   if(undated.length > 0){

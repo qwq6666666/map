@@ -5,6 +5,8 @@ import { getDisplayedPlaceNameCard } from '../../src/features/placeNames.js';
 import { initMapCore } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
 import { initSearchUI, renderPlaceNameCard, renderPlaceNameCandidateList, renderMergedSuggestList, hidePlaceNameCard } from '../../src/ui/search.js';
+import { state as store, setMode } from '../../src/store.js';
+import { map } from '../../src/core/map.js';
 
 /* ---------------------------------------------------------
    tests/specs/place-name-card-ui.test.mjs
@@ -199,6 +201,33 @@ test('資料來源是單行淡色註腳（固定格式，含「資料來源：�
   const notes = findNodes(placeNameCardBodyEl, n => n.className === 'place-name-source-note');
   expect(notes.length).toBe(1);
   expect(notes[0].textContent).toBe('資料來源：臺灣地區地名資料（聚落類）');
+});
+
+/* ---------------------------------------------------------
+   「開始百年導覽」鈕（串連 timelineMode.js 的 startLocationTour()，
+   見該檔案與 ui/placeNameCard.js 的說明）。
+--------------------------------------------------------- */
+test('「開始百年導覽」鈕：有座標的地名一定會渲染出來，點擊後定位到該地點並切到時間軸模式', () => {
+  setMode('overlay'); // 確保從非時間軸模式開始，才測得出「有沒有真的切換模式」
+  renderPlaceNameCard(place);
+  const [btn] = findNodes(placeNameCardBodyEl, n => n.className === 'place-name-tour-btn');
+  expect(btn, '應該要渲染出「開始百年導覽」鈕').toBeTruthy();
+  expect(btn.textContent.includes('百年導覽')).toBe(true);
+
+  btn.click();
+  expect(store.mode, '點擊後應該切到時間軸模式').toBe('timeline');
+  const [lon, lat] = globalThis.ol.proj.toLonLat(map.getView().getCenter());
+  expect(lon, '地圖經度應該移到這個地名的座標').toBeCloseTo(place.longitude, 6);
+  expect(lat, '地圖緯度應該移到這個地名的座標').toBeCloseTo(place.latitude, 6);
+
+  setMode('overlay'); // 收尾，不影響後面其他測試案例預期的初始模式
+});
+
+test('「開始百年導覽」鈕：座標缺失（理論上不會發生，防呆）時不渲染這個按鈕，卡片其餘內容仍正常顯示', () => {
+  renderPlaceNameCard({ ...place, longitude: undefined, latitude: undefined });
+  const buttons = findNodes(placeNameCardBodyEl, n => n.className === 'place-name-tour-btn');
+  expect(buttons.length, '沒有座標就不應該渲染這個按鈕，避免點了也不知道要飛去哪裡').toBe(0);
+  expect(cardText().includes('德化社'), '其餘內容應該照常渲染，不受影響').toBe(true);
 });
 
 test('標題列預覽：有舊稱顯示舊稱；沒舊稱顯示說明摘要；兩者都沒有顯示現代位置；隱藏卡片後清空', () => {

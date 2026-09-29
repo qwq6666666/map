@@ -7,7 +7,9 @@ import { initMapCore } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
 import { initSearchUI } from '../../src/searchUI.js';
 import { initDrawTool } from '../../src/drawTool.js';
-import { setMode } from '../../src/store.js';
+import { setMode, state as store } from '../../src/store.js';
+import { startLocationTour } from '../../src/timelineMode.js';
+import { map } from '../../src/core/map.js';
 
 test('整個應用程式可以完整初始化，不拋出任何例外', async () => {
   await loadAppData();
@@ -58,4 +60,47 @@ test('三種模式可以依序切換回疊圖模式，不拋出例外', async ()
   setMode('compare');
   setMode('overlay');
   expect(true, '沒有拋出例外就算通過').toBeTruthy();
+});
+
+/* ---------------------------------------------------------
+   「百年導覽」（timelineMode.js 的 startLocationTour()，供
+   ui/placeNameCard.js「開始百年導覽」鈕呼叫）：目前是 overlay 模式
+   （上一個測試結束時設定），startLocationTour() 應該同步把地圖定位到
+   指定座標、切到時間軸模式，探測完成後不用使用者按任何東西就自動開始
+   播放。這裡刻意選一個跟目前地圖中心明顯不同的座標，才能證明真的是
+   startLocationTour() 移動了地圖，不是恰好本來就在那附近。
+--------------------------------------------------------- */
+test('百年導覽：從 overlay 模式呼叫，應該同步定位地圖、切到時間軸模式、探測完成後自動開始播放', async () => {
+  expect(store.mode, '前置條件：目前應該是 overlay 模式').toBe('overlay');
+  const targetLonLat = [120.6736, 24.1477]; // 台中市中心，明顯不同於預設地圖中心
+  startLocationTour(targetLonLat[0], targetLonLat[1]);
+
+  expect(store.mode, 'startLocationTour() 應該同步切到時間軸模式').toBe('timeline');
+  const actualLonLat = globalThis.ol.proj.toLonLat(map.getView().getCenter());
+  expect(actualLonLat[0], '地圖經度應該同步移到目標座標').toBeCloseTo(targetLonLat[0], 6);
+  expect(actualLonLat[1], '地圖緯度應該同步移到目標座標').toBeCloseTo(targetLonLat[1], 6);
+
+  const inner = document.getElementById('mapTimelineBarInner');
+  await waitFor(() => inner.querySelectorAll('.timeline-dot.active').length > 0, {
+    message: '百年導覽探測完成後，逾時仍未自動選取任何一筆（autoplay 可能沒有生效）'
+  });
+  const playBtn = inner.querySelector('.timeline-play-btn');
+  expect(playBtn.innerHTML.includes('#pause'), '應該不用使用者按播放鈕，直接自動進入播放中狀態').toBeTruthy();
+});
+
+test('百年導覽：已經在時間軸模式時呼叫（setMode 是 no-op），也應該正確重新定位並重新探測', async () => {
+  expect(store.mode, '前置條件：延續上一個測試，目前應該已經在時間軸模式').toBe('timeline');
+  const targetLonLat = [121.5170, 25.0478]; // 台北市中心，再換一個明顯不同的座標
+  startLocationTour(targetLonLat[0], targetLonLat[1]);
+
+  const actualLonLat = globalThis.ol.proj.toLonLat(map.getView().getCenter());
+  expect(actualLonLat[0], '已經在時間軸模式時，也應該同步移動地圖經度').toBeCloseTo(targetLonLat[0], 6);
+  expect(actualLonLat[1], '已經在時間軸模式時，也應該同步移動地圖緯度').toBeCloseTo(targetLonLat[1], 6);
+
+  const inner = document.getElementById('mapTimelineBarInner');
+  await waitFor(() => inner.querySelectorAll('.timeline-dot.active').length > 0, {
+    message: '已經在時間軸模式時再次呼叫，逾時仍未自動開始播放'
+  });
+
+  setMode('overlay'); // 收尾，避免播放中的計時器／狀態影響其他測試檔案
 });
