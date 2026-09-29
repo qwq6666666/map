@@ -285,10 +285,24 @@ export function applyShareStateFromURL(){
 
   // 視角要在 setState() 之前設好：mode=timeline 會在 setState() 內立刻依「當下」地圖
   // 中心探測可用年份，先切模式、後移動地圖的話，探測的是還原前的舊位置。
+  //
+  // lon/lat 除了 Number.isFinite() 還要檢查落在合法經緯度範圍（-180~180／
+  // -90~90）：手動改過或惡意建構的連結塞進超出範圍但仍是「有限數字」的
+  // 極端值（例如 1e50）時，ol.proj.fromLonLat() 內部的 Mercator 投影公式
+  // 對經度極端值算出來的緯度分量會是 NaN（已用真的 ol@9.2.4 實測驗證：
+  // fromLonLat([1e50, 1e50]) === [1.11e55, NaN]）——OL 的 View.setCenter()
+  // 不會拒絕、也不會清掉帶 NaN 的座標（實測 setCenter() 之後 getCenter()
+  // 原樣留著 NaN，連後續 setZoom() 都救不回來），會讓地圖永久卡在空白
+  // 畫面，使用者沒有任何辦法自己修好，只能重新整理頁面拿掉這個分享連結。
+  // 一般「看起來離譜但還算數字」的值（例如緯度 90、999）OL 本身的投影
+  // 公式／View 的 center constraint 就會自動夾回合理範圍，不會壞掉；只有
+  // 這種遠超合法經緯度的極端值才會真的產生 NaN，所以直接擋在合法地理
+  // 座標範圍之外，比嘗試更複雜的 clamp 更直接可靠。
   if(params.has('lon') && params.has('lat')){
     const lon = Number(params.get('lon'));
     const lat = Number(params.get('lat'));
-    if(Number.isFinite(lon) && Number.isFinite(lat)){
+    if(Number.isFinite(lon) && Number.isFinite(lat) &&
+       lon >= -180 && lon <= 180 && lat >= -90 && lat <= 90){
       map.getView().setCenter(ol.proj.fromLonLat([lon, lat]));
       applied = true;
     }

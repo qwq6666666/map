@@ -245,6 +245,14 @@ test('zoom/lon/lat 不是合法數字時會被忽略，不呼叫 setCenter/setZo
   expect(map.getView().getZoom(), '不該呼叫 setZoom').toBe(beforeZoom);
 });
 
+test('lon/lat 超出合法經緯度範圍（雖是有限數字）時會被忽略，不呼叫 setCenter（已用真的 ol@9.2.4 驗證：這類極端值會讓 fromLonLat() 算出 NaN，setCenter 之後永遠救不回來）', () => {
+  const beforeCenter = map.getView().getCenter();
+  location.search = '?lon=1e50&lat=1e50';
+  const result = applyShareStateFromURL();
+  expect(result, '唯一參數不合法，applied 應該是 false').toBe(false);
+  expect(map.getView().getCenter(), '不該呼叫 setCenter').toBe(beforeCenter);
+});
+
 test('合法的 lon/lat/zoom 能正確還原地圖視角', () => {
   location.search = '?lon=121.5&lat=25.05&zoom=12';
   const result = applyShareStateFromURL();
