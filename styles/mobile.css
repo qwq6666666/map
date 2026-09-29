@@ -554,8 +554,16 @@
     #sidebar.collapsed .sidebar-header{
       padding:8px 16px 6px; height:auto; align-items:center; justify-content:space-between;
     }
+    /* font-size 這裡要跟下面 `#sidebar #toggleSidebar` 同一份 15px：桌面版
+       `#sidebar.collapsed #toggleSidebar`（base.css）的 selector 是
+       id+id+class（2 個 id、1 個 class），跟這裡完全同名同 specificity，
+       只靠「後宣告」贏過去；但下面 `#sidebar #toggleSidebar`（沒有
+       `.collapsed`，少一個 class）specificity 比 base 那條低一階，Bottom
+       Sheet 收合(peek)時字級會被 base 的 `font-size:var(--fs-base)` 蓋回去
+       （在手機版 --fs-base 被重新定義成 16px，跟展開狀態的 15px 不一致，
+       已實測重現）。這裡直接補上，讓收合/展開兩態字級一致。 */
     #sidebar.collapsed #toggleSidebar{
-      width:36px; height:36px; border-radius:var(--radius-6);
+      width:36px; height:36px; border-radius:var(--radius-6); font-size:15px;
     }
     #sidebar #toggleSidebar{width:36px; height:36px; font-size:15px;}
 
