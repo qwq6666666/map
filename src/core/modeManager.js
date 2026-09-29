@@ -99,6 +99,15 @@ function applyModeTransition(prevState){
     timelinePanel.style.display = 'none';
     multiPanel.style.display = 'none';
     collapseSidebar(); // 圖層改由地圖下方的左右浮動選擇器操作，側邊欄同時間軸模式自動收合讓出空間
+    // 比對模式的左右裁切圖層疊在底圖之上，歷史圖層沒資料的地方會透出
+    // 底圖（見 compareMode.js 的裁切註解），所以底圖可見度一樣要套用，
+    // 跟其餘三個分支一致。漏掉這行時，若 store.mode／store.baseLayer
+    // 在同一次 setState()（例如分享連結一次還原 mode=compare&base=sat）
+    // 一起改變，下面 render() 的 `changedKeys.includes('mode')` 分支會
+    // 直接 return，不會再執行外層 `if(changedKeys.includes('baseLayer'))
+    // applyBaseLayer()`，導致 store.baseLayer 已經是 sat、實際底圖圖層
+    // 卻還停在舊的可見狀態。
+    applyBaseLayer();
     enterCompareMode();
   }
   updateFloatingOpacityVisibility();

@@ -5,9 +5,10 @@ import { loadAppData, DATA } from '../../src/data.js';
 import { initMapCore } from '../../src/mapCore.js';
 import { initSidebar } from '../../src/sidebarUI.js';
 import { initSearchUI } from '../../src/searchUI.js';
-import { state as store, setMode, setBaseLayer, selectOverlayLayer } from '../../src/store.js';
+import { state as store, setState, setMode, setBaseLayer, selectOverlayLayer } from '../../src/store.js';
 import { activateFromSearch } from '../../src/features/search.js';
 import { getCacheStats } from '../../src/core/layerManager.js';
+import { map } from '../../src/core/map.js';
 
 await loadAppData();
 initMapCore();
@@ -118,4 +119,33 @@ test('底圖切換正常運作', () => {
   expect(store.baseLayer, '底圖應該變成 sat').toBe('sat');
   setBaseLayer('osm');
   expect(store.baseLayer, '底圖應該變回 osm').toBe('osm');
+});
+
+// 分享連結還原（features/shareLink.js 的 applyShareStateFromURL()）把
+// mode／baseLayer 收集成同一個 patch 物件、只呼叫一次 setState()——
+// changedKeys 同時含 'mode' 跟 'baseLayer'。core/modeManager.js 的
+// render() 只要 changedKeys 含 'mode' 就會呼叫 applyModeTransition()
+// 並直接 return，不會再執行下面 `if(changedKeys.includes('baseLayer'))
+// applyBaseLayer()` 那行；底圖是否正確套用完全要看 applyModeTransition()
+// 對應的分支自己有沒有呼叫 applyBaseLayer()。overlay／timeline／multi
+// 三個分支都有呼叫，但 compare 分支原本漏掉，導致連結帶
+// `mode=compare&base=sat` 還原時，store.baseLayer 已經是 'sat'，
+// osm/sat 底圖圖層卻仍停留在舊的可見狀態——比對模式的裁切圖層在歷史
+// 圖層沒資料的地方會透出底圖（見 compareMode.js 的裁切註解），因此
+// 使用者會在有資料缺口處看到錯誤的底圖。
+test('分享連結還原 mode=compare 且同時帶入 baseLayer 時，底圖要跟著正確套用', () => {
+  setMode('overlay');
+  setBaseLayer('osm');
+  const [osmLayer, satLayer] = map.opts.layers;
+  expect(osmLayer.getVisible(), '前置條件：一開始 osm 底圖可見').toBe(true);
+  expect(satLayer.getVisible(), '前置條件：一開始衛星底圖不可見').toBe(false);
+
+  setState({ mode: 'compare', baseLayer: 'sat' }); // 模擬分享連結一次 setState 帶入兩個欄位
+  expect(store.mode, 'mode 應該變成 compare').toBe('compare');
+  expect(store.baseLayer, 'baseLayer 應該變成 sat').toBe('sat');
+  expect(osmLayer.getVisible(), 'osm 底圖應該被切成不可見').toBe(false);
+  expect(satLayer.getVisible(), '衛星底圖應該被切成可見').toBe(true);
+
+  setBaseLayer('osm');
+  setMode('overlay');
 });
