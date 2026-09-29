@@ -131,3 +131,41 @@ test('進入比對模式只隱藏疊圖模式的歷史圖層、不從地圖移�
   expect(map._layers.includes(hist), '切回疊圖後歷史圖層應仍在地圖上').toBe(true);
   setMode('overlay');
 });
+
+test('分隔線拖曳：第二根手指的 pointermove/pointerup 不會打斷正在拖曳中的第一根手指（多指觸控防呆）', () => {
+  setMode('compare');
+  setSwipePercent(50);
+
+  const swipeHandle = document.getElementById('swipeHandle');
+  const mapEl = document.getElementById('map');
+  expect(mapEl.clientWidth, '前置條件：假環境 #map 寬度應為 800px').toBe(800);
+
+  // 手指 1：在把手上按下，開始拖曳分隔線。
+  swipeHandle._listeners['pointerdown'][0]({ pointerId: 1, preventDefault(){} });
+  expect(runtime.dragging, '手指 1 按下後應進入拖曳中').toBe(true);
+
+  // 手指 2：在畫面上其他地方（離分隔線很遠）觸碰後又提早放開——常見於
+  // 手持裝置時手掌／另一手指誤觸。修正前 window 的 pointerup 監聽器完全
+  // 不檢查 pointerId，任何手指放開都會把 runtime.dragging 清成 false，
+  // 導致手指 1 明明還按著，卻再也拖不動分隔線。
+  window._dispatch('pointerup', { pointerId: 2 });
+  expect(runtime.dragging, '手指 2 放開不應該打斷手指 1 的拖曳').toBe(true);
+
+  // 手指 2 中途移動：修正前 pointermove 同樣不比對 pointerId，會被誤當成
+  // 拖曳中的手指，把分隔線拉到手指 2 的座標（790px ≈ 98.75%）。
+  window._dispatch('pointermove', { pointerId: 2, clientX: 790 });
+  expect(store.swipePercent, '手指 2 的移動不應該影響分隔線位置').toBe(50);
+
+  // 手指 1 真正移動：分隔線應該正常跟著手指 1 走（400px = 50%，不必特地
+  // 改變位置也能證明 store 沒有被手指 2 污染；這裡改到 200px = 25% 確認
+  // 手指 1 仍然有效）。
+  window._dispatch('pointermove', { pointerId: 1, clientX: 200 });
+  expect(store.swipePercent, '手指 1 的移動應該正常更新分隔線位置').toBe(25);
+
+  // 手指 1 放開：拖曳才真正結束。
+  window._dispatch('pointerup', { pointerId: 1 });
+  expect(runtime.dragging, '手指 1 放開後拖曳應該結束').toBe(false);
+
+  setSwipePercent(50); // 還原預設值，避免影響其他測試檔的初始假設
+  setMode('overlay');
+});

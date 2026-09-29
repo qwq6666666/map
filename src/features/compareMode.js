@@ -198,9 +198,29 @@ const DIVIDER_HIT_MARGIN = 22;
 // 分隔線拖曳起始：不依賴 initSwipeDivider() 內的任何區域變數（只用到模組
 // 頂層已匯入的 runtime），搬到模組頂層可避免每次呼叫 initSwipeDivider() 都
 // 重新建立一份相同的函式。
+//
+// activePointerId 記錄「目前正在拖曳分隔線的那根手指／指標」的 pointerId。
+// 下面 pointermove／pointerup／pointercancel 都掛在 window 上、沒有用
+// setPointerCapture()，天生會收到畫面上所有指標的事件，若不比對 pointerId，
+// 觸控裝置上只要在拖曳過程中有第二根手指觸碰畫面任何地方（不需要點在分隔線
+// 上），就會出現兩種誤判：① 第二指移動時的 pointermove 會被誤當成拖曳中的
+// 手指、把分隔線拉到第二指的位置；② 第二指提早放開時的 pointerup 會讓
+// runtime.dragging 被清成 false，導致第一指仍按著、卻再也拖不動分隔線。
+// 比照 ui/mobileLayout.js 的 initSheetHandle()／initDraggableModeButton()
+// 同一類修法：只追蹤最先按下的那根手指，其餘一律忽略。
+let activePointerId = null;
+
 function startDrag(e){
+  if(runtime.dragging) return; // 已有手指在拖曳中，忽略後續手指的 pointerdown
   runtime.dragging = true;
+  activePointerId = e.pointerId;
   e.preventDefault();
+}
+
+function endDrag(e){
+  if(e.pointerId !== activePointerId) return; // 不是正在拖曳的那根手指，不受影響
+  runtime.dragging = false;
+  activePointerId = null;
 }
 
 function initSwipeDivider(){
@@ -222,10 +242,11 @@ function initSwipeDivider(){
     e.stopPropagation();
   }, true);
 
-  window.addEventListener('pointerup', ()=> runtime.dragging = false);
-  window.addEventListener('pointercancel', ()=> runtime.dragging = false);
+  window.addEventListener('pointerup', endDrag);
+  window.addEventListener('pointercancel', endDrag);
   window.addEventListener('pointermove', (e)=>{
     if(!runtime.dragging || store.mode !== 'compare') return;
+    if(e.pointerId !== activePointerId) return; // 不是拖曳中的那根手指，忽略（見 activePointerId 註解）
     const mapEl = document.getElementById('map');
     const rect = mapEl.getBoundingClientRect();
     let x = e.clientX - rect.left;
