@@ -354,7 +354,7 @@
           "format": "png",
           "year": 1945,
           "dateLabel": "1945",
-          "type": "行政區劃圖",
+          "type": null,
           "scale": null,
           "region": {
             "bbox": [
