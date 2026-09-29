@@ -42,8 +42,13 @@ const fs = require('node:fs');
 
 class FakeClassList {
   constructor(node){ this._node = node; }
-  add(c){ this._node._classes.add(c); }
-  remove(c){ this._node._classes.delete(c); }
+  // 比照真實瀏覽器 DOMTokenList.add()/remove()：可一次接受多個 token（例如
+  // features/multiOverlay.js 的 clearDragOverVisuals() 呼叫
+  // `classList.remove('dragging', 'drag-over-top', 'drag-over-bottom')`）。
+  // 原本只取第一個參數、其餘被 JS 直接忽略，跟真實瀏覽器行為不一致
+  // （目前沒有測試案例斷言到這個呼叫點的效果，屬於尚未踩到的落差）。
+  add(...cs){ cs.forEach(c => this._node._classes.add(c)); }
+  remove(...cs){ cs.forEach(c => this._node._classes.delete(c)); }
   // 比照真實瀏覽器 DOMTokenList.toggle()：回傳 boolean（toggle 後該
   // class 是否存在），不能只做操作不回傳值——search.js 的地名今昔對照卡
   // 收合按鈕 handler（`const collapsed = classList.toggle('collapsed')`）
