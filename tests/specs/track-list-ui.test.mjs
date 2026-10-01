@@ -23,7 +23,8 @@ const mocks = vi.hoisted(() => ({
   toast: vi.fn(),
   alert: vi.fn(async () => {}),
   confirm: vi.fn(),
-  prompt: vi.fn()
+  prompt: vi.fn(),
+  startLocationTour: vi.fn()
 }));
 vi.mock('../../src/features/trackRecorder.js', () => ({
   listAllTracks: mocks.listAllTracks,
@@ -45,6 +46,7 @@ vi.mock('../../src/drawTool.js', () => ({ importGeoJSON: mocks.importGeoJSON }))
 vi.mock('../../src/features/location.js', () => ({ showLocateToast: mocks.toast }));
 vi.mock('../../src/ui/dialog.js', () => ({ showAlert: mocks.alert, showConfirm: mocks.confirm, showPrompt: mocks.prompt }));
 vi.mock('../../src/ui/trackExport.js', () => ({ exportTrackFile: mocks.exportTrackFile }));
+vi.mock('../../src/timelineMode.js', () => ({ startLocationTour: mocks.startLocationTour }));
 
 import { openTrackListDrawer, initTrackListUI } from '../../src/ui/trackListUI.js';
 
@@ -62,6 +64,7 @@ document.removeEventListener = (ev, fn) => { if(ev === 'keydown') keydownHandler
 const drawerEl = () => document.querySelector('.track-list-drawer');
 const items = () => document.querySelectorAll('.track-item');
 const btn = (item, label) => item.querySelectorAll('.track-item-btn').find((b) => b.textContent === label);
+const tourChips = (item) => item.querySelectorAll('.track-item-tour-chip');
 const openAndWait = async (expectedItems) => {
   openTrackListDrawer();
   await vi.waitFor(() => expect(items()).toHaveLength(expectedItems));
@@ -120,7 +123,7 @@ test('不到兩個點的軌跡：定位／匯出／存成繪圖都停用', async
   mocks.tracks = [mk('tiny', { segments: [[[121.5, 25, T0, 10]]] })];
   await openAndWait(1);
   const [t] = items();
-  ['定位', 'GPX', 'GeoJSON', '存成繪圖'].forEach((label) => expect(btn(t, label).disabled, label).toBe(true));
+  ['定位', 'GPX', 'GeoJSON', '存成繪圖', '沿途歷史'].forEach((label) => expect(btn(t, label).disabled, label).toBe(true));
   expect(btn(t, '刪除').disabled).toBe(false);
 });
 
@@ -183,6 +186,51 @@ test('存成繪圖：轉成繪圖用的 FeatureCollection（帶該軌跡顏色�
   mocks.importGeoJSON.mockReturnValueOnce(0);
   btn(items()[0], '存成繪圖').click();
   expect(mocks.toast.mock.calls.at(-1)[0]).toContain('沒有可以轉換');
+});
+
+/* ---------- 沿途歷史（串接 timelineMode.js 的 startLocationTour()） ---------- */
+
+test('沿途歷史：第一次點擊才展開並建立清單，起點／終點各一顆，點了開始百年導覽並關閉抽屜', async () => {
+  mocks.tracks = [mk('a')]; // 2 個點
+  await openAndWait(1);
+  const item = items()[0];
+  const tourBtn = btn(item, '沿途歷史');
+  expect(tourChips(item)).toHaveLength(0); // 還沒展開前不建立清單，省得每條軌跡都先算一次取樣
+
+  tourBtn.click();
+  const chips = tourChips(item);
+  expect(chips).toHaveLength(2);
+  expect(chips[0].textContent).toBe('起點');
+  expect(chips[1].textContent).toBe('終點');
+
+  chips[0].click();
+  expect(mocks.startLocationTour).toHaveBeenCalledWith(121.5, 25);
+  expect(drawerEl()).toBeNull(); // 點了導覽點位應該跟「定位」一樣關閉抽屜
+});
+
+test('沿途歷史：再點一次切換收合/展開，不會重新建立或重複清單', async () => {
+  mocks.tracks = [mk('a')];
+  await openAndWait(1);
+  const item = items()[0];
+  const tourBtn = btn(item, '沿途歷史');
+  const tourRow = item.querySelector('.track-item-tour-row');
+
+  tourBtn.click();
+  expect(tourRow.hidden).toBe(false);
+  expect(tourChips(item)).toHaveLength(2);
+
+  tourBtn.click(); // 收合
+  expect(tourRow.hidden).toBe(true);
+
+  tourBtn.click(); // 再展開：清單應該還是原本那份，不會重複建立
+  expect(tourRow.hidden).toBe(false);
+  expect(tourChips(item)).toHaveLength(2);
+});
+
+test('沿途歷史：只有 1 個點（不足以定位的軌跡）按鈕本身就停用，不需要另外測空清單文案', async () => {
+  mocks.tracks = [mk('tiny', { segments: [[[121.5, 25, T0, 10]]] })];
+  await openAndWait(1);
+  expect(btn(items()[0], '沿途歷史').disabled).toBe(true);
 });
 
 test('改名：輸入新名稱才呼叫並重畫列表；取消或空白不動', async () => {

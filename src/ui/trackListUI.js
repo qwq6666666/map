@@ -18,13 +18,14 @@ import { showTrack, hideTrack, isTrackShown, zoomToTrack, colorForTrack } from '
 import { parseTrackFile, TRACK_IMPORT_MAX_BYTES } from '../features/trackImport.js';
 import {
   trackDistance, trackDurationMs, trackPointCount, formatDistance, formatDuration, formatTrackDate,
-  trackToDrawingGeoJSON
+  trackToDrawingGeoJSON, sampleTrackPointsForTour
 } from '../features/trackMath.js';
 import { importGeoJSON } from '../drawTool.js';
 import { showLocateToast } from '../features/location.js';
 import { showAlert, showConfirm, showPrompt } from './dialog.js';
 import { exportTrackFile } from './trackExport.js';
 import { removeDrawerAnimated, registerDrawerEscape } from './drawerClose.js';
+import { startLocationTour } from '../timelineMode.js';
 
 function el(tag, className, text){
   const node = document.createElement(tag);
@@ -146,6 +147,36 @@ function buildDrawer(){
     item.appendChild(el('div', 'track-item-meta', metaText(track)));
 
     const canDraw = trackPointCount(track) > 1;
+
+    // 「沿途歷史」：沿軌跡挑幾個點，點了直接串接 timelineMode.js 的
+    // startLocationTour()（跟地名卡「開始百年導覽」同一個入口函式）。
+    // 清單只在第一次展開時才建（tourRow.children.length 判斷），收合/
+    // 再展開不重算；每次 buildItem() 重畫（開始/結束記錄、改名等）都是
+    // 全新的 DOM，預設收合，不特別記住上次的展開狀態——這跟其餘動作按鈕
+    // 本來就不保留狀態的慣例一致，多存一份「哪些軌跡展開過」沒有必要。
+    const tourRow = el('div', 'track-item-tour-row');
+    tourRow.hidden = true;
+    function renderTourRow(){
+      const samples = sampleTrackPointsForTour(track);
+      if(samples.length === 0){
+        tourRow.appendChild(el('span', 'track-item-tour-empty', '這條軌跡沒有可定位的點。'));
+        return;
+      }
+      samples.forEach((p, i) => {
+        const isFirst = i === 0;
+        const isLast = i === samples.length - 1;
+        const label = isFirst ? '起點' : (isLast ? '終點' : formatDistance(p.distanceM));
+        const chip = el('button', 'track-item-tour-chip', label);
+        chip.type = 'button';
+        chip.title = `開始百年導覽（距起點 ${formatDistance(p.distanceM)}）`;
+        chip.addEventListener('click', () => {
+          startLocationTour(p.lon, p.lat);
+          close();
+        });
+        tourRow.appendChild(chip);
+      });
+    }
+
     const shown = recording || isTrackShown(track.id);
     const toggle = actionButton(shown ? '隱藏' : '顯示', () => {
       if(isTrackShown(track.id)) hideTrack(track.id);
@@ -171,6 +202,10 @@ function buildDrawer(){
         ? `已存成 ${count} 條繪圖線條，可以在繪圖工具中編輯、改色、匯出`
         : '這條軌跡沒有可以轉換的線段');
     }, { disabled: !canDraw, title: '轉成繪圖工具的線條，之後可以編輯、改色，並隨繪圖一起匯出' }));
+    actions.appendChild(actionButton('沿途歷史', () => {
+      tourRow.hidden = !tourRow.hidden;
+      if(!tourRow.hidden && !tourRow.children.length) renderTourRow();
+    }, { disabled: !canDraw, title: '沿途挑幾個點，查看百年前的樣子' }));
     actions.appendChild(actionButton('改名', async () => {
       const next = await showPrompt('軌跡名稱', { title: '重新命名', defaultValue: track.name, maxLength: 60 });
       if(next !== null && await renameTrack(track.id, next)) render();
@@ -180,6 +215,7 @@ function buildDrawer(){
       if(ok && await discardTrack(track.id)) render();
     }, { className: 'danger', disabled: recording, title: recording ? '請先結束記錄再刪除' : '' }));
     item.appendChild(actions);
+    item.appendChild(tourRow);
     return item;
   }
 

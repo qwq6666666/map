@@ -164,6 +164,67 @@ export function trackToGeoJSON(track){
   };
 }
 
+// 「沿途百年導覽」預設取樣點數：上限 5 顆，太多清單會跟手機螢幕寬度打架
+// （ui/trackListUI.js 用一排可以直接點的小按鈕呈現，不是下拉選單）。
+export const TRACK_TOUR_MAX_SAMPLES = 5;
+
+// 「沿途百年導覽」取樣：依累積距離大致平均，從軌跡實際走過的點裡（不內插）
+// 挑幾個出來，供 ui/trackListUI.js 的「沿途歷史」清單串接
+// timelineMode.js 的 startLocationTour(lon, lat) 使用。
+//
+// 多段軌跡（segments）視為依序串接的同一條路徑：段與段之間的距離跳躍不計入
+// 累積距離——那是訊號中斷造成的空檔（見檔頭 TRACK_GAP_MS 說明），不是使用者
+// 真的走過的路，算進去會讓取樣點的間距失真。
+//
+// 刻意不內插出軌跡上原本不存在的座標：GPS 定位點本身已經有量測誤差，內插
+// 出來的「理論座標」沒有比最近的實際定位點更準，徒增複雜度；直接挑「離目標
+// 累積距離最近的那個實際點」，點數不足時自然跟著變少，不會無中生有。
+//
+// @param {object} track
+// @param {object} [options]
+// @param {number} [options.maxPoints] 最多取幾個點（實際點數不足時會更少）。
+// @returns {Array<{lon:number, lat:number, distanceM:number}>} distanceM 是
+//   這個點距離軌跡起點的累積距離（公尺），供呼叫端標示「距起點 850 公尺」。
+//   軌跡完全沒有點時回傳空陣列。
+export function sampleTrackPointsForTour(track, { maxPoints = TRACK_TOUR_MAX_SAMPLES } = {}){
+  const points = []; // { lon, lat, distanceM }
+  let cumulative = 0;
+  track.segments.forEach((seg) => {
+    seg.forEach((pt, i) => {
+      if(i > 0) cumulative += haversineDistanceMeters(seg[i - 1][0], seg[i - 1][1], pt[0], pt[1]);
+      points.push({ lon: pt[0], lat: pt[1], distanceM: cumulative });
+    });
+  });
+  if(points.length === 0) return [];
+  if(points.length === 1 || maxPoints <= 1) return [points[0]];
+
+  const totalDistance = points[points.length - 1].distanceM;
+  const sampleCount = Math.min(maxPoints, points.length);
+
+  // 每個目標累積距離（0、1/(n-1)、2/(n-1)…、1 倍總距離），找離它最近的實際點。
+  // points 本身已經依累積距離遞增排序（逐段逐點建立），可以用單調遞增的
+  // 指標往前掃，不用每個目標都重新線性搜尋整個陣列。
+  const result = [];
+  let idx = 0;
+  for(let i = 0; i < sampleCount; i++){
+    const target = (totalDistance * i) / (sampleCount - 1);
+    while(idx < points.length - 1 && points[idx + 1].distanceM <= target) idx++;
+    const candidate = (idx + 1 < points.length && Math.abs(points[idx + 1].distanceM - target) < Math.abs(points[idx].distanceM - target))
+      ? points[idx + 1]
+      : points[idx];
+    result.push(candidate);
+  }
+
+  // 短軌跡、或目標距離很接近時可能挑到同一個實際點，去重（維持原順序）。
+  const seen = new Set();
+  return result.filter((p) => {
+    const key = `${p.lon.toFixed(6)},${p.lat.toFixed(6)},${p.distanceM.toFixed(1)}`;
+    if(seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 // 「存成繪圖圖形」：轉成繪圖工具（drawTool.js importGeoJSON）認得的 FeatureCollection——
 // 每一段一條線（kind:'line'），帶 SimpleStyle 顏色與「名稱（長度）」標籤，之後就是
 // 一般的繪圖線條，可以編輯、改色、隨繪圖一起匯出。單點的段略過。

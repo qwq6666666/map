@@ -1907,6 +1907,16 @@
   .track-item-btn.primary:hover:not(:disabled){background:var(--brass-dark); opacity:.9;}
   .track-item-btn.danger{color:#c92a2a;}
   .track-item-btn:disabled{opacity:.45; cursor:default;}
+  /* 「沿途歷史」展開的取樣點清單：比照 .track-item-actions 同一排小按鈕
+     語彙，用實心底色（brass）跟上面灰框的一般動作鈕區分出「這些是可以點進
+     時間軸導覽的地點」，不是普通操作。 */
+  .track-item-tour-row{display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 0 22px;}
+  .track-item-tour-chip{
+    padding:4px 10px; background:var(--brass); border:1px solid var(--brass-dark); border-radius:var(--radius-10);
+    font-family:var(--sans); font-size:var(--fs-xs); font-weight:600; color:var(--ink); cursor:pointer;
+  }
+  .track-item-tour-chip:hover{background:var(--brass-dark); color:var(--paper);}
+  .track-item-tour-empty{font-size:var(--fs-xs); color:var(--rule-text);}
 
   /* -- 圖資來源狀態抽屜（共用 .guide-drawer* 殼，內容不一樣） -- */
   .source-status-cache-section{margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--rule);}

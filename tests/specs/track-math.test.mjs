@@ -4,6 +4,7 @@ import {
   classifyFix, segmentDistance, trackDistance, trackDurationMs, trackPointCount,
   formatDistance, formatDuration, defaultTrackName, trackFileStamp,
   trackToGpx, trackToGeoJSON, trackToDrawingGeoJSON, formatTrackDate,
+  sampleTrackPointsForTour,
   TRACK_MAX_ACCURACY_M, TRACK_GAP_MS
 } from '../../src/features/trackMath.js';
 
@@ -162,4 +163,76 @@ test('trackToDrawingGeoJSON：每一段一條 kind:line，帶顏色與「名稱�
   expect(f2.properties.name).toBe('測試 2');
   const single = trackToDrawingGeoJSON(trackOf([[point(0, 0), point(0.0005, 60)]]), '#000');
   expect(single.features[0].properties.name).toBe('測試'); // 只有一段就不加序號
+});
+
+/* ---------- 「沿途百年導覽」取樣（sampleTrackPointsForTour） ---------- */
+
+test('sampleTrackPointsForTour：沒有任何點回傳空陣列', () => {
+  expect(sampleTrackPointsForTour(trackOf([]))).toEqual([]);
+  expect(sampleTrackPointsForTour(trackOf([[]]))).toEqual([]);
+});
+
+test('sampleTrackPointsForTour：只有 1 個點，直接回傳那個點、距離 0', () => {
+  const t = trackOf([[point(0, 0)]]);
+  const result = sampleTrackPointsForTour(t);
+  expect(result).toHaveLength(1);
+  expect(result[0]).toMatchObject({ lon: 121.5, lat: 25, distanceM: 0 });
+});
+
+test('sampleTrackPointsForTour：5 個等間距點、maxPoints=5 -> 原封不動依序回傳全部 5 個點（目標距離剛好對上每個點）', () => {
+  // dLat 每次 +0.001（約 111 公尺一步），5 個點總長約 444 公尺。
+  const seg = [0, 0.001, 0.002, 0.003, 0.004].map((d, i) => point(d, i * 10));
+  const t = trackOf([seg]);
+  const result = sampleTrackPointsForTour(t, { maxPoints: 5 });
+  expect(result).toHaveLength(5);
+  result.forEach((p, i) => {
+    expect(p.lat).toBeCloseTo(25 + i * 0.001, 6);
+    expect(p.distanceM).toBeCloseTo(i * result[1].distanceM, 0); // 等間距
+  });
+  expect(result[0].distanceM).toBe(0);
+});
+
+test('sampleTrackPointsForTour：5 個等間距點、maxPoints=3 -> 挑起點／中點／終點（不內插，取最接近目標距離的實際點）', () => {
+  const seg = [0, 0.001, 0.002, 0.003, 0.004].map((d, i) => point(d, i * 10));
+  const t = trackOf([seg]);
+  const result = sampleTrackPointsForTour(t, { maxPoints: 3 });
+  expect(result).toHaveLength(3);
+  expect(result[0].lat).toBeCloseTo(25, 6); // 起點
+  expect(result[1].lat).toBeCloseTo(25.002, 6); // 中間那個點（index 2）
+  expect(result[2].lat).toBeCloseTo(25.004, 6); // 終點
+});
+
+test('sampleTrackPointsForTour：maxPoints 超過實際點數時，點數不足就自然變少（不會無中生有內插出新座標）', () => {
+  const seg = [point(0, 0), point(0.001, 10), point(0.002, 20)];
+  const t = trackOf([seg]);
+  const result = sampleTrackPointsForTour(t, { maxPoints: 10 });
+  expect(result.length).toBeLessThanOrEqual(3);
+  result.forEach((p) => {
+    // 回傳的座標都必須是軌跡上真實存在的點，不是內插值
+    expect(seg.some(([lon, lat]) => lon === p.lon && lat === p.lat)).toBe(true);
+  });
+});
+
+test('sampleTrackPointsForTour：多段軌跡，段與段之間的訊號中斷距離不計入累積距離', () => {
+  // 第一段走到 dLat=0.001（約 111 公尺），第二段從很遠的地方（dLat=5，約 555 公里）
+  // 開始再走到 dLat=5.001——段間的「跳躍」（約 555 公里）不應該被算進任何一個
+  // 取樣點的 distanceM，否則第二段的點會顯示成離起點非常遠。
+  const t = trackOf([
+    [point(0, 0), point(0.001, 10)],
+    [point(5, 1000), point(5.001, 1010)]
+  ]);
+  const result = sampleTrackPointsForTour(t, { maxPoints: 4 });
+  const maxDistanceM = Math.max(...result.map((p) => p.distanceM));
+  // 若誤算進段間跳躍，maxDistanceM 會是幾十萬公尺量級；只計真正走過的路應該不到 300 公尺。
+  expect(maxDistanceM).toBeLessThan(300);
+});
+
+test('sampleTrackPointsForTour：目標距離太接近導致重複挑到同一個實際點時，結果不重複', () => {
+  // 只有 2 個點，要求 5 個樣本：目標距離勢必會有好幾個落在同一個最近點上。
+  const seg = [point(0, 0), point(0.0005, 10)];
+  const t = trackOf([seg]);
+  const result = sampleTrackPointsForTour(t, { maxPoints: 5 });
+  const keys = result.map((p) => `${p.lon},${p.lat},${p.distanceM}`);
+  expect(new Set(keys).size).toBe(keys.length); // 沒有重複
+  expect(result.length).toBeLessThanOrEqual(2);
 });
