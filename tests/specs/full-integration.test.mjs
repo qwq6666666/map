@@ -104,3 +104,18 @@ test('百年導覽：已經在時間軸模式時呼叫（setMode 是 no-op），
 
   setMode('overlay'); // 收尾，避免播放中的計時器／狀態影響其他測試檔案
 });
+
+/* ---------------------------------------------------------
+   #mapTimelineCloseBtn：手機版進入時間軸模式會把整個 #sidebar
+   display:none（見 styles/mobile.css），使用者唯一能切回疊圖模式的
+   方法只剩畫面右下角不明顯的浮動「地圖模式」按鈕——尤其是從地名卡
+   「開始百年導覽」一鍵直接跳進時間軸模式，使用者可能根本不知道自己
+   「切換了模式」。這顆鈕讓使用者能直接在時間軸列上退出，不用找浮動
+   按鈕（見 styles/base.css 的 .map-timeline-close-btn 完整說明）。
+--------------------------------------------------------- */
+test('#mapTimelineCloseBtn：點擊後應該切回疊圖模式（讓手機版使用者不用找浮動「地圖模式」按鈕就能離開時間軸）', () => {
+  setMode('timeline');
+  expect(store.mode, '前置條件：目前應該在時間軸模式').toBe('timeline');
+  document.getElementById('mapTimelineCloseBtn').click();
+  expect(store.mode, '點擊後應該切回疊圖模式').toBe('overlay');
+});

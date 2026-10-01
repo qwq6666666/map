@@ -1190,6 +1190,22 @@
     flex-shrink:0;
   }
   .map-timeline-refresh-btn:hover{background:var(--paper-dim);}
+  /* 離開時間軸模式：手機版進入時間軸模式會把整個 #sidebar 連同「地圖模式」
+     切換手風琴一起 display:none（見 styles/mobile.css 的
+     body.mobile-mode-timeline #sidebar 規則），使用者唯一能切回疊圖模式的
+     方法只剩畫面右下角的浮動「地圖模式」按鈕，不明顯——尤其是從地名卡
+     「開始百年導覽」這種一鍵直接跳進時間軸模式的入口進來，使用者可能根本
+     不知道自己「切換了模式」。這顆鈕就近放在使用者視線本來就在的時間軸列
+     上，點了直接 setMode('overlay')，桌面版側邊欄雖然本來就看得到模式
+     切換，這裡不分平台一律顯示，維持行為單純、不用另外判斷 mq.matches。 */
+  .map-timeline-close-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:24px; height:24px; padding:0; flex-shrink:0;
+    background:transparent; color:var(--paper); border:1px solid rgba(255,255,255,.4); border-radius:50%;
+    cursor:pointer;
+  }
+  .map-timeline-close-btn:hover{background:rgba(255,255,255,.15); border-color:var(--paper);}
+  .map-timeline-close-btn svg{width:14px; height:14px;}
   .map-timeline-hint{font-size:var(--fs-xs); color:var(--rule-text); font-weight:600; letter-spacing:.02em;}
   #mapTimelineRefreshBtn{
     background:transparent; color:var(--paper); border:1px solid rgba(255,255,255,.4);

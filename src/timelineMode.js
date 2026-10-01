@@ -208,6 +208,11 @@ export function initTimelineMode(map, preloadOverlayKeysFnParam){
 
   refreshBtn.addEventListener('click', refreshNow);
 
+  // 離開時間軸模式：見 styles/base.css 的 .map-timeline-close-btn 完整說明
+  // ——手機版進入時間軸模式會把整個 #sidebar 隱藏，這顆鈕是使用者能就近
+  // 看到、不用找浮動「地圖模式」按鈕的退出方式。
+  document.getElementById('mapTimelineCloseBtn')?.addEventListener('click', () => setMode('overlay'));
+
   scaleSwitchEl.addEventListener('click', (e)=>{
     const btn = e.target.closest('button[data-scale]');
     if(!btn || btn.classList.contains('active')) return;
